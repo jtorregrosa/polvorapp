@@ -1,4 +1,5 @@
 import type { RouteObject } from 'react-router';
+import type { RouteHandle } from '@/components/app/Breadcrumbs';
 import { ErrorPage, RootErrorPage } from '@/features/platform/pages/ErrorPage';
 import { HomePage } from '@/features/platform/pages/HomePage';
 import { NotFoundPage } from '@/features/platform/pages/NotFoundPage';
@@ -17,7 +18,11 @@ export const appRoutes: RouteObject[] = [
         ErrorBoundary: ErrorPage,
         children: [
           { index: true, Component: HomePage },
-          { path: '*', Component: NotFoundPage },
+          {
+            path: '*',
+            Component: NotFoundPage,
+            handle: { breadcrumb: 'notFound.title' } satisfies RouteHandle,
+          },
         ],
       },
     ],

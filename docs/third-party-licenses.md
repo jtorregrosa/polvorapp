@@ -13,6 +13,7 @@ PostgreSQL License. Transitive dependencies are covered by CI dependency review.
 | Component | License | Used for | Assessment |
 |---|---|---|---|
 | QuestPDF (planned, #12/#13) | [QuestPDF Community License v3.0](https://www.questpdf.com/license/community.html) (effective 2026-07-06) | Server-side PDF generation (ADR-0008) | **Acceptable.** Free for "charitable organisations, academic institutions, and open-source projects" and for businesses under USD 1,000,000 annual gross revenue. The Federation is a private non-profit association well under the threshold, and PolvorApp is open source. Not eligible: public-sector entities and publicly traded companies — a deployment operated by a public body (e.g. a town council) would need a paid license. Re-check on every major QuestPDF upgrade. Checked 2026-09-30. |
+| Inter font via `@fontsource-variable/inter` | [SIL Open Font License 1.1](https://github.com/rsms/inter/blob/master/LICENSE.txt) | UI typeface, self-hosted (add-design-system) | **Acceptable.** OFL allows use, embedding and redistribution in software, including commercial; the font may not be sold on its own. Redistributed copies must carry the copyright notice and licence text, so the build ships them at `/licenses/inter-OFL.txt` (`frontend/public/licenses/`). Shipped unmodified. Checked 2026-09-30. |
 | MinIO via `cgr.dev/chainguard/minio` | [AGPL-3.0](https://github.com/minio/minio/blob/master/LICENSE) | Local development S3 emulator only (ADR-0005/0006) | **Acceptable.** Runs unmodified as a separate container in local/CI environments; not distributed with PolvorApp nor linked into it. Production uses any S3-compatible provider. Checked 2026-09-30. |
 
 ## Container images
@@ -43,40 +44,57 @@ MPL-2.0 packages (`axe-core`, `@axe-core/playwright`) are used unmodified in tes
 
 | Package | License | Scope |
 |---|---|---|
-| `@axe-core/playwright` | MPL-2.0 | dev |
-| `@eslint/js` | MIT | dev |
-| `@playwright/test` | Apache-2.0 | dev |
-| `@tanstack/react-query` | MIT | runtime |
-| `@testing-library/dom` | MIT | dev |
-| `@testing-library/jest-dom` | MIT | dev |
-| `@testing-library/react` | MIT | dev |
-| `@testing-library/user-event` | MIT | dev |
-| `@types/node` | MIT | dev |
-| `@types/react` | MIT | dev |
-| `@types/react-dom` | MIT | dev |
-| `@vite-pwa/assets-generator` | MIT | dev |
-| `@vitejs/plugin-react` | MIT | dev |
-| `@vitest/coverage-v8` | MIT | dev |
 | `axe-core` | MPL-2.0 | dev |
+| `@axe-core/playwright` | MPL-2.0 | dev |
+| `class-variance-authority` | Apache-2.0 | runtime |
+| `cn` | MIT | runtime |
 | `eslint` | MIT | dev |
 | `eslint-config-prettier` | MIT | dev |
+| `eslint-plugin-better-tailwindcss` | MIT | dev |
 | `eslint-plugin-i18next` | ISC | dev |
 | `eslint-plugin-jsx-a11y` | MIT | dev |
 | `eslint-plugin-react-hooks` | MIT | dev |
 | `eslint-plugin-react-refresh` | MIT | dev |
+| `@eslint/js` | MIT | dev |
+| `@fontsource-variable/inter` | OFL-1.1 | runtime |
 | `globals` | MIT | dev |
+| `@hookform/resolvers` | MIT | runtime |
 | `i18next` | MIT | runtime |
 | `i18next-browser-languagedetector` | MIT | runtime |
 | `jsdom` | MIT | dev |
+| `lucide-react` | ISC | runtime |
 | `msw` | MIT | dev |
 | `orval` | MIT | dev |
+| `@playwright/test` | Apache-2.0 | dev |
 | `prettier` | MIT | dev |
+| `prettier-plugin-tailwindcss` | MIT | dev |
+| `radix-ui` | MIT | runtime |
 | `react` | MIT | runtime |
 | `react-dom` | MIT | runtime |
+| `react-hook-form` | MIT | runtime |
 | `react-i18next` | MIT | runtime |
 | `react-router` | MIT | runtime |
+| `storybook` | MIT | dev |
+| `@storybook/addon-a11y` | MIT | dev |
+| `@storybook/react-vite` | MIT | dev |
+| `tailwindcss` | MIT | dev |
+| `@tailwindcss/vite` | MIT | dev |
+| `@tanstack/react-query` | MIT | runtime |
+| `@tanstack/react-table` | MIT | runtime |
+| `@testing-library/dom` | MIT | dev |
+| `@testing-library/jest-dom` | MIT | dev |
+| `@testing-library/react` | MIT | dev |
+| `@testing-library/user-event` | MIT | dev |
+| `tw-animate-css` | MIT | dev |
+| `@types/node` | MIT | dev |
+| `@types/react` | MIT | dev |
+| `@types/react-dom` | MIT | dev |
 | `typescript` | Apache-2.0 | dev |
 | `typescript-eslint` | MIT | dev |
 | `vite` | MIT | dev |
 | `vite-plugin-pwa` | MIT | dev |
+| `@vite-pwa/assets-generator` | MIT | dev |
+| `@vitejs/plugin-react` | MIT | dev |
 | `vitest` | MIT | dev |
+| `@vitest/coverage-v8` | MIT | dev |
+| `zod` | MIT | runtime |

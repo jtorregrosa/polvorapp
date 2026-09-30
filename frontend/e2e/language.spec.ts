@@ -1,4 +1,4 @@
-import { expect, test, waitForShell } from './fixtures';
+import { expect, openNavigation, test, waitForShell } from './fixtures';
 
 test.describe('language switching (UC-27)', () => {
   test('switches to Valencian without reloading and remembers it after a reload', async ({ page }) => {
@@ -17,7 +17,7 @@ test.describe('language switching (UC-27)', () => {
 
     await expect(page.getByRole('heading', { level: 1, name: 'Benvinguda' })).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('lang', 'ca-ES-valencia');
-    await expect(page.getByRole('contentinfo')).toContainText(/Versió \d+\.\d+/);
+    await expect(await openNavigation(page)).toContainText(/Versió \d+\.\d+/);
   });
 
   test('sends the active language to the API', async ({ page }) => {

@@ -1,0 +1,89 @@
+{
+  "primitives": {
+    "close": "Close",
+    "more": "More"
+  },
+  "breadcrumbs": {
+    "label": "Breadcrumb"
+  },
+  "nav": {
+    "label": "Main navigation",
+    "toggle": "Show or hide navigation",
+    "mobileTitle": "Navigation",
+    "mobileDescription": "Application navigation menu",
+    "open": "Open navigation",
+    "close": "Close navigation"
+  },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "table": {
+    "empty": "No results",
+    "loading": "Loading…",
+    "sortAscending": "ascending order",
+    "sortDescending": "descending order",
+    "sortNone": "not sorted",
+    "pagination": {
+      "label": "Pagination of {{caption}}",
+      "summary": "{{from}}–{{to}} of {{total}}",
+      "previous": "Previous",
+      "next": "Next",
+      "pageSize": "Rows per page"
+    },
+    "announce": {
+      "sorted": "Sorted by {{column}}: {{direction}}",
+      "unsorted": "Not sorted"
+    }
+  },
+  "form": {
+    "required": "Required",
+    "optional": "Optional",
+    "requiredNote": "Fields marked with * are required."
+  },
+  "confirm": {
+    "cancel": "Cancel",
+    "failed": "The action could not be completed. Please try again."
+  },
+  "alert": {
+    "info": "Information",
+    "success": "Success",
+    "warning": "Warning",
+    "error": "Error"
+  },
+  "status": {
+    "license": {
+      "VALID": "Valid",
+      "EXPIRING": "Expiring soon",
+      "EXPIRED": "Expired",
+      "PENDING": "Pending"
+    },
+    "arquebusier": {
+      "ACTIVE": "Active",
+      "RESERVE": "Reserve"
+    },
+    "order": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Submitted",
+      "RETURNED": "Returned",
+      "VALIDATED": "Validated"
+    },
+    "edition": {
+      "DRAFT": "Draft",
+      "ORDERS_OPEN": "Orders open",
+      "CORRECTIONS_OPEN": "Corrections open",
+      "LOCKED": "Locked",
+      "CLOSED": "Closed"
+    },
+    "warning": {
+      "LICENSE": "License not valid",
+      "COURSE": "No course",
+      "AGE": "Under age"
+    }
+  },
+  "validation": {
+    "required": "This field is required"
+  }
+}

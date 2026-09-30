@@ -6,3 +6,4 @@ test-results
 src/api/generated
 package-lock.json
 blob-report
+storybook-static

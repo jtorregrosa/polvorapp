@@ -1,0 +1,89 @@
+{
+  "primitives": {
+    "close": "Cerrar",
+    "more": "Más"
+  },
+  "breadcrumbs": {
+    "label": "Ruta de navegación"
+  },
+  "nav": {
+    "label": "Navegación principal",
+    "toggle": "Mostrar u ocultar la navegación",
+    "mobileTitle": "Navegación",
+    "mobileDescription": "Menú de navegación de la aplicación",
+    "open": "Abrir navegación",
+    "close": "Cerrar navegación"
+  },
+  "theme": {
+    "label": "Tema",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema"
+  },
+  "table": {
+    "empty": "Sin resultados",
+    "loading": "Cargando…",
+    "sortAscending": "orden ascendente",
+    "sortDescending": "orden descendente",
+    "sortNone": "sin ordenar",
+    "pagination": {
+      "label": "Paginación de {{caption}}",
+      "summary": "{{from}}–{{to}} de {{total}}",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "pageSize": "Filas por página"
+    },
+    "announce": {
+      "sorted": "Ordenado por {{column}}: {{direction}}",
+      "unsorted": "Sin ordenar"
+    }
+  },
+  "form": {
+    "required": "Obligatorio",
+    "optional": "Opcional",
+    "requiredNote": "Los campos marcados con * son obligatorios."
+  },
+  "confirm": {
+    "cancel": "Cancelar",
+    "failed": "No se ha podido completar la acción. Inténtalo de nuevo."
+  },
+  "alert": {
+    "info": "Información",
+    "success": "Correcto",
+    "warning": "Aviso",
+    "error": "Error"
+  },
+  "status": {
+    "license": {
+      "VALID": "Vigente",
+      "EXPIRING": "Caduca pronto",
+      "EXPIRED": "Caducada",
+      "PENDING": "En trámite"
+    },
+    "arquebusier": {
+      "ACTIVE": "Activo",
+      "RESERVE": "Reserva"
+    },
+    "order": {
+      "DRAFT": "Borrador",
+      "SUBMITTED": "Enviado",
+      "RETURNED": "Devuelto",
+      "VALIDATED": "Validado"
+    },
+    "edition": {
+      "DRAFT": "Borrador",
+      "ORDERS_OPEN": "Pedidos abiertos",
+      "CORRECTIONS_OPEN": "Correcciones abiertas",
+      "LOCKED": "Bloqueada",
+      "CLOSED": "Cerrada"
+    },
+    "warning": {
+      "LICENSE": "Licencia no vigente",
+      "COURSE": "Sin curso",
+      "AGE": "Menor de edad"
+    }
+  },
+  "validation": {
+    "required": "Este campo es obligatorio"
+  }
+}

@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- Placeholder mark; the Federation brand replaces it in add-design-system. -->
-  <rect width="512" height="512" rx="96" fill="#1a1a1a"/>
-  <text x="256" y="340" font-family="system-ui, sans-serif" font-size="280" font-weight="700" text-anchor="middle" fill="#ffffff">P</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- PolvorApp mark (ADR-0012): a rounded "P" with an ember spark. Same shape as PolvorAppMark.tsx. -->
+  <rect width="32" height="32" rx="8" fill="#c2410c"/>
+  <path d="M11 24V8h6.5a5 5 0 0 1 0 10H11" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="23" cy="9" r="2" fill="#ffffff"/>
 </svg>

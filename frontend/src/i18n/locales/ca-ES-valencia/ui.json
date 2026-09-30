@@ -1,0 +1,89 @@
+{
+  "primitives": {
+    "close": "Tanca",
+    "more": "Més"
+  },
+  "breadcrumbs": {
+    "label": "Ruta de navegació"
+  },
+  "nav": {
+    "label": "Navegació principal",
+    "toggle": "Mostra o amaga la navegació",
+    "mobileTitle": "Navegació",
+    "mobileDescription": "Menú de navegació de l'aplicació",
+    "open": "Obri la navegació",
+    "close": "Tanca la navegació"
+  },
+  "theme": {
+    "label": "Tema",
+    "light": "Clar",
+    "dark": "Fosc",
+    "system": "Sistema"
+  },
+  "table": {
+    "empty": "Sense resultats",
+    "loading": "Carregant…",
+    "sortAscending": "ordre ascendent",
+    "sortDescending": "ordre descendent",
+    "sortNone": "sense ordenar",
+    "pagination": {
+      "label": "Paginació de {{caption}}",
+      "summary": "{{from}}–{{to}} de {{total}}",
+      "previous": "Anterior",
+      "next": "Següent",
+      "pageSize": "Files per pàgina"
+    },
+    "announce": {
+      "sorted": "Ordenat per {{column}}: {{direction}}",
+      "unsorted": "Sense ordenar"
+    }
+  },
+  "form": {
+    "required": "Obligatori",
+    "optional": "Opcional",
+    "requiredNote": "Els camps marcats amb * són obligatoris."
+  },
+  "confirm": {
+    "cancel": "Cancel·la",
+    "failed": "No s'ha pogut completar l'acció. Torna-ho a provar."
+  },
+  "alert": {
+    "info": "Informació",
+    "success": "Correcte",
+    "warning": "Avís",
+    "error": "Error"
+  },
+  "status": {
+    "license": {
+      "VALID": "Vigent",
+      "EXPIRING": "Caduca prompte",
+      "EXPIRED": "Caducada",
+      "PENDING": "En tràmit"
+    },
+    "arquebusier": {
+      "ACTIVE": "Actiu",
+      "RESERVE": "Reserva"
+    },
+    "order": {
+      "DRAFT": "Esborrany",
+      "SUBMITTED": "Enviat",
+      "RETURNED": "Retornat",
+      "VALIDATED": "Validat"
+    },
+    "edition": {
+      "DRAFT": "Esborrany",
+      "ORDERS_OPEN": "Comandes obertes",
+      "CORRECTIONS_OPEN": "Correccions obertes",
+      "LOCKED": "Bloquejada",
+      "CLOSED": "Tancada"
+    },
+    "warning": {
+      "LICENSE": "Llicència no vigent",
+      "COURSE": "Sense curs",
+      "AGE": "Menor d'edat"
+    }
+  },
+  "validation": {
+    "required": "Este camp és obligatori"
+  }
+}

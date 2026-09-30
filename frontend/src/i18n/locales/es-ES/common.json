@@ -31,5 +31,8 @@
   },
   "actions": {
     "backHome": "Volver al inicio"
+  },
+  "nav": {
+    "home": "Inicio"
   }
 }

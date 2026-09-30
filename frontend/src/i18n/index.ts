@@ -9,16 +9,19 @@ import {
   type Language,
 } from './config';
 import caCommon from './locales/ca-ES-valencia/common.json';
+import caUi from './locales/ca-ES-valencia/ui.json';
 import enCommon from './locales/en/common.json';
+import enUi from './locales/en/ui.json';
 import esCommon from './locales/es-ES/common.json';
+import esUi from './locales/es-ES/ui.json';
 
 export const DEFAULT_NAMESPACE = 'common';
 
 export const resources = {
-  'es-ES': { common: esCommon },
-  'ca-ES-valencia': { common: caCommon },
-  en: { common: enCommon },
-} as const satisfies Record<Language, { common: object }>;
+  'es-ES': { common: esCommon, ui: esUi },
+  'ca-ES-valencia': { common: caCommon, ui: caUi },
+  en: { common: enCommon, ui: enUi },
+} as const satisfies Record<Language, { common: object; ui: object }>;
 
 /**
  * Creates and initialises an i18next instance: remembered choice first, then the browser's
@@ -39,7 +42,7 @@ export async function createI18n(): Promise<I18n> {
       supportedLngs: [...SUPPORTED_LANGUAGES],
       fallbackLng: DEFAULT_LANGUAGE,
       load: 'currentOnly',
-      ns: [DEFAULT_NAMESPACE],
+      ns: [DEFAULT_NAMESPACE, 'ui'],
       defaultNS: DEFAULT_NAMESPACE,
       interpolation: { escapeValue: false }, // React already escapes rendered values.
       returnNull: false,

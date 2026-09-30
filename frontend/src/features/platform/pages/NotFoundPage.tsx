@@ -1,5 +1,8 @@
+import { SearchX } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { EmptyState } from '@/components/app/EmptyState';
+import { PageHeader } from '@/components/app/PageHeader';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 
 /** Shown for any unknown route, inside the shell (spec: Application shell). */
@@ -9,9 +12,16 @@ export function NotFoundPage() {
 
   return (
     <>
-      <h1>{t('notFound.title')}</h1>
-      <p>{t('notFound.description')}</p>
-      <Link to="/">{t('actions.backHome')}</Link>
+      <PageHeader title={t('notFound.title')} />
+      <EmptyState
+        icon={SearchX}
+        title={t('notFound.description')}
+        action={
+          <Link to="/" className="font-medium text-primary underline-offset-4 hover:underline">
+            {t('actions.backHome')}
+          </Link>
+        }
+      />
     </>
   );
 }
