@@ -1,0 +1,35 @@
+{
+  "app": {
+    "name": "PolvorApp"
+  },
+  "shell": {
+    "skipToContent": "Salta al contingut",
+    "language": {
+      "label": "Idioma",
+      "options": {
+        "es-ES": "Español",
+        "ca-ES-valencia": "Valencià",
+        "en": "English"
+      }
+    },
+    "footer": {
+      "version": "Versió {{version}}",
+      "versionUnavailable": "Versió no disponible"
+    }
+  },
+  "home": {
+    "title": "Benvinguda",
+    "description": "Portal de gestió d'arcabussers de la Federació."
+  },
+  "notFound": {
+    "title": "No s'ha trobat la pàgina",
+    "description": "La pàgina que busques no existeix."
+  },
+  "error": {
+    "title": "Alguna cosa ha anat malament",
+    "description": "Recarrega la pàgina o torna-ho a provar més tard."
+  },
+  "actions": {
+    "backHome": "Torna a l'inici"
+  }
+}

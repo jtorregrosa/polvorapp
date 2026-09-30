@@ -1,0 +1,35 @@
+{
+  "app": {
+    "name": "PolvorApp"
+  },
+  "shell": {
+    "skipToContent": "Saltar al contenido",
+    "language": {
+      "label": "Idioma",
+      "options": {
+        "es-ES": "Español",
+        "ca-ES-valencia": "Valencià",
+        "en": "English"
+      }
+    },
+    "footer": {
+      "version": "Versión {{version}}",
+      "versionUnavailable": "Versión no disponible"
+    }
+  },
+  "home": {
+    "title": "Bienvenida",
+    "description": "Portal de gestión de arcabuceros de la Federación."
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "description": "La página que buscas no existe."
+  },
+  "error": {
+    "title": "Algo ha ido mal",
+    "description": "Recarga la página o vuelve a intentarlo más tarde."
+  },
+  "actions": {
+    "backHome": "Volver al inicio"
+  }
+}
