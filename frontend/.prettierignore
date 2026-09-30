@@ -7,3 +7,4 @@ src/api/generated
 package-lock.json
 blob-report
 storybook-static
+e2e/.auth
