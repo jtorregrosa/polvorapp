@@ -1,4 +1,6 @@
 # Weekly dependency updates; minor and patch updates are grouped per ecosystem.
+# Ignored updates are blocked by a peer dependency or by the runtime policy; revisit each one
+# when its reason no longer holds (see docs/development.md#dependency-updates).
 version: 2
 updates:
   - package-ecosystem: nuget
@@ -18,6 +20,21 @@ updates:
     groups:
       npm-minor-patch:
         update-types: [minor, patch]
+    ignore:
+      # eslint-plugin-i18next and eslint-plugin-jsx-a11y support ESLint <= 9.
+      - dependency-name: eslint
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@eslint/js'
+        update-types: ['version-update:semver-major']
+      # typescript-eslint supports TypeScript < 6.1.
+      - dependency-name: typescript
+        versions: ['>=6.1.0']
+      # vite-plugin-pwa 1.x requires @vite-pwa/assets-generator ^1.
+      - dependency-name: '@vite-pwa/assets-generator'
+        update-types: ['version-update:semver-major']
+      # Types follow the Node runtime (24 LTS until Node 26 becomes LTS on 2026-10-28).
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
 
   - package-ecosystem: github-actions
     directory: /
@@ -33,6 +50,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # Node 24 is the active LTS; Node 26 becomes LTS on 2026-10-28.
+      - dependency-name: node
+        update-types: ['version-update:semver-major']
 
   - package-ecosystem: docker-compose
     directory: /
