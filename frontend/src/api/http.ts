@@ -5,6 +5,12 @@ export interface ProblemDetails {
   status?: number;
   detail?: string;
   traceId?: string;
+  /** Stable, culture-independent error code the UI translates (e.g. `auth.invalidCode`). */
+  code?: string;
+  /** Field errors (`validation`) or failed password rules (`auth.invalidPassword`). */
+  errors?: Record<string, string> | string[];
+  /** The user an action created before it failed (an invitation whose email was not sent). */
+  userId?: string;
 }
 
 /**
@@ -48,32 +54,145 @@ const readProblem = async (response: Response): Promise<ProblemDetails | undefin
   }
 };
 
+/** A 2xx body: nothing (204, 202 Accepted…), or JSON. Anything else is not the API talking. */
 const readData = async (response: Response): Promise<unknown> => {
-  if (response.status === 204 || response.headers.get('Content-Length') === '0') {
+  const text = response.status === 204 ? '' : await response.text();
+  if (text.length === 0) {
     return undefined;
   }
   if (!isJson(response)) {
     throw new ApiProblemError(response.status, undefined);
   }
   try {
-    return await readJson(response);
+    return JSON.parse(text) as unknown;
   } catch {
     throw new ApiProblemError(response.status, undefined);
   }
 };
 
+const ANTIFORGERY_URL = '/api/auth/antiforgery';
+const ANTIFORGERY_COOKIE = 'XSRF-TOKEN';
+const ANTIFORGERY_HEADER = 'X-XSRF-TOKEN';
+const ANTIFORGERY_PROBLEM = 'antiforgery.invalid';
+const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS', 'TRACE']);
+
+/** The request token the API put in a script-readable cookie (ADR-0004, design D6). */
+const readAntiforgeryToken = (): string | undefined => {
+  const raw = document.cookie
+    .split('; ')
+    .find((cookie) => cookie.startsWith(`${ANTIFORGERY_COOKIE}=`))
+    ?.slice(ANTIFORGERY_COOKIE.length + 1);
+  try {
+    return raw === undefined ? undefined : decodeURIComponent(raw);
+  } catch {
+    return undefined; // A malformed cookie is no token: a fresh one is fetched.
+  }
+};
+
+let refreshing: Promise<void> | undefined;
+
+/**
+ * Asks the API for a fresh anti-forgery token. Tokens are bound to the signed-in user, so call it
+ * after signing in or out; concurrent callers share one request.
+ */
+export function refreshAntiforgeryToken(): Promise<void> {
+  refreshing ??= fetch(ANTIFORGERY_URL, {
+    credentials: 'same-origin',
+    headers: { 'Accept-Language': activeLanguage() },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new ApiProblemError(response.status, undefined);
+      }
+    })
+    .finally(() => {
+      refreshing = undefined;
+    });
+  return refreshing;
+}
+
+/** Test hook: forgets an in-flight refresh between tests. */
+export function resetAntiforgeryForTests(): void {
+  refreshing = undefined;
+}
+
+/** The body type of the 2xx members of a generated-client response union. */
+type SuccessData<TResponse> =
+  Extract<TResponse, { status: 200 | 201 }> extends { data: infer TData } ? TData : never;
+
+/**
+ * The body of a successful generated-client response. Error statuses already threw; the contract
+ * promises a body, so an empty one is treated as a failed call rather than typed as a value.
+ */
+export function responseData<TResponse extends { status: number; data: unknown }>(
+  response: TResponse,
+): SuccessData<TResponse> {
+  if (response.data === undefined || response.data === null) {
+    throw new ApiProblemError(response.status, undefined);
+  }
+  return response.data as SuccessData<TResponse>;
+}
+
+type UnauthorizedHandler = () => void;
+let unauthorizedHandler: UnauthorizedHandler | undefined;
+
+/**
+ * Registers what happens when a protected call answers 401 (the session expired or was ended);
+ * returns a function that unregisters it.
+ */
+export function setUnauthorizedHandler(handler: UnauthorizedHandler): () => void {
+  unauthorizedHandler = handler;
+  return () => {
+    if (unauthorizedHandler === handler) {
+      unauthorizedHandler = undefined;
+    }
+  };
+}
+
+/** Sign-in steps answer 401 as part of their flow: the page shows the error, not "session expired". */
+const isSignInStep = (url: string): boolean =>
+  new URL(url, window.location.origin).pathname.startsWith('/api/auth/');
+
 /**
  * Mutator used by the orval-generated client: same-origin cookies, the UI language as
- * `Accept-Language`, and unusable responses thrown as {@link ApiProblemError}.
+ * `Accept-Language`, the anti-forgery token on every write (fetched when missing, refreshed and
+ * retried once when rejected), expired sessions reported to the registered handler, and unusable
+ * responses thrown as {@link ApiProblemError}.
  */
 export const apiFetch = async <T>(url: string, options: RequestInit): Promise<T> => {
-  const headers = new Headers(options.headers);
-  if (!headers.has('Accept-Language')) {
-    headers.set('Accept-Language', activeLanguage());
+  const method = (options.method ?? 'GET').toUpperCase();
+  const write = !SAFE_METHODS.has(method);
+
+  const send = async (): Promise<Response> => {
+    const headers = new Headers(options.headers);
+    if (!headers.has('Accept-Language')) {
+      headers.set('Accept-Language', activeLanguage());
+    }
+    if (write) {
+      if (!readAntiforgeryToken()) {
+        await refreshAntiforgeryToken();
+      }
+      const token = readAntiforgeryToken();
+      if (token) {
+        headers.set(ANTIFORGERY_HEADER, token);
+      }
+    }
+    return fetch(url, { ...options, method, headers, credentials: 'same-origin' });
+  };
+
+  let response = await send();
+  if (write && response.status === 400) {
+    const problem = await readProblem(response.clone());
+    if ((problem as { code?: unknown } | undefined)?.code === ANTIFORGERY_PROBLEM) {
+      await refreshAntiforgeryToken();
+      response = await send();
+    }
   }
 
-  const response = await fetch(url, { ...options, headers, credentials: 'same-origin' });
   if (!response.ok) {
+    if (response.status === 401 && !isSignInStep(url)) {
+      unauthorizedHandler?.();
+    }
     throw new ApiProblemError(response.status, await readProblem(response));
   }
 

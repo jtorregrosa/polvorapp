@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority';
 import { cn } from 'cn';
 import { CircleCheck, CircleX, Info, TriangleAlert, type LucideIcon } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export type AlertSeverity = 'info' | 'success' | 'warning' | 'error';
@@ -29,6 +29,11 @@ export interface AlertBannerProps {
   title?: string;
   children: ReactNode;
   className?: string;
+  /**
+   * Moves focus to the message when shown: for the outcome of an action whose control went away
+   * (e.g. a confirmed deactivation), so it is read and focus is not lost (WCAG 2.4.3).
+   */
+  focusOnMount?: boolean;
 }
 
 /**
@@ -37,16 +42,30 @@ export interface AlertBannerProps {
  * their content changes after they are rendered, so render them where the message will appear.
  * The severity is always spoken, not only coloured.
  */
-export function AlertBanner({ severity, title, children, className }: AlertBannerProps) {
+export function AlertBanner({
+  severity,
+  title,
+  children,
+  className,
+  focusOnMount = false,
+}: AlertBannerProps) {
   const { t } = useTranslation('ui');
+  const region = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (focusOnMount) {
+      region.current?.focus();
+    }
+  }, [focusOnMount]);
   const Icon = ICONS[severity];
   const severityLabel = <span className="sr-only">{`${t(`alert.${severity}`)}: `}</span>;
 
   return (
     <div
+      ref={region}
       role={severity === 'error' ? 'alert' : 'status'}
       data-severity={severity}
-      className={cn(banner({ severity }), className)}
+      tabIndex={focusOnMount ? -1 : undefined}
+      className={cn(banner({ severity }), 'outline-none', className)}
     >
       <Icon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
       <div className="flex flex-col gap-0.5">

@@ -5,12 +5,13 @@ import { createMemoryRouter, RouterProvider } from 'react-router';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { appRoutes } from '@/app/routes';
 import { axeViolations } from '@/test/axe';
+import { SYNTHETIC_ADMIN } from '@/test/identity';
 import { renderWithProviders } from '@/test/render';
 import { server } from '@/test/server';
 
 function renderAt(path: string, language = 'es-ES') {
   const router = createMemoryRouter(appRoutes, { initialEntries: [path] });
-  return renderWithProviders(<RouterProvider router={router} />, language);
+  return renderWithProviders(<RouterProvider router={router} />, language, { session: SYNTHETIC_ADMIN });
 }
 
 describe('NotFoundPage', () => {

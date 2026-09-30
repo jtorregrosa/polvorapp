@@ -124,6 +124,16 @@ describe('apiFetch', () => {
     });
   });
 
+  it('accepts an empty successful response without a content type', async () => {
+    document.cookie = 'XSRF-TOKEN=token; path=/';
+    server.use(mock.post('/api/thing', () => new HttpResponse(null, { status: 202 })));
+
+    const response = await apiFetch<Envelope<unknown>>('/api/thing', { method: 'POST' });
+
+    expect(response.status).toBe(202);
+    expect(response.data).toBeUndefined();
+  });
+
   it('rejects a successful response whose body is not JSON', async () => {
     server.use(
       mock.get('/api/system/info', () =>
@@ -138,6 +148,7 @@ describe('apiFetch', () => {
   });
 
   it('returns undefined data for an empty successful response', async () => {
+    document.cookie = 'XSRF-TOKEN=token; path=/';
     server.use(mock.delete('/api/thing', () => new HttpResponse(null, { status: 204 })));
 
     const response = await apiFetch<Envelope<unknown>>('/api/thing', { method: 'DELETE' });

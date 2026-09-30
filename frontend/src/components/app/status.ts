@@ -48,6 +48,11 @@ export const STATUS_MAP = {
     LOCKED: { tone: 'info', icon: Lock },
     CLOSED: { tone: 'muted', icon: CircleDashed },
   },
+  user: {
+    INVITED: { tone: 'info', icon: Send },
+    ACTIVE: { tone: 'success', icon: CircleCheck },
+    DEACTIVATED: { tone: 'muted', icon: CircleX },
+  },
   warning: {
     LICENSE: { tone: 'warning', icon: TriangleAlert },
     COURSE: { tone: 'warning', icon: TriangleAlert },

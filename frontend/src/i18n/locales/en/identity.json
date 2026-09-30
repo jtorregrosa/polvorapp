@@ -1,0 +1,190 @@
+{
+  "signIn": {
+    "title": "Sign in",
+    "description": "Sign in with your email and password.",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Continue",
+    "forgot": "Forgot your password?",
+    "expired": "Your session has expired. Please sign in again."
+  },
+  "secondFactor": {
+    "title": "Two-step verification",
+    "description": "Enter the 6-digit code shown by your authenticator app.",
+    "code": "Code",
+    "rememberDevice": "Remember this device for 30 days",
+    "rememberDeviceHelp": "Don't select this on shared computers.",
+    "submit": "Verify",
+    "useRecoveryCode": "Don't have your phone? Use a recovery code"
+  },
+  "recovery": {
+    "title": "Recovery code",
+    "description": "Enter one of the recovery codes you saved. Each code works only once.",
+    "code": "Recovery code",
+    "submit": "Verify",
+    "useAuthenticator": "Use your authenticator app",
+    "left_one": "You have {{count}} recovery code left. Generate new codes from My account.",
+    "left_other": "You have {{count}} recovery codes left. If you are running low, generate new codes from My account."
+  },
+  "enrolment": {
+    "title": "Set up two-step verification",
+    "description": "To protect the arquebusiers' data, PolvorApp asks for a code from your phone as well as your password.",
+    "step1": "Install an authenticator app (for example Google Authenticator, Microsoft Authenticator or FreeOTP).",
+    "step2": "Scan the QR code or enter the setup key manually.",
+    "step3": "Enter the 6-digit code shown by the app.",
+    "qrLabel": "QR code to set up the authenticator app",
+    "manualKey": "Setup key",
+    "code": "Code from the app",
+    "submit": "Turn on"
+  },
+  "recoveryCodes": {
+    "title": "Save your recovery codes",
+    "description": "If you lose your phone, you can sign in with one of these codes. They are shown only now: copy or print them and keep them somewhere safe.",
+    "saved": "I've saved them"
+  },
+  "invitation": {
+    "title": "Welcome to PolvorApp",
+    "description": "Hello {{name}}. Create your password for {{email}}.",
+    "password": "New password",
+    "confirmPassword": "Confirm password",
+    "submit": "Create password",
+    "invalidTitle": "This invitation is no longer valid",
+    "invalidDescription": "The link has expired, has already been used or has been replaced. Ask a Federation administrator to send you a new invitation."
+  },
+  "password": {
+    "rules": "At least 12 characters. A phrase you can remember is better than a word with symbols.",
+    "forgotTitle": "Reset your password",
+    "forgotDescription": "Enter your email and we will send you a link to create a new password.",
+    "forgotSubmit": "Send link",
+    "sentTitle": "Check your email",
+    "sentDescription": "If there is an account with that email, you will receive a link that is valid for one hour.",
+    "backToSignIn": "Back to sign in",
+    "resetTitle": "New password",
+    "resetDescription": "You will still need the code from your authenticator app afterwards.",
+    "resetSubmit": "Save password",
+    "resetDone": "Password changed. You can sign in now.",
+    "invalidTitle": "This link is no longer valid",
+    "invalidDescription": "The link has expired or has already been used. Ask for a new one."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "email": "Enter a valid email.",
+    "code": "Enter the 6 digits of the code.",
+    "passwordLength": "The password must be at least 12 characters long.",
+    "passwordMismatch": "The passwords do not match.",
+    "nameTooLong": "200 characters at most.",
+    "choice": "Choose an option."
+  },
+  "account": {
+    "title": "My account",
+    "description": "Your details, your language and the security of your account.",
+    "profile": "Details",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "languageTitle": "Language",
+    "languageDescription": "Used in the application and in the emails you receive. Change it with the language selector.",
+    "passwordTitle": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "changePassword": "Change password",
+    "passwordChanged": "Password changed. You've been signed out everywhere else.",
+    "recoveryTitle": "Recovery codes",
+    "recoveryLeft_one": "You have {{count}} unused code.",
+    "recoveryLeft_other": "You have {{count}} unused codes.",
+    "recoveryCode": "Code from the authenticator app",
+    "regenerate": "Generate new codes",
+    "regenerated": "New codes generated. The previous ones no longer work.",
+    "signOutEverywhereTitle": "Sign out everywhere",
+    "signOutEverywhereDescription": "Ends your session on all your devices and forgets remembered devices.",
+    "signOutEverywhere": "Sign out everywhere",
+    "signOutEverywhereConfirmTitle": "Sign out on all your devices?",
+    "signOutEverywhereConfirmDescription": "You will be signed out here too and will need the code from your app to sign in again."
+  },
+  "users": {
+    "title": "Users",
+    "description": "Administrators and firing chiefs with access to PolvorApp.",
+    "invite": "Invite user",
+    "caption": "Users",
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "twoFactor": "Two-step verification",
+      "lastSignIn": "Last sign-in"
+    },
+    "filters": {
+      "role": "Role",
+      "status": "Status",
+      "all": "All"
+    },
+    "never": "Never",
+    "enabled": "On",
+    "disabled": "Not set up",
+    "inviteTitle": "Invite user",
+    "inviteDescription": "They will receive an email with a link, valid for 7 days, to create their password.",
+    "detailBack": "Back to users",
+    "fields": {
+      "email": "Email",
+      "name": "Name",
+      "role": "Role",
+      "locale": "Email language"
+    },
+    "save": "Save changes",
+    "saved": "Changes saved.",
+    "sendInvitation": "Send invitation",
+    "invited": "Invitation sent to {{email}}.",
+    "actionsTitle": "Actions",
+    "deactivate": "Deactivate user",
+    "deactivateTitle": "Deactivate {{name}}?",
+    "deactivateDescription": "Their sessions will end and they will not be able to sign in until you reactivate them.",
+    "deactivated": "User deactivated.",
+    "reactivate": "Reactivate user",
+    "reactivated": "User reactivated.",
+    "resendInvitation": "Resend invitation",
+    "resent": "Invitation resent.",
+    "resetTwoFactor": "Reset two-step verification",
+    "resetTwoFactorTitle": "Reset two-step verification for {{name}}?",
+    "resetTwoFactorDescription": "Their authenticator app and recovery codes will be removed, their sessions will end and they will have to set it up again the next time they sign in.",
+    "twoFactorReset": "Two-step verification reset."
+  },
+  "roles": {
+    "ADMIN": "Administrator",
+    "FIRING_CHIEF": "Firing chief"
+  },
+  "errors": {
+    "auth": {
+      "invalidCredentials": "Incorrect email or password.",
+      "invalidCode": "The code is not valid. Check it and try again.",
+      "lockedOut": "Too many failed attempts. Wait 15 minutes and try again.",
+      "stepExpired": "This step has expired. Please sign in again.",
+      "unauthenticated": "Sign in to continue.",
+      "invalidLink": "The link is no longer valid.",
+      "invalidPassword": "The password doesn't meet the requirements."
+    },
+    "account": {
+      "wrongCurrentPassword": "The current password is not correct."
+    },
+    "users": {
+      "emailTaken": "A user with that email already exists.",
+      "lastAdmin": "This is the only active administrator: invite or reactivate another administrator before making this change.",
+      "notInvited": "The invitation can only be resent to users who have not accepted it yet.",
+      "notEnrolled": "This user has not set up two-step verification.",
+      "notFound": "This user does not exist."
+    },
+    "email": {
+      "sendFailed": "The changes were saved, but the email could not be sent. Try again from the user's page."
+    },
+    "validation": "Check the marked fields.",
+    "tooManyRequests": "Too many requests. Wait a moment and try again.",
+    "generic": "The action could not be completed. Please try again."
+  },
+  "passwordErrors": {
+    "PasswordTooShort": "Must be at least 12 characters.",
+    "PasswordTooLong": "Must be 128 characters or fewer.",
+    "PasswordIsEmail": "It cannot be your email address.",
+    "PasswordTooCommon": "This password is too common. Try a phrase."
+  }
+}

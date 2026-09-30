@@ -4,13 +4,14 @@ import { http as mock, HttpResponse } from 'msw';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { axeViolations } from '@/test/axe';
+import { SYNTHETIC_ADMIN } from '@/test/identity';
 import { renderWithProviders } from '@/test/render';
 import { server } from '@/test/server';
 import { appRoutes } from './routes';
 
 function renderAt(path: string, language = 'es-ES') {
   const router = createMemoryRouter(appRoutes, { initialEntries: [path] });
-  return renderWithProviders(<RouterProvider router={router} />, language);
+  return renderWithProviders(<RouterProvider router={router} />, language, { session: SYNTHETIC_ADMIN });
 }
 
 function setViewportWidth(width: number) {

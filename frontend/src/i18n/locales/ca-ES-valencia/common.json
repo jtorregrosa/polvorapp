@@ -33,6 +33,17 @@
     "backHome": "Torna a l'inici"
   },
   "nav": {
-    "home": "Inici"
+    "home": "Inici",
+    "users": "Usuaris",
+    "account": "El meu compte"
+  },
+  "forbidden": {
+    "title": "Accés no permés",
+    "description": "El teu rol no permet veure esta pàgina."
+  },
+  "session": {
+    "loading": "Comprovant la sessió…",
+    "signOutFailed": "No s'ha pogut tancar la sessió. Comprova la connexió i torna-ho a provar.",
+    "languageNotSaved": "L'idioma ha canviat, però no s'ha pogut guardar com a preferit. S'usarà este idioma en este navegador."
   }
 }
