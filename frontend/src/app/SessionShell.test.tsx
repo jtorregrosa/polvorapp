@@ -12,6 +12,11 @@ describe('signed-in shell (platform: Application shell; identity-access: role-ba
     await renderApp('/', { session: SYNTHETIC_ADMIN });
     const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
     expect(within(navigation).getByRole('link', { name: 'Usuarios' })).toHaveAttribute('href', '/users');
+    expect(within(navigation).getByRole('link', { name: 'Comparsas' })).toHaveAttribute('href', '/comparsas');
+    expect(within(navigation).getByRole('link', { name: 'Modelos de arma' })).toHaveAttribute(
+      'href',
+      '/weapon-models',
+    );
   });
 
   it('hides Admin-only entries from a FiringChief', async () => {
@@ -20,6 +25,8 @@ describe('signed-in shell (platform: Application shell; identity-access: role-ba
     const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
     expect(within(navigation).getByRole('link', { name: 'Inicio' })).toBeInTheDocument();
     expect(within(navigation).queryByRole('link', { name: 'Usuarios' })).not.toBeInTheDocument();
+    expect(within(navigation).getByRole('link', { name: 'Comparsas' })).toHaveAttribute('href', '/comparsas');
+    expect(within(navigation).queryByRole('link', { name: 'Modelos de arma' })).not.toBeInTheDocument();
   });
 
   it('shows "not allowed" when a FiringChief opens an Admin page, without asking the API', async () => {

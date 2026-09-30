@@ -34,6 +34,8 @@
   },
   "nav": {
     "home": "Home",
+    "comparsas": "Comparsas",
+    "weaponModels": "Weapon models",
     "users": "Users",
     "account": "My account"
   },

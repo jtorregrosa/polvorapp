@@ -1,0 +1,199 @@
+{
+  "comparsas": {
+    "title": "Comparsas",
+    "description": "The Federation's comparsas and the firing chiefs who manage them.",
+    "descriptionFiringChief": "The comparsas assigned to you.",
+    "new": "New comparsa",
+    "caption": "Comparsas",
+    "columns": {
+      "name": "Name",
+      "side": "Side",
+      "status": "Status"
+    },
+    "filters": {
+      "side": "Side",
+      "all": "All",
+      "includeInactive": "Include inactive"
+    },
+    "empty": {
+      "title": "No comparsas",
+      "description": "No comparsa matches these filters."
+    },
+    "unassigned": {
+      "title": "No comparsa assigned to you yet",
+      "description": "An administrator of the Federation has to assign you to your comparsa."
+    },
+    "form": {
+      "newTitle": "New comparsa",
+      "newDescription": "Its name must be unique. Firing chiefs are assigned from its page.",
+      "name": "Name",
+      "side": "Side",
+      "create": "Create comparsa",
+      "save": "Save changes",
+      "created": "Comparsa created.",
+      "saved": "Changes saved."
+    },
+    "detail": {
+      "back": "Back to comparsas",
+      "summary": "Details",
+      "inactiveNotice": "This comparsa is inactive: it keeps its history but gets no new firing chiefs."
+    },
+    "actions": {
+      "title": "Actions",
+      "deactivate": "Deactivate comparsa",
+      "deactivateTitle": "Deactivate {{name}}?",
+      "deactivateDescription": "It keeps its history and its firing chiefs, but no new ones can be assigned until you reactivate it.",
+      "deactivated": "Comparsa deactivated.",
+      "reactivate": "Reactivate comparsa",
+      "reactivated": "Comparsa reactivated.",
+      "delete": "Delete comparsa",
+      "deleteTitle": "Delete {{name}}?",
+      "deleteDescription_one": "This cannot be undone. {{count}} firing chief will lose access to it.",
+      "deleteDescription_other": "This cannot be undone. {{count}} firing chiefs will lose access to it.",
+      "deleteDescriptionNone": "This cannot be undone.",
+      "deleted": "Comparsa deleted."
+    }
+  },
+  "firingChiefs": {
+    "title": "Firing chiefs",
+    "description": "Users who manage this comparsa. They only see the comparsas assigned to them.",
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "status": "Status"
+    },
+    "empty": "No firing chief is assigned yet.",
+    "addLabel": "Firing chief to add",
+    "add": "Add",
+    "noCandidates": "Every firing chief who can be assigned is already here.",
+    "inactiveComparsa": "Reactivate the comparsa to assign new firing chiefs.",
+    "remove": "Remove {{name}}",
+    "removeShort": "Remove",
+    "removeTitle": "Remove {{name}} from this comparsa?",
+    "removeDescription": "They will no longer see this comparsa from their next action.",
+    "added": "{{name}} is now a firing chief of this comparsa.",
+    "removed": "{{name}} is no longer a firing chief of this comparsa."
+  },
+  "userComparsas": {
+    "title": "Comparsas",
+    "description": "The comparsas this firing chief manages. They only see these.",
+    "empty": "This firing chief has no comparsa yet.",
+    "addLabel": "Comparsa to add",
+    "add": "Add",
+    "noCandidates": "There is no other active comparsa to assign.",
+    "remove": "Remove {{name}}",
+    "removeShort": "Remove",
+    "removeTitle": "Remove the comparsa {{name}}?",
+    "removeDescription": "The firing chief will no longer see it from their next action.",
+    "added": "Comparsa {{name}} assigned.",
+    "removed": "Comparsa {{name}} removed.",
+    "adminNoEffect": "This user is an administrator and sees every comparsa. These assignments have no effect unless they become a firing chief again."
+  },
+  "weaponModels": {
+    "title": "Weapon models",
+    "description": "The Federation's catalogue: owned weapons and rentals use these models.",
+    "new": "New model",
+    "caption": "Weapon models",
+    "columns": {
+      "label": "Name",
+      "kind": "Type",
+      "side": "Side",
+      "handedness": "Handedness",
+      "size": "Size",
+      "rentable": "Rentable",
+      "status": "Status"
+    },
+    "filters": {
+      "kind": "Type",
+      "all": "All",
+      "includeInactive": "Include inactive"
+    },
+    "empty": {
+      "title": "No weapon models",
+      "description": "No model matches these filters."
+    },
+    "none": "—",
+    "yes": "Yes",
+    "no": "No",
+    "form": {
+      "newTitle": "New weapon model",
+      "newDescription": "Use the Federation's name for the model. Trabucos and arcabuces need side, handedness and size.",
+      "editTitle": "Weapon model",
+      "label": "Name",
+      "labelHint": "As the Federation writes it, e.g. TRABUCO CRISTIANO DIESTRO (PEQUEÑO).",
+      "kind": "Type",
+      "side": "Side",
+      "handedness": "Handedness",
+      "size": "Size",
+      "notSet": "Not set",
+      "rentable": "Can be rented",
+      "pistolHint": "Pistols are never rented; side, handedness and size are optional.",
+      "create": "Create model",
+      "save": "Save changes",
+      "created": "Weapon model created.",
+      "saved": "Changes saved."
+    },
+    "detail": {
+      "back": "Back to weapon models",
+      "inactiveNotice": "This model is inactive: it is kept for history but not offered for new records."
+    },
+    "actions": {
+      "title": "Actions",
+      "deactivate": "Deactivate model",
+      "deactivateTitle": "Deactivate {{label}}?",
+      "deactivateDescription": "It is kept for history but not offered for new records until you reactivate it.",
+      "deactivated": "Weapon model deactivated.",
+      "reactivate": "Reactivate model",
+      "reactivated": "Weapon model reactivated.",
+      "delete": "Delete model",
+      "deleteTitle": "Delete {{label}}?",
+      "deleteDescription": "This cannot be undone.",
+      "deleted": "Weapon model deleted."
+    }
+  },
+  "side": {
+    "MOORISH": "Moorish",
+    "CHRISTIAN": "Christian"
+  },
+  "kind": {
+    "TRABUCO": "Trabuco",
+    "ARCABUZ": "Arcabuz",
+    "PISTOL": "Pistol"
+  },
+  "handedness": {
+    "RIGHT": "Right-handed",
+    "LEFT": "Left-handed"
+  },
+  "size": {
+    "NORMAL": "Normal",
+    "SMALL": "Small"
+  },
+  "validation": {
+    "required": "This field is required.",
+    "invalid": "This value is not valid.",
+    "tooLong": "100 characters at most.",
+    "pistolNotRentable": "Pistols are never rented.",
+    "choice": "Choose an option."
+  },
+  "errors": {
+    "comparsas": {
+      "notFound": "This comparsa does not exist or you cannot see it.",
+      "nameTaken": "A comparsa with that name already exists.",
+      "inUse": "Other records use this comparsa, so it cannot be deleted. Deactivate it instead."
+    },
+    "assignments": {
+      "userNotFound": "That user does not exist.",
+      "notFiringChief": "Only firing chiefs can be assigned to a comparsa.",
+      "userDeactivated": "That user is deactivated and cannot be assigned.",
+      "comparsaInactive": "The comparsa is inactive and cannot get new firing chiefs."
+    },
+    "weaponModels": {
+      "notFound": "This weapon model does not exist.",
+      "labelTaken": "A model with that name already exists.",
+      "combinationTaken": "A model with that type, side, handedness and size already exists.",
+      "inUse": "Other records use this model, so it cannot be deleted. Deactivate it instead."
+    },
+    "validation": "Check the highlighted fields.",
+    "generic": "Something went wrong. Try again."
+  }
+}

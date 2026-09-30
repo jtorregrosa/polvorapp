@@ -1,0 +1,139 @@
+import { Flag, Plus } from 'lucide-react';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link, useSearchParams } from 'react-router';
+import { useListComparsas } from '@/api/generated/comparsas/comparsas';
+import { Side, type ComparsaResponse, type ListComparsasParams } from '@/api/generated/model';
+import { AlertBanner } from '@/components/app/AlertBanner';
+import { Button } from '@/components/app/Button';
+import { CheckboxField } from '@/components/app/CheckboxField';
+import { DataTable, type DataTableColumn } from '@/components/app/DataTable';
+import { EmptyState } from '@/components/app/EmptyState';
+import { FilterSelect } from '@/components/app/FilterSelect';
+import { PageHeader } from '@/components/app/PageHeader';
+import { StatusBadge } from '@/components/app/StatusBadge';
+import { useSession } from '@/features/identity-access/session';
+import { knownFilter, withFilter } from '@/lib/search-filters';
+import { useDocumentTitle } from '@/lib/useDocumentTitle';
+import { useNotice } from '../notices';
+import { problemMessage } from '../problems';
+
+const SIDES = Object.values(Side);
+
+/**
+ * Specs "Comparsas" and "Comparsa visibility (BR-12)". An Admin sees every comparsa, with
+ * filters and the "New comparsa" action; a FiringChief sees all of theirs (one or two, active or
+ * not), read-only. The server decides the scope; the page only shapes the view.
+ */
+export function ComparsasPage() {
+  const { t } = useTranslation('catalog');
+  useDocumentTitle(t('comparsas.title'));
+  const session = useSession();
+  const isAdmin = session.account?.role === 'ADMIN';
+  const [search, setSearch] = useSearchParams();
+  const side = knownFilter(search.get('side'), SIDES);
+  const includeInactive = search.get('includeInactive') === 'true';
+  const params: ListComparsasParams = isAdmin
+    ? { ...(side ? { side } : {}), ...(includeInactive ? { includeInactive } : {}) }
+    : { includeInactive: true };
+  const comparsas = useListComparsas(params, { query: { enabled: session.status === 'signedIn' } });
+  const rows = useMemo(() => (comparsas.data?.data ?? []) as ComparsaResponse[], [comparsas.data]);
+
+  const columns = useMemo<DataTableColumn<ComparsaResponse>[]>(
+    () => [
+      {
+        id: 'name',
+        header: t('comparsas.columns.name'),
+        sortValue: (comparsa) => comparsa.name,
+        cell: (comparsa) => (
+          <Link
+            to={`/comparsas/${comparsa.id}`}
+            className="font-medium text-primary underline-offset-4 hover:underline"
+          >
+            {comparsa.name}
+          </Link>
+        ),
+      },
+      { id: 'side', header: t('comparsas.columns.side'), cell: (comparsa) => t(`side.${comparsa.side}`) },
+      {
+        id: 'status',
+        header: t('comparsas.columns.status'),
+        cell: (comparsa) => <StatusBadge kind="catalog" value={comparsa.active ? 'ACTIVE' : 'INACTIVE'} />,
+      },
+    ],
+    [t],
+  );
+
+  const setFilter = (key: 'side' | 'includeInactive', value: string): void => {
+    setSearch(withFilter(search, key, value), { replace: true });
+  };
+
+  const unassigned = !isAdmin && comparsas.isSuccess && rows.length === 0;
+  const [notice] = useNotice();
+
+  return (
+    <>
+      <PageHeader
+        title={t('comparsas.title')}
+        description={isAdmin ? t('comparsas.description') : t('comparsas.descriptionFiringChief')}
+        actions={
+          isAdmin && (
+            <Button asChild>
+              <Link to="/comparsas/new">
+                <Plus aria-hidden="true" />
+                {t('comparsas.new')}
+              </Link>
+            </Button>
+          )
+        }
+      />
+      {notice && (
+        <AlertBanner key={notice.id} severity={notice.severity} className="mb-4 max-w-xl" focusOnMount>
+          {notice.text}
+        </AlertBanner>
+      )}
+      {isAdmin && (
+        <div className="mb-4 flex flex-wrap items-end gap-4">
+          <FilterSelect
+            label={t('comparsas.filters.side')}
+            value={side}
+            onChange={(value) => {
+              setFilter('side', value);
+            }}
+            options={[
+              { value: '', label: t('comparsas.filters.all') },
+              ...SIDES.map((value) => ({ value, label: t(`side.${value}`) })),
+            ]}
+          />
+          <div className="flex h-9 items-center">
+            <CheckboxField
+              label={t('comparsas.filters.includeInactive')}
+              checked={includeInactive}
+              onCheckedChange={(checked) => {
+                setFilter('includeInactive', checked ? 'true' : '');
+              }}
+            />
+          </div>
+        </div>
+      )}
+      {comparsas.isError && <AlertBanner severity="error">{problemMessage(t, comparsas.error)}</AlertBanner>}
+      {unassigned && (
+        <EmptyState
+          icon={Flag}
+          title={t('comparsas.unassigned.title')}
+          description={t('comparsas.unassigned.description')}
+        />
+      )}
+      {!comparsas.isError && !unassigned && (
+        <DataTable
+          caption={t('comparsas.caption')}
+          data={rows}
+          columns={columns}
+          getRowId={(comparsa) => comparsa.id}
+          isLoading={comparsas.isPending}
+          emptyText={t('comparsas.empty.description')}
+        />
+      )}
+    </>
+  );
+}

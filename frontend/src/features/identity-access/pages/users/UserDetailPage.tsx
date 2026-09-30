@@ -23,6 +23,7 @@ import { Form } from '@/components/app/FormField';
 import { FormSection } from '@/components/app/FormSection';
 import { PageHeader } from '@/components/app/PageHeader';
 import { StatusBadge } from '@/components/app/StatusBadge';
+import { UserComparsasSection } from '@/features/federation-catalog/components/UserComparsasSection';
 import { DEFAULT_LANGUAGE, matchLanguage } from '@/i18n/config';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { problemMessage } from '../../problems';
@@ -233,6 +234,7 @@ function UserDetail({ id }: { id: string }) {
           </AlertBanner>
         )}
         <EditForm user={details} announce={announce} />
+        <UserComparsasSection user={details} />
         <Actions user={details} announce={announce} />
       </div>
     </>

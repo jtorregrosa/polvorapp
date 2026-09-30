@@ -12,6 +12,12 @@ import { InviteUserPage } from '@/features/identity-access/pages/users/InviteUse
 import { UserDetailPage } from '@/features/identity-access/pages/users/UserDetailPage';
 import { UsersPage } from '@/features/identity-access/pages/users/UsersPage';
 import { RequireAdmin, RequireSession } from '@/features/identity-access/RequireSession';
+import { ComparsaDetailPage } from '@/features/federation-catalog/pages/ComparsaDetailPage';
+import { ComparsaFormPage } from '@/features/federation-catalog/pages/ComparsaFormPage';
+import { ComparsasPage } from '@/features/federation-catalog/pages/ComparsasPage';
+import { WeaponModelDetailPage } from '@/features/federation-catalog/pages/WeaponModelDetailPage';
+import { WeaponModelFormPage } from '@/features/federation-catalog/pages/WeaponModelFormPage';
+import { WeaponModelsPage } from '@/features/federation-catalog/pages/WeaponModelsPage';
 import { ErrorPage, RootErrorPage } from '@/features/platform/pages/ErrorPage';
 import { HomePage } from '@/features/platform/pages/HomePage';
 import { NotFoundPage } from '@/features/platform/pages/NotFoundPage';
@@ -60,8 +66,38 @@ export const appRoutes: RouteObject[] = [
                 handle: { breadcrumb: 'nav.account' } satisfies RouteHandle,
               },
               {
+                path: 'comparsas',
+                Component: ComparsasPage,
+                handle: { breadcrumb: 'nav.comparsas' } satisfies RouteHandle,
+              },
+              {
+                path: 'comparsas/:id',
+                Component: ComparsaDetailPage,
+                handle: { breadcrumb: 'nav.comparsas' } satisfies RouteHandle,
+              },
+              {
                 Component: RequireAdmin,
                 children: [
+                  {
+                    path: 'comparsas/new',
+                    Component: ComparsaFormPage,
+                    handle: { breadcrumb: 'nav.comparsas' } satisfies RouteHandle,
+                  },
+                  {
+                    path: 'weapon-models',
+                    Component: WeaponModelsPage,
+                    handle: { breadcrumb: 'nav.weaponModels' } satisfies RouteHandle,
+                  },
+                  {
+                    path: 'weapon-models/new',
+                    Component: WeaponModelFormPage,
+                    handle: { breadcrumb: 'nav.weaponModels' } satisfies RouteHandle,
+                  },
+                  {
+                    path: 'weapon-models/:id',
+                    Component: WeaponModelDetailPage,
+                    handle: { breadcrumb: 'nav.weaponModels' } satisfies RouteHandle,
+                  },
                   {
                     path: 'users',
                     Component: UsersPage,

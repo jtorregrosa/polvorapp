@@ -34,6 +34,8 @@
   },
   "nav": {
     "home": "Inici",
+    "comparsas": "Comparses",
+    "weaponModels": "Models d'arma",
     "users": "Usuaris",
     "account": "El meu compte"
   },

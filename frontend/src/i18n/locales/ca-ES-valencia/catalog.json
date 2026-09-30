@@ -1,0 +1,199 @@
+{
+  "comparsas": {
+    "title": "Comparses",
+    "description": "Les comparses de la Federació i els caps de disparada que les gestionen.",
+    "descriptionFiringChief": "Les comparses que tens assignades.",
+    "new": "Nova comparsa",
+    "caption": "Comparses",
+    "columns": {
+      "name": "Nom",
+      "side": "Bàndol",
+      "status": "Estat"
+    },
+    "filters": {
+      "side": "Bàndol",
+      "all": "Tots",
+      "includeInactive": "Inclou les inactives"
+    },
+    "empty": {
+      "title": "No hi ha comparses",
+      "description": "Cap comparsa coincideix amb estos filtres."
+    },
+    "unassigned": {
+      "title": "Encara no tens cap comparsa assignada",
+      "description": "Un administrador de la Federació t'ha d'assignar a la teua comparsa."
+    },
+    "form": {
+      "newTitle": "Nova comparsa",
+      "newDescription": "El nom ha de ser únic. Els caps de disparada s'assignen des de la seua fitxa.",
+      "name": "Nom",
+      "side": "Bàndol",
+      "create": "Crea la comparsa",
+      "save": "Guarda els canvis",
+      "created": "Comparsa creada.",
+      "saved": "Canvis guardats."
+    },
+    "detail": {
+      "back": "Torna a les comparses",
+      "summary": "Dades",
+      "inactiveNotice": "Esta comparsa està inactiva: conserva el seu historial, però no admet nous caps de disparada."
+    },
+    "actions": {
+      "title": "Accions",
+      "deactivate": "Desactiva la comparsa",
+      "deactivateTitle": "Vols desactivar {{name}}?",
+      "deactivateDescription": "Conserva el seu historial i els seus caps de disparada, però no se'n podran assignar de nous fins que la reactives.",
+      "deactivated": "Comparsa desactivada.",
+      "reactivate": "Reactiva la comparsa",
+      "reactivated": "Comparsa reactivada.",
+      "delete": "Esborra la comparsa",
+      "deleteTitle": "Vols esborrar {{name}}?",
+      "deleteDescription_one": "No es pot desfer. {{count}} cap de disparada hi perdrà l'accés.",
+      "deleteDescription_other": "No es pot desfer. {{count}} caps de disparada hi perdran l'accés.",
+      "deleteDescriptionNone": "No es pot desfer.",
+      "deleted": "Comparsa esborrada."
+    }
+  },
+  "firingChiefs": {
+    "title": "Caps de disparada",
+    "description": "Usuaris que gestionen esta comparsa. Només veuen les comparses que tenen assignades.",
+    "columns": {
+      "name": "Nom",
+      "email": "Correu electrònic",
+      "status": "Estat"
+    },
+    "empty": "Encara no hi ha cap cap de disparada assignat.",
+    "addLabel": "Cap de disparada que vols afegir",
+    "add": "Afig",
+    "noCandidates": "Tots els caps de disparada que es poden assignar ja són ací.",
+    "inactiveComparsa": "Reactiva la comparsa per a assignar-hi nous caps de disparada.",
+    "remove": "Lleva {{name}}",
+    "removeShort": "Lleva",
+    "removeTitle": "Vols llevar {{name}} d'esta comparsa?",
+    "removeDescription": "Deixarà de veure esta comparsa a partir de la seua acció següent.",
+    "added": "{{name}} ja és cap de disparada d'esta comparsa.",
+    "removed": "{{name}} ja no és cap de disparada d'esta comparsa."
+  },
+  "userComparsas": {
+    "title": "Comparses",
+    "description": "Les comparses que gestiona este cap de disparada. Només veu estes.",
+    "empty": "Este cap de disparada encara no té cap comparsa.",
+    "addLabel": "Comparsa que vols afegir",
+    "add": "Afig",
+    "noCandidates": "No hi ha cap altra comparsa activa per a assignar.",
+    "remove": "Lleva {{name}}",
+    "removeShort": "Lleva",
+    "removeTitle": "Vols llevar la comparsa {{name}}?",
+    "removeDescription": "El cap de disparada deixarà de veure-la a partir de la seua acció següent.",
+    "added": "Comparsa {{name}} assignada.",
+    "removed": "Comparsa {{name}} llevada.",
+    "adminNoEffect": "Este usuari és administrador i veu totes les comparses. Estes assignacions no tenen efecte si no torna a ser cap de disparada."
+  },
+  "weaponModels": {
+    "title": "Models d'arma",
+    "description": "El catàleg de la Federació: les armes pròpies i els lloguers utilitzen estos models.",
+    "new": "Nou model",
+    "caption": "Models d'arma",
+    "columns": {
+      "label": "Nom",
+      "kind": "Tipus",
+      "side": "Bàndol",
+      "handedness": "Mà",
+      "size": "Grandària",
+      "rentable": "Llogable",
+      "status": "Estat"
+    },
+    "filters": {
+      "kind": "Tipus",
+      "all": "Tots",
+      "includeInactive": "Inclou els inactius"
+    },
+    "empty": {
+      "title": "No hi ha models d'arma",
+      "description": "Cap model coincideix amb estos filtres."
+    },
+    "none": "—",
+    "yes": "Sí",
+    "no": "No",
+    "form": {
+      "newTitle": "Nou model d'arma",
+      "newDescription": "Utilitza el nom que li dona la Federació. Els trabucs i els arcabussos necessiten bàndol, mà i grandària.",
+      "editTitle": "Model d'arma",
+      "label": "Nom",
+      "labelHint": "Tal com l'escriu la Federació, p. ex. TRABUCO CRISTIANO DIESTRO (PEQUEÑO).",
+      "kind": "Tipus",
+      "side": "Bàndol",
+      "handedness": "Mà",
+      "size": "Grandària",
+      "notSet": "Sense indicar",
+      "rentable": "Es pot llogar",
+      "pistolHint": "Les pistoles no es lloguen mai; bàndol, mà i grandària són opcionals.",
+      "create": "Crea el model",
+      "save": "Guarda els canvis",
+      "created": "Model d'arma creat.",
+      "saved": "Canvis guardats."
+    },
+    "detail": {
+      "back": "Torna als models d'arma",
+      "inactiveNotice": "Este model està inactiu: es conserva per a l'historial, però no s'ofereix per a nous registres."
+    },
+    "actions": {
+      "title": "Accions",
+      "deactivate": "Desactiva el model",
+      "deactivateTitle": "Vols desactivar {{label}}?",
+      "deactivateDescription": "Es conserva per a l'historial, però no s'oferirà per a nous registres fins que el reactives.",
+      "deactivated": "Model d'arma desactivat.",
+      "reactivate": "Reactiva el model",
+      "reactivated": "Model d'arma reactivat.",
+      "delete": "Esborra el model",
+      "deleteTitle": "Vols esborrar {{label}}?",
+      "deleteDescription": "No es pot desfer.",
+      "deleted": "Model d'arma esborrat."
+    }
+  },
+  "side": {
+    "MOORISH": "Moro",
+    "CHRISTIAN": "Cristià"
+  },
+  "kind": {
+    "TRABUCO": "Trabuc",
+    "ARCABUZ": "Arcabús",
+    "PISTOL": "Pistola"
+  },
+  "handedness": {
+    "RIGHT": "Dretà",
+    "LEFT": "Esquerrà"
+  },
+  "size": {
+    "NORMAL": "Normal",
+    "SMALL": "Xicotet"
+  },
+  "validation": {
+    "required": "Este camp és obligatori.",
+    "invalid": "Este valor no és vàlid.",
+    "tooLong": "100 caràcters com a màxim.",
+    "pistolNotRentable": "Les pistoles no es lloguen mai.",
+    "choice": "Tria una opció."
+  },
+  "errors": {
+    "comparsas": {
+      "notFound": "Esta comparsa no existeix o no la pots veure.",
+      "nameTaken": "Ja hi ha una comparsa amb este nom.",
+      "inUse": "Altres registres utilitzen esta comparsa, així que no es pot esborrar. Desactiva-la en compte d'esborrar-la."
+    },
+    "assignments": {
+      "userNotFound": "Este usuari no existeix.",
+      "notFiringChief": "Només es poden assignar caps de disparada a una comparsa.",
+      "userDeactivated": "Este usuari està desactivat i no es pot assignar.",
+      "comparsaInactive": "La comparsa està inactiva i no admet nous caps de disparada."
+    },
+    "weaponModels": {
+      "notFound": "Este model d'arma no existeix.",
+      "labelTaken": "Ja hi ha un model amb este nom.",
+      "combinationTaken": "Ja hi ha un model amb este tipus, bàndol, mà i grandària.",
+      "inUse": "Altres registres utilitzen este model, així que no es pot esborrar. Desactiva'l en compte d'esborrar-lo."
+    },
+    "validation": "Revisa els camps marcats.",
+    "generic": "Alguna cosa ha fallat. Torna-ho a provar."
+  }
+}
