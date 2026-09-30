@@ -63,4 +63,4 @@
 
 - [x] 9.1 Run `verification-loop` (build, types, lint incl. guardrails, i18n check, unit + catalogue tests with coverage ≥ 80 %, Storybook build, security grep, diff review) and the Playwright suite on the compose stack; verify a PASS report and a green CI run on the pull request
 - [x] 9.2 Check every scenario in `specs/design-system/spec.md` and the modified `specs/platform/spec.md` maps to at least one passing test or CI check (`pr-test-analyzer`); verify no scenario is uncovered
-- [ ] 9.3 Maintainer review of the palette and components in the catalogue (light/dark, three languages); verify approval is recorded in the pull request before archiving
+- [x] 9.3 Maintainer review of the palette and components in the catalogue (light/dark, three languages); verify approval is recorded in the pull request before archiving
