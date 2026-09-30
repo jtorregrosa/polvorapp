@@ -18,8 +18,7 @@
     }
   },
   "home": {
-    "title": "Benvinguda",
-    "description": "Portal de gestió d'arcabussers de la Federació."
+    "title": "Benvinguda"
   },
   "notFound": {
     "title": "No s'ha trobat la pàgina",
