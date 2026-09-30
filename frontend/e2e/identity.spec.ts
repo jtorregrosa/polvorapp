@@ -52,6 +52,8 @@ test.describe('identity and access', () => {
     const user = await context.newPage();
     await user.goto('/login');
     await user.getByRole('link', { name: '¿Has olvidado la contraseña?' }).click();
+    // The sign-in page has an email field too: fill only once the recovery page is shown.
+    await expect(user.getByRole('heading', { level: 1, name: 'Recuperar la contraseña' })).toBeVisible();
     await user.getByLabel(/^Correo electrónico/).fill(account.email);
     await user.getByRole('button', { name: 'Enviar enlace' }).click();
     await expect(user.getByRole('heading', { level: 1, name: 'Revisa tu correo' })).toBeVisible();
