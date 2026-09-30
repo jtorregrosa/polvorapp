@@ -26,6 +26,8 @@ coverage/
 frontend/src/api/generated/
 playwright-report/
 test-results/
+# Playwright sessions of the seeded E2E users
+frontend/e2e/.auth/
 blob-report/
 .vite/
 

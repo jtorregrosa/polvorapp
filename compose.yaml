@@ -45,17 +45,65 @@ services:
       timeout: 3s
       retries: 20
 
-  api:
-    build:
+  # One-shot: applies every module's migrations, then exits (migrations never run on web startup).
+  api-migrate:
+    build: &api-build
       context: backend
       args:
         APP_VERSION: ${APP_VERSION:-0.1.0-local}
         GIT_COMMIT: ${GIT_COMMIT:-local}
-    environment:
+    command: ["migrate"]
+    environment: &api-environment
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ConnectionStrings__Postgres: Host=db;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      # Transactional email goes to the Mailpit catcher; links point at the web entry point.
+      Email__SmtpHost: mail
+      Email__SmtpPort: "1025"
+      Email__Security: None
+      Email__From: ${EMAIL_FROM:-no-reply@polvorapp.example}
+      App__PublicBaseUrl: http://localhost:${WEB_PORT:-8080}
+      # nginx on the compose network is the only proxy whose X-Forwarded-For is trusted.
+      ForwardedHeaders__KnownNetworks: 172.28.0.0/24
+      # Sign-in rate limits per client address; the E2E run raises them (docs/development.md).
+      RateLimits__Auth__PermitLimit: ${RATE_LIMIT_AUTH_PER_MINUTE:-10}
+      RateLimits__AuthEmail__PermitLimit: ${RATE_LIMIT_AUTH_EMAIL_PER_15_MINUTES:-5}
     depends_on:
       db:
+        condition: service_healthy
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  # One-shot, on demand: `docker compose run --rm api-seed`. Only this container gets the seed
+  # credentials (placeholders for local use; the seeder refuses them outside Development).
+  api-seed:
+    build: *api-build
+    profiles: ["seed"]
+    command: ["seed"]
+    environment:
+      <<: *api-environment
+      Seed__UserPassword: ${SEED_USER_PASSWORD:-local-only-seed-password}
+      Seed__AuthenticatorKey: ${SEED_AUTHENTICATOR_KEY:-JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP}
+    depends_on:
+      api-migrate:
+        condition: service_completed_successfully
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  api:
+    build: *api-build
+    environment: *api-environment
+    depends_on:
+      db:
+        condition: service_healthy
+      api-migrate:
+        condition: service_completed_successfully
+      mail:
         condition: service_healthy
     restart: unless-stopped
     # The chiseled image has no shell or HTTP client; web's healthcheck covers the API.
@@ -84,6 +132,13 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
+
+# A fixed subnet, so the API trusts X-Forwarded-For only from this network (nginx).
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.28.0.0/24
 
 volumes:
   db-data:

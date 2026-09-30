@@ -104,7 +104,11 @@ jobs:
       - name: Start the compose stack with the example settings
         run: |
           cp .env.example .env
+          # The whole suite signs in from one address: raise the per-address sign-in limits.
+          echo "RATE_LIMIT_AUTH_PER_MINUTE=300" >> .env
+          echo "RATE_LIMIT_AUTH_EMAIL_PER_15_MINUTES=100" >> .env
           docker compose up --detach --build --wait
+          docker compose run --rm api-seed
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: frontend/.nvmrc
