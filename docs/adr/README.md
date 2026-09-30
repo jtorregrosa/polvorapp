@@ -13,9 +13,10 @@ One decision per file, never edited after acceptance — superseded by a new ADR
 | [0006](0006-containers-and-environments.md) | Docker for development and deployment | Accepted |
 | [0007](0007-i18n.md) | Runtime i18n with react-i18next: es, ca-ES-valencia, en | Accepted |
 | [0008](0008-documents-and-exports.md) | Excel and PDF generation on the server | Accepted |
-| [0009](0009-design-system-shadcn-tailwind.md) | Design system: shadcn/ui + Tailwind v4 with project guardrails | Accepted |
+| [0009](0009-design-system-shadcn-tailwind.md) | Design system: shadcn/ui + Tailwind v4 with project guardrails | Accepted (§5 superseded by 0012) |
 | [0010](0010-open-source-license.md) | Open-source license: MIT | Accepted |
 | [0011](0011-frontend-react.md) | Frontend: React + Vite SPA, fixed toolset, PWA | Accepted |
+| [0012](0012-polvorapp-visual-identity.md) | PolvorApp visual identity (own brand, no third-party assets in git) | Accepted |
 
 ## Template
 
