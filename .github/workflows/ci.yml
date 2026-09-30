@@ -90,6 +90,8 @@ jobs:
         run: npm run test:coverage
       - name: Build
         run: npm run build
+      - name: Build the component catalogue (Storybook)
+        run: npm run build-storybook
 
   e2e:
     needs: [backend, frontend]
