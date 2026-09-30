@@ -1,6 +1,6 @@
 # 0009. Design system: shadcn/ui + Tailwind CSS v4 with project guardrails
 
-- Status: Accepted
+- Status: Accepted — §5 (Brand) superseded by [0012](0012-polvorapp-visual-identity.md)
 - Date: 2026-09-30
 
 ## Context
