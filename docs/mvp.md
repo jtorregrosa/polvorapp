@@ -34,7 +34,7 @@ from arquebusier registry to validated orders, billing summary, exports and dist
 
 | # | Change id | Capability | Outcome |
 |---|---|---|---|
-| 1 | `bootstrap-platform` | platform | Solution skeleton, docker compose, CI, i18n (3 locales), empty UI shell, synthetic seed, MIT `LICENSE` — **implemented** (2026-09-30) |
+| 1 | `bootstrap-platform` | platform | Solution skeleton, docker compose, CI, i18n (3 locales), empty UI shell, synthetic seed, MIT `LICENSE` — **done**, archived 2026-09-30 |
 | 2 | `add-design-system` | design-system | Tailwind tokens (light/dark, Federation green), shadcn/ui primitives, `components/app/` composites, `docs/design/` guide, Storybook + axe, lint guardrails |
 | 3 | `add-identity-access` | identity-access | Invitations, login + TOTP 2FA, roles, scoping |
 | 4 | `add-federation-catalog` | federation-catalog | Comparsas, FiringChief assignments, weapon model catalogue |
