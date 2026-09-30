@@ -12,11 +12,11 @@ equivalent are kept as-is (e.g. `Comparsa`).
 |---|---|---|
 | Unión / Federación Unión de Comparsas Ber-Largas | `Federation` | Umbrella body that coordinates all comparsas, aggregates orders, organises training courses and deals with suppliers and authorities. Owner and host of PolvorApp and GDPR data controller. |
 | Comparsa | `Comparsa` | A festival troupe/association. There are ~20. Each belongs to one `Side`. Example: Contrabandistas. |
-| Bando (Moro / Cristiano) | `Side` (`MOORISH`, `CHRISTIAN`) | The side a comparsa belongs to. Determines the weapon kind (Moorish → arcabuz, Christian → trabuco). |
+| Bando (Moro / Cristiano) | `Side` (`MOORISH`, `CHRISTIAN`) | The side a comparsa belongs to. Usually goes with a weapon kind (Moorish → arcabuz, Christian → trabuco), but PolvorApp does not enforce it: Federation labels such as "ARCABUZ CRISTIANO" exist (Q-53). |
 | Comparsista / Socio | `Member` | Person registered in a comparsa. Managed in the Federation's external app, **not** in PolvorApp. |
 | ID Unión | `federationId` | ID of the person's record in the Federation's external app. Mandatory cross-reference. |
-| Arcabucero | `Arquebusier` | Member registered for firing activities. PolvorApp is the **authoritative source** for arquebusier data. |
-| Jefe de Disparo | `FiringChief` | Comparsa officer responsible for its arquebusiers: data, orders, pickups. A comparsa can have several. Accountable for their arquebusiers meeting the requirements. |
+| Arcabucero | `Arquebusier` | Member registered for firing activities. PolvorApp is the **authoritative source** for arquebusier data. An arquebusier is **not** a `User`: never invited, never signs in. |
+| Jefe de Disparo | `FiringChief` | Comparsa officer responsible for its arquebusiers: data, orders, pickups. A comparsa can have several. Accountable for their arquebusiers meeting the requirements. A FiringChief who also fires (powder, weapon) is **also** an `Arquebusier`: two separate records (`User` and `Arquebusier`, see Q-52). |
 | Administrador (Unión) | `Admin` | Federation user with full access: validates, locks, aggregates, exports. Only Federation role for now. |
 | Intervención de Armas (Guardia Civil) | `ArmsAuthority` | Government office that authorises the festival firing acts. Receives reports; not a user. |
 | Proveedor de pólvora | `PowderSupplier` | Company that sells the powder to the Federation. Not a user. |
@@ -63,12 +63,12 @@ equivalent are kept as-is (e.g. `Comparsa`).
 | Spanish | Code term | Definition |
 |---|---|---|
 | Arma | `Weapon` | A physical unit identified by the number engraved on the stock (`weaponNumber`). |
-| Trabuco | `WeaponKind.TRABUCO` | Christian-side weapon. |
-| Arcabuz | `WeaponKind.ARCABUZ` | Moorish-side weapon. |
+| Trabuco | `WeaponKind.TRABUCO` | Usually the Christian-side weapon (not enforced, Q-53). |
+| Arcabuz | `WeaponKind.ARCABUZ` | Usually the Moorish-side weapon (not enforced, Q-53). |
 | Pistola | `WeaponKind.PISTOL` | May be owned; **never rented**. |
 | Diestro / Zurdo | `Handedness` (`RIGHT`, `LEFT`) | |
 | Normal / Pequeño | `WeaponSize` (`NORMAL`, `SMALL`) | |
-| Modelo de alquiler | `WeaponModel` | Kind × side × handedness × size. The catalogue is stable but availability varies per edition. |
+| Modelo de alquiler | `WeaponModel` | Kind × side × handedness × size (pistols need none of the last three), with the Federation's label. The catalogue is stable but availability varies per edition. Deactivated when retired, deleted only if never used. |
 | Número de arma | `weaponNumber` | Engraved on the stock; for rented weapons it is stamped by the rental company (e.g. `37-17`). |
 | Arma propia | `OwnedWeapon` | Weapon owned by an arquebusier, with an ownership guide. |
 | Arma de alquiler | `RentalWeapon` | Weapon rented for an edition, assigned to **exactly one** arquebusier, non-transferable, returned to the company after the festival. |
