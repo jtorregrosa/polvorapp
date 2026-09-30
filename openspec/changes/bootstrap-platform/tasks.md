@@ -71,13 +71,13 @@
 
 ## 9. Continuous integration and supply chain
 
-- [ ] 9.1 Write `.github/workflows/ci.yml` jobs `backend`, `frontend`, `e2e`, `images` (GHCR push on `main` only), `secrets` (gitleaks CLI) and `dependency-review` with SHA-pinned actions and least-privilege permissions (design D11); verify with `actionlint` and a green run on a pull request
-- [ ] 9.2 Write `.github/workflows/codeql.yml` (C#, JavaScript/TypeScript) and `.github/dependabot.yml` (nuget, npm, github-actions, docker; weekly, grouped); verify CodeQL completes on the pull request
-- [ ] 9.3 Prove the gates fail: on a throwaway branch push a synthetic fake secret, a missing ca-ES-valencia key and an un-regenerated contract change; verify the `secrets`, `frontend` and `backend` jobs fail respectively, then delete the branch
+- [x] 9.1 Write `.github/workflows/ci.yml` jobs `backend`, `frontend`, `e2e`, `images` (GHCR push on `main` only), `secrets` (gitleaks CLI) and `dependency-review` with SHA-pinned actions and least-privilege permissions (design D11); verify with `actionlint` and a green run on a pull request
+- [x] 9.2 Write `.github/workflows/codeql.yml` (C#, JavaScript/TypeScript) and `.github/dependabot.yml` (nuget, npm, github-actions, docker; weekly, grouped); verify CodeQL completes on the pull request
+- [x] 9.3 Prove the gates fail: on a throwaway branch push a synthetic fake secret, a missing ca-ES-valencia key and an un-regenerated contract change; verify the `secrets`, `frontend` and `backend` jobs fail respectively, then delete the branch
 - [x] 9.4 Update `docs/README.md` index (development guide, third-party licenses) and `docs/mvp.md` status of change #1; verify links resolve
 - [x] 9.5 Review group 9 in parallel with `security-reviewer` and `code-reviewer`; fix CRITICAL/HIGH findings
 
 ## 10. Verification
 
-- [ ] 10.1 Run `verification-loop` (build, types, lint, tests with coverage ≥ 80 %, i18n check, contract check, security grep for secrets and personal data, diff review) and the Playwright suite on the compose stack; verify a PASS report and a green CI run on the pull request
-- [ ] 10.2 Check every scenario in `specs/platform/spec.md` maps to at least one passing test or CI check (`pr-test-analyzer`); verify no scenario is uncovered
+- [x] 10.1 Run `verification-loop` (build, types, lint, tests with coverage ≥ 80 %, i18n check, contract check, security grep for secrets and personal data, diff review) and the Playwright suite on the compose stack; verify a PASS report and a green CI run on the pull request
+- [x] 10.2 Check every scenario in `specs/platform/spec.md` maps to at least one passing test or CI check (`pr-test-analyzer`); verify no scenario is uncovered
