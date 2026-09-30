@@ -204,6 +204,52 @@ describe('DataTable', () => {
     expect(screen.getByRole('navigation', { name: 'Paginación de Arcabuceros' })).toBeInTheDocument();
   });
 
+  it('shows every row without pagination when it is a short list', async () => {
+    await renderWithProviders(
+      <DataTable
+        caption="Jefes de disparo"
+        data={people}
+        columns={columns}
+        getRowId={(r) => r.id}
+        pageSize={10}
+        paginated={false}
+      />,
+    );
+
+    expect(bodyRows()).toHaveLength(people.length);
+    expect(
+      screen.queryByRole('navigation', { name: 'Paginación de Jefes de disparo' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('can keep a column header for screen readers only', async () => {
+    await renderWithProviders(
+      <DataTable
+        caption="Jefes de disparo"
+        data={people}
+        columns={[...columns, { id: 'actions', header: 'Acciones', hideHeader: true, cell: () => 'x' }]}
+        getRowId={(r) => r.id}
+      />,
+    );
+
+    const header = screen.getByRole('columnheader', { name: 'Acciones' });
+    expect(within(header).getByText('Acciones')).toHaveClass('sr-only');
+  });
+
+  it('shows its own empty text when given one', async () => {
+    await renderWithProviders(
+      <DataTable
+        caption="Jefes de disparo"
+        data={[]}
+        columns={columns}
+        getRowId={(r) => r.id}
+        emptyText="Todavía no hay ningún jefe de disparo asignado."
+      />,
+    );
+
+    expect(screen.getByText('Todavía no hay ningún jefe de disparo asignado.')).toBeInTheDocument();
+  });
+
   it('shows a translated empty state', async () => {
     await renderWithProviders(
       <DataTable caption="Arcabuceros" data={[]} columns={columns} getRowId={(r) => r.id} />,

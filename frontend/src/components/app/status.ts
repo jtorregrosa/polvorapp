@@ -53,6 +53,11 @@ export const STATUS_MAP = {
     ACTIVE: { tone: 'success', icon: CircleCheck },
     DEACTIVATED: { tone: 'muted', icon: CircleX },
   },
+  /** Comparsas and weapon models (federation-catalog): deactivated records keep their history. */
+  catalog: {
+    ACTIVE: { tone: 'success', icon: CircleCheck },
+    INACTIVE: { tone: 'muted', icon: CircleDashed },
+  },
   warning: {
     LICENSE: { tone: 'warning', icon: TriangleAlert },
     COURSE: { tone: 'warning', icon: TriangleAlert },

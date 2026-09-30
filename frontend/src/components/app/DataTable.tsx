@@ -33,6 +33,8 @@ export interface DataTableColumn<TRow extends RowData> {
   /** Makes the column sortable by this value. */
   sortValue?: (row: TRow) => string | number;
   align?: 'start' | 'end';
+  /** Keeps the header for screen readers only, e.g. "Actions" above a column of row buttons. */
+  hideHeader?: boolean;
 }
 
 export interface DataTableProps<TRow extends RowData> {
@@ -45,6 +47,10 @@ export interface DataTableProps<TRow extends RowData> {
   getRowId: (row: TRow) => string;
   isLoading?: boolean;
   pageSize?: number;
+  /** False for a short list (a handful of rows): every row, no pagination controls. Read once, at mount. */
+  paginated?: boolean;
+  /** Already translated text for an empty list; the generic "No results" otherwise. */
+  emptyText?: string;
 }
 
 const PAGE_SIZES = [10, 20, 50] as const;
@@ -70,6 +76,8 @@ export function DataTable<TRow extends RowData>({
   getRowId,
   isLoading = false,
   pageSize = PAGE_SIZES[1],
+  paginated = true,
+  emptyText,
 }: DataTableProps<TRow>) {
   const pageSizeId = useId();
   const captionId = useId();
@@ -106,7 +114,7 @@ export function DataTable<TRow extends RowData>({
     columns: columnDefs,
     data,
     getRowId,
-    initialState: { pagination: { pageIndex: 0, pageSize } },
+    initialState: { pagination: { pageIndex: 0, pageSize: paginated ? pageSize : Number.MAX_SAFE_INTEGER } },
   });
 
   const { pageIndex, pageSize: currentPageSize } = table.state.pagination;
@@ -194,6 +202,8 @@ export function DataTable<TRow extends RowData>({
                         <span className="sr-only">{`, ${sortLabel(sorted)}`}</span>
                         <SortIcon aria-hidden="true" className={cn(!sorted && 'text-muted-foreground')} />
                       </Button>
+                    ) : byId.get(header.column.id)?.hideHeader ? (
+                      <span className="sr-only">{title}</span>
                     ) : (
                       title
                     )}
@@ -217,7 +227,7 @@ export function DataTable<TRow extends RowData>({
           {!isLoading && total === 0 && (
             <TableRow>
               <TableCell colSpan={columns.length} className="py-10 text-center text-muted-foreground">
-                {t('table.empty')}
+                {emptyText ?? t('table.empty')}
               </TableCell>
             </TableRow>
           )}
@@ -238,7 +248,7 @@ export function DataTable<TRow extends RowData>({
         {isLoading ? t('table.loading') : announcement}
       </p>
 
-      {!isLoading && total > 0 && (
+      {paginated && !isLoading && total > 0 && (
         <nav
           aria-label={t('table.pagination.label', { caption })}
           className="flex flex-wrap items-center justify-between gap-3 text-sm"

@@ -77,6 +77,10 @@
       "LOCKED": "Bloqueada",
       "CLOSED": "Cerrada"
     },
+    "catalog": {
+      "ACTIVE": "Activo",
+      "INACTIVE": "Inactivo"
+    },
     "warning": {
       "LICENSE": "Licencia no vigente",
       "COURSE": "Sin curso",

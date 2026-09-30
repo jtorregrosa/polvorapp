@@ -48,6 +48,13 @@ describe('StatusBadge', () => {
     expect(badge).toHaveAttribute('data-tone', 'destructive');
   });
 
+  it('shows an inactive comparsa or weapon model as a neutral badge in Spanish', async () => {
+    await renderWithProviders(<StatusBadge kind="catalog" value="INACTIVE" />, 'es-ES');
+
+    const badge = screen.getByText('Inactivo').closest('[data-status-badge]');
+    expect(badge).toHaveAttribute('data-tone', 'muted');
+  });
+
   it('never shows compliance warnings as errors (BR-04 is a warning)', () => {
     for (const status of Object.values(STATUS_MAP.warning)) {
       expect(status.tone).toBe('warning');

@@ -1,4 +1,4 @@
-import { useState, type MouseEvent, type ReactElement } from 'react';
+import { useRef, useState, type MouseEvent, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AlertDialog,
@@ -26,6 +26,12 @@ export interface ConfirmDialogProps {
    * {@link ConfirmFailure} rejection shows its (translated) message; anything else a generic one.
    */
   onConfirm: () => void | Promise<void>;
+  /**
+   * Runs after the dialog has closed following a successful confirmation, e.g. to show the
+   * outcome with a focused notice. Focus is then left to it instead of returning to the trigger,
+   * which the outcome may have removed (WCAG 2.4.3).
+   */
+  onConfirmed?: () => void;
   /** The button that opens the dialog; focus returns to it on close. Omit when controlled. */
   trigger?: ReactElement;
   /** Controlled mode, e.g. when opened from a row-actions menu. */
@@ -42,6 +48,7 @@ export function ConfirmDialog({
   description,
   confirmLabel,
   onConfirm,
+  onConfirmed,
   trigger,
   open: controlledOpen,
   onOpenChange,
@@ -50,6 +57,7 @@ export function ConfirmDialog({
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [failure, setFailure] = useState<string>();
+  const confirmed = useRef(false);
   const open = controlledOpen ?? uncontrolledOpen;
 
   const setOpen = (next: boolean) => {
@@ -66,6 +74,7 @@ export function ConfirmDialog({
     setFailure(undefined);
     try {
       await onConfirm();
+      confirmed.current = true;
       setPending(false);
       setUncontrolledOpen(false);
       onOpenChange?.(false);
@@ -78,7 +87,15 @@ export function ConfirmDialog({
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       {trigger && <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>}
-      <AlertDialogContent>
+      <AlertDialogContent
+        onCloseAutoFocus={(event) => {
+          if (confirmed.current && onConfirmed) {
+            event.preventDefault();
+            onConfirmed();
+          }
+          confirmed.current = false;
+        }}
+      >
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>

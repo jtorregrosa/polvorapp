@@ -20,9 +20,13 @@ import {
   useFormField,
 } from '@/components/ui/form';
 
-export interface FormProps<TValues extends FieldValues> {
-  form: UseFormReturn<TValues>;
-  onSubmit: SubmitHandler<TValues>;
+/**
+ * `TOutput` is what the resolver hands to `onSubmit` when it transforms the values (e.g. a select
+ * that holds `''` until chosen and submits a code); it defaults to the form's own values.
+ */
+export interface FormProps<TValues extends FieldValues, TOutput extends FieldValues = TValues> {
+  form: UseFormReturn<TValues, unknown, TOutput>;
+  onSubmit: SubmitHandler<TOutput>;
   children: ReactNode;
   /** Shows "Fields marked with * are required." above the fields (WCAG 3.3.2). */
   requiredNote?: boolean;
@@ -33,13 +37,13 @@ export interface FormProps<TValues extends FieldValues> {
  * A form wired to React Hook Form (ADR-0011). Browser validation bubbles are disabled; errors are
  * shown by each FormField and the first invalid field receives focus on submit.
  */
-export function Form<TValues extends FieldValues>({
+export function Form<TValues extends FieldValues, TOutput extends FieldValues = TValues>({
   form,
   onSubmit,
   children,
   requiredNote = true,
   className,
-}: FormProps<TValues>) {
+}: FormProps<TValues, TOutput>) {
   const { t } = useTranslation('ui');
 
   return (
@@ -67,8 +71,13 @@ export type FieldControlProps<
   TName extends FieldPath<TValues>,
 > = ControllerRenderProps<TValues, TName> & { required?: boolean };
 
-export interface FormFieldProps<TValues extends FieldValues, TName extends FieldPath<TValues>> {
-  control: Control<TValues>;
+export interface FormFieldProps<
+  TValues extends FieldValues,
+  TName extends FieldPath<TValues>,
+  TOutput extends FieldValues = TValues,
+> {
+  /** The form's control; `TOutput` is what its resolver submits (see {@link FormProps}). */
+  control: Control<TValues, unknown, TOutput>;
   name: TName;
   label: string;
   description?: string;
@@ -132,17 +141,23 @@ function FieldError() {
  * Label, required marker, help text and translated error around one control (spec: Form fields
  * and validation messages).
  */
-export function FormField<TValues extends FieldValues, TName extends FieldPath<TValues>>({
+export function FormField<
+  TValues extends FieldValues,
+  TName extends FieldPath<TValues>,
+  TOutput extends FieldValues = TValues,
+>({
   control,
   name,
   label,
   description,
   required = false,
   children,
-}: FormFieldProps<TValues, TName>) {
+}: FormFieldProps<TValues, TName, TOutput>) {
   return (
     <FormFieldController
-      control={control}
+      // Sound: a field registers and reads its own value; what the resolver submits does not
+      // matter to it (the vendored controller has no type parameter for it).
+      control={control as unknown as Control<TValues>}
       name={name}
       render={({ field }) => (
         <FormItem>
