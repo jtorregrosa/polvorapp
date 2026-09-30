@@ -1,0 +1,199 @@
+{
+  "comparsas": {
+    "title": "Comparsas",
+    "description": "Las comparsas de la Federación y los jefes de disparo que las gestionan.",
+    "descriptionFiringChief": "Las comparsas que tienes asignadas.",
+    "new": "Nueva comparsa",
+    "caption": "Comparsas",
+    "columns": {
+      "name": "Nombre",
+      "side": "Bando",
+      "status": "Estado"
+    },
+    "filters": {
+      "side": "Bando",
+      "all": "Todos",
+      "includeInactive": "Incluir inactivas"
+    },
+    "empty": {
+      "title": "No hay comparsas",
+      "description": "Ninguna comparsa coincide con estos filtros."
+    },
+    "unassigned": {
+      "title": "Todavía no tienes ninguna comparsa asignada",
+      "description": "Un administrador de la Federación tiene que asignarte a tu comparsa."
+    },
+    "form": {
+      "newTitle": "Nueva comparsa",
+      "newDescription": "El nombre debe ser único. Los jefes de disparo se asignan desde su ficha.",
+      "name": "Nombre",
+      "side": "Bando",
+      "create": "Crear comparsa",
+      "save": "Guardar cambios",
+      "created": "Comparsa creada.",
+      "saved": "Cambios guardados."
+    },
+    "detail": {
+      "back": "Volver a comparsas",
+      "summary": "Datos",
+      "inactiveNotice": "Esta comparsa está inactiva: conserva su historial, pero no admite nuevos jefes de disparo."
+    },
+    "actions": {
+      "title": "Acciones",
+      "deactivate": "Desactivar comparsa",
+      "deactivateTitle": "¿Desactivar {{name}}?",
+      "deactivateDescription": "Conserva su historial y sus jefes de disparo, pero no se podrán asignar otros nuevos hasta que la reactives.",
+      "deactivated": "Comparsa desactivada.",
+      "reactivate": "Reactivar comparsa",
+      "reactivated": "Comparsa reactivada.",
+      "delete": "Eliminar comparsa",
+      "deleteTitle": "¿Eliminar {{name}}?",
+      "deleteDescription_one": "No se puede deshacer. {{count}} jefe de disparo perderá el acceso a ella.",
+      "deleteDescription_other": "No se puede deshacer. {{count}} jefes de disparo perderán el acceso a ella.",
+      "deleteDescriptionNone": "No se puede deshacer.",
+      "deleted": "Comparsa eliminada."
+    }
+  },
+  "firingChiefs": {
+    "title": "Jefes de disparo",
+    "description": "Usuarios que gestionan esta comparsa. Solo ven las comparsas que tienen asignadas.",
+    "columns": {
+      "name": "Nombre",
+      "email": "Correo electrónico",
+      "status": "Estado"
+    },
+    "empty": "Todavía no hay ningún jefe de disparo asignado.",
+    "addLabel": "Jefe de disparo que añadir",
+    "add": "Añadir",
+    "noCandidates": "Todos los jefes de disparo que se pueden asignar ya están aquí.",
+    "inactiveComparsa": "Reactiva la comparsa para asignar nuevos jefes de disparo.",
+    "remove": "Quitar a {{name}}",
+    "removeShort": "Quitar",
+    "removeTitle": "¿Quitar a {{name}} de esta comparsa?",
+    "removeDescription": "Dejará de ver esta comparsa a partir de su siguiente acción.",
+    "added": "{{name}} ya es jefe de disparo de esta comparsa.",
+    "removed": "{{name}} ya no es jefe de disparo de esta comparsa."
+  },
+  "userComparsas": {
+    "title": "Comparsas",
+    "description": "Las comparsas que gestiona este jefe de disparo. Solo ve estas.",
+    "empty": "Este jefe de disparo todavía no tiene ninguna comparsa.",
+    "addLabel": "Comparsa que añadir",
+    "add": "Añadir",
+    "noCandidates": "No hay ninguna otra comparsa activa que asignar.",
+    "remove": "Quitar {{name}}",
+    "removeShort": "Quitar",
+    "removeTitle": "¿Quitar la comparsa {{name}}?",
+    "removeDescription": "El jefe de disparo dejará de verla a partir de su siguiente acción.",
+    "added": "Comparsa {{name}} asignada.",
+    "removed": "Comparsa {{name}} quitada.",
+    "adminNoEffect": "Este usuario es administrador y ve todas las comparsas. Estas asignaciones no tienen efecto salvo que vuelva a ser jefe de disparo."
+  },
+  "weaponModels": {
+    "title": "Modelos de arma",
+    "description": "El catálogo de la Federación: las armas propias y los alquileres usan estos modelos.",
+    "new": "Nuevo modelo",
+    "caption": "Modelos de arma",
+    "columns": {
+      "label": "Nombre",
+      "kind": "Tipo",
+      "side": "Bando",
+      "handedness": "Mano",
+      "size": "Tamaño",
+      "rentable": "Alquilable",
+      "status": "Estado"
+    },
+    "filters": {
+      "kind": "Tipo",
+      "all": "Todos",
+      "includeInactive": "Incluir inactivos"
+    },
+    "empty": {
+      "title": "No hay modelos de arma",
+      "description": "Ningún modelo coincide con estos filtros."
+    },
+    "none": "—",
+    "yes": "Sí",
+    "no": "No",
+    "form": {
+      "newTitle": "Nuevo modelo de arma",
+      "newDescription": "Usa el nombre que le da la Federación. Los trabucos y arcabuces necesitan bando, mano y tamaño.",
+      "editTitle": "Modelo de arma",
+      "label": "Nombre",
+      "labelHint": "Tal como lo escribe la Federación, p. ej. TRABUCO CRISTIANO DIESTRO (PEQUEÑO).",
+      "kind": "Tipo",
+      "side": "Bando",
+      "handedness": "Mano",
+      "size": "Tamaño",
+      "notSet": "Sin indicar",
+      "rentable": "Se puede alquilar",
+      "pistolHint": "Las pistolas nunca se alquilan; bando, mano y tamaño son opcionales.",
+      "create": "Crear modelo",
+      "save": "Guardar cambios",
+      "created": "Modelo de arma creado.",
+      "saved": "Cambios guardados."
+    },
+    "detail": {
+      "back": "Volver a modelos de arma",
+      "inactiveNotice": "Este modelo está inactivo: se conserva para el historial, pero no se ofrece para nuevos registros."
+    },
+    "actions": {
+      "title": "Acciones",
+      "deactivate": "Desactivar modelo",
+      "deactivateTitle": "¿Desactivar {{label}}?",
+      "deactivateDescription": "Se conserva para el historial, pero no se ofrecerá para nuevos registros hasta que lo reactives.",
+      "deactivated": "Modelo de arma desactivado.",
+      "reactivate": "Reactivar modelo",
+      "reactivated": "Modelo de arma reactivado.",
+      "delete": "Eliminar modelo",
+      "deleteTitle": "¿Eliminar {{label}}?",
+      "deleteDescription": "No se puede deshacer.",
+      "deleted": "Modelo de arma eliminado."
+    }
+  },
+  "side": {
+    "MOORISH": "Moro",
+    "CHRISTIAN": "Cristiano"
+  },
+  "kind": {
+    "TRABUCO": "Trabuco",
+    "ARCABUZ": "Arcabuz",
+    "PISTOL": "Pistola"
+  },
+  "handedness": {
+    "RIGHT": "Diestro",
+    "LEFT": "Zurdo"
+  },
+  "size": {
+    "NORMAL": "Normal",
+    "SMALL": "Pequeño"
+  },
+  "validation": {
+    "required": "Este campo es obligatorio.",
+    "invalid": "Este valor no es válido.",
+    "tooLong": "100 caracteres como máximo.",
+    "pistolNotRentable": "Las pistolas nunca se alquilan.",
+    "choice": "Elige una opción."
+  },
+  "errors": {
+    "comparsas": {
+      "notFound": "Esta comparsa no existe o no puedes verla.",
+      "nameTaken": "Ya existe una comparsa con ese nombre.",
+      "inUse": "Otros registros usan esta comparsa, así que no se puede eliminar. Desactívala en su lugar."
+    },
+    "assignments": {
+      "userNotFound": "Ese usuario no existe.",
+      "notFiringChief": "Solo se pueden asignar jefes de disparo a una comparsa.",
+      "userDeactivated": "Ese usuario está desactivado y no se puede asignar.",
+      "comparsaInactive": "La comparsa está inactiva y no admite nuevos jefes de disparo."
+    },
+    "weaponModels": {
+      "notFound": "Este modelo de arma no existe.",
+      "labelTaken": "Ya existe un modelo con ese nombre.",
+      "combinationTaken": "Ya existe un modelo con ese tipo, bando, mano y tamaño.",
+      "inUse": "Otros registros usan este modelo, así que no se puede eliminar. Desactívalo en su lugar."
+    },
+    "validation": "Revisa los campos marcados.",
+    "generic": "Algo ha fallado. Inténtalo de nuevo."
+  }
+}

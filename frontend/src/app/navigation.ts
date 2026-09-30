@@ -1,5 +1,5 @@
 import type { ParseKeys } from 'i18next';
-import { House, Users, type LucideIcon } from 'lucide-react';
+import { Crosshair, Flag, House, Users, type LucideIcon } from 'lucide-react';
 import type { UserRole } from '@/api/generated/model';
 
 export interface NavigationEntry {
@@ -16,5 +16,7 @@ export interface NavigationEntry {
  */
 export const NAVIGATION: readonly NavigationEntry[] = [
   { to: '/', labelKey: 'nav.home', icon: House },
+  { to: '/comparsas', labelKey: 'nav.comparsas', icon: Flag },
+  { to: '/weapon-models', labelKey: 'nav.weaponModels', icon: Crosshair, roles: ['ADMIN'] },
   { to: '/users', labelKey: 'nav.users', icon: Users, roles: ['ADMIN'] },
 ];

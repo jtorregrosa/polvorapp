@@ -36,7 +36,12 @@ function asAdmin(path: string) {
 /** `GET /api/users/:id` answers with `user`, updated by later calls to `set`. */
 function userDetails(initial: UserResponse) {
   let current = initial;
-  server.use(mock.get(`/api/users/${initial.id}`, () => HttpResponse.json(current)));
+  server.use(
+    mock.get(`/api/users/${initial.id}`, () => HttpResponse.json(current)),
+    // The comparsas section of the user page (federation-catalog).
+    mock.get(`/api/firing-chiefs/${initial.id}/comparsas`, () => HttpResponse.json([])),
+    mock.get('/api/comparsas', () => HttpResponse.json([])),
+  );
   return {
     set: (next: Partial<UserResponse>) => {
       current = { ...current, ...next };
