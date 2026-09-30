@@ -2,3 +2,37 @@
 # Never commit them. Only the questionnaire answers are tracked.
 docs/sources/*
 !docs/sources/answers.md
+
+# Local environment (secrets). Only .env.example is committed.
+.env
+.env.*
+!.env.example
+
+# .NET build output
+bin/
+obj/
+TestResults/
+publish/
+*.log
+*.suo
+*.user
+.vs/
+
+# Node / frontend
+node_modules/
+dist/
+dev-dist/
+coverage/
+frontend/src/api/generated/
+playwright-report/
+test-results/
+blob-report/
+.vite/
+
+# IDE / OS
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+frontend/src/features/__lint_probe__/
