@@ -114,18 +114,41 @@ Run from `frontend/`. The API client is generated from `contracts/openapi.json` 
 ```bash
 npm ci
 npm run dev             # http://localhost:5173
-npm run lint            # ESLint (includes the no-literal-string rule)
+npm run lint            # ESLint (no-literal-string and design-system guardrails)
 npm run typecheck
 npm run check-i18n      # every locale has every key and the same placeholders
-npm run test            # Vitest
-npm run test:coverage   # with the 80 % gate
+npm run test            # Vitest (includes the component catalogue checks)
+npm run test:coverage   # with the 80 % gate (vendored src/components/ui and stories excluded)
 npm run build
 npm run format          # Prettier
+npm run storybook       # component catalogue, http://localhost:6006
+npm run build-storybook # static catalogue in storybook-static/ (CI builds it)
+npm run docs:design     # regenerate docs/design/tokens.md and status.md from the code
 ```
 
 - Feature code lives in `src/features/<capability>/`; shared composites in
   `src/components/app/` (ADR-0009). Call the API only through the generated hooks.
 - Every user-facing text is a translation key. See [i18n workflow](#i18n-workflow).
+- UI work follows the [design guide](design/README.md).
+
+### Design system
+
+- **Tokens**: colours live only in `src/styles/tokens.css` (light `:root` and `.dark`); Tailwind
+  utilities are generated from them. `src/styles/contrast.test.ts` checks every declared pair
+  against WCAG 2.1 AA in both themes. After changing tokens or `src/components/app/status.ts`, run
+  `npm run docs:design`; the tests fail while the generated guide pages are out of date.
+- **Primitives and composites**: shadcn/ui primitives are in `src/components/ui/` (added with the
+  shadcn CLI, `components.json`; keep local edits minimal and listed in the design guide).
+  Features and the shell use only the composites in `src/components/app/`.
+- **Guardrails** (ESLint, `eslint.config.js`): no raw palette colours, arbitrary values or opacity
+  on semantic tones outside `src/components/ui/`; no `@/components/ui` imports and no `style`
+  attributes in features and the shell; Tailwind correctness rules everywhere.
+  `scripts/eslint-guardrails.test.mjs` proves each rule still rejects and accepts what it should.
+- **Catalogue**: every composite has a sibling `*.stories.tsx`. `catalogue.test.tsx` renders every
+  story in the three languages and both themes and fails on axe violations, render errors,
+  untranslated keys, or a composite without stories.
+- **Theme**: light, dark or system, stored under `polvorapp.theme`. `public/theme-init.js` applies
+  it before the first paint (an external script, so the CSP keeps `script-src 'self'`).
 
 ## End-to-end tests
 

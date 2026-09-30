@@ -25,7 +25,7 @@ context: |
   - docs/nfr.md — NFR-01..NFR-15
   - docs/adr/ — accepted architecture decisions (do not contradict; propose a new ADR instead)
   - docs/mvp.md — capability list and change sequence
-  - docs/design/ — UI design guide (once created by add-design-system)
+  - docs/design/ — UI design guide (required reading for UI changes)
 
   # Tech stack (see ADRs)
   - Backend: ASP.NET Core (.NET LTS), Minimal APIs, modular monolith with one module per
