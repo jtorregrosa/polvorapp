@@ -1,0 +1,11 @@
+# Context is the repository root: send only what the web image needs (never docs/sources).
+*
+!frontend/
+!contracts/
+frontend/node_modules/
+frontend/dist/
+frontend/dev-dist/
+frontend/coverage/
+frontend/src/api/generated/
+frontend/playwright-report/
+frontend/test-results/
