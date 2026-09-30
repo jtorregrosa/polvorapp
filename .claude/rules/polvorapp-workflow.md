@@ -40,6 +40,19 @@ Prefer battle-tested libraries already fixed in the ADRs; a new overlapping libr
 | Build broken | Minimal fix only | `build-error-resolver` (.NET/TS), `react-build-resolver` (Vite/React) |
 | Docs drift | Update docs touched by the change | `doc-updater` |
 
+## Pull request and archive
+
+One pull request per OpenSpec change; the change is archived **inside that pull request**, so
+merging leaves `main` with the code, the synced main specs and the archived change at once.
+
+1. Implement on a `feat/<change-id>` branch and open the pull request (commit and push only with
+   the maintainer's go-ahead).
+2. CI green and the maintainer's review/approval recorded in the pull request.
+3. Only then, as the last commit on the same branch: `/opsx:archive` (sync delta specs into
+   `openspec/specs/`, move the change to `openspec/changes/archive/`, mark it done in `docs/mvp.md`).
+   Never archive before approval: requested changes would then touch an archived change.
+4. CI green again, then merge (rebase).
+
 ## Testing
 
 - Coverage target **80 %** for domain logic and API endpoints; UI components tested by behaviour.
