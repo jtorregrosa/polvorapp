@@ -53,6 +53,13 @@ export const Loading: Story = { args: { isLoading: true } };
 
 export const Empty: Story = { args: { data: [] } };
 
+/** A short list inside a page section: every row, no pagination, its own empty text. */
+export const ShortList: Story = { args: { data: rows.slice(0, 3), paginated: false } };
+
+export const ShortListEmpty: Story = {
+  args: { data: [], paginated: false, emptyText: 'Todavía no hay ningún jefe de disparo asignado.' },
+};
+
 export const LongValencian: Story = {
   args: {
     caption: 'Arcabussers de la comparsa amb llicència',

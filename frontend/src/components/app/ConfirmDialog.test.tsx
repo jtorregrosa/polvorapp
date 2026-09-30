@@ -1,4 +1,5 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
+import { useState } from 'react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Button } from '@/components/ui/button';
@@ -140,6 +141,70 @@ describe('ConfirmDialog', () => {
     await user.click(screen.getByRole('button', { name: 'Cancelar' }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('runs onConfirmed once closed and leaves focus to it, even when the trigger goes away', async () => {
+    const user = userEvent.setup();
+    function Page() {
+      const [done, setDone] = useState(false);
+      return (
+        <>
+          {done && (
+            <p tabIndex={-1} ref={(element) => element?.focus()}>
+              Hecho
+            </p>
+          )}
+          {!done && (
+            <ConfirmDialog
+              title="¿Desactivar?"
+              description="Se puede reactivar."
+              confirmLabel="Desactivar"
+              onConfirm={() => new Promise((resolve) => setTimeout(resolve, 20))}
+              onConfirmed={() => {
+                setDone(true);
+              }}
+              trigger={<Button>Desactivar</Button>}
+            />
+          )}
+        </>
+      );
+    }
+    await renderWithProviders(<Page />);
+
+    await user.click(screen.getByRole('button', { name: 'Desactivar' }));
+    await user.click(
+      within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Desactivar' }),
+    );
+
+    await screen.findByText('Hecho');
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(screen.getByText('Hecho')).toHaveFocus();
+  });
+
+  it('does not run onConfirmed when the action fails or the dialog is cancelled', async () => {
+    const user = userEvent.setup();
+    const onConfirmed = vi.fn();
+    await renderWithProviders(
+      <ConfirmDialog
+        title="¿Borrar?"
+        description="No se puede deshacer."
+        confirmLabel="Borrar"
+        onConfirm={() => Promise.reject(new ConfirmFailure('En uso'))}
+        onConfirmed={onConfirmed}
+        trigger={<Button>Borrar</Button>}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Borrar' }));
+    const dialog = await screen.findByRole('alertdialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Borrar' }));
+    await within(dialog).findByText('En uso');
+    await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    });
+    expect(onConfirmed).not.toHaveBeenCalled();
   });
 
   it('translates the cancel option', async () => {

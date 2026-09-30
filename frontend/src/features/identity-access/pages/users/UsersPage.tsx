@@ -1,5 +1,5 @@
 import { UserPlus } from 'lucide-react';
-import { useId, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
 import { useListUsers } from '@/api/generated/users/users';
@@ -8,48 +8,15 @@ import { AlertBanner } from '@/components/app/AlertBanner';
 import { Button } from '@/components/app/Button';
 import { DataTable, type DataTableColumn } from '@/components/app/DataTable';
 import { PageHeader } from '@/components/app/PageHeader';
-import { SelectInput } from '@/components/app/SelectInput';
+import { FilterSelect } from '@/components/app/FilterSelect';
 import { StatusBadge } from '@/components/app/StatusBadge';
 import { formatDate } from '@/lib/format';
+import { knownFilter, withFilter } from '@/lib/search-filters';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { problemMessage } from '../../problems';
 
 const ROLES = Object.values(UserRole);
 const STATUSES = Object.values(UserStatus);
-
-/** A filter from the address, if it is one the API knows; otherwise no filter. */
-function known<T extends string>(value: string | null, allowed: readonly T[]): T | '' {
-  return allowed.find((candidate) => candidate === value) ?? '';
-}
-
-function Filter({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: { value: string; label: string }[];
-  onChange: (value: string) => void;
-}) {
-  const id = useId();
-  return (
-    <div className="grid gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium">
-        {label}
-      </label>
-      <SelectInput
-        id={id}
-        value={value}
-        options={options}
-        onChange={(event) => {
-          onChange(event.target.value);
-        }}
-      />
-    </div>
-  );
-}
 
 /** Spec "User management by Admins": users with role, status, two-step state and last sign-in. */
 export function UsersPage() {
@@ -57,8 +24,8 @@ export function UsersPage() {
   const { t: tUi } = useTranslation('ui');
   useDocumentTitle(t('users.title'));
   const [search, setSearch] = useSearchParams();
-  const role = known(search.get('role'), ROLES);
-  const status = known(search.get('status'), STATUSES);
+  const role = knownFilter(search.get('role'), ROLES);
+  const status = knownFilter(search.get('status'), STATUSES);
   const params: ListUsersParams = {
     ...(role ? { role } : {}),
     ...(status ? { status } : {}),
@@ -115,13 +82,7 @@ export function UsersPage() {
   );
 
   const setFilter = (key: 'role' | 'status', value: string): void => {
-    const next = new URLSearchParams(search);
-    if (value) {
-      next.set(key, value);
-    } else {
-      next.delete(key);
-    }
-    setSearch(next, { replace: true });
+    setSearch(withFilter(search, key, value), { replace: true });
   };
 
   return (
@@ -139,7 +100,7 @@ export function UsersPage() {
         }
       />
       <div className="mb-4 flex flex-wrap gap-4">
-        <Filter
+        <FilterSelect
           label={t('users.filters.role')}
           value={role}
           onChange={(value) => {
@@ -150,7 +111,7 @@ export function UsersPage() {
             ...ROLES.map((value) => ({ value, label: t(`roles.${value}`) })),
           ]}
         />
-        <Filter
+        <FilterSelect
           label={t('users.filters.status')}
           value={status}
           onChange={(value) => {

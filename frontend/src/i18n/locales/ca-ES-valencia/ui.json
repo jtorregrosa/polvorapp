@@ -77,6 +77,10 @@
       "LOCKED": "Bloquejada",
       "CLOSED": "Tancada"
     },
+    "catalog": {
+      "ACTIVE": "Actiu",
+      "INACTIVE": "Inactiu"
+    },
     "warning": {
       "LICENSE": "Llicència no vigent",
       "COURSE": "Sense curs",
