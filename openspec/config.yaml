@@ -62,3 +62,16 @@ rules:
     - "Test-first: each behaviour task is preceded or accompanied by its tests."
     - Keep tasks small (roughly under 2 hours each) and ordered so the build stays green.
     - Include translation (es, ca-ES-valencia, en) and documentation update tasks.
+    - End each task group with a review task and the change with a verification task (see .claude/rules/polvorapp-workflow.md).
+
+operations:
+  apply:
+    guidance:
+      - Follow .claude/rules/polvorapp-workflow.md (TDD per task, parallel read-only reviews per task group).
+      - Check current library docs with Context7 before using an API; use gh/Exa for real-world examples.
+      - Implement sequentially in the main session; never run parallel writers on the same working tree.
+      - Fix CRITICAL and HIGH review findings before moving to the next task group.
+  archive:
+    guidance:
+      - Archive only after verification-loop passes and the change's Playwright flows are green.
+      - Summarise review findings, coverage and any follow-ups before archiving.
