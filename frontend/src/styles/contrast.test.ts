@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { checkContrast, contrastRatio, parseThemes, type ContrastPair } from './contrast';
+import { checkContrast, contrastRatio, describeFailure, parseThemes, type ContrastPair } from './contrast';
 
 const tokensCss = readFileSync(join(import.meta.dirname, 'tokens.css'), 'utf8');
 
@@ -73,10 +73,7 @@ describe('design token contrast (WCAG 2.1 AA)', () => {
   });
 
   it.each(['light', 'dark'] as const)('meets every declared pair in the %s theme', (theme) => {
-    const failures = checkContrast(themes[theme], PAIRS).map(
-      (f) =>
-        `${theme}: ${f.pair.foreground} on ${f.pair.background} = ${f.ratio.toFixed(2)} (< ${f.pair.minimum})`,
-    );
+    const failures = checkContrast(themes[theme], PAIRS).map((failure) => describeFailure(theme, failure));
 
     expect(failures).toEqual([]);
   });
@@ -95,6 +92,17 @@ describe('contrast helpers', () => {
 
     expect(failures).toHaveLength(1);
     expect(failures[0]?.ratio).toBeCloseTo(2.85, 2);
+    expect(failures.map((failure) => describeFailure('dark', failure))).toEqual([
+      'dark: text on surface = 2.85 (< 4.5)',
+    ]);
+  });
+
+  it('gives the installed app the theme colours of the tokens', () => {
+    const viteConfig = readFileSync(join(import.meta.dirname, '../../vite.config.ts'), 'utf8');
+    const { light } = parseThemes(tokensCss);
+
+    expect(viteConfig).toContain(`theme_color: '${light.primary ?? ''}'`);
+    expect(viteConfig).toContain(`background_color: '${light.background ?? ''}'`);
   });
 
   it('rejects colour tokens it cannot evaluate instead of skipping them', () => {
