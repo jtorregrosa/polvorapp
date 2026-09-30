@@ -95,4 +95,4 @@
 
 ## 12. Verification
 
-- [ ] 12.1 Run `verification-loop` (backend build/format/tests with coverage ≥ 80 % for the new modules, frontend lint/typecheck/check-i18n/tests/build, contract check, security grep for secrets and logged tokens, diff review) and the full Playwright suite against compose; verify a PASS report and green CI on the pull request
+- [x] 12.1 Run `verification-loop` (backend build/format/tests with coverage ≥ 80 % for the new modules, frontend lint/typecheck/check-i18n/tests/build, contract check, security grep for secrets and logged tokens, diff review) and the full Playwright suite against compose; verify a PASS report and green CI on the pull request
