@@ -107,8 +107,17 @@ The seed creates synthetic users on the reserved `.example` domain (never real p
 
 Every active user signs in with `SEED_USER_PASSWORD` and a code from an authenticator app set up
 with `SEED_AUTHENTICATOR_KEY` (both in `.env`; the published placeholders work only in
-`Development`). Add the key by hand to any TOTP app (Google Authenticator, FreeOTP…) as a
-time-based, 6-digit, 30-second account. Invitations and password-reset emails land in Mailpit
+`Development`). All seeded users share the key, so one entry in the app serves them all. Scan this
+QR code with any TOTP app (Google Authenticator, Microsoft Authenticator, FreeOTP…); it holds the
+placeholder key from `.env.example`:
+
+![Authenticator setup for the local seed users](images/seed-authenticator-qr.png)
+
+Or add the key by hand as a time-based, 6-digit, 30-second account. If you changed
+`SEED_AUTHENTICATOR_KEY`, turn this URI into a QR code with your key instead:
+`otpauth://totp/PolvorApp%20local:usuarios-seed?secret=<KEY>&issuer=PolvorApp%20local`.
+A code is accepted once per user and within 30 seconds of the server's clock; five wrong codes
+lock the account for 15 minutes. Invitations and password-reset emails land in Mailpit
 (<http://localhost:8025>); links point at `App__PublicBaseUrl`.
 
 ### Host commands
