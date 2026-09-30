@@ -50,15 +50,21 @@ Routes declare their breadcrumb with a `handle: { breadcrumb: '<common key>' } s
 - Always go through `ConfirmDialog`: the title states the action and its object, the description
   its consequence, and the confirm button repeats the verb ("Delete", "Cancel order").
 - Focus starts on Cancel; Escape and Cancel change nothing.
-- `onConfirm` may be async: the dialog stays open and disabled while it runs, closes on success
-  and shows a translated error (`AlertBanner`) if it fails, so the user can retry.
+- `onConfirm` may be async: the dialog stays open and busy while it runs, closes on success
+  and shows a translated error (`AlertBanner`) if it fails, so the user can retry. Reject with
+  `ConfirmFailure(translatedReason)` to show the specific reason (e.g. "last active Admin").
+- After a confirmed action succeeds, announce the outcome in an `AlertBanner` with `focusOnMount`:
+  the trigger may be gone (e.g. "Deactivate" becomes "Reactivate").
 - Every write and export is audit-logged on the server; the UI does not need to say so.
 
 ## Empty and loading states
 
 - `EmptyState`: what is missing, why it matters, and the action that fills it.
 - Loading: skeletons in the place of the content (tables, cards), never a blocking spinner for the
-  whole page. Buttons that submit show a pending state and are disabled while pending.
+  whole page. Buttons that submit show a pending state and ignore clicks while pending (they stay
+  focusable, so focus is not lost).
+- A view that replaces the page after an action ("Check your email", "Password changed") uses
+  `PageHeader focusOnMount`, so its title is read and focus is not lost.
 - Errors loading a page: the route's error page (inside the shell) with a way back.
 
 ## Responsive rules

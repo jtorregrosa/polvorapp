@@ -40,7 +40,12 @@ erDiagram
 
 **Comparsa** — `name`, `side` (`MOORISH` | `CHRISTIAN`), `active`.
 
-**User** — `email`, `name`, `role` (`ADMIN` | `FIRING_CHIEF`), `locale` (`es` | `ca-valencia` | `en`), `active`.
+**User** — `email` (unique, sign-in name), `name`, `role` (`ADMIN` | `FIRING_CHIEF`), `locale`
+(`es-ES` | `ca-ES-valencia` | `en`, used for emails and applied at sign-in), `active`, `createdAt`,
+`lastSignInAt`. Credentials (password hash, authenticator key, recovery codes, lockout) are managed by
+ASP.NET Core Identity in the `identity` schema. **Status** is derived: `DEACTIVATED` if not active,
+otherwise `INVITED` while there is no password, else `ACTIVE`. At least one active Admin must always
+remain (blocking).
 
 **FiringChiefAssignment** — `user`, `comparsa`. A comparsa can have several FiringChiefs.
 
@@ -107,7 +112,10 @@ erDiagram
 
 **Note** — `comparsa`, `author`, `date`, `text` (internal comparsa notes).
 
-**AuditLog** — who changed what and when (GDPR accountability and dispute resolution).
+**AuditEntry** (append-only, `audit` schema) — `occurredAt`, `actorUserId` (null for anonymous
+events such as a failed sign-in), `action`, `entityType`, `entityId`, `comparsaId`, `traceId`, `data`
+(small JSON, never secrets). Written in the same transaction as the change it records (GDPR
+accountability and dispute resolution).
 
 ## 3. Business rules
 

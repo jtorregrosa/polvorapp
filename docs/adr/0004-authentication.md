@@ -18,6 +18,13 @@ Round 4 decision: email + password with two-step verification.
 - Roles: `Admin`, `FiringChief`; comparsa scoping enforced server-side on every query (BR-12).
 - Account lockout, password policy, audit of logins (UC-25).
 
+## Clarification (2026-09-30, change `add-identity-access`)
+
+Users may mark a browser as **remembered for 30 days**, so the TOTP code is not asked again there.
+2FA stays mandatory at enrolment and on every other browser; remembering is opt-in per sign-in and is
+forgotten on password change, 2FA reset, deactivation and "sign out everywhere". Sessions end after
+60 minutes idle and 12 hours at most.
+
 ## Consequences
 
 - No external identity provider cost or dependency.
