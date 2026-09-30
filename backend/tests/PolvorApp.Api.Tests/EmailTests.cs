@@ -20,7 +20,7 @@ public sealed class EmailTests(MailpitFixture mailpit)
     {
         await using var factory = new ApiFactory("Host=localhost", settings: new Dictionary<string, string?> { [setting] = null });
 
-        var exception = Assert.ThrowsAny<OptionsValidationException>(() => factory.CreateClient());
+        var exception = factory.StartupFailure<OptionsValidationException>();
 
         Assert.Contains(setting, exception.Message, StringComparison.Ordinal);
     }
@@ -38,7 +38,7 @@ public sealed class EmailTests(MailpitFixture mailpit)
     {
         await using var factory = new ApiFactory("Host=localhost", settings: new Dictionary<string, string?> { [setting] = value });
 
-        var exception = Assert.ThrowsAny<OptionsValidationException>(() => factory.CreateClient());
+        var exception = factory.StartupFailure<OptionsValidationException>();
 
         Assert.Contains(setting, exception.Message, StringComparison.Ordinal);
         Assert.DoesNotContain(value, exception.Message.Replace(setting, string.Empty, StringComparison.Ordinal), StringComparison.Ordinal);
@@ -53,7 +53,7 @@ public sealed class EmailTests(MailpitFixture mailpit)
             ["Email:Username"] = "user",
         });
 
-        var exception = Assert.ThrowsAny<OptionsValidationException>(() => factory.CreateClient());
+        var exception = factory.StartupFailure<OptionsValidationException>();
 
         Assert.Contains("Email:Password", exception.Message, StringComparison.Ordinal);
     }
@@ -67,7 +67,7 @@ public sealed class EmailTests(MailpitFixture mailpit)
             ["Email:Password"] = "password-sentinel",
         });
 
-        var exception = Assert.ThrowsAny<OptionsValidationException>(() => factory.CreateClient());
+        var exception = factory.StartupFailure<OptionsValidationException>();
 
         Assert.Contains("Email:Security", exception.Message, StringComparison.Ordinal);
     }

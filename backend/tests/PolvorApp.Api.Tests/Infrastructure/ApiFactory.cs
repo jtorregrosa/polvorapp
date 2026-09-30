@@ -56,6 +56,25 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
     public CapturingLoggerProvider Logs { get; } = new();
 
+    /// <summary>
+    /// Starts the API expecting it to fail and returns why. The API's <c>Main</c> runs on its own
+    /// thread: when startup fails fast, that thread can dispose the services before
+    /// <c>WebApplicationFactory</c> reads them, and the factory then throws
+    /// <see cref="ObjectDisposedException"/> instead of the startup error. The host logs the real
+    /// error ("Hosting failed to start") before it disposes anything, so it is taken from there.
+    /// </summary>
+    public TException StartupFailure<TException>()
+        where TException : Exception
+    {
+        var thrown = Record.Exception(() => CreateClient());
+        if (thrown is ObjectDisposedException)
+        {
+            thrown = Logs.Entries.Select(e => e.Thrown).OfType<TException>().FirstOrDefault() ?? thrown;
+        }
+
+        return Assert.IsType<TException>(thrown, exactMatch: false);
+    }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment(_environment);

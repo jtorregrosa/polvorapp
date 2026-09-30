@@ -9,7 +9,8 @@ public sealed record CapturedLog(
     string Message,
     IReadOnlyDictionary<string, object?> State,
     IReadOnlyList<IReadOnlyDictionary<string, object?>> Scopes,
-    string? Exception);
+    string? Exception,
+    Exception? Thrown = null);
 
 /// <summary>Collects every log entry, including structured state and active scopes, for assertions.</summary>
 public sealed class CapturingLoggerProvider : ILoggerProvider, ISupportExternalScope
@@ -45,7 +46,7 @@ public sealed class CapturingLoggerProvider : ILoggerProvider, ISupportExternalS
             var scopes = new List<IReadOnlyDictionary<string, object?>>();
             provider._scopes.ForEachScope((scope, list) => list.Add(ToDictionary(scope)), scopes);
             provider._entries.Enqueue(new CapturedLog(
-                category, logLevel, formatter(state, exception), ToDictionary(state), scopes, exception?.ToString()));
+                category, logLevel, formatter(state, exception), ToDictionary(state), scopes, exception?.ToString(), exception));
         }
     }
 }
