@@ -50,7 +50,7 @@
 - [x] 7.1 Set up Storybook (React + Vite) with locale, theme and provider decorators and the a11y addon; add `storybook` and `build-storybook` scripts; verify `npm run build-storybook` succeeds
 - [x] 7.2 Write stories for every composite (default, states, long Valencian labels, both themes); verify they render in Storybook
 - [x] 7.3 Write `catalogue.test.tsx` (every story rendered in both themes with zero axe violations; every composite file has a stories file, failing with its name) and a probe proving a composite without stories fails; verify tests pass
-- [ ] 7.4 Add `build-storybook` to the CI `frontend` job; verify with `actionlint` and a green CI run
+- [x] 7.4 Add `build-storybook` to the CI `frontend` job; verify with `actionlint` and a green CI run
 - [x] 7.5 Review group 7 with `code-reviewer` and `pr-test-analyzer`; fix CRITICAL/HIGH findings
 
 ## 8. Design guide and documentation
@@ -61,6 +61,6 @@
 
 ## 9. Verification
 
-- [ ] 9.1 Run `verification-loop` (build, types, lint incl. guardrails, i18n check, unit + catalogue tests with coverage ≥ 80 %, Storybook build, security grep, diff review) and the Playwright suite on the compose stack; verify a PASS report and a green CI run on the pull request
-- [ ] 9.2 Check every scenario in `specs/design-system/spec.md` and the modified `specs/platform/spec.md` maps to at least one passing test or CI check (`pr-test-analyzer`); verify no scenario is uncovered
+- [x] 9.1 Run `verification-loop` (build, types, lint incl. guardrails, i18n check, unit + catalogue tests with coverage ≥ 80 %, Storybook build, security grep, diff review) and the Playwright suite on the compose stack; verify a PASS report and a green CI run on the pull request
+- [x] 9.2 Check every scenario in `specs/design-system/spec.md` and the modified `specs/platform/spec.md` maps to at least one passing test or CI check (`pr-test-analyzer`); verify no scenario is uncovered
 - [ ] 9.3 Maintainer review of the palette and components in the catalogue (light/dark, three languages); verify approval is recorded in the pull request before archiving
