@@ -1,9 +1,19 @@
 import * as React from 'react';
 import { cn } from 'cn';
 
-function Table({ className, ...props }: React.ComponentProps<'table'>) {
+// Local edit: `container` passes attributes to the scroll container, so a caller can make it the
+// focusable, named region (a scrollable region must be keyboard-focusable, WCAG 2.1.1).
+function Table({
+  className,
+  container,
+  ...props
+}: React.ComponentProps<'table'> & { container?: React.ComponentProps<'div'> }) {
   return (
-    <div data-slot="table-container" className="relative w-full overflow-x-auto">
+    <div
+      data-slot="table-container"
+      {...container}
+      className={cn('relative w-full overflow-x-auto', container?.className)}
+    >
       <table data-slot="table" className={cn('w-full caption-bottom text-sm', className)} {...props} />
     </div>
   );
