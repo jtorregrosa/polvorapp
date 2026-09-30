@@ -1,0 +1,64 @@
+{
+  "$comment": "Curated ECC subset for PolvorApp. Edit this list and run `node scripts/ecc-sync.mjs` to apply. Source of truth for what is installed from ECC.",
+  "repository": "https://github.com/affaan-m/ECC",
+  "ref": "main",
+  "installed": {
+    "version": "2.2.2",
+    "commit": "c70874f"
+  },
+  "agents": [
+    "planner",
+    "architect",
+    "code-reviewer",
+    "security-reviewer",
+    "csharp-reviewer",
+    "typescript-reviewer",
+    "react-reviewer",
+    "database-reviewer",
+    "a11y-architect",
+    "tdd-guide",
+    "e2e-runner",
+    "build-error-resolver",
+    "react-build-resolver",
+    "refactor-cleaner",
+    "doc-updater",
+    "silent-failure-hunter",
+    "type-design-analyzer",
+    "pr-test-analyzer"
+  ],
+  "skills": [
+    "tdd-workflow",
+    "verification-loop",
+    "coding-standards",
+    "error-handling",
+    "backend-patterns",
+    "api-design",
+    "dotnet-patterns",
+    "csharp-testing",
+    "postgres-patterns",
+    "docker-patterns",
+    "frontend-patterns",
+    "react-patterns",
+    "react-testing",
+    "react-performance",
+    "vite-patterns",
+    "frontend-a11y",
+    "accessibility",
+    "design-system",
+    "i18n-sync",
+    "e2e-testing",
+    "security-review"
+  ],
+  "rules": {
+    "languages": [
+      "common",
+      "csharp",
+      "typescript",
+      "react",
+      "web"
+    ],
+    "exclude": [
+      "hooks.md"
+    ]
+  }
+}

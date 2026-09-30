@@ -1,0 +1,4 @@
+# Source spreadsheets and PDFs contain real personal data (DNI, phones, emails).
+# Never commit them. Only the questionnaire answers are tracked.
+docs/sources/*
+!docs/sources/answers.md

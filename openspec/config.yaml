@@ -1,0 +1,64 @@
+schema: spec-driven
+
+context: |
+  Language: English
+  All artifacts must be written in English.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
+  # PolvorApp
+  Management portal for the arquebusiers ("arcabuceros") of the Moros y Cristianos festival of
+  San Vicente del Raspeig, run by the Federation (Unión de Comparsas "Ber-Largas") and ~20 comparsas.
+  Replaces spreadsheets and per-arquebusier Google Forms with a single source of truth: arquebusier
+  registry (licenses, course, photos, owned weapons), yearly edition orders (powder 0/1/2 kg, caps,
+  weapon and flask rentals, weapon loans), Federation review and locking, billing summary,
+  exports for supplier / rental company / Arms Authority, distribution planning and badges.
+
+  Users: Admin (Federation) and FiringChief (one or more per comparsa, scoped to their comparsa).
+  Arquebusiers never access the app. Scale: ~800 arquebusiers, ~60 users, one maintainer.
+
+  # Source documents (authoritative — read the relevant ones before writing artifacts)
+  - docs/vision.md — goals, scope, out-of-scope
+  - docs/glossary.md — ubiquitous language; code terms MUST follow its "Code term" column
+  - docs/data-model.md — entities and business rules BR-01..BR-14 (cite them by ID)
+  - docs/use-cases.md — UC-01..UC-30 with MVP scope (cite them by ID)
+  - docs/compliance.md — GDPR and security measures SEC-01..SEC-12
+  - docs/nfr.md — NFR-01..NFR-15
+  - docs/adr/ — accepted architecture decisions (do not contradict; propose a new ADR instead)
+  - docs/mvp.md — capability list and change sequence
+  - docs/design/ — UI design guide (once created by add-design-system)
+
+  # Tech stack (see ADRs)
+  - Backend: ASP.NET Core (.NET LTS), Minimal APIs, modular monolith with one module per
+    capability, EF Core + PostgreSQL, ASP.NET Core Identity (cookies, mandatory TOTP 2FA),
+    OpenAPI, xUnit + Testcontainers. Files in S3-compatible storage (MinIO locally).
+    Excel via ClosedXML, PDF via QuestPDF.
+  - Frontend: React + TypeScript (strict) + Vite, React Router, TanStack Query/Table,
+    orval-generated API client, React Hook Form + Zod, react-i18next (es-ES, ca-ES-valencia, en),
+    Tailwind CSS v4 + shadcn/ui, vite-plugin-pwa, Vitest + Testing Library, Playwright.
+  - Infra: docker compose (api, web, db, storage, mail), GitHub Actions CI, MIT license, public repo.
+
+  # Non-negotiable conventions
+  - Capabilities map 1:1 to backend modules and frontend feature folders.
+  - Compliance checks (license, course, age) are WARNINGS; data-integrity rules are BLOCKING.
+  - Feature screens use only src/components/app/ composites; design tokens only, no arbitrary values.
+  - Every user-facing string is translated in the three locales.
+  - Never real personal data in code, fixtures, seeds, specs or examples: synthetic data only.
+  - Every write and every export is audit-logged; FiringChief access is scoped to their comparsa.
+
+rules:
+  proposal:
+    - Reference the use cases (UC-xx), business rules (BR-xx) and ADRs the change implements.
+    - Include a "Non-goals" section.
+    - State the capability (from docs/mvp.md) the change belongs to.
+  specs:
+    - Use glossary code terms for entities, fields and enum values.
+    - Every requirement has at least one scenario, including permission (FiringChief vs Admin) and
+      validation-failure scenarios where relevant.
+    - Express business-rule enforcement explicitly as blocking or warning.
+  design:
+    - Cover backend module, data model/migrations, API endpoints, frontend screens and i18n keys.
+    - Call out security and GDPR implications (SEC-xx) and audit logging.
+  tasks:
+    - "Test-first: each behaviour task is preceded or accompanied by its tests."
+    - Keep tasks small (roughly under 2 hours each) and ordered so the build stays green.
+    - Include translation (es, ca-ES-valencia, en) and documentation update tasks.
