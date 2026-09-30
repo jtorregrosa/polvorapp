@@ -154,13 +154,20 @@ tests + coverage, contract drift), frontend (audit, lint, types, i18n, tests + c
 E2E on the compose stack, container image builds, secret scanning and dependency review. On
 `main`, `publish-images` pushes the images to GHCR after all gates pass. `codeql.yml` runs CodeQL; Dependabot keeps dependencies and actions current.
 
+### Dependency updates
+
+Dependabot opens weekly pull requests (minor and patch updates grouped). Major versions that a
+peer dependency or the runtime policy does not allow yet are listed with their reason under
+`ignore` in `.github/dependabot.yml`; remove the entry once the reason no longer holds (for
+example when Node 26 becomes LTS on 2026-10-28, or when `eslint-plugin-i18next` supports ESLint 10).
+
 ### Repository settings (maintainer, once)
 
 CI cannot configure these; set them in GitHub:
 
 1. **Branch protection** on `main`: require a pull request and the checks `backend`, `frontend`,
    `e2e`, `images` and `secrets`; disallow force pushes.
-2. **Secret scanning** with **push protection** (Settings → Code security).
+2. **Secret scanning** with **push protection** (Settings → Code security). Enabled.
 3. **GHCR packages** `polvorapp-api` and `polvorapp-web`: after the first push from `main`, set
    their visibility to **public** (Package settings → Change visibility), so hosts can pull
    without credentials. Images never contain secrets.
