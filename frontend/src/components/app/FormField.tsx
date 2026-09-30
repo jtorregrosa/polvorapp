@@ -1,3 +1,4 @@
+import { cn } from 'cn';
 import type { ParseKeys } from 'i18next';
 import { Slot } from 'radix-ui';
 import type { ReactNode } from 'react';
@@ -45,7 +46,7 @@ export function Form<TValues extends FieldValues>({
     <FormProvider {...form}>
       <form
         noValidate
-        className={className ?? 'flex flex-col gap-6'}
+        className={cn('flex flex-col gap-6', className)}
         onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
       >
         {requiredNote && <p className="text-sm text-muted-foreground">{t('form.requiredNote')}</p>}

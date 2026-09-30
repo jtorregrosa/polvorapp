@@ -155,4 +155,19 @@ describe('FormField and FormSection', () => {
 
     expect(await axeViolations(container)).toEqual([]);
   });
+
+  it('keeps the spacing between sections and actions when given extra classes', async () => {
+    function NarrowForm() {
+      const form = useForm<Values>({ defaultValues: { firstName: '', nickname: '', course: false } });
+      return (
+        <Form form={form} onSubmit={vi.fn()} className="max-w-xl">
+          <Button type="submit">Guardar</Button>
+        </Form>
+      );
+    }
+    await renderWithProviders(<NarrowForm />);
+
+    const form = screen.getByRole('button', { name: 'Guardar' }).closest('form');
+    expect(form).toHaveClass('flex', 'flex-col', 'gap-6', 'max-w-xl');
+  });
 });
