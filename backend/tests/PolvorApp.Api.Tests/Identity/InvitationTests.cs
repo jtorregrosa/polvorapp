@@ -39,7 +39,7 @@ public sealed partial class InvitationTests(PostgresFixture postgres, MailpitFix
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var user = await ReadAsync<UserResponse>(response);
-        Assert.Equal(PolvorApp.IdentityAccess.Users.UserStatus.Invited, user.Status);
+        Assert.Equal(UserStatus.Invited, user.Status);
         var message = await mailpit.WaitForMessageAsync("jefe.sintetico@example.test");
         Assert.Equal("Invitació a PolvorApp", message.Subject);
         Assert.Contains("/invitations/accept?user=", message.Text, StringComparison.Ordinal);

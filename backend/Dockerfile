@@ -11,6 +11,8 @@ COPY src/Modules/AuditPrivacy/PolvorApp.AuditPrivacy/PolvorApp.AuditPrivacy.cspr
 COPY src/Modules/AuditPrivacy/PolvorApp.AuditPrivacy.Contracts/PolvorApp.AuditPrivacy.Contracts.csproj src/Modules/AuditPrivacy/PolvorApp.AuditPrivacy.Contracts/
 COPY src/Modules/IdentityAccess/PolvorApp.IdentityAccess/PolvorApp.IdentityAccess.csproj src/Modules/IdentityAccess/PolvorApp.IdentityAccess/
 COPY src/Modules/IdentityAccess/PolvorApp.IdentityAccess.Contracts/PolvorApp.IdentityAccess.Contracts.csproj src/Modules/IdentityAccess/PolvorApp.IdentityAccess.Contracts/
+COPY src/Modules/FederationCatalog/PolvorApp.FederationCatalog/PolvorApp.FederationCatalog.csproj src/Modules/FederationCatalog/PolvorApp.FederationCatalog/
+COPY src/Modules/FederationCatalog/PolvorApp.FederationCatalog.Contracts/PolvorApp.FederationCatalog.Contracts.csproj src/Modules/FederationCatalog/PolvorApp.FederationCatalog.Contracts/
 RUN dotnet restore src/PolvorApp.Api/PolvorApp.Api.csproj
 
 COPY src/ src/

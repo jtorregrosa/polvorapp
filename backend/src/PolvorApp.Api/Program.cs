@@ -8,6 +8,7 @@ using PolvorApp.Api.Platform.Localization;
 using PolvorApp.Api.Platform.Security;
 using PolvorApp.Api.Platform.SystemInfo;
 using PolvorApp.AuditPrivacy;
+using PolvorApp.FederationCatalog;
 using PolvorApp.IdentityAccess;
 using PolvorApp.SharedKernel.Modules;
 
@@ -32,10 +33,11 @@ builder.Services.AddOpenApi(options => options
         document.Info.Title = "PolvorApp API";
         return Task.CompletedTask;
     })
-    .AddPlatformSecurity());
+    .AddPlatformSecurity()
+    .AddCodesOnlyEnums());
 
 // Modules are registered explicitly, one per capability (ADR-0001).
-builder.Services.AddModules(builder.Configuration, new AuditPrivacyModule(), new IdentityAccessModule());
+builder.Services.AddModules(builder.Configuration, new AuditPrivacyModule(), new IdentityAccessModule(), new FederationCatalogModule());
 
 var app = builder.Build();
 

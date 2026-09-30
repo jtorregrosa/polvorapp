@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using PolvorApp.SharedKernel.Http;
 
 namespace PolvorApp.IdentityAccess.Endpoints;
 
 /// <summary>
-/// Problem responses with a stable, culture-independent <c>code</c> the UI translates
-/// (<c>identity:errors.&lt;code&gt;</c>, design D8). Titles are localised by the platform.
+/// Identity problem codes the UI translates (<c>identity:errors.&lt;code&gt;</c>, design D8), built
+/// with the shared <see cref="ProblemResults"/>.
 /// </summary>
 internal static class Problems
 {
@@ -24,22 +25,14 @@ internal static class Problems
     public const string NotEnrolled = "users.notEnrolled";
     public const string UserNotFound = "users.notFound";
     public const string EmailSendFailed = "email.sendFailed";
-    public const string Validation = "validation";
+    public const string Validation = ProblemResults.Validation;
 
-    public static ProblemHttpResult Problem(int status, string code, IReadOnlyDictionary<string, object?>? extra = null)
-    {
-        var extensions = new Dictionary<string, object?> { ["code"] = code };
-        foreach (var (key, value) in extra ?? new Dictionary<string, object?>())
-        {
-            extensions[key] = value;
-        }
-
-        return TypedResults.Problem(statusCode: status, extensions: extensions);
-    }
+    public static ProblemHttpResult Problem(int status, string code, IReadOnlyDictionary<string, object?>? extra = null) =>
+        ProblemResults.Problem(status, code, extra);
 
     public static ProblemHttpResult Unauthorized(string code) => Problem(StatusCodes.Status401Unauthorized, code);
 
-    public static ProblemHttpResult Conflict(string code) => Problem(StatusCodes.Status409Conflict, code);
+    public static ProblemHttpResult Conflict(string code) => ProblemResults.Conflict(code);
 
     public static ProblemHttpResult Gone(string code) => Problem(StatusCodes.Status410Gone, code);
 
@@ -51,6 +44,5 @@ internal static class Problems
         });
 
     /// <summary>Invalid fields, named in <c>errors</c> with a reason code each.</summary>
-    public static ProblemHttpResult Invalid(IReadOnlyDictionary<string, string> fields) =>
-        Problem(StatusCodes.Status400BadRequest, Validation, new Dictionary<string, object?> { ["errors"] = fields });
+    public static ProblemHttpResult Invalid(IReadOnlyDictionary<string, string> fields) => ProblemResults.Invalid(fields);
 }

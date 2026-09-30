@@ -47,6 +47,22 @@ public sealed class OpenApiDocumentTests(PostgresFixture postgres)
         Assert.Equal("integer", recoveryCodesLeft.GetProperty("type").GetString());
     }
 
+    [Fact]
+    public async Task Enum_schemas_list_only_their_codes_and_nullability_stays_on_the_property()
+    {
+        using var document = await DocumentAsync();
+        var schemas = document.RootElement.GetProperty("components").GetProperty("schemas");
+
+        var enumsWithNull = schemas.EnumerateObject()
+            .Where(s => s.Value.TryGetProperty("enum", out var values) && values.EnumerateArray().Any(v => v.ValueKind == JsonValueKind.Null))
+            .Select(s => s.Name);
+
+        Assert.Empty(enumsWithNull);
+        Assert.Equal(["RIGHT", "LEFT"], schemas.GetProperty("Handedness").GetProperty("enum").EnumerateArray().Select(v => v.GetString()));
+        var handedness = schemas.GetProperty("WeaponModelResponse").GetProperty("properties").GetProperty("handedness");
+        Assert.Contains(handedness.GetProperty("oneOf").EnumerateArray(), o => o.TryGetProperty("type", out var type) && type.GetString() == "null");
+    }
+
     /// <summary>Spec "Authenticated API by default": the anonymous surface is exactly this list.</summary>
     [Fact]
     public async Task Only_the_declared_operations_are_anonymous()

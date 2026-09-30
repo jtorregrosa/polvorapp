@@ -1,7 +1,9 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using PolvorApp.Api.Platform.Database;
 using PolvorApp.Api.Tests.Infrastructure;
+using PolvorApp.SharedKernel.Persistence;
 
 namespace PolvorApp.Api.Tests;
 
@@ -20,6 +22,21 @@ public sealed class MigrateCommandTests(PostgresFixture postgres)
         Assert.Equal(0, exitCode);
         Assert.True(await TableExistsAsync(connectionString, "audit", "audit_entries"));
         Assert.True(await TableExistsAsync(connectionString, "audit", "__EFMigrationsHistory"));
+        Assert.True(await TableExistsAsync(connectionString, "identity", "__EFMigrationsHistory"));
+        foreach (var table in new[] { "comparsas", "firing_chief_assignments", "weapon_models", "__EFMigrationsHistory" })
+        {
+            Assert.True(await TableExistsAsync(connectionString, "catalog", table), table);
+        }
+    }
+
+    [Fact]
+    public void The_catalog_migrates_after_the_audit_trail_and_identity()
+    {
+        using var factory = new ApiFactory("Host=offline");
+
+        var order = factory.Services.GetServices<IDatabaseMigrator>().OrderBy(m => m.Order).Select(m => m.Name);
+
+        Assert.Equal(["AuditDbContext", "IdentityAccessDbContext", "FederationCatalogDbContext"], order);
     }
 
     [Fact]

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.IdentityAccess.Persistence;
 using PolvorApp.IdentityAccess.Users;
+using PolvorApp.SharedKernel.Http;
 
 namespace PolvorApp.IdentityAccess.Endpoints;
 
@@ -146,5 +147,5 @@ internal static class UsersEndpoints
         _ => throw new ArgumentOutOfRangeException(nameof(outcome), outcome, "Unexpected outcome."),
     };
 
-    private static ProblemHttpResult NotFound() => Problems.Problem(StatusCodes.Status404NotFound, Problems.UserNotFound);
+    private static ProblemHttpResult NotFound() => ProblemResults.NotFound(Problems.UserNotFound);
 }

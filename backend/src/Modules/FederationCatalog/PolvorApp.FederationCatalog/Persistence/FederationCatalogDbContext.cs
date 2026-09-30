@@ -1,0 +1,133 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using PolvorApp.FederationCatalog.Assignments;
+using PolvorApp.FederationCatalog.Comparsas;
+using PolvorApp.FederationCatalog.Contracts;
+using PolvorApp.FederationCatalog.WeaponModels;
+using PolvorApp.SharedKernel.Auditing;
+using PolvorApp.SharedKernel.Codes;
+using PolvorApp.SharedKernel.Persistence;
+
+namespace PolvorApp.FederationCatalog.Persistence;
+
+/// <summary>
+/// Schema <c>catalog</c>: comparsas, FiringChief assignments and weapon models (design D3). The
+/// database constraints back up the API's blocking rules against races.
+/// </summary>
+internal sealed class FederationCatalogDbContext(DbContextOptions<FederationCatalogDbContext> options) : DbContext(options)
+{
+    public const string Schema = "catalog";
+
+    /// <summary>
+    /// Unique index names the services map to problem codes (the only names that do not follow the
+    /// default <c>ix_&lt;table&gt;_&lt;columns&gt;</c> pattern).
+    /// </summary>
+    public const string ComparsaNameIndex = "ix_comparsas_name_key";
+    public const string WeaponModelLabelIndex = "ix_weapon_models_label_key";
+    public const string WeaponModelCombinationIndex = "ix_weapon_models_combination";
+
+    /// <summary>Primary key of an assignment: a concurrent identical assignment violates it.</summary>
+    public const string AssignmentKey = "pk_firing_chief_assignments";
+
+    private const int CodeMaxLength = 16;
+
+    public DbSet<Comparsa> Comparsas => Set<Comparsa>();
+
+    public DbSet<FiringChiefAssignment> Assignments => Set<FiringChiefAssignment>();
+
+    public DbSet<WeaponModel> WeaponModels => Set<WeaponModel>();
+
+    private static string Pistol => EnumCodes.ToCode(WeaponKind.Pistol);
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.HasDefaultSchema(Schema);
+        modelBuilder.AddAuditTrail();
+        MapComparsas(modelBuilder);
+        MapAssignments(modelBuilder);
+        MapWeaponModels(modelBuilder);
+    }
+
+    private static void MapComparsas(ModelBuilder modelBuilder) =>
+        modelBuilder.Entity<Comparsa>(comparsa =>
+        {
+            comparsa.ToTable("comparsas", table =>
+            {
+                // Adding an enum member changes this list: the model snapshot then asks for a migration.
+                table.HasCheckConstraint("ck_comparsas_side", In("side", EnumCodes.All<Side>()));
+                table.HasCheckConstraint("ck_comparsas_name_not_blank", "btrim(name) <> ''");
+            });
+            comparsa.HasKey(c => c.Id);
+            comparsa.Property(c => c.Id).ValueGeneratedNever();
+            comparsa.Property(c => c.Name).HasMaxLength(Comparsa.NameMaxLength);
+            comparsa.Property(c => c.Side).HasConversion(new EnumCodeConverter<Side>()).HasMaxLength(CodeMaxLength);
+
+            // Blocking (spec: Comparsas): names are unique case-insensitively. Npgsql has no
+            // expression indexes, so a stored generated column carries the key (design D3).
+            // Requires a UTF-8 ctype: with C/POSIX, lower() folds ASCII only (docs/development.md).
+            comparsa.Property<string>("NameKey").IsRequired().HasColumnType("text").HasComputedColumnSql("lower(name)", stored: true);
+            comparsa.HasIndex("NameKey").IsUnique().HasDatabaseName(ComparsaNameIndex);
+        });
+
+    private static void MapAssignments(ModelBuilder modelBuilder) =>
+        modelBuilder.Entity<FiringChiefAssignment>(assignment =>
+        {
+            assignment.ToTable("firing_chief_assignments");
+            assignment.HasKey(a => new { a.ComparsaId, a.UserId });
+
+            // Deleting a comparsa removes its assignments (spec: Deleting comparsas and weapon models).
+            assignment.HasOne<Comparsa>().WithMany().HasForeignKey(a => a.ComparsaId).OnDelete(DeleteBehavior.Cascade);
+
+            // Scope lookup on every FiringChief request (BR-12).
+            assignment.HasIndex(a => a.UserId);
+        });
+
+    private static void MapWeaponModels(ModelBuilder modelBuilder) =>
+        modelBuilder.Entity<WeaponModel>(model =>
+        {
+            model.ToTable("weapon_models", table =>
+            {
+                table.HasCheckConstraint("ck_weapon_models_kind", In("kind", EnumCodes.All<WeaponKind>()));
+                table.HasCheckConstraint("ck_weapon_models_side", "side IS NULL OR " + In("side", EnumCodes.All<Side>()));
+                table.HasCheckConstraint("ck_weapon_models_handedness", "handedness IS NULL OR " + In("handedness", EnumCodes.All<Handedness>()));
+                table.HasCheckConstraint("ck_weapon_models_size", "size IS NULL OR " + In("size", EnumCodes.All<WeaponSize>()));
+                table.HasCheckConstraint("ck_weapon_models_label_not_blank", "btrim(label) <> ''");
+
+                // BR-07 and the attribute rule (spec: Weapon models), both blocking.
+                table.HasCheckConstraint("ck_weapon_models_pistol_not_rentable", "NOT (kind = " + Quote(Pistol) + " AND rentable)");
+                table.HasCheckConstraint(
+                    "ck_weapon_models_attributes",
+                    "kind = " + Quote(Pistol) + " OR (side IS NOT NULL AND handedness IS NOT NULL AND size IS NOT NULL)");
+            });
+            model.HasKey(m => m.Id);
+            model.Property(m => m.Id).ValueGeneratedNever();
+            model.Property(m => m.Kind).HasConversion(new EnumCodeConverter<WeaponKind>()).HasMaxLength(CodeMaxLength);
+            model.Property(m => m.Side).HasConversion(new EnumCodeConverter<Side>()).HasMaxLength(CodeMaxLength);
+            model.Property(m => m.Handedness).HasConversion(new EnumCodeConverter<Handedness>()).HasMaxLength(CodeMaxLength);
+            model.Property(m => m.Size).HasConversion(new EnumCodeConverter<WeaponSize>()).HasMaxLength(CodeMaxLength);
+            model.Property(m => m.Label).HasMaxLength(WeaponModel.LabelMaxLength);
+
+            model.Property<string>("LabelKey").IsRequired().HasColumnType("text").HasComputedColumnSql("lower(label)", stored: true);
+            model.HasIndex("LabelKey").IsUnique().HasDatabaseName(WeaponModelLabelIndex);
+
+            // Pistols have no attributes to compare, so only trabucos and arcabuces are unique by combination.
+            model.HasIndex(m => new { m.Kind, m.Side, m.Handedness, m.Size })
+                .IsUnique()
+                .HasFilter("kind <> " + Quote(Pistol))
+                .HasDatabaseName(WeaponModelCombinationIndex);
+        });
+
+    private static string Quote(string code) => "'" + code + "'";
+
+    private static string In(string column, IEnumerable<string> codes) =>
+        column + " IN (" + string.Join(", ", codes.Select(Quote)) + ")";
+}
+
+/// <summary>Lets <c>dotnet ef migrations add</c> build the model; it never connects.</summary>
+internal sealed class FederationCatalogDbContextDesignTimeFactory : IDesignTimeDbContextFactory<FederationCatalogDbContext>
+{
+    public FederationCatalogDbContext CreateDbContext(string[] args) =>
+        new(new DbContextOptionsBuilder<FederationCatalogDbContext>()
+            .UseModuleDatabase("Host=design-time-only", FederationCatalogDbContext.Schema)
+            .Options);
+}
