@@ -17,6 +17,13 @@ public static class IdentityAssertions
         return body.RootElement.TryGetProperty("code", out var code) ? code.GetString() : null;
     }
 
+    /// <summary>The <c>errors</c> of a <c>validation</c> problem: field name to reason code.</summary>
+    public static async Task<Dictionary<string, string>> ErrorsAsync(HttpResponseMessage response)
+    {
+        using var body = JsonDocument.Parse(await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken));
+        return body.RootElement.GetProperty("errors").EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetString()!);
+    }
+
     public static async Task AssertProblemAsync(HttpResponseMessage response, HttpStatusCode status, string code)
     {
         Assert.Equal(status, response.StatusCode);

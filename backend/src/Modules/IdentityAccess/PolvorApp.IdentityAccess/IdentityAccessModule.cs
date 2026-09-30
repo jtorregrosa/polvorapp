@@ -40,6 +40,7 @@ public sealed class IdentityAccessModule : IModule
         services.AddScoped<IDataSeeder, IdentitySeeder>();
         services.AddScoped<ICurrentUser, CurrentUser>();
         services.AddScoped<IComparsaScope, ComparsaScope>();
+        services.AddScoped<IUserDirectory, UserDirectory>();
         services.TryAddScoped<IFiringChiefAssignmentSource, NoFiringChiefAssignments>();
     }
 

@@ -12,6 +12,10 @@
     <Project Path="src/Modules/AuditPrivacy/PolvorApp.AuditPrivacy.Contracts/PolvorApp.AuditPrivacy.Contracts.csproj" />
     <Project Path="src/Modules/AuditPrivacy/PolvorApp.AuditPrivacy/PolvorApp.AuditPrivacy.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/FederationCatalog/">
+    <Project Path="src/Modules/FederationCatalog/PolvorApp.FederationCatalog.Contracts/PolvorApp.FederationCatalog.Contracts.csproj" />
+    <Project Path="src/Modules/FederationCatalog/PolvorApp.FederationCatalog/PolvorApp.FederationCatalog.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PolvorApp.Api.Tests/PolvorApp.Api.Tests.csproj" />
     <Project Path="tests/PolvorApp.ArchitectureTests/PolvorApp.ArchitectureTests.csproj" />

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using PolvorApp.Api.Platform.Seeding;
 using PolvorApp.Api.Tests.Infrastructure;
+using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.IdentityAccess.Endpoints;
 using PolvorApp.IdentityAccess.Security;
 using PolvorApp.IdentityAccess.Users;

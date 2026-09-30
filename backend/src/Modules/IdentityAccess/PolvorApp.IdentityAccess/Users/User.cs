@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using PolvorApp.IdentityAccess.Contracts;
 
@@ -26,19 +25,9 @@ internal sealed class User : IdentityUser<Guid>
     public DateTimeOffset? LastSignInAt { get; set; }
 
     /// <summary>Derived, never stored (spec: Users and roles).</summary>
-    public UserStatus Status => !Active ? UserStatus.Deactivated : PasswordHash is null ? UserStatus.Invited : UserStatus.Active;
-}
+    public UserStatus Status => DeriveStatus(Active, PasswordHash is not null);
 
-/// <summary>Derived user status (glossary: <c>INVITED</c> | <c>ACTIVE</c> | <c>DEACTIVATED</c>).</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<UserStatus>))]
-internal enum UserStatus
-{
-    [JsonStringEnumMemberName("INVITED")]
-    Invited,
-
-    [JsonStringEnumMemberName("ACTIVE")]
-    Active,
-
-    [JsonStringEnumMemberName("DEACTIVATED")]
-    Deactivated,
+    /// <summary>The one status rule, also used by queries that project instead of loading users.</summary>
+    public static UserStatus DeriveStatus(bool active, bool hasPassword) =>
+        !active ? UserStatus.Deactivated : hasPassword ? UserStatus.Active : UserStatus.Invited;
 }
