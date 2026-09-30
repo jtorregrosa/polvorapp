@@ -232,6 +232,9 @@ describe('DataTable', () => {
     const region = screen.getByRole('region', { name: 'Arcabuceros' });
     expect(region).toHaveAttribute('tabindex', '0');
     expect(region).toHaveClass('overflow-x-auto');
+    // The focusable region is the only scroll container, so the keyboard can scroll the table.
+    expect(region.querySelector('[class*="overflow-x-auto"]')).toBeNull();
+    expect(region.querySelector(':scope > table')).not.toBeNull();
   });
 
   it.each([false, true])('has no accessibility violations (dark=%s)', async (dark) => {

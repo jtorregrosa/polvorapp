@@ -143,95 +143,96 @@ export function DataTable<TRow extends RowData>({
 
   return (
     <div className="flex flex-col gap-3">
-      <div
-        role="region"
-        aria-labelledby={captionId}
-        // A scrollable region must be keyboard-focusable (WCAG 2.1.1, axe scrollable-region-focusable).
-        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-        tabIndex={0}
-        className="overflow-x-auto rounded-lg border bg-card"
+      <Table
+        aria-busy={isLoading || undefined}
+        // The scroll container is the named region; a scrollable region must be keyboard-focusable
+        // (WCAG 2.1.1, axe scrollable-region-focusable).
+        container={{
+          role: 'region',
+          'aria-labelledby': captionId,
+          tabIndex: 0,
+          className: 'rounded-lg border bg-card',
+        }}
       >
-        <Table aria-busy={isLoading || undefined}>
-          <TableCaption id={captionId} className="sr-only">
-            {caption}
-          </TableCaption>
-          <TableHeader>
-            {table.getHeaderGroups().map((group) => (
-              <TableRow key={group.id}>
-                {group.headers.map((header) => {
-                  const sortable = header.column.getCanSort();
-                  const sorted = header.column.getIsSorted();
-                  const ariaSort: AriaSort | undefined = sortable
-                    ? sorted === 'asc'
-                      ? 'ascending'
-                      : sorted === 'desc'
-                        ? 'descending'
-                        : 'none'
-                    : undefined;
-                  const SortIcon = sorted === 'asc' ? ArrowUp : sorted === 'desc' ? ArrowDown : ArrowUpDown;
-                  const title = String(header.column.columnDef.header);
-                  return (
-                    <TableHead key={header.id} aria-sort={ariaSort} className={alignment(header.column.id)}>
-                      {sortable ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="-mx-2"
-                          onClick={() => {
-                            const next = sorted === false ? 'asc' : sorted === 'asc' ? 'desc' : false;
-                            header.column.toggleSorting(next === 'desc', false);
-                            if (next === false) header.column.clearSorting();
-                            setAnnouncement(
-                              next === false
-                                ? t('table.announce.unsorted')
-                                : t('table.announce.sorted', { column: title, direction: sortLabel(next) }),
-                            );
-                          }}
-                        >
-                          {title}
-                          <span className="sr-only">{`, ${sortLabel(sorted)}`}</span>
-                          <SortIcon aria-hidden="true" className={cn(!sorted && 'text-muted-foreground')} />
-                        </Button>
-                      ) : (
-                        title
-                      )}
-                    </TableHead>
-                  );
-                })}
+        <TableCaption id={captionId} className="sr-only">
+          {caption}
+        </TableCaption>
+        <TableHeader>
+          {table.getHeaderGroups().map((group) => (
+            <TableRow key={group.id}>
+              {group.headers.map((header) => {
+                const sortable = header.column.getCanSort();
+                const sorted = header.column.getIsSorted();
+                const ariaSort: AriaSort | undefined = sortable
+                  ? sorted === 'asc'
+                    ? 'ascending'
+                    : sorted === 'desc'
+                      ? 'descending'
+                      : 'none'
+                  : undefined;
+                const SortIcon = sorted === 'asc' ? ArrowUp : sorted === 'desc' ? ArrowDown : ArrowUpDown;
+                const title = String(header.column.columnDef.header);
+                return (
+                  <TableHead key={header.id} aria-sort={ariaSort} className={alignment(header.column.id)}>
+                    {sortable ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="-mx-2"
+                        onClick={() => {
+                          const next = sorted === false ? 'asc' : sorted === 'asc' ? 'desc' : false;
+                          header.column.toggleSorting(next === 'desc', false);
+                          if (next === false) header.column.clearSorting();
+                          setAnnouncement(
+                            next === false
+                              ? t('table.announce.unsorted')
+                              : t('table.announce.sorted', { column: title, direction: sortLabel(next) }),
+                          );
+                        }}
+                      >
+                        {title}
+                        <span className="sr-only">{`, ${sortLabel(sorted)}`}</span>
+                        <SortIcon aria-hidden="true" className={cn(!sorted && 'text-muted-foreground')} />
+                      </Button>
+                    ) : (
+                      title
+                    )}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {isLoading &&
+            Array.from({ length: LOADING_ROWS }, (_, index) => (
+              <TableRow key={index}>
+                {columns.map((column) => (
+                  <TableCell key={column.id}>
+                    <Skeleton className="h-4 w-full" />
+                  </TableCell>
+                ))}
               </TableRow>
             ))}
-          </TableHeader>
-          <TableBody>
-            {isLoading &&
-              Array.from({ length: LOADING_ROWS }, (_, index) => (
-                <TableRow key={index}>
-                  {columns.map((column) => (
-                    <TableCell key={column.id}>
-                      <Skeleton className="h-4 w-full" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            {!isLoading && total === 0 && (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="py-10 text-center text-muted-foreground">
-                  {t('table.empty')}
-                </TableCell>
+          {!isLoading && total === 0 && (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="py-10 text-center text-muted-foreground">
+                {t('table.empty')}
+              </TableCell>
+            </TableRow>
+          )}
+          {!isLoading &&
+            table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getAllCells().map((cell) => (
+                  <TableCell key={cell.id} className={alignment(cell.column.id)}>
+                    <table.FlexRender cell={cell} />
+                  </TableCell>
+                ))}
               </TableRow>
-            )}
-            {!isLoading &&
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getAllCells().map((cell) => (
-                    <TableCell key={cell.id} className={alignment(cell.column.id)}>
-                      <table.FlexRender cell={cell} />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-      </div>
+            ))}
+        </TableBody>
+      </Table>
 
       <p role="status" className="sr-only">
         {isLoading ? t('table.loading') : announcement}

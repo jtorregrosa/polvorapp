@@ -62,3 +62,19 @@ export const LongValencian: Story = {
     ],
   },
 };
+
+/** Many columns: on a narrow screen the table scrolls inside its region, not the page. */
+export const Wide: Story = {
+  args: {
+    columns: [
+      ...columns,
+      ...['Arma', 'Frasco', 'Licencia hasta', 'Curso', 'Préstamo', 'Observaciones'].map(
+        (header, index): DataTableColumn<Row> => ({
+          id: `extra${String(index)}`,
+          header,
+          cell: (row) => `${header} ${row.id}`,
+        }),
+      ),
+    ],
+  },
+};

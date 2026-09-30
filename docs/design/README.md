@@ -94,6 +94,8 @@ marked with a `Local edit` comment:
 - **Sidebar**: the open state is not persisted (no cookie); a collapsed sidebar is `inert`
   (not focusable); Ctrl/Cmd+B does not toggle it inside editable fields; navigation labels wrap
   instead of truncating and leave room for a counter badge.
+- **Table**: `container` passes attributes to the scroll container, so `DataTable` makes it the
+  focusable, named region that scrolls on narrow screens.
 
 ## Arquebusier badge
 
