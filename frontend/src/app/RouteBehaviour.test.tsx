@@ -50,6 +50,20 @@ describe('route behaviour', () => {
     expect(screen.getByRole('main')).not.toHaveFocus();
   });
 
+  it('shows a translated error page even when the shell itself fails', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const [root] = appRoutes;
+    if (!root) throw new Error('Unexpected route table shape');
+    const router = createMemoryRouter([{ ...root, index: false, Component: Boom }], {
+      initialEntries: ['/'],
+    });
+    const { container } = await renderWithProviders(<RouterProvider router={router} />, 'en');
+
+    const main = screen.getByRole('main');
+    expect(within(main).getByRole('heading', { level: 1, name: 'Something went wrong' })).toBeInTheDocument();
+    expect(container).not.toHaveTextContent('render failure sentinel');
+  });
+
   it('shows a translated error page inside the shell when a page fails to render', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const router = createMemoryRouter(routesWithFailingPage(), { initialEntries: ['/boom'] });

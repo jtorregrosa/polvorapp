@@ -6,6 +6,8 @@ import { createBrowserRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import { appRoutes } from '@/app/routes';
 import { createI18n } from '@/i18n';
+import { ThemeProvider } from '@/theme/ThemeProvider';
+import './styles/globals.css';
 
 // Shown only if translations cannot be initialised, so it cannot come from them.
 const STARTUP_FAILURE =
@@ -29,7 +31,9 @@ createI18n()
       <StrictMode>
         <QueryClientProvider client={queryClient}>
           <I18nextProvider i18n={i18n}>
-            <RouterProvider router={router} />
+            <ThemeProvider>
+              <RouterProvider router={router} />
+            </ThemeProvider>
           </I18nextProvider>
         </QueryClientProvider>
       </StrictMode>,

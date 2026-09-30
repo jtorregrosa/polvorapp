@@ -15,9 +15,10 @@ test.describe('platform', () => {
       const headers = response.headers();
       expect(headers).toMatchObject(SECURITY_HEADERS);
       const csp = headers['content-security-policy'] ?? '';
+      const scriptSrc = csp.split(';').find((directive) => directive.trim().startsWith('script-src')) ?? '';
       expect(csp).toContain("frame-ancestors 'none'");
-      expect(csp).toContain("script-src 'self'");
-      expect(csp).not.toContain('unsafe-inline');
+      // Inline styles are tolerated (Radix scroll lock, design D10); inline scripts never are.
+      expect(scriptSrc.trim()).toBe("script-src 'self'");
       expect(csp).not.toContain('unsafe-eval');
     });
   }

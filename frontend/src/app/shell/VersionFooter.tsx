@@ -14,5 +14,5 @@ export function VersionFooter() {
     text = t('shell.footer.versionUnavailable');
   }
 
-  return <p className="shell-version">{text}</p>;
+  return <p className="min-h-5 break-words">{text}</p>;
 }

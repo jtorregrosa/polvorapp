@@ -42,7 +42,29 @@ export const test = base.extend<Fixtures>({
 
 export { expect };
 
-/** Waits until the footer shows the API version, i.e. the shell and the API are both up. */
+/** Waits until the page heading is shown and the API calls of the shell have settled. */
 export async function waitForShell(page: Page): Promise<void> {
-  await expect(page.getByRole('contentinfo')).toContainText(/\d+\.\d+/);
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await page.waitForLoadState('networkidle');
+}
+
+/**
+ * The primary navigation: visible in the sidebar on wide screens, in a drawer opened from the
+ * top bar on small screens. Opens the drawer when needed and returns the navigation's container.
+ */
+export async function openNavigation(page: Page) {
+  const sidebar = page.getByRole('navigation', {
+    name: /^(Navegación principal|Navegació principal|Main navigation)$/,
+  });
+  if (!(await sidebar.isVisible())) {
+    await page
+      .getByRole('button', {
+        name: /^(Mostrar u ocultar la navegación|Mostra o amaga la navegació|Show or hide navigation)$/,
+      })
+      .click();
+    const drawer = page.getByRole('dialog');
+    await expect(drawer).toBeVisible();
+    return drawer;
+  }
+  return page.locator('[data-slot="sidebar"]');
 }

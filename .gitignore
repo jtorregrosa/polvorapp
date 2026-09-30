@@ -35,4 +35,6 @@ blob-report/
 !.vscode/extensions.json
 .DS_Store
 Thumbs.db
-frontend/src/features/__lint_probe__/
+frontend/src/features/__lint_probe_*/
+frontend/src/components/app/__lint_probe_*/
+storybook-static/

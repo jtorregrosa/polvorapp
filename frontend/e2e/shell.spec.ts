@@ -1,13 +1,15 @@
-import { expect, test, waitForShell } from './fixtures';
+import { expect, openNavigation, test, waitForShell } from './fixtures';
 
 test.describe('application shell', () => {
   test('shows the shell with the API version', async ({ page }) => {
     await page.goto('/');
 
-    await expect(page.getByRole('banner')).toContainText('PolvorApp');
     await expect(page.getByRole('heading', { level: 1, name: 'Bienvenida' })).toBeVisible();
-    await expect(page.getByRole('contentinfo')).toContainText(/Versión \d+\.\d+/);
     await expect(page).toHaveTitle('Bienvenida · PolvorApp');
+    const navigation = await openNavigation(page);
+    await expect(navigation.getByRole('link', { name: 'PolvorApp' })).toBeVisible();
+    await expect(navigation.getByRole('link', { name: 'Inicio' })).toHaveAttribute('aria-current', 'page');
+    await expect(navigation).toContainText(/Versión \d+\.\d+/);
   });
 
   test('shows the not-found page inside the shell for an unknown route', async ({ page }) => {
@@ -41,8 +43,8 @@ test.describe('application shell', () => {
 
     await page.goto('/');
 
-    await expect(page.getByRole('contentinfo')).toContainText('Versión no disponible');
     await expect(page.getByRole('heading', { level: 1, name: 'Bienvenida' })).toBeVisible();
+    await expect(await openNavigation(page)).toContainText('Versión no disponible');
   });
 
   test('fits a 360 px screen without horizontal scrolling', async ({ page }) => {

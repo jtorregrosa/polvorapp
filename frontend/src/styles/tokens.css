@@ -1,0 +1,168 @@
+/*
+ * PolvorApp design tokens (ADR-0009 §1, ADR-0012, design D1).
+ * The only place where colour values live. Feature code uses the semantic utilities generated
+ * from `@theme inline` below (`bg-primary`, `text-muted-foreground`, `bg-success-soft`…).
+ * Contrast of the declared pairs is verified by `contrast.test.ts` (WCAG 2.1 AA).
+ */
+
+:root {
+  color-scheme: light;
+  --radius: 0.5rem;
+
+  --background: #faf9f7;
+  --foreground: #1c1917;
+  --card: #ffffff;
+  --card-foreground: #1c1917;
+  --popover: #ffffff;
+  --popover-foreground: #1c1917;
+
+  /* Accent: ember orange ("pólvora"). */
+  --primary: #c2410c;
+  --primary-foreground: #ffffff;
+  --primary-soft: #ffedd5;
+  --primary-soft-foreground: #9a3412;
+
+  --secondary: #f5f5f4;
+  --secondary-foreground: #1c1917;
+  --muted: #f5f5f4;
+  --muted-foreground: #57534e;
+  /* shadcn's "accent" is the neutral hover surface, not the brand accent. */
+  --accent: #f5f5f4;
+  --accent-foreground: #1c1917;
+
+  --success: #15803d;
+  --success-foreground: #ffffff;
+  --success-soft: #dcfce7;
+  --success-soft-foreground: #166534;
+  --warning: #a16207;
+  --warning-foreground: #ffffff;
+  --warning-soft: #fef9c3;
+  --warning-soft-foreground: #854d0e;
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+  --destructive-soft: #fee2e2;
+  --destructive-soft-foreground: #991b1b;
+  --info: #1d4ed8;
+  --info-foreground: #ffffff;
+  --info-soft: #dbeafe;
+  --info-soft-foreground: #1e40af;
+
+  --border: #e7e5e4;
+  --input: #8a827c;
+  --ring: #c2410c;
+
+  --sidebar: #f5f5f4;
+  --sidebar-foreground: #1c1917;
+  --sidebar-primary: #c2410c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e7e5e4;
+  --sidebar-accent-foreground: #1c1917;
+  --sidebar-border: #e7e5e4;
+  --sidebar-ring: #c2410c;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: #1c1917;
+  --foreground: #fafaf9;
+  --card: #292524;
+  --card-foreground: #fafaf9;
+  --popover: #292524;
+  --popover-foreground: #fafaf9;
+
+  --primary: #fb923c;
+  --primary-foreground: #1c1917;
+  --primary-soft: #431407;
+  --primary-soft-foreground: #fdba74;
+
+  --secondary: #292524;
+  --secondary-foreground: #fafaf9;
+  --muted: #292524;
+  --muted-foreground: #b8b2ad;
+  --accent: #44403c;
+  --accent-foreground: #fafaf9;
+
+  --success: #4ade80;
+  --success-foreground: #052e16;
+  --success-soft: #052e16;
+  --success-soft-foreground: #86efac;
+  --warning: #facc15;
+  --warning-foreground: #422006;
+  --warning-soft: #422006;
+  --warning-soft-foreground: #fde047;
+  --destructive: #f87171;
+  --destructive-foreground: #450a0a;
+  --destructive-soft: #450a0a;
+  --destructive-soft-foreground: #fca5a5;
+  --info: #60a5fa;
+  --info-foreground: #172554;
+  --info-soft: #172554;
+  --info-soft-foreground: #93c5fd;
+
+  --border: #44403c;
+  --input: #8a827c;
+  --ring: #fb923c;
+
+  --sidebar: #1c1917;
+  --sidebar-foreground: #fafaf9;
+  --sidebar-primary: #fb923c;
+  --sidebar-primary-foreground: #1c1917;
+  --sidebar-accent: #292524;
+  --sidebar-accent-foreground: #fafaf9;
+  --sidebar-border: #44403c;
+  --sidebar-ring: #fb923c;
+}
+
+@theme inline {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 0.125rem);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 0.25rem);
+  --radius-xl: calc(var(--radius) + 0.5rem);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-soft-foreground: var(--primary-soft-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-soft: var(--success-soft);
+  --color-success-soft-foreground: var(--success-soft-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-soft-foreground: var(--warning-soft-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-destructive-soft-foreground: var(--destructive-soft-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-soft: var(--info-soft);
+  --color-info-soft-foreground: var(--info-soft-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}

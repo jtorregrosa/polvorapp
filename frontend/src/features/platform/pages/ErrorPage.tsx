@@ -1,5 +1,8 @@
+import { TriangleAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { EmptyState } from '@/components/app/EmptyState';
+import { PageHeader } from '@/components/app/PageHeader';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 
 /**
@@ -12,9 +15,16 @@ export function ErrorPage() {
 
   return (
     <>
-      <h1>{t('error.title')}</h1>
-      <p>{t('error.description')}</p>
-      <Link to="/">{t('actions.backHome')}</Link>
+      <PageHeader title={t('error.title')} />
+      <EmptyState
+        icon={TriangleAlert}
+        title={t('error.description')}
+        action={
+          <Link to="/" className="font-medium text-primary underline-offset-4 hover:underline">
+            {t('actions.backHome')}
+          </Link>
+        }
+      />
     </>
   );
 }
@@ -22,7 +32,7 @@ export function ErrorPage() {
 /** Fallback when the shell itself fails: the same page in its own main landmark. */
 export function RootErrorPage() {
   return (
-    <main id="main" className="shell-main">
+    <main id="main" className="mx-auto w-full max-w-6xl px-4 py-6">
       <ErrorPage />
     </main>
   );

@@ -4,6 +4,7 @@ import type { i18n as I18n } from 'i18next';
 import type { ReactElement } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { createI18n } from '@/i18n';
+import { ThemeProvider } from '@/theme/ThemeProvider';
 
 export interface ProvidersResult extends RenderResult {
   i18n: I18n;
@@ -17,7 +18,9 @@ export async function renderWithProviders(ui: ReactElement, language = 'es-ES'):
 
   const result = render(
     <QueryClientProvider client={queryClient}>
-      <I18nextProvider i18n={i18n}>{ui}</I18nextProvider>
+      <I18nextProvider i18n={i18n}>
+        <ThemeProvider>{ui}</ThemeProvider>
+      </I18nextProvider>
     </QueryClientProvider>,
   );
   return { ...result, i18n };
