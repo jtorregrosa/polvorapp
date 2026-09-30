@@ -14,7 +14,7 @@ Discovery and requirements documentation. It will feed the OpenSpec specs (`open
 | [nfr.md](nfr.md) | Non-functional requirements | v1.0 |
 | [adr/](adr/README.md) | Architecture decision records | accepted |
 | [mvp.md](mvp.md) | MVP capabilities and change sequence → OpenSpec | v1.0 |
-| `design/` | UI design guide (created in change `add-design-system`) | pending |
+| [design/](design/README.md) | UI design guide: identity, tokens, statuses, patterns, microcopy | v1.0 |
 | [development.md](development.md) | Local setup, commands, tests, CI and repository settings | v1.0 |
 | [third-party-licenses.md](third-party-licenses.md) | License register of dependencies (ADR-0010) | maintained |
 
