@@ -25,6 +25,11 @@ Users may mark a browser as **remembered for 30 days**, so the TOTP code is not 
 forgotten on password change, 2FA reset, deactivation and "sign out everywhere". Sessions end after
 60 minutes idle and 12 hours at most.
 
+Anti-forgery uses the double-submit pattern for SPAs: the cookie token (`polvorapp.af`) is HttpOnly,
+and the request token is handed to the UI in a script-readable `XSRF-TOKEN` cookie that the UI echoes
+in `X-XSRF-TOKEN`. That cookie is deliberately not HttpOnly (code scanning flags it): alone it is
+useless, it is bound to the signed-in user, and script able to read it could already send requests.
+
 ## Consequences
 
 - No external identity provider cost or dependency.
