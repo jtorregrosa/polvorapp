@@ -1,4 +1,4 @@
-import { expect, test, waitForShell } from './fixtures';
+import { expect, openNavigation, test, waitForShell } from './fixtures';
 
 const SECURITY_HEADERS = {
   'x-content-type-options': 'nosniff',
@@ -64,8 +64,29 @@ test.describe('platform', () => {
     const manifest = await request.get(manifestUrl ?? '');
 
     expect(manifest.ok()).toBe(true);
-    expect(await manifest.json()).toMatchObject({ name: 'PolvorApp', display: 'standalone' });
+    const body = (await manifest.json()) as { icons?: { src: string }[] };
+    expect(body).toMatchObject({ name: 'PolvorApp', display: 'standalone', theme_color: '#c2410c' });
+    expect(body.icons?.length).toBeGreaterThan(0);
+    for (const icon of body.icons ?? []) {
+      expect((await request.get(`/${icon.src.replace(/^\//, '')}`)).ok(), icon.src).toBe(true);
+    }
   });
+
+  for (const path of ['/', '/does/not/exist']) {
+    test(`shows the PolvorApp favicon and title on ${path}`, async ({ page, request }) => {
+      await page.goto(path);
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+
+      await expect(page).toHaveTitle(/ · PolvorApp$/);
+      const icons = await page
+        .locator('link[rel="icon"]')
+        .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''));
+      expect(icons).toContain('/icon.svg');
+      for (const href of icons) {
+        expect((await request.get(href)).ok(), href).toBe(true);
+      }
+    });
+  }
 
   test('serves static assets from the service worker but never API responses', async ({ page }) => {
     await page.goto('/');
@@ -77,6 +98,9 @@ test.describe('platform', () => {
     const apiResponse = page.waitForResponse((r) => r.url().endsWith('/api/system/info'));
     const scriptResponse = page.waitForResponse((r) => /\/assets\/index-.*\.js$/.test(r.url()));
     await page.reload();
+    await waitForShell(page);
+    // The version footer (the API call) lives in the sidebar, a closed drawer on small screens.
+    await openNavigation(page);
 
     expect(await page.evaluate(() => navigator.serviceWorker.controller !== null)).toBe(true);
     expect((await scriptResponse).fromServiceWorker()).toBe(true);

@@ -17,6 +17,16 @@ describe('design guide', () => {
     await expect(renderTokensDoc(css)).toMatchFileSnapshot('../../../docs/design/tokens.md');
   });
 
+  it('is referenced by the OpenSpec project context as the UI reference', () => {
+    const root = join(import.meta.dirname, '../../..');
+    const config = readFileSync(join(root, 'openspec/config.yaml'), 'utf8');
+
+    expect(config).toContain('docs/design/ — UI design guide (required reading for UI changes)');
+    expect(readFileSync(join(root, 'docs/design/README.md'), 'utf8')).toMatch(
+      /^# PolvorApp — UI design guide/,
+    );
+  });
+
   it('fails on a token without a documented role', () => {
     const css = ':root {\n  --mystery: #000000;\n}\n.dark {\n  --mystery: #ffffff;\n}\n';
 

@@ -52,6 +52,11 @@ export function contrastRatio(a: string, b: string): number {
   return ((light ?? 0) + 0.05) / ((dark ?? 0) + 0.05);
 }
 
+/** Failure message naming the theme, the pair and the measured ratio (spec: Insufficient contrast). */
+export function describeFailure(theme: string, { pair, ratio }: ContrastFailure): string {
+  return `${theme}: ${pair.foreground} on ${pair.background} = ${ratio.toFixed(2)} (< ${String(pair.minimum)})`;
+}
+
 export function checkContrast(tokens: TokenMap, pairs: readonly ContrastPair[]): ContrastFailure[] {
   const value = (name: string): string => {
     const hex = tokens[name];
