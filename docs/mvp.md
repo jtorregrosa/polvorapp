@@ -37,7 +37,7 @@ from arquebusier registry to validated orders, billing summary, exports and dist
 | 1 | `bootstrap-platform` | platform | Solution skeleton, docker compose, CI, i18n (3 locales), empty UI shell, synthetic seed, MIT `LICENSE` — **done**, archived 2026-09-30 |
 | 2 | `add-design-system` | design-system | PolvorApp identity (ADR-0012, ember-orange accent), Tailwind tokens (light/dark), shadcn/ui primitives, `components/app/` composites and app layout, `docs/design/` guide, Storybook + axe, lint guardrails — **done**, archived 2026-09-30 |
 | 3 | `add-identity-access` | identity-access | Invitations, login + TOTP 2FA, roles, scoping, minimal audit trail — **done**, archived 2026-09-30 |
-| 4 | `add-federation-catalog` | federation-catalog | Comparsas, FiringChief assignments, weapon model catalogue — **implemented**, in review (archived when the pull request is approved) |
+| 4 | `add-federation-catalog` | federation-catalog | Comparsas, FiringChief assignments, weapon model catalogue — **done**, archived 2026-09-30 |
 | 5 | `add-arquebusier-registry` | arquebusier-registry | CRUD, DNI/NIE validation, Active/Reserve, owned weapons |
 | 6 | `add-arquebusier-photos` | arquebusier-registry | ID + license photos, crop, EXIF strip, private storage |
 | 6b | `add-comparsa-logos` | federation-catalog | Comparsa logo (Admin uploads; reuses the #6 image pipeline and private storage): shown in the comparsa list and detail, in the FiringChief's header, and available to later PDFs |
