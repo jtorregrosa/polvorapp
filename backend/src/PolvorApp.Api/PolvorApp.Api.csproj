@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>PolvorApp.Api</RootNamespace>
+    <NeutralLanguage>es-ES</NeutralLanguage>
+
+    <!-- Committed API contract (spec: Generated API contract). Docker builds pass -p:OpenApiGenerateDocuments=false. -->
+    <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)/../../../contracts</OpenApiDocumentsDirectory>
+    <OpenApiGenerateDocumentsOptions>--file-name openapi</OpenApiGenerateDocumentsOptions>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PolvorApp.Api.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+    <PackageReference Include="Npgsql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PolvorApp.SharedKernel\PolvorApp.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

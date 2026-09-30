@@ -1,0 +1,54 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "PolvorApp API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/system/info": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Application version and build commit.",
+        "operationId": "GetSystemInfo",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemInfoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SystemInfoResponse": {
+        "required": [
+          "version",
+          "commit"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "commit": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "System"
+    }
+  ]
+}
