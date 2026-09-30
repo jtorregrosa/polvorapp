@@ -68,7 +68,7 @@ api.MapSystemInfo();
 api.MapAntiforgeryToken();
 api.MapModules();
 
-// Invalid configuration makes RunAsync throw: the host logs "Hosting failed to start" (Critical)
+// Invalid configuration makes RunAsync throw: the host logs "Hosting failed to start" (Error)
 // with the failing setting names, never their values, and the process exits non-zero.
 await app.RunAsync();
 return 0;
