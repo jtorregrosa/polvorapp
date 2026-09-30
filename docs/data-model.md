@@ -38,7 +38,15 @@ erDiagram
 
 ### Registry (not edition-scoped)
 
-**Comparsa** — `name`, `side` (`MOORISH` | `CHRISTIAN`), `active`.
+**Comparsa** — `name`, `side` (`MOORISH` | `CHRISTIAN`), `active`, `logo` (optional image, uploaded by an
+Admin; change `add-comparsa-logos`). Real comparsa logos are third-party brand assets: never committed.
+The `name` is unique ignoring case (blocking). Admins deactivate a comparsa that no longer takes part
+but keeps history, and delete one entered by mistake or never used.
+
+**Deletion of catalogue records** — comparsas and weapon models can be deleted by an Admin only while
+no other record references them (blocking; later modules report their references through the
+catalog's usage contract). Deleting a comparsa removes its FiringChief assignments. The audit trail
+keeps a snapshot of what was deleted.
 
 **User** — `email` (unique, sign-in name), `name`, `role` (`ADMIN` | `FIRING_CHIEF`), `locale`
 (`es-ES` | `ca-ES-valencia` | `en`, used for emails and applied at sign-in), `active`, `createdAt`,
@@ -47,7 +55,12 @@ ASP.NET Core Identity in the `identity` schema. **Status** is derived: `DEACTIVA
 otherwise `INVITED` while there is no password, else `ACTIVE`. At least one active Admin must always
 remain (blocking).
 
-**FiringChiefAssignment** — `user`, `comparsa`. A comparsa can have several FiringChiefs.
+**FiringChiefAssignment** — `user`, `comparsa`. A comparsa can have several FiringChiefs and a
+FiringChief several comparsas; the assignments are exactly a FiringChief's comparsa scope (BR-12).
+Only `FIRING_CHIEF` users that are not deactivated can be newly assigned, and only to active
+comparsas (blocking); existing assignments are kept when the user or the comparsa is deactivated
+or the user becomes an Admin (no effect while Admin), and removed when the comparsa is deleted.
+Managed by Admins from both the comparsa and the user pages (maintainer decision).
 
 **Arquebusier**
 | Field | Notes |
@@ -65,7 +78,10 @@ remain (blocking).
 
 **License** (current only, no history, no number) — `type` (`AE` | `A_PROF`), `issuedOn`, `expiresOn` (default: AE `issuedOn + 5 years`, A-PROF `issuedOn + 1 year` ❓), `status` (`PENDING` | `VALID` | `EXPIRED` derived), `frontPhoto`, `backPhoto`. Renewal replaces the previous data and photos.
 
-**WeaponModel** (catalogue) — `kind` (`TRABUCO` | `ARCABUZ` | `PISTOL`), `side`, `handedness` (`RIGHT` | `LEFT`), `size` (`NORMAL` | `SMALL`), `rentable` (false for pistols), `label` (Federation naming, e.g. "TRABUCO CRISTIANO DIESTRO (PEQUEÑO)").
+**WeaponModel** (catalogue) — `kind` (`TRABUCO` | `ARCABUZ` | `PISTOL`), `side`, `handedness` (`RIGHT` | `LEFT`), `size` (`NORMAL` | `SMALL`), `rentable` (never for pistols, BR-07), `label` (Federation naming, e.g. "TRABUCO CRISTIANO DIESTRO (PEQUEÑO)", unique ignoring case), `active`.
+Side, handedness and size are required for trabucos and arcabuces, whose kind × side × handedness × size
+combination is unique; for pistols they are optional. Kind and side combine freely (maintainer decision:
+Federation labels such as "ARCABUZ CRISTIANO" do not follow Q-07 strictly; Q-53).
 
 **OwnedWeapon** — `owner` (Arquebusier), `model`, `weaponNumber` (engraved), `ownershipGuideNumber`.
 

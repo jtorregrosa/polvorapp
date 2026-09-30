@@ -89,10 +89,29 @@ docker compose run --rm api-seed                     # option A
 dotnet run --project backend/src/PolvorApp.Api seed  # option B (also set Seed__UserPassword and Seed__AuthenticatorKey)
 ```
 
+`api-seed` is in the `seed` profile, so `docker compose up --build` does not rebuild it: after
+backend changes run `docker compose --profile seed build api-seed` first.
+
 Seeding runs only in `Development`, `Staging` and `Testing` and never uses real data (SEC-11).
+Outside `Development` and `Testing` each seeder first refuses a database that holds anything it
+would not have created (users, comparsas, weapon models or assignments), so staging never mixes
+synthetic and real data (NFR-13).
 Each module registers its own `IDataSeeder`; randomness derives from `SyntheticData.RandomSeed`,
 so every run produces the same data. Seeding is not transactional: after a failed run, reset the
 database (`docker compose down -v`) and seed again.
+
+The catalogue seed adds fictional comparsas and a weapon catalogue; real comparsas and models are
+entered by an Admin in production:
+
+| Comparsa | Side | State | FiringChiefs |
+|---|---|---|---|
+| Comparsa Sintética Norte | Christian | active | Jefe Sintético Uno, Jefa Sintética Dos |
+| Comparsa Sintética Sur | Moorish | active | Jefe Sintético Uno |
+| Comparsa Sintética Este | Christian | active | — |
+| Comparsa Sintética Oeste | Moorish | inactive | — |
+
+Weapon models: trabuco (Christian) and arcabuz (Moorish) in every handedness and size, one of them
+inactive ("ARCABUZ MORO ZURDO (PEQUEÑO)"), plus a non-rentable "PISTOLA" without attributes.
 
 ### Signing in locally
 
@@ -101,7 +120,8 @@ The seed creates synthetic users on the reserved `.example` domain (never real p
 | Email | Role | State |
 |---|---|---|
 | `admin@polvorapp.example` | Admin | active |
-| `jefe.uno@polvorapp.example`, `jefa.dos@polvorapp.example` | FiringChief | active |
+| `jefe.uno@polvorapp.example` | FiringChief of Norte and Sur | active |
+| `jefa.dos@polvorapp.example` | FiringChief of Norte | active |
 | `invitada@polvorapp.example` | FiringChief | invited |
 | `desactivada@polvorapp.example` | FiringChief | deactivated |
 
@@ -163,6 +183,11 @@ node ../scripts/check-coverage.mjs TestResults 80          # 80 % line gate
   Apply them with the host `migrate` command (`docker compose run --rm api-migrate` or
   `dotnet run --project src/PolvorApp.Api migrate`); tests migrate their Testcontainers database
   the same way.
+- The database must use a **UTF-8 ctype** (the default of the `postgres` images, e.g.
+  `en_US.utf8`), never `C` or `POSIX`: case-insensitive uniqueness of comparsa names and weapon
+  labels relies on `lower()`, which with `C`/`POSIX` folds ASCII only, so "PEQUEÑO" and "pequeño"
+  would count as different. Check a hosted database with
+  `SELECT datctype FROM pg_database WHERE datname = current_database();`.
 - Configuration comes only from environment variables (`ConnectionStrings__Postgres`,
   `Email__SmtpHost`, `Email__SmtpPort`, `Email__Security` (`None` | `StartTls` | `SslOnConnect`),
   `Email__From`, optional `Email__Username`/`Email__Password` and `Email__TimeoutSeconds`,

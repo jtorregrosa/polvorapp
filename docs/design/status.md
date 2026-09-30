@@ -51,6 +51,13 @@ neutral pill with the raw code and a development-only console warning.
 | `ACTIVE` | success | CircleCheck | Activo | Actiu | Active |
 | `DEACTIVATED` | muted | CircleX | Desactivado | Desactivat | Deactivated |
 
+## `catalog`
+
+| Value | Tone | Icon | es-ES | ca-ES-valencia | en |
+|---|---|---|---|---|---|
+| `ACTIVE` | success | CircleCheck | Activo | Actiu | Active |
+| `INACTIVE` | muted | CircleDashed | Inactivo | Inactiu | Inactive |
+
 ## `warning`
 
 | Value | Tone | Icon | es-ES | ca-ES-valencia | en |

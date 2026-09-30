@@ -80,3 +80,10 @@ Tracker of discovery questions. Answers are integrated into the relevant doc; th
 | Q-49 | Badge: labels only in Spanish? (size answered: ID-1 credit card on cardstock, plastic sleeve) | `add-badges` |
 | Q-50 | DPO, updated privacy notice, hosting able to run containers | Go-live |
 | Q-51 | Federation buy-in (project presentation / demo) | Go-live |
+| Q-53 | Official weapon catalogue labels and whether kind must follow the side (Q-07 says Christian = trabuco, but Federation lists show "ARCABUZ CRISTIANO"); PolvorApp allows any combination meanwhile | Go-live |
+
+## Pending for later changes (maintainer)
+
+| ID | Topic | Needed before |
+|---|---|---|
+| Q-52 | Does a FiringChief's `User` need a link to their own `Arquebusier` record (a FiringChief may also fire)? Today they are separate records | `add-arquebusier-registry` |
