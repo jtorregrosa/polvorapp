@@ -33,6 +33,17 @@
     "backHome": "Back to the start page"
   },
   "nav": {
-    "home": "Home"
+    "home": "Home",
+    "users": "Users",
+    "account": "My account"
+  },
+  "forbidden": {
+    "title": "Access denied",
+    "description": "You don't have permission to view this page."
+  },
+  "session": {
+    "loading": "Checking your session…",
+    "signOutFailed": "Could not sign out. Check your connection and try again.",
+    "languageNotSaved": "The language changed, but it could not be saved as your preference. This browser will keep using it."
   }
 }

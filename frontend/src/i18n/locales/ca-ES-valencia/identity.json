@@ -1,0 +1,190 @@
+{
+  "signIn": {
+    "title": "Iniciar sessió",
+    "description": "Accedix amb el teu correu i la teua contrasenya.",
+    "email": "Correu electrònic",
+    "password": "Contrasenya",
+    "submit": "Continua",
+    "forgot": "Has oblidat la contrasenya?",
+    "expired": "La teua sessió ha caducat. Torna a iniciar sessió."
+  },
+  "secondFactor": {
+    "title": "Verificació en dos passos",
+    "description": "Escriu el codi de 6 xifres que mostra la teua aplicació d'autenticació.",
+    "code": "Codi",
+    "rememberDevice": "Recordar este dispositiu durant 30 dies",
+    "rememberDeviceHelp": "No ho marques en ordinadors compartits.",
+    "submit": "Verifica",
+    "useRecoveryCode": "No tinc el mòbil: usa un codi de recuperació"
+  },
+  "recovery": {
+    "title": "Codi de recuperació",
+    "description": "Escriu un dels codis de recuperació que vas guardar. Cada codi servix una sola vegada.",
+    "code": "Codi de recuperació",
+    "submit": "Verifica",
+    "useAuthenticator": "Usa l'aplicació d'autenticació",
+    "left_one": "Et queda {{count}} codi de recuperació. Genera codis nous des de «El meu compte».",
+    "left_other": "Et queden {{count}} codis de recuperació. Si et queden pocs, genera codis nous des de «El meu compte»."
+  },
+  "enrolment": {
+    "title": "Configura la verificació en dos passos",
+    "description": "Per a protegir les dades dels arcabussers, PolvorApp demana un codi del teu mòbil a més de la contrasenya.",
+    "step1": "Instal·la una aplicació d'autenticació (per exemple, Google Authenticator, Microsoft Authenticator o FreeOTP).",
+    "step2": "Escaneja el codi QR o escriu la clau manualment.",
+    "step3": "Escriu el codi de 6 xifres que mostra l'aplicació.",
+    "qrLabel": "Codi QR per a configurar l'aplicació d'autenticació",
+    "manualKey": "Clau per a escriure manualment",
+    "code": "Codi de l'aplicació",
+    "submit": "Activa"
+  },
+  "recoveryCodes": {
+    "title": "Guarda els teus codis de recuperació",
+    "description": "Si perds el mòbil, podràs entrar amb un d'estos codis. Només es mostren ara: copia'ls o imprimix-los i guarda'ls en un lloc segur.",
+    "saved": "Ja els he guardat"
+  },
+  "invitation": {
+    "title": "Et donem la benvinguda a PolvorApp",
+    "description": "Hola, {{name}}. Crea la teua contrasenya per a {{email}}.",
+    "password": "Contrasenya nova",
+    "confirmPassword": "Repetix la contrasenya",
+    "submit": "Crea la contrasenya",
+    "invalidTitle": "Esta invitació ja no és vàlida",
+    "invalidDescription": "L'enllaç ha caducat, ja s'ha usat o s'ha substituït per un altre. Demana a un administrador de la Federació que t'envie una invitació nova."
+  },
+  "password": {
+    "rules": "Almenys 12 caràcters. Millor una frase fàcil de recordar que una paraula amb símbols.",
+    "forgotTitle": "Recuperar la contrasenya",
+    "forgotDescription": "Escriu el teu correu i t'enviarem un enllaç per a crear una contrasenya nova.",
+    "forgotSubmit": "Envia l'enllaç",
+    "sentTitle": "Revisa el teu correu",
+    "sentDescription": "Si hi ha un compte amb eixe correu, rebràs un enllaç vàlid durant una hora.",
+    "backToSignIn": "Torna a l'inici de sessió",
+    "resetTitle": "Contrasenya nova",
+    "resetDescription": "Per a entrar encara necessitaràs el codi de la teua aplicació d'autenticació.",
+    "resetSubmit": "Guarda la contrasenya",
+    "resetDone": "Contrasenya canviada. Ja pots iniciar sessió.",
+    "invalidTitle": "Este enllaç ja no és vàlid",
+    "invalidDescription": "L'enllaç ha caducat o ja s'ha usat. Demana'n un de nou."
+  },
+  "validation": {
+    "required": "Este camp és obligatori.",
+    "email": "Escriu un correu vàlid.",
+    "code": "Escriu les 6 xifres del codi.",
+    "passwordLength": "La contrasenya ha de tindre almenys 12 caràcters.",
+    "passwordMismatch": "Les contrasenyes no coincidixen.",
+    "nameTooLong": "Com a màxim 200 caràcters.",
+    "choice": "Tria una opció."
+  },
+  "account": {
+    "title": "El meu compte",
+    "description": "Les teues dades, el teu idioma i la seguretat del teu compte.",
+    "profile": "Dades",
+    "name": "Nom",
+    "email": "Correu electrònic",
+    "role": "Rol",
+    "languageTitle": "Idioma",
+    "languageDescription": "S'usa en l'aplicació i en els correus que reps. Canvia'l amb el selector d'idioma.",
+    "passwordTitle": "Canviar la contrasenya",
+    "currentPassword": "Contrasenya actual",
+    "newPassword": "Contrasenya nova",
+    "confirmPassword": "Repetix la contrasenya nova",
+    "changePassword": "Canvia la contrasenya",
+    "passwordChanged": "Contrasenya canviada. Les altres sessions s'han tancat.",
+    "recoveryTitle": "Codis de recuperació",
+    "recoveryLeft_one": "Et queda {{count}} codi sense usar.",
+    "recoveryLeft_other": "Et queden {{count}} codis sense usar.",
+    "recoveryCode": "Codi de l'aplicació d'autenticació",
+    "regenerate": "Genera codis nous",
+    "regenerated": "Codis nous generats. Els anteriors ja no servixen.",
+    "signOutEverywhereTitle": "Tancar totes les sessions",
+    "signOutEverywhereDescription": "Tanca la sessió en tots els teus dispositius i oblida els dispositius recordats.",
+    "signOutEverywhere": "Tanca totes les sessions",
+    "signOutEverywhereConfirmTitle": "Vols tancar la sessió en tots els teus dispositius?",
+    "signOutEverywhereConfirmDescription": "També es tancarà ací i hauràs de tornar a iniciar sessió amb el codi de la teua aplicació."
+  },
+  "users": {
+    "title": "Usuaris",
+    "description": "Administradors i caps de disparada amb accés a PolvorApp.",
+    "invite": "Convida un usuari",
+    "caption": "Usuaris",
+    "columns": {
+      "name": "Nom",
+      "email": "Correu",
+      "role": "Rol",
+      "status": "Estat",
+      "twoFactor": "Verificació en dos passos",
+      "lastSignIn": "Últim accés"
+    },
+    "filters": {
+      "role": "Rol",
+      "status": "Estat",
+      "all": "Tots"
+    },
+    "never": "Mai",
+    "enabled": "Activada",
+    "disabled": "No configurada",
+    "inviteTitle": "Convidar un usuari",
+    "inviteDescription": "Rebrà un correu amb un enllaç vàlid durant 7 dies per a crear la seua contrasenya.",
+    "detailBack": "Torna als usuaris",
+    "fields": {
+      "email": "Correu electrònic",
+      "name": "Nom",
+      "role": "Rol",
+      "locale": "Idioma dels correus"
+    },
+    "save": "Guarda els canvis",
+    "saved": "Canvis guardats.",
+    "sendInvitation": "Envia la invitació",
+    "invited": "Invitació enviada a {{email}}.",
+    "actionsTitle": "Accions",
+    "deactivate": "Desactiva l'usuari",
+    "deactivateTitle": "Vols desactivar {{name}}?",
+    "deactivateDescription": "Es tancaran les seues sessions i no podrà entrar fins que reactives el compte.",
+    "deactivated": "Usuari desactivat.",
+    "reactivate": "Reactiva l'usuari",
+    "reactivated": "Usuari reactivat.",
+    "resendInvitation": "Reenvia la invitació",
+    "resent": "Invitació reenviada.",
+    "resetTwoFactor": "Restablix la verificació en dos passos",
+    "resetTwoFactorTitle": "Vols restablir la verificació en dos passos de {{name}}?",
+    "resetTwoFactorDescription": "S'esborraran la seua aplicació d'autenticació i els seus codis de recuperació, es tancaran les seues sessions i haurà de configurar-la de nou en entrar.",
+    "twoFactorReset": "Verificació en dos passos restablida."
+  },
+  "roles": {
+    "ADMIN": "Administrador",
+    "FIRING_CHIEF": "Cap de disparada"
+  },
+  "errors": {
+    "auth": {
+      "invalidCredentials": "El correu o la contrasenya no són vàlids.",
+      "invalidCode": "El codi no és vàlid. Comprova'l i torna-ho a provar.",
+      "lockedOut": "Massa intents fallits. Espera 15 minuts i torna-ho a provar.",
+      "stepExpired": "El pas ha caducat. Torna a iniciar sessió.",
+      "unauthenticated": "Inicia sessió per a continuar.",
+      "invalidLink": "L'enllaç ja no és vàlid.",
+      "invalidPassword": "La contrasenya no complix les regles."
+    },
+    "account": {
+      "wrongCurrentPassword": "La contrasenya actual no és correcta."
+    },
+    "users": {
+      "emailTaken": "Ja hi ha un usuari amb eixe correu.",
+      "lastAdmin": "És l'únic administrador actiu: convida o reactiva un altre administrador abans de fer este canvi.",
+      "notInvited": "Només es pot reenviar la invitació a usuaris que encara no l'han acceptada.",
+      "notEnrolled": "Este usuari no té configurada la verificació en dos passos.",
+      "notFound": "Este usuari no existix."
+    },
+    "email": {
+      "sendFailed": "Els canvis s'han guardat, però no s'ha pogut enviar el correu. Torna-ho a provar des de la fitxa de l'usuari."
+    },
+    "validation": "Revisa els camps marcats.",
+    "tooManyRequests": "Massa sol·licituds. Espera un moment i torna-ho a provar.",
+    "generic": "No s'ha pogut completar l'acció. Torna-ho a provar."
+  },
+  "passwordErrors": {
+    "PasswordTooShort": "Ha de tindre almenys 12 caràcters.",
+    "PasswordTooLong": "Ha de tindre com a màxim 128 caràcters.",
+    "PasswordIsEmail": "No pot ser el teu correu electrònic.",
+    "PasswordTooCommon": "És una contrasenya massa comuna. Prova amb una frase."
+  }
+}

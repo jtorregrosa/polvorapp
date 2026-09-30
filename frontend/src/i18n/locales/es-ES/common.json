@@ -33,6 +33,17 @@
     "backHome": "Volver al inicio"
   },
   "nav": {
-    "home": "Inicio"
+    "home": "Inicio",
+    "users": "Usuarios",
+    "account": "Mi cuenta"
+  },
+  "forbidden": {
+    "title": "Acceso no permitido",
+    "description": "Tu rol no permite ver esta página."
+  },
+  "session": {
+    "loading": "Comprobando la sesión…",
+    "signOutFailed": "No se ha podido cerrar la sesión. Comprueba la conexión y vuelve a intentarlo.",
+    "languageNotSaved": "El idioma ha cambiado, pero no se ha podido guardar como preferido. Se usará este idioma en este navegador."
   }
 }

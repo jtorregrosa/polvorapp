@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll } from 'vitest';
+import '@/lib/zod-config';
 import { server } from './server';
 
 // jsdom has no matchMedia; default to a light system theme (tests may stub their own).

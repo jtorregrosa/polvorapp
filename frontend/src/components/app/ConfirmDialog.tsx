@@ -12,6 +12,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { AlertBanner } from './AlertBanner';
+import { ConfirmFailure } from './confirm-failure';
 
 export interface ConfirmDialogProps {
   /** Names the action and its object, e.g. "Delete Ana Pérez?". */
@@ -20,7 +21,10 @@ export interface ConfirmDialogProps {
   description: string;
   /** The action itself ("Delete arquebusier"), never "OK". */
   confirmLabel: string;
-  /** May be asynchronous: the dialog stays open and disabled until it settles, and on failure. */
+  /**
+   * May be asynchronous: the dialog stays open and disabled until it settles, and on failure. A
+   * {@link ConfirmFailure} rejection shows its (translated) message; anything else a generic one.
+   */
   onConfirm: () => void | Promise<void>;
   /** The button that opens the dialog; focus returns to it on close. Omit when controlled. */
   trigger?: ReactElement;
@@ -45,12 +49,12 @@ export function ConfirmDialog({
   const { t } = useTranslation('ui');
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const [pending, setPending] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [failure, setFailure] = useState<string>();
   const open = controlledOpen ?? uncontrolledOpen;
 
   const setOpen = (next: boolean) => {
     if (pending) return;
-    if (next) setFailed(false);
+    if (next) setFailure(undefined);
     setUncontrolledOpen(next);
     onOpenChange?.(next);
   };
@@ -59,15 +63,15 @@ export function ConfirmDialog({
     // Keep the dialog open until the action settles; close it ourselves on success.
     event.preventDefault();
     setPending(true);
-    setFailed(false);
+    setFailure(undefined);
     try {
       await onConfirm();
       setPending(false);
       setUncontrolledOpen(false);
       onOpenChange?.(false);
-    } catch {
+    } catch (error) {
       setPending(false);
-      setFailed(true);
+      setFailure(error instanceof ConfirmFailure ? error.message : t('confirm.failed'));
     }
   };
 
@@ -79,15 +83,25 @@ export function ConfirmDialog({
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
-        {failed && <AlertBanner severity="error">{t('confirm.failed')}</AlertBanner>}
+        {failure && <AlertBanner severity="error">{failure}</AlertBanner>}
         <AlertDialogFooter>
           <AlertDialogCancel disabled={pending}>{t('confirm.cancel')}</AlertDialogCancel>
+          {/* Busy rather than disabled while pending, so focus stays on it (WCAG 2.4.3). */}
           <AlertDialogAction
             variant="destructive"
-            disabled={pending}
-            onClick={(event) => void confirm(event)}
+            aria-disabled={pending || undefined}
+            aria-busy={pending || undefined}
+            className="aria-disabled:cursor-progress aria-disabled:opacity-50"
+            onClick={(event) => {
+              if (pending) {
+                event.preventDefault();
+                return;
+              }
+              void confirm(event);
+            }}
           >
             {confirmLabel}
+            {pending && <span className="sr-only">{t('button.pending')}</span>}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

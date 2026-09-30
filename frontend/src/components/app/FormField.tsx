@@ -47,7 +47,13 @@ export function Form<TValues extends FieldValues>({
       <form
         noValidate
         className={cn('flex flex-col gap-6', className)}
-        onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
+        onSubmit={(e) => {
+          if (form.formState.isSubmitting) {
+            e.preventDefault(); // One submission at a time (Enter while the button is pending).
+            return;
+          }
+          void form.handleSubmit(onSubmit)(e);
+        }}
       >
         {requiredNote && <p className="text-sm text-muted-foreground">{t('form.requiredNote')}</p>}
         {children}

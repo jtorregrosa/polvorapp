@@ -39,6 +39,32 @@ describe('PageHeader', () => {
   });
 });
 
+describe('focus on mount', () => {
+  it('moves focus to the page title when asked', async () => {
+    await renderWithProviders(
+      <MemoryRouter>
+        <PageHeader title="Revisa tu correo" focusOnMount />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Revisa tu correo' })).toHaveFocus();
+  });
+
+  it('moves focus to a notice when asked, and not otherwise', async () => {
+    await renderWithProviders(
+      <>
+        <AlertBanner severity="info">Sin foco</AlertBanner>
+        <AlertBanner severity="success" focusOnMount>
+          Usuario desactivado.
+        </AlertBanner>
+      </>,
+    );
+
+    expect(screen.getByText('Usuario desactivado.').closest('[data-severity]')).toHaveFocus();
+    expect(screen.getByText('Sin foco').closest('[data-severity]')).not.toHaveAttribute('tabindex');
+  });
+});
+
 describe('EmptyState', () => {
   it('shows an icon, a heading, a description and an optional action', async () => {
     await renderWithProviders(

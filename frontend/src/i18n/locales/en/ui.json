@@ -81,9 +81,32 @@
       "LICENSE": "License not valid",
       "COURSE": "No course",
       "AGE": "Under age"
+    },
+    "user": {
+      "INVITED": "Invited",
+      "ACTIVE": "Active",
+      "DEACTIVATED": "Deactivated"
     }
   },
   "validation": {
     "required": "This field is required"
+  },
+  "button": {
+    "pending": "One moment…"
+  },
+  "password": {
+    "show": "Show password"
+  },
+  "userMenu": {
+    "label": "Menu for {{name}}",
+    "account": "My account",
+    "signOut": "Sign out"
+  },
+  "recoveryCodes": {
+    "label": "Recovery codes",
+    "copy": "Copy the codes",
+    "copied": "Codes copied",
+    "print": "Print",
+    "failed": "Couldn't copy them. Select the codes and copy them by hand."
   }
 }

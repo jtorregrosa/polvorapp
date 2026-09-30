@@ -81,9 +81,32 @@
       "LICENSE": "Licencia no vigente",
       "COURSE": "Sin curso",
       "AGE": "Menor de edad"
+    },
+    "user": {
+      "INVITED": "Invitado",
+      "ACTIVE": "Activo",
+      "DEACTIVATED": "Desactivado"
     }
   },
   "validation": {
     "required": "Este campo es obligatorio"
+  },
+  "button": {
+    "pending": "Un momento…"
+  },
+  "password": {
+    "show": "Mostrar la contraseña"
+  },
+  "userMenu": {
+    "label": "Menú de {{name}}",
+    "account": "Mi cuenta",
+    "signOut": "Cerrar sesión"
+  },
+  "recoveryCodes": {
+    "label": "Códigos de recuperación",
+    "copy": "Copiar los códigos",
+    "copied": "Códigos copiados",
+    "print": "Imprimir",
+    "failed": "No se han podido copiar. Selecciona los códigos y cópialos a mano."
   }
 }

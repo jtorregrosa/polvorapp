@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { axeViolations } from '@/test/axe';
 import { renderWithProviders } from '@/test/render';
 import { ConfirmDialog } from './ConfirmDialog';
+import { ConfirmFailure } from './confirm-failure';
 
 function renderDialog(onConfirm = vi.fn(), language = 'es-ES') {
   return renderWithProviders(
@@ -87,7 +88,9 @@ describe('ConfirmDialog', () => {
     await user.click(await screen.findByRole('button', { name: 'Eliminar arcabucero' }));
 
     expect(screen.getByRole('alertdialog')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Eliminar arcabucero' })).toBeDisabled();
+    const action = screen.getByRole('button', { name: /^Eliminar arcabucero/ });
+    expect(action).toHaveAttribute('aria-disabled', 'true');
+    expect(action).toHaveFocus();
     expect(screen.getByRole('button', { name: 'Cancelar' })).toBeDisabled();
 
     finish();
@@ -107,6 +110,16 @@ describe('ConfirmDialog', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('No se ha podido completar la acción');
     expect(screen.getByRole('alertdialog')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Eliminar arcabucero' })).toBeEnabled();
+  });
+
+  it('shows the reason an action gives for failing', async () => {
+    const user = userEvent.setup();
+    await renderDialog(vi.fn(() => Promise.reject(new ConfirmFailure('Es el único administrador activo.'))));
+
+    await user.click(screen.getByRole('button', { name: 'Eliminar' }));
+    await user.click(await screen.findByRole('button', { name: 'Eliminar arcabucero' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Es el único administrador activo.');
   });
 
   it('can be opened and closed by its owner without a trigger', async () => {

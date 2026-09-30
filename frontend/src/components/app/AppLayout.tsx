@@ -16,6 +16,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
+import type { Language } from '@/i18n/config';
 import { Breadcrumbs } from './Breadcrumbs';
 import { isCurrentPath } from './navigation-match';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -35,6 +36,10 @@ export interface AppLayoutProps {
   navigation: readonly NavigationItem[];
   /** Shown at the bottom of the sidebar (API version). */
   sidebarFooter?: ReactNode;
+  /** End of the top bar, after the switchers: the signed-in user's menu. */
+  userMenu?: ReactNode;
+  /** Called after the language switcher changes the UI language. */
+  onLanguageChange?: (language: Language) => void;
   mainRef?: RefObject<HTMLElement | null>;
   children: ReactNode;
 }
@@ -101,7 +106,14 @@ function NavigationTrigger() {
  * mark, navigation and footer; top bar with breadcrumbs and switchers; main content. On small
  * screens the sidebar becomes a drawer opened from the top bar.
  */
-export function AppLayout({ navigation, sidebarFooter, mainRef, children }: AppLayoutProps) {
+export function AppLayout({
+  navigation,
+  sidebarFooter,
+  userMenu,
+  onLanguageChange,
+  mainRef,
+  children,
+}: AppLayoutProps) {
   const { t } = useTranslation();
 
   return (
@@ -135,8 +147,9 @@ export function AppLayout({ navigation, sidebarFooter, mainRef, children }: AppL
           <div className="min-w-0 flex-1">
             <Breadcrumbs />
           </div>
-          <LanguageSwitcher />
+          <LanguageSwitcher onLanguageChange={onLanguageChange} />
           <ThemeSwitcher />
+          {userMenu}
         </header>
         <SidebarInset id="main" ref={mainRef} tabIndex={-1} className="px-4 py-6 outline-none sm:px-6">
           <div className="mx-auto w-full max-w-6xl">{children}</div>

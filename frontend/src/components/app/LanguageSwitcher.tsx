@@ -3,23 +3,29 @@ import { useId, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Label } from '@/components/ui/label';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
-import { matchLanguage, rememberLanguage, SUPPORTED_LANGUAGES } from '@/i18n/config';
+import { matchLanguage, rememberLanguage, SUPPORTED_LANGUAGES, type Language } from '@/i18n/config';
+
+export interface LanguageSwitcherProps {
+  /** Called after a switch, e.g. to save the signed-in user's preferred language. */
+  onLanguageChange?: (language: Language) => void;
+}
 
 /**
  * Switches the UI language at runtime (UC-27). A native select keeps the platform's accessible
  * picker on phones. Each option is written in its own language and marked with `lang`.
  */
-export function LanguageSwitcher() {
+export function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps = {}) {
   const { t, i18n } = useTranslation();
   const id = useId();
 
   const onChange = (event: ChangeEvent<HTMLSelectElement>): void => {
     const language = matchLanguage(event.target.value);
-    if (!language) {
+    if (!language || language === i18n.resolvedLanguage) {
       return;
     }
     rememberLanguage(language);
     void i18n.changeLanguage(language);
+    onLanguageChange?.(language);
   };
 
   return (

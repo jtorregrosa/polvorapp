@@ -81,9 +81,32 @@
       "LICENSE": "Llicència no vigent",
       "COURSE": "Sense curs",
       "AGE": "Menor d'edat"
+    },
+    "user": {
+      "INVITED": "Convidat",
+      "ACTIVE": "Actiu",
+      "DEACTIVATED": "Desactivat"
     }
   },
   "validation": {
     "required": "Este camp és obligatori"
+  },
+  "button": {
+    "pending": "Un moment…"
+  },
+  "password": {
+    "show": "Mostra la contrasenya"
+  },
+  "userMenu": {
+    "label": "Menú de {{name}}",
+    "account": "El meu compte",
+    "signOut": "Tanca la sessió"
+  },
+  "recoveryCodes": {
+    "label": "Codis de recuperació",
+    "copy": "Copia els codis",
+    "copied": "Codis copiats",
+    "print": "Imprimix",
+    "failed": "No s'han pogut copiar. Selecciona els codis i copia'ls a mà."
   }
 }

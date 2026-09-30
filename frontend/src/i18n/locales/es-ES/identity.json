@@ -1,0 +1,190 @@
+{
+  "signIn": {
+    "title": "Iniciar sesión",
+    "description": "Accede con tu correo y tu contraseña.",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "submit": "Continuar",
+    "forgot": "¿Has olvidado la contraseña?",
+    "expired": "Tu sesión ha caducado. Vuelve a iniciar sesión."
+  },
+  "secondFactor": {
+    "title": "Verificación en dos pasos",
+    "description": "Escribe el código de 6 cifras que muestra tu aplicación de autenticación.",
+    "code": "Código",
+    "rememberDevice": "Recordar este dispositivo durante 30 días",
+    "rememberDeviceHelp": "No lo marques en ordenadores compartidos.",
+    "submit": "Verificar",
+    "useRecoveryCode": "No tengo el móvil: usar un código de recuperación"
+  },
+  "recovery": {
+    "title": "Código de recuperación",
+    "description": "Escribe uno de los códigos de recuperación que guardaste. Cada código sirve una sola vez.",
+    "code": "Código de recuperación",
+    "submit": "Verificar",
+    "useAuthenticator": "Usar la aplicación de autenticación",
+    "left_one": "Te queda {{count}} código de recuperación. Genera códigos nuevos desde Mi cuenta.",
+    "left_other": "Te quedan {{count}} códigos de recuperación. Si te quedan pocos, genera códigos nuevos desde Mi cuenta."
+  },
+  "enrolment": {
+    "title": "Configura la verificación en dos pasos",
+    "description": "Para proteger los datos de los arcabuceros, PolvorApp pide un código de tu móvil además de la contraseña.",
+    "step1": "Instala una aplicación de autenticación (por ejemplo, Google Authenticator, Microsoft Authenticator o FreeOTP).",
+    "step2": "Escanea el código QR o escribe la clave manualmente.",
+    "step3": "Escribe el código de 6 cifras que muestra la aplicación.",
+    "qrLabel": "Código QR para configurar la aplicación de autenticación",
+    "manualKey": "Clave para escribir manualmente",
+    "code": "Código de la aplicación",
+    "submit": "Activar"
+  },
+  "recoveryCodes": {
+    "title": "Guarda tus códigos de recuperación",
+    "description": "Si pierdes el móvil, podrás entrar con uno de estos códigos. Solo se muestran ahora: cópialos o imprímelos y guárdalos en un lugar seguro.",
+    "saved": "Ya los he guardado"
+  },
+  "invitation": {
+    "title": "Te damos la bienvenida a PolvorApp",
+    "description": "Hola, {{name}}. Crea tu contraseña para {{email}}.",
+    "password": "Contraseña nueva",
+    "confirmPassword": "Repite la contraseña",
+    "submit": "Crear contraseña",
+    "invalidTitle": "Esta invitación ya no es válida",
+    "invalidDescription": "El enlace ha caducado, ya se ha usado o se ha sustituido por otro. Pide a la Federación que te envíe una nueva invitación."
+  },
+  "password": {
+    "rules": "Al menos 12 caracteres. Mejor una frase fácil de recordar que una palabra con símbolos.",
+    "forgotTitle": "Recuperar la contraseña",
+    "forgotDescription": "Escribe tu correo y te enviaremos un enlace para crear una contraseña nueva.",
+    "forgotSubmit": "Enviar enlace",
+    "sentTitle": "Revisa tu correo",
+    "sentDescription": "Si hay una cuenta con ese correo, recibirás un enlace válido durante una hora.",
+    "backToSignIn": "Volver al inicio de sesión",
+    "resetTitle": "Contraseña nueva",
+    "resetDescription": "Para entrar seguirás necesitando el código de tu aplicación de autenticación.",
+    "resetSubmit": "Guardar contraseña",
+    "resetDone": "Contraseña cambiada. Ya puedes iniciar sesión.",
+    "invalidTitle": "Este enlace ya no es válido",
+    "invalidDescription": "El enlace ha caducado o ya se ha usado. Pide uno nuevo."
+  },
+  "validation": {
+    "required": "Este campo es obligatorio.",
+    "email": "Escribe un correo válido.",
+    "code": "Escribe las 6 cifras del código.",
+    "passwordLength": "La contraseña debe tener al menos 12 caracteres.",
+    "passwordMismatch": "Las contraseñas no coinciden.",
+    "nameTooLong": "Como máximo 200 caracteres.",
+    "choice": "Elige una opción."
+  },
+  "account": {
+    "title": "Mi cuenta",
+    "description": "Tus datos, tu idioma y la seguridad de tu cuenta.",
+    "profile": "Datos",
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "role": "Rol",
+    "languageTitle": "Idioma",
+    "languageDescription": "Se usa en la aplicación y en los correos que recibes. Cámbialo con el selector de idioma.",
+    "passwordTitle": "Cambiar la contraseña",
+    "currentPassword": "Contraseña actual",
+    "newPassword": "Contraseña nueva",
+    "confirmPassword": "Repite la contraseña nueva",
+    "changePassword": "Cambiar contraseña",
+    "passwordChanged": "Contraseña cambiada. Las demás sesiones se han cerrado.",
+    "recoveryTitle": "Códigos de recuperación",
+    "recoveryLeft_one": "Te queda {{count}} código sin usar.",
+    "recoveryLeft_other": "Te quedan {{count}} códigos sin usar.",
+    "recoveryCode": "Código de la aplicación de autenticación",
+    "regenerate": "Generar códigos nuevos",
+    "regenerated": "Códigos nuevos generados. Los anteriores ya no sirven.",
+    "signOutEverywhereTitle": "Cerrar todas las sesiones",
+    "signOutEverywhereDescription": "Cierra la sesión en todos tus dispositivos y olvida los dispositivos recordados.",
+    "signOutEverywhere": "Cerrar todas las sesiones",
+    "signOutEverywhereConfirmTitle": "¿Cerrar la sesión en todos tus dispositivos?",
+    "signOutEverywhereConfirmDescription": "También se cerrará aquí y tendrás que volver a iniciar sesión con el código de tu aplicación."
+  },
+  "users": {
+    "title": "Usuarios",
+    "description": "Administradores y jefes de disparo con acceso a PolvorApp.",
+    "invite": "Invitar usuario",
+    "caption": "Usuarios",
+    "columns": {
+      "name": "Nombre",
+      "email": "Correo",
+      "role": "Rol",
+      "status": "Estado",
+      "twoFactor": "Verificación en dos pasos",
+      "lastSignIn": "Último acceso"
+    },
+    "filters": {
+      "role": "Rol",
+      "status": "Estado",
+      "all": "Todos"
+    },
+    "never": "Nunca",
+    "enabled": "Activada",
+    "disabled": "No configurada",
+    "inviteTitle": "Invitar usuario",
+    "inviteDescription": "Recibirá un correo con un enlace válido durante 7 días para crear su contraseña.",
+    "detailBack": "Volver a usuarios",
+    "fields": {
+      "email": "Correo electrónico",
+      "name": "Nombre",
+      "role": "Rol",
+      "locale": "Idioma de los correos"
+    },
+    "save": "Guardar cambios",
+    "saved": "Cambios guardados.",
+    "sendInvitation": "Enviar invitación",
+    "invited": "Invitación enviada a {{email}}.",
+    "actionsTitle": "Acciones",
+    "deactivate": "Desactivar usuario",
+    "deactivateTitle": "¿Desactivar a {{name}}?",
+    "deactivateDescription": "Se cerrarán sus sesiones y no podrá entrar hasta que reactives la cuenta.",
+    "deactivated": "Usuario desactivado.",
+    "reactivate": "Reactivar usuario",
+    "reactivated": "Usuario reactivado.",
+    "resendInvitation": "Reenviar invitación",
+    "resent": "Invitación reenviada.",
+    "resetTwoFactor": "Restablecer la verificación en dos pasos",
+    "resetTwoFactorTitle": "¿Restablecer la verificación en dos pasos de {{name}}?",
+    "resetTwoFactorDescription": "Se borrarán su aplicación de autenticación y sus códigos de recuperación, se cerrarán sus sesiones y tendrá que configurarla de nuevo al entrar.",
+    "twoFactorReset": "Verificación en dos pasos restablecida."
+  },
+  "roles": {
+    "ADMIN": "Administrador",
+    "FIRING_CHIEF": "Jefe de disparo"
+  },
+  "errors": {
+    "auth": {
+      "invalidCredentials": "El correo o la contraseña no son válidos.",
+      "invalidCode": "El código no es válido. Compruébalo y vuelve a intentarlo.",
+      "lockedOut": "Demasiados intentos fallidos. Espera 15 minutos y vuelve a intentarlo.",
+      "stepExpired": "El paso ha caducado. Vuelve a iniciar sesión.",
+      "unauthenticated": "Inicia sesión para continuar.",
+      "invalidLink": "El enlace ya no es válido.",
+      "invalidPassword": "La contraseña no cumple las reglas."
+    },
+    "account": {
+      "wrongCurrentPassword": "La contraseña actual no es correcta."
+    },
+    "users": {
+      "emailTaken": "Ya existe un usuario con ese correo.",
+      "lastAdmin": "Es el único administrador activo: invita o reactiva a otro administrador antes de hacer este cambio.",
+      "notInvited": "Solo se puede reenviar la invitación a usuarios que aún no la han aceptado.",
+      "notEnrolled": "Este usuario no tiene configurada la verificación en dos pasos.",
+      "notFound": "Este usuario no existe."
+    },
+    "email": {
+      "sendFailed": "Los cambios se han guardado, pero no se ha podido enviar el correo. Vuelve a intentarlo desde la ficha del usuario."
+    },
+    "validation": "Revisa los campos marcados.",
+    "tooManyRequests": "Demasiadas solicitudes. Espera un momento y vuelve a intentarlo.",
+    "generic": "No se ha podido completar la acción. Vuelve a intentarlo."
+  },
+  "passwordErrors": {
+    "PasswordTooShort": "Debe tener al menos 12 caracteres.",
+    "PasswordTooLong": "Debe tener como mucho 128 caracteres.",
+    "PasswordIsEmail": "No puede ser tu correo electrónico.",
+    "PasswordTooCommon": "Es una contraseña demasiado común. Prueba con una frase."
+  }
+}
