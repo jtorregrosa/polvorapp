@@ -16,6 +16,9 @@ internal sealed class SecurityHeadersMiddleware(RequestDelegate next)
             headers["Referrer-Policy"] = "no-referrer";
             headers.ContentSecurityPolicy = "default-src 'none'; frame-ancestors 'none'";
             headers["Permissions-Policy"] = "camera=(self), geolocation=(), microphone=()";
+            // API responses carry personal data, one-time secrets (authenticator keys, recovery
+            // codes) and session state: never store them in any cache.
+            headers.CacheControl = "no-store";
             return Task.CompletedTask;
         });
 

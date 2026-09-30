@@ -1,0 +1,56 @@
+using Microsoft.Extensions.Logging;
+using Npgsql;
+using PolvorApp.Api.Platform.Database;
+using PolvorApp.Api.Tests.Infrastructure;
+
+namespace PolvorApp.Api.Tests;
+
+/// <summary>Spec platform: "Local environment with one command" — migrations run by an explicit command.</summary>
+[Collection(PostgresGroup.Name)]
+public sealed class MigrateCommandTests(PostgresFixture postgres)
+{
+    [Fact]
+    public async Task Migrate_creates_every_module_schema_with_its_own_history_table()
+    {
+        var connectionString = await postgres.CreateDatabaseAsync();
+        await using var factory = new ApiFactory(connectionString);
+
+        var exitCode = await MigrateCommand.RunAsync(factory.Services, TestContext.Current.CancellationToken);
+
+        Assert.Equal(0, exitCode);
+        Assert.True(await TableExistsAsync(connectionString, "audit", "audit_entries"));
+        Assert.True(await TableExistsAsync(connectionString, "audit", "__EFMigrationsHistory"));
+    }
+
+    [Fact]
+    public async Task Migrate_is_idempotent()
+    {
+        var connectionString = await postgres.CreateDatabaseAsync();
+        await using var factory = new ApiFactory(connectionString);
+
+        Assert.Equal(0, await MigrateCommand.RunAsync(factory.Services, TestContext.Current.CancellationToken));
+        Assert.Equal(0, await MigrateCommand.RunAsync(factory.Services, TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
+    public async Task Migrate_fails_with_a_log_when_the_database_is_unreachable()
+    {
+        var unreachable = new NpgsqlConnectionStringBuilder(postgres.ConnectionString) { Port = 1, Timeout = 2 }.ConnectionString;
+        await using var factory = new ApiFactory(unreachable);
+
+        var exitCode = await MigrateCommand.RunAsync(factory.Services, TestContext.Current.CancellationToken);
+
+        Assert.Equal(1, exitCode);
+        Assert.Contains(factory.Logs.Entries, e => e.Level == LogLevel.Critical && e.Message.Contains("Migration failed", StringComparison.Ordinal));
+    }
+
+    private static async Task<bool> TableExistsAsync(string connectionString, string schema, string table)
+    {
+        await using var dataSource = NpgsqlDataSource.Create(connectionString);
+        await using var command = dataSource.CreateCommand(
+            "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = $1 AND table_name = $2)");
+        command.Parameters.Add(new NpgsqlParameter { Value = schema });
+        command.Parameters.Add(new NpgsqlParameter { Value = table });
+        return (bool)(await command.ExecuteScalarAsync(TestContext.Current.CancellationToken))!;
+    }
+}

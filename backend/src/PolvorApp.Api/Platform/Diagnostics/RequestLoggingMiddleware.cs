@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using PolvorApp.SharedKernel.Diagnostics;
 
 namespace PolvorApp.Api.Platform.Diagnostics;
 

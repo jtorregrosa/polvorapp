@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Invitation.Subject" xml:space="preserve">
+    <value>PolvorApp invitation</value>
+  </data>
+  <data name="Invitation.Text" xml:space="preserve">
+    <value>Hello {0},
+
+You have been invited to PolvorApp, the arquebusier portal of the Moors and Christians festival of San Vicente del Raspeig.
+
+To create your password and set up two-step verification, open this link (valid for {2} days, single use):
+{1}
+
+If you were not expecting this message, ignore it.</value>
+  </data>
+  <data name="PasswordReset.Subject" xml:space="preserve">
+    <value>Reset your PolvorApp password</value>
+  </data>
+  <data name="PasswordReset.Text" xml:space="preserve">
+    <value>Hello {0},
+
+We received a request to reset your password. Open this link (valid for {2} minutes, single use):
+{1}
+
+You will still need the code from your authenticator app afterwards.
+If you did not ask for this, ignore this message: your password will not change.</value>
+  </data>
+</root>

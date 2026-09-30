@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Invitation.Subject" xml:space="preserve">
+    <value>Invitación a PolvorApp</value>
+  </data>
+  <data name="Invitation.Text" xml:space="preserve">
+    <value>Hola, {0}:
+
+Te han invitado a PolvorApp, el portal de arcabuceros de las fiestas de Moros y Cristianos de San Vicente del Raspeig.
+
+Para crear tu contraseña y configurar la verificación en dos pasos, abre este enlace (válido durante {2} días y de un solo uso):
+{1}
+
+Si no esperabas este mensaje, ignóralo.</value>
+  </data>
+  <data name="PasswordReset.Subject" xml:space="preserve">
+    <value>Restablecer tu contraseña de PolvorApp</value>
+  </data>
+  <data name="PasswordReset.Text" xml:space="preserve">
+    <value>Hola, {0}:
+
+Hemos recibido una solicitud para restablecer tu contraseña. Abre este enlace (válido durante {2} minutos y de un solo uso):
+{1}
+
+Después seguirás necesitando el código de tu aplicación de autenticación.
+Si no lo has pedido tú, ignora este mensaje: tu contraseña no cambiará.</value>
+  </data>
+</root>

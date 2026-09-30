@@ -4,9 +4,13 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0-noble@sha256:35d40304542c8689331f8cab17c6
 WORKDIR /src
 
 # Project files first for restore caching. Add each new module project here (and its .Contracts).
-COPY global.json Directory.Build.props Directory.Packages.props PolvorApp.slnx ./
+COPY .editorconfig global.json Directory.Build.props Directory.Packages.props PolvorApp.slnx ./
 COPY src/PolvorApp.Api/PolvorApp.Api.csproj src/PolvorApp.Api/
 COPY src/PolvorApp.SharedKernel/PolvorApp.SharedKernel.csproj src/PolvorApp.SharedKernel/
+COPY src/Modules/AuditPrivacy/PolvorApp.AuditPrivacy/PolvorApp.AuditPrivacy.csproj src/Modules/AuditPrivacy/PolvorApp.AuditPrivacy/
+COPY src/Modules/AuditPrivacy/PolvorApp.AuditPrivacy.Contracts/PolvorApp.AuditPrivacy.Contracts.csproj src/Modules/AuditPrivacy/PolvorApp.AuditPrivacy.Contracts/
+COPY src/Modules/IdentityAccess/PolvorApp.IdentityAccess/PolvorApp.IdentityAccess.csproj src/Modules/IdentityAccess/PolvorApp.IdentityAccess/
+COPY src/Modules/IdentityAccess/PolvorApp.IdentityAccess.Contracts/PolvorApp.IdentityAccess.Contracts.csproj src/Modules/IdentityAccess/PolvorApp.IdentityAccess.Contracts/
 RUN dotnet restore src/PolvorApp.Api/PolvorApp.Api.csproj
 
 COPY src/ src/

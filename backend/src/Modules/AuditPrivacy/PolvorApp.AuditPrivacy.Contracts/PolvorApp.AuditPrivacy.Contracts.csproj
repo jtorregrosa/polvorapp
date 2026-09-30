@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Public contract of the audit-privacy module. Empty until the viewer and GDPR tooling (#15);
+       recording goes through PolvorApp.SharedKernel.Auditing.IAuditTrail. -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\PolvorApp.SharedKernel\PolvorApp.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -4,6 +4,14 @@
     <Project Path="src/PolvorApp.SharedKernel/PolvorApp.SharedKernel.csproj" />
   </Folder>
   <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/IdentityAccess/">
+    <Project Path="src/Modules/IdentityAccess/PolvorApp.IdentityAccess.Contracts/PolvorApp.IdentityAccess.Contracts.csproj" />
+    <Project Path="src/Modules/IdentityAccess/PolvorApp.IdentityAccess/PolvorApp.IdentityAccess.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/AuditPrivacy/">
+    <Project Path="src/Modules/AuditPrivacy/PolvorApp.AuditPrivacy.Contracts/PolvorApp.AuditPrivacy.Contracts.csproj" />
+    <Project Path="src/Modules/AuditPrivacy/PolvorApp.AuditPrivacy/PolvorApp.AuditPrivacy.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PolvorApp.Api.Tests/PolvorApp.Api.Tests.csproj" />
     <Project Path="tests/PolvorApp.ArchitectureTests/PolvorApp.ArchitectureTests.csproj" />

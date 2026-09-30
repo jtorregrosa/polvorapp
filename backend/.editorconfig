@@ -1,0 +1,4 @@
+# The Docker build context is backend/, without the repository .editorconfig: keep what the
+# image build needs here. EF Core migrations are generated code.
+[**/Migrations/*.cs]
+generated_code = true

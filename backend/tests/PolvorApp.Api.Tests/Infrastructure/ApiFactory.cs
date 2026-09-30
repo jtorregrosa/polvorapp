@@ -23,7 +23,19 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
     {
         _environment = environment;
         _configureServices = configureServices;
-        var all = new Dictionary<string, string?>(settings ?? new Dictionary<string, string?>());
+        var all = new Dictionary<string, string?>(DefaultSettings);
+        if (environment is not ("Development" or "Testing"))
+        {
+            // Outside local environments email must use TLS and links https (spec: Transactional email).
+            all["Email:Security"] = "StartTls";
+            all["App:PublicBaseUrl"] = "https://polvorapp.example";
+        }
+
+        foreach (var (key, value) in settings ?? new Dictionary<string, string?>())
+        {
+            all[key] = value;
+        }
+
         if (connectionString is not null)
         {
             all["ConnectionStrings:Postgres"] = connectionString;
@@ -31,6 +43,16 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
         _settings = all;
     }
+
+    /// <summary>Valid settings every test starts from; a test overrides or removes (null) single keys.</summary>
+    public static IReadOnlyDictionary<string, string?> DefaultSettings { get; } = new Dictionary<string, string?>
+    {
+        ["Email:SmtpHost"] = "localhost",
+        ["Email:SmtpPort"] = "1025",
+        ["Email:Security"] = "None",
+        ["Email:From"] = "PolvorApp <no-reply@polvorapp.example>",
+        ["App:PublicBaseUrl"] = "http://localhost:8080",
+    };
 
     public CapturingLoggerProvider Logs { get; } = new();
 
