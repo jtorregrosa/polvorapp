@@ -28,5 +28,14 @@ reference fails even before any of its types is used.
 
 ## Persistence (from `add-identity-access`)
 
-One DbContext per module, one PostgreSQL schema per module with its own migrations-history table,
-migrations applied by the host `migrate` command (never on web startup).
+- One `DbContext` per module and one PostgreSQL schema per module, registered with
+  `services.AddModuleDbContext<TContext>(schema, migrationOrder)` (`PolvorApp.SharedKernel.Persistence`).
+  It uses the host's shared `NpgsqlDataSource`, snake_case names, a migrations-history table in
+  the module's schema and the append-only audit guard.
+- Migrations live in `Persistence/Migrations` and are generated with a design-time factory
+  (`IDesignTimeDbContextFactory`, see `AuditPrivacy`). The host `migrate` command applies every
+  module's migrations in `migrationOrder`; the web API never migrates on startup.
+- **Audit trail** (SEC-05): every write is recorded with `IAuditTrail.Record(context, record)`
+  before `SaveChangesAsync`, so the entry commits in the same transaction as the change. Each
+  module context calls `modelBuilder.AddAuditTrail()` (the table is excluded from its migrations;
+  the `AuditPrivacy` module owns it). Audit data never contains passwords, codes or tokens.

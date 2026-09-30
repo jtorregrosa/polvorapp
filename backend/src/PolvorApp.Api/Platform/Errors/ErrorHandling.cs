@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Localization;
 using PolvorApp.Api.Platform.Diagnostics;
 using PolvorApp.Api.Platform.Localization;
+using PolvorApp.SharedKernel.Diagnostics;
 
 namespace PolvorApp.Api.Platform.Errors;
 

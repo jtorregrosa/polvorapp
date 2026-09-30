@@ -27,4 +27,22 @@
   <data name="ProblemTitle.503" xml:space="preserve">
     <value>Servei no disponible</value>
   </data>
+  <data name="ProblemTitle.401" xml:space="preserve">
+    <value>No autoritzat</value>
+  </data>
+  <data name="ProblemTitle.403" xml:space="preserve">
+    <value>Accés denegat</value>
+  </data>
+  <data name="ProblemTitle.409" xml:space="preserve">
+    <value>Conflicte</value>
+  </data>
+  <data name="ProblemTitle.410" xml:space="preserve">
+    <value>Ja no està disponible</value>
+  </data>
+  <data name="ProblemTitle.429" xml:space="preserve">
+    <value>Massa sol·licituds</value>
+  </data>
+  <data name="ProblemTitle.502" xml:space="preserve">
+    <value>Error del servei extern</value>
+  </data>
 </root>

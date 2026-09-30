@@ -1,17 +1,18 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Net.Http.Headers;
+using PolvorApp.SharedKernel.Localization;
 
 namespace PolvorApp.Api.Platform.Localization;
 
 /// <summary>Request culture from <c>Accept-Language</c> among the three UI locales (ADR-0007).</summary>
 internal static class RequestCultures
 {
-    public const string Default = "es-ES";
-    public const string Valencian = "ca-ES-valencia";
-    public const string English = "en";
+    public const string Default = SupportedLocales.Spanish;
+    public const string Valencian = SupportedLocales.Valencian;
+    public const string English = SupportedLocales.English;
 
-    public static readonly IReadOnlyList<string> Supported = [Default, Valencian, English];
+    public static readonly IReadOnlyList<string> Supported = SupportedLocales.All;
 
     public static IServiceCollection AddPlatformLocalization(this IServiceCollection services)
     {

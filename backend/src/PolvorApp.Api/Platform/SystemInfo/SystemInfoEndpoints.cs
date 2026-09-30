@@ -36,7 +36,8 @@ internal static class SystemInfoEndpoints
         endpoints.MapGet("/system/info", () => TypedResults.Ok(Current))
             .WithName("GetSystemInfo")
             .WithTags("System")
-            .WithSummary("Application version and build commit.");
+            .WithSummary("Application version and build commit.")
+            .AllowAnonymous();
         return endpoints;
     }
 }
