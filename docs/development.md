@@ -33,6 +33,9 @@ cp .env.example .env          # once; placeholders only, never commit .env
 docker compose up --build     # UI + API on http://localhost:8080
 ```
 
+The one-shot `api-migrate` service applies the database migrations before `api` starts; the API
+itself never migrates on startup.
+
 | Service | Address (loopback only) |
 |---|---|
 | Web (UI + `/api`) | <http://localhost:8080> |
@@ -52,6 +55,8 @@ API on port 5080 (the Vite dev server proxies `/api` there). Use the database va
 ```bash
 export ASPNETCORE_ENVIRONMENT=Development
 export ConnectionStrings__Postgres="Host=localhost;Database=polvorapp;Username=polvorapp;Password=local-only-change-me"
+export Email__SmtpHost=localhost Email__SmtpPort=1025 Email__Security=None
+export Email__From=no-reply@polvorapp.example App__PublicBaseUrl=http://localhost:5173
 dotnet watch --project backend/src/PolvorApp.Api run --urls http://localhost:5080
 ```
 
@@ -60,7 +65,15 @@ PowerShell:
 ```powershell
 $env:ASPNETCORE_ENVIRONMENT = 'Development'
 $env:ConnectionStrings__Postgres = 'Host=localhost;Database=polvorapp;Username=polvorapp;Password=local-only-change-me'
+$env:Email__SmtpHost = 'localhost'; $env:Email__SmtpPort = '1025'; $env:Email__Security = 'None'
+$env:Email__From = 'no-reply@polvorapp.example'; $env:App__PublicBaseUrl = 'http://localhost:5173'
 dotnet watch --project backend/src/PolvorApp.Api run --urls http://localhost:5080
+```
+
+Apply the migrations first (and again whenever a change adds one):
+
+```bash
+dotnet run --project backend/src/PolvorApp.Api migrate
 ```
 
 UI on <http://localhost:5173>:
@@ -72,14 +85,47 @@ cd frontend && npm ci && npm run dev
 ### Synthetic seed data
 
 ```bash
-docker compose run --rm api seed                     # option A
-dotnet run --project backend/src/PolvorApp.Api seed  # option B (same environment variables)
+docker compose run --rm api-seed                     # option A
+dotnet run --project backend/src/PolvorApp.Api seed  # option B (also set Seed__UserPassword and Seed__AuthenticatorKey)
 ```
 
 Seeding runs only in `Development`, `Staging` and `Testing` and never uses real data (SEC-11).
 Each module registers its own `IDataSeeder`; randomness derives from `SyntheticData.RandomSeed`,
 so every run produces the same data. Seeding is not transactional: after a failed run, reset the
 database (`docker compose down -v`) and seed again.
+
+### Signing in locally
+
+The seed creates synthetic users on the reserved `.example` domain (never real people):
+
+| Email | Role | State |
+|---|---|---|
+| `admin@polvorapp.example` | Admin | active |
+| `jefe.uno@polvorapp.example`, `jefa.dos@polvorapp.example` | FiringChief | active |
+| `invitada@polvorapp.example` | FiringChief | invited |
+| `desactivada@polvorapp.example` | FiringChief | deactivated |
+
+Every active user signs in with `SEED_USER_PASSWORD` and a code from an authenticator app set up
+with `SEED_AUTHENTICATOR_KEY` (both in `.env`; the published placeholders work only in
+`Development`). Add the key by hand to any TOTP app (Google Authenticator, FreeOTP…) as a
+time-based, 6-digit, 30-second account. Invitations and password-reset emails land in Mailpit
+(<http://localhost:8025>); links point at `App__PublicBaseUrl`.
+
+### Host commands
+
+The API image runs one command instead of the web server when given a verb:
+
+| Command | What it does |
+|---|---|
+| `migrate` | Applies every module's migrations (run by the `api-migrate` service). |
+| `seed` | Creates the synthetic data above (`Development`, `Staging`, `Testing` only). |
+| `create-admin --email <email> --name <name> [--locale es-ES\|ca-ES-valencia\|en]` | Invites the first Admin on a new installation (email with the invitation link). Refused once an Admin can sign in; run again to resend the invitation to the same invited Admin. |
+
+```bash
+docker compose run --rm api create-admin --email admin@example.org --name "Admin name"
+```
+
+Exit codes: `0` success, `1` failure, `2` unknown command or invalid arguments, `130` cancelled.
 
 ## Backend
 
@@ -96,7 +142,23 @@ node ../scripts/check-coverage.mjs TestResults 80          # 80 % line gate
 
 - New modules follow [`backend/src/Modules/README.md`](../backend/src/Modules/README.md);
   architecture tests enforce the module boundaries.
-- Configuration comes only from environment variables (`ConnectionStrings__Postgres`, …). The
+- Persistence: one EF Core `DbContext` and one PostgreSQL schema per module (see the modules
+  README). Add a migration from `backend/` after `dotnet tool restore` (the `dotnet-ef` version
+  in `dotnet-tools.json` moves together with EF Core):
+
+  ```bash
+  dotnet tool restore
+  dotnet ef migrations add <Name> --project src/Modules/<Module>/PolvorApp.<Module>     --startup-project src/Modules/<Module>/PolvorApp.<Module> --output-dir Persistence/Migrations
+  ```
+
+  Apply them with the host `migrate` command (`docker compose run --rm api-migrate` or
+  `dotnet run --project src/PolvorApp.Api migrate`); tests migrate their Testcontainers database
+  the same way.
+- Configuration comes only from environment variables (`ConnectionStrings__Postgres`,
+  `Email__SmtpHost`, `Email__SmtpPort`, `Email__Security` (`None` | `StartTls` | `SslOnConnect`),
+  `Email__From`, optional `Email__Username`/`Email__Password` and `Email__TimeoutSeconds`,
+  `App__PublicBaseUrl`, …). Outside `Development` and `Testing` the API requires TLS for SMTP and an
+  https `App__PublicBaseUrl`. The
   API refuses to start when a required setting is missing, naming the setting.
 - Logs are JSON on stdout and never include query strings, bodies or personal data (NFR-12).
 
@@ -152,13 +214,20 @@ npm run docs:design     # regenerate docs/design/tokens.md and status.md from th
 
 ## End-to-end tests
 
-Playwright runs against the compose stack:
+Playwright runs against the compose stack with the synthetic users seeded. The suite signs in many
+times from one address, so raise the per-address sign-in limits for the run (CI does the same):
 
 ```bash
-docker compose up -d --build --wait
+RATE_LIMIT_AUTH_PER_MINUTE=300 RATE_LIMIT_AUTH_EMAIL_PER_15_MINUTES=100 docker compose up -d --build --wait
+docker compose run --rm api-seed
 cd frontend && npx playwright install --with-deps chromium   # once
 npm run e2e
 ```
+
+A `setup` project signs the seeded Admin and a FiringChief in once and saves their sessions in
+`frontend/e2e/.auth/` (git-ignored); specs start as the Admin. Journeys that need a fresh user
+invite one through the UI, read the link from Mailpit's API and enrol with a computed TOTP code
+(`e2e/identity.ts`), so runs never collide on a code.
 
 ## i18n workflow
 

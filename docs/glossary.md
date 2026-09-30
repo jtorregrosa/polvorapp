@@ -22,6 +22,18 @@ equivalent are kept as-is (e.g. `Comparsa`).
 | Proveedor de pólvora | `PowderSupplier` | Company that sells the powder to the Federation. Not a user. |
 | Proveedor / empresa de alquiler de armas | `WeaponRentalCompany` | Company that rents weapons to the Federation, numbers them and checks their return. Not a user. |
 
+## Accounts and access
+
+| Spanish | Code term | Definition |
+|---|---|---|
+| Usuario | `User` | Someone who signs in to PolvorApp: an `Admin` or a `FiringChief`. Accounts exist only by invitation. |
+| Invitado / Activo / Desactivado | `UserStatus` (`INVITED`, `ACTIVE`, `DEACTIVATED`) | Derived, never stored: `INVITED` until the invitation is accepted (no password yet), `ACTIVE` afterwards, `DEACTIVATED` when an Admin blocks the account (sessions end, data kept). |
+| Invitación | `Invitation` | Emailed single-use link (valid 7 days) with which an invited user sets a password and enrols an authenticator. Resending replaces the previous link. |
+| Verificación en dos pasos | `TwoFactor` | Mandatory 6-digit code from an authenticator app (TOTP) after the password (ADR-0004). |
+| Código de recuperación | `RecoveryCode` | One of 10 single-use codes shown once at enrolment, used to sign in without the phone. |
+| Dispositivo recordado | `RememberedDevice` | Browser the user chose to trust for 30 days: the code is not asked there. Forgotten on password change, 2FA reset, deactivation and "sign out everywhere". |
+| Registro de auditoría | `AuditEntry` | Append-only record of a write, export or security event: who (`actorUserId`), what (`action`, `entityType`, `entityId`), when, comparsa and trace id. Never contains secrets. |
+
 ## Licensing and compliance
 
 | Spanish | Code term | Definition |

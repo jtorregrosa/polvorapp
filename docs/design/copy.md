@@ -1,7 +1,8 @@
 # Microcopy
 
 The UI ships in **es-ES**, **ca-ES-valencia** and **en** (ADR-0007). Texts live in
-`frontend/src/i18n/locales/<language>/{common,ui}.json`; `npm run check-i18n` fails when a key is
+`frontend/src/i18n/locales/<language>/<namespace>.json` (`common` for the shell, `ui` for
+composites, one namespace per feature such as `identity`); `npm run check-i18n` fails when a key is
 missing in any language. Terms follow [glossary.md](../glossary.md).
 
 ## Tone

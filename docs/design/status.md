@@ -43,6 +43,14 @@ neutral pill with the raw code and a development-only console warning.
 | `LOCKED` | info | Lock | Bloqueada | Bloquejada | Locked |
 | `CLOSED` | muted | CircleDashed | Cerrada | Tancada | Closed |
 
+## `user`
+
+| Value | Tone | Icon | es-ES | ca-ES-valencia | en |
+|---|---|---|---|---|---|
+| `INVITED` | info | Send | Invitado | Convidat | Invited |
+| `ACTIVE` | success | CircleCheck | Activo | Actiu | Active |
+| `DEACTIVATED` | muted | CircleX | Desactivado | Desactivat | Deactivated |
+
 ## `warning`
 
 | Value | Tone | Icon | es-ES | ca-ES-valencia | en |

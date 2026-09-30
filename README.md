@@ -4,7 +4,8 @@ Management portal for the arquebusiers of the Moros y Cristianos festival of San
 Raspeig: the Federation and its ~20 comparsas keep one source of truth for arquebusiers, licenses,
 yearly orders, exports and distribution, instead of spreadsheets and forms.
 
-> Status: foundation in progress (change `bootstrap-platform`). No feature is usable yet.
+> Status: in development. Platform, design system and accounts (invitations, sign-in with two-step
+> verification, user management) are in place; the arquebusier registry comes next ([MVP plan](docs/mvp.md)).
 
 ## Quick start
 
@@ -13,9 +14,13 @@ Requires Docker.
 ```bash
 cp .env.example .env
 docker compose up --build
+docker compose run --rm api-seed   # synthetic users, in another terminal once the stack is up
 ```
 
-Open <http://localhost:8080>. The API is served on the same origin under `/api`
+Open <http://localhost:8080> and sign in as `admin@polvorapp.example` with `SEED_USER_PASSWORD`
+and a code from an authenticator app set up with `SEED_AUTHENTICATOR_KEY` (both in `.env`; see
+[Signing in locally](docs/development.md#signing-in-locally)). Emails are caught by Mailpit at
+<http://localhost:8025>. The API is served on the same origin under `/api`
 (`/api/health/ready`, `/api/system/info`).
 
 ## Documentation

@@ -44,16 +44,22 @@ theme). Every composite has stories there.
 
 | Composite | Use |
 |---|---|
-| `AppLayout` | Shell: skip link, sidebar (mark, navigation with icons and counters, footer), top bar (drawer trigger, breadcrumbs, language and theme switchers), main |
+| `AppLayout` | Shell: skip link, sidebar (mark, navigation with icons and counters, footer), top bar (drawer trigger, breadcrumbs, language and theme switchers, user menu), main |
+| `PublicLayout` | Pages before signing in: mark, switchers, a centred card and the version |
+| `UserMenu` | The signed-in user in the top bar: name, role, account page, sign out |
 | `Breadcrumbs` | Trail built from the `breadcrumb` handle of the matched routes |
-| `PageHeader` | The page's only `h1`, description, actions, optional back link |
+| `PageHeader` | The page's only `h1`, description, actions, optional back link; `focusOnMount` for a view that replaces the page after an action |
 | `StatCard` | A key figure on a dashboard, optionally a link |
 | `DataTable` | Sortable, paginated table with loading and empty states |
 | `StatusBadge` | A domain status pill (see [status.md](status.md)) |
-| `AlertBanner` | Inline info, success, warning or error message |
+| `AlertBanner` | Inline info, success, warning or error message; `focusOnMount` for the outcome of an action whose control went away |
 | `EmptyState` | Replaces an empty list, table or panel |
-| `ConfirmDialog` | Confirmation of destructive or irreversible actions |
-| `Form`, `FormField`, `FormSection` | Forms with React Hook Form and Zod |
+| `ConfirmDialog` | Confirmation of destructive or irreversible actions; reject with `ConfirmFailure` to show why it failed |
+| `Form`, `FormField`, `FormSection` | Forms with React Hook Form and Zod (one submission at a time) |
+| `Button` | Every button: `primary`, `secondary`, `destructive`, `quiet`, `link`; `pending` keeps focus; `asChild` for links |
+| `TextInput`, `PasswordInput`, `SelectInput`, `CheckboxField` | Controls for `FormField` (password with a show/hide toggle) |
+| `QrCode` | A QR code as an image with an accessible name (e.g. authenticator setup) |
+| `RecoveryCodeList` | One-time codes shown once: copy (success or failure announced) and print |
 | `LanguageSwitcher`, `ThemeSwitcher` | Preferences in the top bar |
 | `PolvorAppMark` | The mark |
 

@@ -16,6 +16,12 @@ PostgreSQL License. Transitive dependencies are covered by CI dependency review.
 | Inter font via `@fontsource-variable/inter` | [SIL Open Font License 1.1](https://github.com/rsms/inter/blob/master/LICENSE.txt) | UI typeface, self-hosted (add-design-system) | **Acceptable.** OFL allows use, embedding and redistribution in software, including commercial; the font may not be sold on its own. Redistributed copies must carry the copyright notice and licence text, so the build ships them at `/licenses/inter-OFL.txt` (`frontend/public/licenses/`). Shipped unmodified. Checked 2026-09-30. |
 | MinIO via `cgr.dev/chainguard/minio` | [AGPL-3.0](https://github.com/minio/minio/blob/master/LICENSE) | Local development S3 emulator only (ADR-0005/0006) | **Acceptable.** Runs unmodified as a separate container in local/CI environments; not distributed with PolvorApp nor linked into it. Production uses any S3-compatible provider. Checked 2026-09-30. |
 
+## Data files
+
+| Data | Source and license | Use |
+|---|---|---|
+| Common-password list (`backend/src/Modules/IdentityAccess/PolvorApp.IdentityAccess/Resources/CommonPasswords.txt`, 46,146 entries of 12–128 characters, lower-cased) | [SecLists](https://github.com/danielmiessler/SecLists) `Passwords/Common-Credentials/xato-net-10-million-passwords-1000000.txt` at commit `e749176`, MIT; notice shipped in `CommonPasswords.NOTICE.txt` next to it | Password policy rejects common passwords (add-identity-access) |
+
 ## Container images
 
 | Image | License | Use |
@@ -30,11 +36,21 @@ PostgreSQL License. Transitive dependencies are covered by CI dependency review.
 
 | Package | License | Scope |
 |---|---|---|
+| `EFCore.NamingConventions` | Apache-2.0 | runtime |
+| `MailKit` | MIT | runtime |
+| `Microsoft.AspNetCore.DataProtection.EntityFrameworkCore` | MIT | runtime |
+| `Microsoft.AspNetCore.Identity.EntityFrameworkCore` | MIT | runtime |
 | `Microsoft.AspNetCore.OpenApi` | MIT | runtime |
+| `Microsoft.EntityFrameworkCore` | MIT | runtime |
+| `Microsoft.EntityFrameworkCore.Design` | MIT | build |
+| `Microsoft.EntityFrameworkCore.Relational` | MIT | runtime |
 | `Microsoft.Extensions.ApiDescription.Server` | MIT | build |
 | `Npgsql` | PostgreSQL | runtime |
+| `Npgsql.EntityFrameworkCore.PostgreSQL` | PostgreSQL | runtime |
+| `dotnet-ef` (local tool) | MIT | build |
 | `coverlet.MTP` | MIT | test |
 | `Microsoft.AspNetCore.Mvc.Testing` | MIT | test |
+| `Microsoft.Extensions.TimeProvider.Testing` | MIT | test |
 | `Testcontainers.PostgreSql` | MIT | test |
 | `xunit.v3` | Apache-2.0 | test |
 
@@ -65,9 +81,11 @@ MPL-2.0 packages (`axe-core`, `@axe-core/playwright`) are used unmodified in tes
 | `lucide-react` | ISC | runtime |
 | `msw` | MIT | dev |
 | `orval` | MIT | dev |
+| `otpauth` | MIT | dev |
 | `@playwright/test` | Apache-2.0 | dev |
 | `prettier` | MIT | dev |
 | `prettier-plugin-tailwindcss` | MIT | dev |
+| `qrcode` | MIT | runtime |
 | `radix-ui` | MIT | runtime |
 | `react` | MIT | runtime |
 | `react-dom` | MIT | runtime |
@@ -87,6 +105,7 @@ MPL-2.0 packages (`axe-core`, `@axe-core/playwright`) are used unmodified in tes
 | `@testing-library/user-event` | MIT | dev |
 | `tw-animate-css` | MIT | dev |
 | `@types/node` | MIT | dev |
+| `@types/qrcode` | MIT | dev |
 | `@types/react` | MIT | dev |
 | `@types/react-dom` | MIT | dev |
 | `typescript` | Apache-2.0 | dev |
