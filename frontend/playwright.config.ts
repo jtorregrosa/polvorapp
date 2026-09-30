@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { ADMIN_STATE } from './e2e/identity';
 
 // E2E against the running compose stack (docs/development.md#end-to-end-tests).
 export default defineConfig({
@@ -16,8 +17,14 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
+  // `setup` signs the seeded users in once; the other projects start as the signed-in Admin.
   projects: [
-    { name: 'desktop-chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'setup', testMatch: /auth\.setup\.ts/, use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'desktop-chromium',
+      use: { ...devices['Desktop Chrome'], storageState: ADMIN_STATE },
+      dependencies: ['setup'],
+    },
     {
       name: 'mobile-360',
       use: {
@@ -25,7 +32,9 @@ export default defineConfig({
         viewport: { width: 360, height: 740 },
         isMobile: true,
         hasTouch: true,
+        storageState: ADMIN_STATE,
       },
+      dependencies: ['setup'],
     },
   ],
 });

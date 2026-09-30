@@ -6,8 +6,8 @@ const CSP_MARKER = 'CSP-VIOLATION';
 interface Fixtures {
   /** Fails the test on any Content-Security-Policy violation or uncaught page error. */
   pageProblems: string[];
-  /** WCAG 2.1 A/AA violations on the current page (NFR-07). */
-  axeViolations: () => Promise<string[]>;
+  /** WCAG 2.1 A/AA violations on the current page, or on `target` (NFR-07). */
+  axeViolations: (target?: Page) => Promise<string[]>;
 }
 
 export const test = base.extend<Fixtures>({
@@ -31,11 +31,13 @@ export const test = base.extend<Fixtures>({
     { auto: true },
   ],
   axeViolations: async ({ page }, use) => {
-    await use(async () => {
-      const results = await new AxeBuilder({ page })
+    await use(async (target = page) => {
+      const results = await new AxeBuilder({ page: target })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
         .analyze();
-      return results.violations.map((v) => `${v.id}: ${v.help}`);
+      return results.violations.map(
+        (v) => `${v.id}: ${v.help} (${v.nodes.map((node) => node.target.join(' ')).join(', ')})`,
+      );
     });
   },
 });
