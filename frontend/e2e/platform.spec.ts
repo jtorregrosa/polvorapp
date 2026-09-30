@@ -88,6 +88,14 @@ test.describe('platform', () => {
     });
   }
 
+  test('activates a new version of the service worker at once', async ({ request }) => {
+    const worker = await (await request.get('/sw.js')).text();
+
+    // Without these an update waits until every tab is closed, and users keep the old build.
+    expect(worker).toContain('skipWaiting()');
+    expect(worker).toContain('clientsClaim()');
+  });
+
   test('serves static assets from the service worker but never API responses', async ({ page }) => {
     await page.goto('/');
     await waitForShell(page);

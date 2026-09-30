@@ -25,6 +25,10 @@ export default defineConfig({
         background_color: '#faf9f7',
       },
       workbox: {
+        // A new version takes over at once instead of waiting for every tab to close: without
+        // these the generated worker only skips waiting on request, and users keep an old build.
+        skipWaiting: true,
+        clientsClaim: true,
         navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [],
       },
