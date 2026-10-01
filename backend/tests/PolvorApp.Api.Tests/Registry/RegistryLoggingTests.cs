@@ -88,7 +88,7 @@ public sealed class RegistryLoggingTests(PostgresFixture postgres, MailpitFixtur
         body["firstName"] = "Nombre" + marker;
         body["lastName"] = "Apellido" + marker;
         body["email"] = $"correo{marker}@polvorapp.example";
-        body["phone"] = "+34 699 " + marker[..3].Select(c => (c % 10).ToString(System.Globalization.CultureInfo.InvariantCulture)).Aggregate(string.Concat);
+        body["phone"] = "+34 600 000 " + marker[..3].Select(c => (c % 10).ToString(System.Globalization.CultureInfo.InvariantCulture)).Aggregate(string.Concat);
         return body;
     }
 

@@ -145,7 +145,7 @@
 
 ## 5. Synthetic seed
 
-- [ ] 5.1 Write seed tests:
+- [x] 5.1 Write seed tests:
   - running twice creates each arquebusier and owned weapon once;
   - every seeded nationalId passes the D4 validator;
   - the seed covers `ACTIVE`/`RESERVE`, every license status, no license, course done and not done, and a pistol;
@@ -153,7 +153,7 @@
   - the non-local guard refuses a database with non-synthetic arquebusiers.
 
   Then implement `RegistrySeeder` (design D9). Verify: the tests pass and `docker compose run api seed` succeeds locally.
-- [ ] 5.2 Review group 5 with `security-reviewer` (SEC-11: nothing real-looking beyond synthetic patterns). Fix CRITICAL/HIGH findings.
+- [x] 5.2 Review group 5 with `security-reviewer` (SEC-11: nothing real-looking beyond synthetic patterns). Fix CRITICAL/HIGH findings.
 
 ## 6. API contract and frontend foundations
 

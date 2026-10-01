@@ -20,10 +20,11 @@ public static class RegistryData
 {
     private const string Letters = "TRWAGMYFPDXBNJZSQVHLCKE";
     private const int FirstFederationId = 800000;
-    private static int _sequence;
+    /// <summary>Test identities start at 00000101: low numbers unlikely to be in use, apart from the seed (00000001 to 00000013).</summary>
+    private static int _sequence = 100;
 
     /// <summary>
-    /// A valid synthetic DNI built from an implausibly low number, and a federation id from 800000 up.
+    /// A valid synthetic DNI built from a very low number unlikely to be in use, and a federation id from 800000 up.
     /// Hard-coded ids in tests stay below 800000 so they never collide with these.
     /// </summary>
     public static (string NationalId, int FederationId) NextIdentity()

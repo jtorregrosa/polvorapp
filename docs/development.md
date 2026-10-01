@@ -113,6 +113,15 @@ entered by an Admin in production:
 Weapon models: trabuco (Christian) and arcabuz (Moorish) in every handedness and size, one of them
 inactive ("ARCABUZ MORO ZURDO (PEQUEÑO)"), plus a non-rentable "PISTOLA" without attributes.
 
+The registry seed adds 13 fictional arquebusiers ("Arcabucero Sintético Uno" … "Trece"): five in
+Norte, four in Sur, three in Este and one in the inactive Oeste. Their DNI/NIE are valid but built
+from very low numbers unlikely to be in use (`00000001R`, `X0000005M`…), their emails use `@polvorapp.example`, and
+their license dates are relative to the seed date, so the mix stays the same over time: active and
+reserve, AE and A-PROF licenses that are valid, expired or pending, no license, course done and not
+done. Five owned weapons (guides `SINT-0001` … `SINT-0005`) cover a trabuco, arcabuces, a pistol and
+one weapon of the inactive model. Their phones (`+34 600 000 0NN`) are in the Spanish mobile range,
+which has no reserved fictional numbers: PolvorApp never calls or messages them.
+
 ### Signing in locally
 
 The seed creates synthetic users on the reserved `.example` domain (never real people):
