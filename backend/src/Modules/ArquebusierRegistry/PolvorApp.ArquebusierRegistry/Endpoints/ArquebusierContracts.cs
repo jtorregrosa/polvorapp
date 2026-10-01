@@ -161,3 +161,29 @@ internal sealed record ArquebusierRowResponse(
     ArquebusierStatus Status,
     LicenseStatus? LicenseStatus,
     DateOnly? LicenseExpiresOn);
+
+/// <summary>Adds an owned weapon; unknown members are rejected (400).</summary>
+/// <param name="WeaponModelId">An active catalogue model of any kind, pistols included.</param>
+/// <param name="WeaponNumber">Number engraved on the stock, 1 to 30 characters; need not be unique.</param>
+/// <param name="OwnershipGuideNumber">Ownership guide number, 1 to 30 characters; unique across the Federation ignoring case.</param>
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+internal sealed record OwnedWeaponRequest(Guid? WeaponModelId, string? WeaponNumber, string? OwnershipGuideNumber)
+{
+    public OwnedWeaponFields Fields() => new(WeaponModelId, WeaponNumber, OwnershipGuideNumber);
+}
+
+/// <summary>Replaces an owned weapon's model and numbers; unknown members are rejected (400).</summary>
+/// <param name="WeaponModelId">The model; a changed model must be active, an unchanged one may have been deactivated.</param>
+/// <param name="WeaponNumber">See <see cref="OwnedWeaponRequest"/>.</param>
+/// <param name="OwnershipGuideNumber">See <see cref="OwnedWeaponRequest"/>.</param>
+/// <param name="Version">The <c>version</c> the edit is based on; an outdated one is rejected with 409.</param>
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+internal sealed record UpdateOwnedWeaponRequest(Guid? WeaponModelId, string? WeaponNumber, string? OwnershipGuideNumber, uint? Version)
+{
+    public OwnedWeaponFields Fields() => new(WeaponModelId, WeaponNumber, OwnershipGuideNumber);
+}
+
+/// <summary>Moves an arquebusier to another comparsa (Admin only); unknown members are rejected (400).</summary>
+/// <param name="ComparsaId">An active comparsa other than the current one.</param>
+[JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Disallow)]
+internal sealed record TransferArquebusierRequest(Guid? ComparsaId);

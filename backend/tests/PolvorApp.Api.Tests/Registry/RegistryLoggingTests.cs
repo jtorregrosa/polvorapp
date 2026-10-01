@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -55,6 +56,29 @@ public sealed class RegistryLoggingTests(PostgresFixture postgres, MailpitFixtur
 
             Assert.DoesNotContain(((int)body["federationId"]!).ToString(System.Globalization.CultureInfo.InvariantCulture), logged, StringComparison.Ordinal);
         }
+    }
+
+    [Fact]
+    public async Task A_rejected_owned_weapon_logs_no_guide_or_weapon_number()
+    {
+        var logs = new CapturingLoggerProvider();
+        await using var registry = await RegistryTestHost.StartAsync(postgres, mailpit, services => services.AddSingleton<ILoggerProvider>(logs));
+        var model = RegistryData.NewWeaponModel("ARCABUZ SINTÉTICO DISCRETO");
+        await registry.Services.SaveCatalogAsync(model);
+        var ownerId = (await registry.RegisterAsync(registry.Own.Id)).GetProperty("id").GetGuid();
+        var body = new { weaponModelId = model.Id, weaponNumber = "NUM-7319", ownershipGuideNumber = "GUIA-8462" };
+        using (var first = await registry.FiringChief.PostAsJsonAsync($"/api/arquebusiers/{ownerId}/owned-weapons", body, TestContext.Current.CancellationToken))
+        {
+            Assert.Equal(HttpStatusCode.Created, first.StatusCode);
+        }
+
+        using var duplicate = await registry.FiringChief.PostAsJsonAsync($"/api/arquebusiers/{ownerId}/owned-weapons", body, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.Conflict, duplicate.StatusCode);
+        var logged = string.Join('\n', logs.Entries.Select(Describe));
+        Assert.Contains("OwnershipGuideTaken", logged, StringComparison.Ordinal);
+        Assert.DoesNotContain("GUIA-8462", logged, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("NUM-7319", logged, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>Distinct, recognisable synthetic values, so a leak cannot hide behind a common word.</summary>

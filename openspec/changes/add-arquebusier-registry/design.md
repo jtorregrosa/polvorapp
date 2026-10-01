@@ -192,7 +192,8 @@ collects the field errors.
 | nationalId taken | 409 | `arquebusiers.nationalIdTaken` |
 | federationId taken | 409 | `arquebusiers.federationIdTaken` |
 | outdated version | 409 | `arquebusiers.modified` / `ownedWeapons.modified` |
-| owned weapon not found (or arquebusier out of scope) | 404 | `ownedWeapons.notFound` |
+| owner of an owned weapon not found or out of scope | 404 | `arquebusiers.notFound` |
+| owned weapon not found under an owner in scope, or removed concurrently | 404 | `ownedWeapons.notFound` |
 | inactive weapon model on add or model change | 409 | `ownedWeapons.modelInactive` |
 | ownership guide taken | 409 | `ownedWeapons.guideTaken` |
 | transfer by a FiringChief | 403 | (authorization policy) |
@@ -397,6 +398,18 @@ a database that holds non-synthetic arquebusiers. E2E tests rely on these rows.
   - `fk_owned_weapons_catalog_weapon_models` → `400 validation weaponModelId: notFound`;
   - `fk_owned_weapons_arquebusiers_arquebusier_id` → `404 arquebusiers.notFound` (weapon added
     while the arquebusier is deleted).
+- **Catalog lookups before the transaction** (group 4 reviews): the target comparsa of a transfer
+  and the model of a weapon write are read before `BEGIN`, so no row lock is held while another
+  connection queries the catalog and a request never needs two pooled connections at once. The
+  foreign keys still decide a race with a catalog deletion.
+- **Owned-weapon rows are not locked**: two removals or a removal and an edit of the same weapon
+  race on its `xmin`; the loser answers `404 ownedWeapons.notFound` (removal) or
+  `409 ownedWeapons.modified` (edit), never a 500.
+- **Key updates**: an edit of `nationalId` or `federationId` changes a unique column, which
+  PostgreSQL treats as a key update; that `UPDATE` waits for in-flight weapon writes (`FOR KEY
+  SHARE`) on the same arquebusier, at worst until the lock timeout. There is no lock cycle. A
+  deadlock between two edits swapping unique values is answered `503 registry.busy`, like a
+  lock timeout.
 - **Lock timeout**: registry transactions that lock rows or touch the cross-schema foreign keys
   run `SET LOCAL lock_timeout = '5s'`, as the catalog does, so a stuck catalog deletion cannot
   hold a registry request forever.
@@ -423,7 +436,7 @@ a database that holds non-synthetic arquebusiers. E2E tests rely on these rows.
 - **Duplicate probing**: a FiringChief can learn that a DNI or guide number already exists
   somewhere in the Federation, because BR-02 requires it. They never learn where or whose. This is
   accepted: FiringChiefs are invited, 2FA-authenticated officers. To keep it slow and visible
-  (group 3 security review), registry writes are limited to 60 per minute per user
+  (group 3 security review), every registry write (registration, edit, transfer, deletion and the three owned-weapon writes) is limited to 60 per minute per user
   (`RateLimitPolicies.PersonalDataWrites`, `429`), and every rejected write is logged with the
   user id and outcome, never the values.
 - **Request size**: registry routes accept at most 64 KB bodies (`RequestSizeLimit` metadata,
@@ -443,6 +456,13 @@ a database that holds non-synthetic arquebusiers. E2E tests rely on these rows.
   fast instead of on the first registry request.
 - Exports (#12) must neutralise spreadsheet formulas in free-text fields (names starting with
   `=`, `+`, `-` or `@`).
+- After a deletion, audit entries and logs still carry the arquebusier and weapon UUIDs
+  (pseudonymous, no personal values). Photos (#6), edition entries (#10), exports (#12), backups
+  and log retention must not let a UUID be mapped back to the person (group 4 security review).
+- The comparsa scope is read once per request, before the transaction: a FiringChief whose
+  assignment is removed in the same milliseconds can land one last write. Accepted.
+- A tighter per-user limit on duplicate rejections (guide, DNI, federation id) would make probing
+  slower than the general 60 per minute; revisit if the Warning logs show probing.
 - `xmin` can jump after `VACUUM FREEZE`; a client then gets one spurious `409 modified` and
   reloads. Accepted.
 

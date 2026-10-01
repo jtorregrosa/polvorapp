@@ -111,7 +111,7 @@
 
 ## 4. Owned weapons, transfer and deletion
 
-- [ ] 4.1 Write integration tests for the owned-weapon endpoints:
+- [x] 4.1 Write integration tests for the owned-weapon endpoints:
   - a FiringChief adds a weapon to an arquebusier in scope, with any active model including a pistol, and the guide number is upper-cased;
   - an unknown model gives 400 `weaponModelId: notFound`;
   - an inactive model on add or on a model change gives 409 `ownedWeapons.modelInactive`;
@@ -123,7 +123,7 @@
   - the audit entries are recorded without numbers.
 
   Then implement `OwnedWeaponAdministration` and the endpoints. Verify: the tests pass.
-- [ ] 4.2 Write integration tests for `POST /api/arquebusiers/{id}/transfer`:
+- [x] 4.2 Write integration tests for `POST /api/arquebusiers/{id}/transfer`:
   - an Admin moves an arquebusier with owned weapons;
   - the FiringChief of the source comparsa then gets 404 and the target's FiringChief sees it;
   - an inactive target gives 409, the same comparsa gives 409 `sameComparsa`, and an unknown target gives 404;
@@ -132,7 +132,7 @@
   - a transfer racing with the deletion of the target comparsa leaves a consistent state (409 or 404, never a dangling reference).
 
   Then implement it (design D10). Verify: the tests pass.
-- [ ] 4.3 Write integration tests for `DELETE /api/arquebusiers/{id}`:
+- [x] 4.3 Write integration tests for `DELETE /api/arquebusiers/{id}`:
   - a FiringChief deletes in scope and an Admin anywhere;
   - the owned weapons are removed;
   - the arquebusier then gives 404;
@@ -141,7 +141,7 @@
   - `ArquebusierDeleted` holds `ownedWeaponCount` and no personal data, and no earlier audit entry of that arquebusier holds personal values.
 
   Then implement it. Verify: the tests pass.
-- [ ] 4.4 Review group 4 in parallel with `csharp-reviewer`, `security-reviewer` and `database-reviewer` (locks, foreign-key races). Fix CRITICAL/HIGH findings.
+- [x] 4.4 Review group 4 in parallel with `csharp-reviewer`, `security-reviewer` and `database-reviewer` (locks, foreign-key races). Fix CRITICAL/HIGH findings.
 
 ## 5. Synthetic seed
 
