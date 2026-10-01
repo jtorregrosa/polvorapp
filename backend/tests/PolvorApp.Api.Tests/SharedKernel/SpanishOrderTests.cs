@@ -1,15 +1,15 @@
-using PolvorApp.FederationCatalog;
+using PolvorApp.SharedKernel.Text;
 
-namespace PolvorApp.Api.Tests.Catalog;
+namespace PolvorApp.Api.Tests.SharedKernel;
 
-/// <summary>"Sorted by name" in Spanish order, whatever the database collation (design D4).</summary>
-public sealed class CatalogOrderTests
+/// <summary>"Sorted by name" in Spanish order, whatever the database collation (add-federation-catalog design D4).</summary>
+public sealed class SpanishOrderTests
 {
     [Fact]
     public void Accented_and_lowercase_names_sort_next_to_their_plain_forms()
     {
         string[] names = ["Zeta", "álamo", "Alamo", "Ñora", "Nora", "Oliva", "Álamo"];
 
-        Assert.Equal(["Alamo", "álamo", "Álamo", "Nora", "Ñora", "Oliva", "Zeta"], names.Order(CatalogOrder.Names));
+        Assert.Equal(["Alamo", "álamo", "Álamo", "Nora", "Ñora", "Oliva", "Zeta"], names.Order(SpanishOrder.Names));
     }
 }

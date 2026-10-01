@@ -1,14 +1,14 @@
 using System.Globalization;
 
-namespace PolvorApp.FederationCatalog;
+namespace PolvorApp.SharedKernel.Text;
 
 /// <summary>
 /// Order of names and labels in lists ("sorted by name"): Spanish linguistic order ignoring case,
 /// where accents only break ties (primary-level order), so "Álamo" sorts next to "Alamo" and not
-/// after "Zeta", whatever the database collation. Catalogue lists are small (tens of rows), so
-/// they are sorted in memory.
+/// after "Zeta", whatever the database collation. Lists are small (tens to a few hundred rows),
+/// so they are sorted in memory.
 /// </summary>
-internal static class CatalogOrder
+public static class SpanishOrder
 {
     public static readonly StringComparer Names = StringComparer.Create(CultureInfo.GetCultureInfo("es-ES"), CompareOptions.IgnoreCase);
 }

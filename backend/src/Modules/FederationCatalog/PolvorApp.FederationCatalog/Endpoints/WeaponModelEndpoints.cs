@@ -9,6 +9,8 @@ using PolvorApp.FederationCatalog.Persistence;
 using PolvorApp.FederationCatalog.WeaponModels;
 using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.SharedKernel.Http;
+using PolvorApp.SharedKernel.Text;
+using PolvorApp.SharedKernel.Validation;
 
 namespace PolvorApp.FederationCatalog.Endpoints;
 
@@ -51,7 +53,7 @@ internal static class WeaponModelEndpoints
         string? kind, bool? includeInactive, FederationCatalogDbContext db, CancellationToken cancellationToken)
     {
         var errors = new Dictionary<string, string>();
-        var kindFilter = CatalogInput.OptionalCode<WeaponKind>(kind, "kind", errors);
+        var kindFilter = InputFields.OptionalCode<WeaponKind>(kind, "kind", errors);
         if (errors.Count > 0)
         {
             return ProblemResults.Invalid(errors);
@@ -69,7 +71,7 @@ internal static class WeaponModelEndpoints
         }
 
         var models = await query.ToListAsync(cancellationToken);
-        return TypedResults.Ok(models.OrderBy(m => m.Label, CatalogOrder.Names).Select(WeaponModelResponse.From).ToList());
+        return TypedResults.Ok(models.OrderBy(m => m.Label, SpanishOrder.Names).Select(WeaponModelResponse.From).ToList());
     }
 
     private static async Task<Results<Ok<WeaponModelResponse>, ProblemHttpResult>> GetAsync(
@@ -131,8 +133,8 @@ internal static class WeaponModelEndpoints
         WeaponModelRequest request, [NotNullWhen(true)] out WeaponModelInput? input, [NotNullWhen(false)] out ProblemHttpResult? invalid)
     {
         var errors = new Dictionary<string, string>();
-        var kind = CatalogInput.RequiredCode<WeaponKind>(request.Kind, "kind", errors);
-        var label = CatalogInput.Text(request.Label, "label", WeaponModel.LabelMaxLength, errors);
+        var kind = InputFields.RequiredCode<WeaponKind>(request.Kind, "kind", errors);
+        var label = InputFields.Text(request.Label, "label", WeaponModel.LabelMaxLength, errors);
         var attributesRequired = kind is { } known && known != WeaponKind.Pistol;
         var side = Attribute<Side>(request.Side, "side", attributesRequired, errors);
         var handedness = Attribute<Handedness>(request.Handedness, "handedness", attributesRequired, errors);
@@ -140,7 +142,7 @@ internal static class WeaponModelEndpoints
 
         if (request.Rentable is null)
         {
-            errors["rentable"] = CatalogInput.Required;
+            errors["rentable"] = InputFields.Required;
         }
         else if (request.Rentable.Value && kind == WeaponKind.Pistol)
         {
@@ -160,6 +162,6 @@ internal static class WeaponModelEndpoints
     private static TEnum? Attribute<TEnum>(string? code, string field, bool required, Dictionary<string, string> errors)
         where TEnum : struct, Enum =>
         required
-            ? CatalogInput.RequiredCode<TEnum>(code, field, errors)
-            : CatalogInput.OptionalCode<TEnum>(string.IsNullOrEmpty(code) ? null : code, field, errors);
+            ? InputFields.RequiredCode<TEnum>(code, field, errors)
+            : InputFields.OptionalCode<TEnum>(string.IsNullOrEmpty(code) ? null : code, field, errors);
 }

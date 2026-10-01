@@ -9,6 +9,8 @@ using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.FederationCatalog.Persistence;
 using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.SharedKernel.Http;
+using PolvorApp.SharedKernel.Text;
+using PolvorApp.SharedKernel.Validation;
 
 namespace PolvorApp.FederationCatalog.Endpoints;
 
@@ -49,7 +51,7 @@ internal static class ComparsaEndpoints
         string? side, bool? includeInactive, FederationCatalogDbContext db, IComparsaScope scope, CancellationToken cancellationToken)
     {
         var errors = new Dictionary<string, string>();
-        var sideFilter = CatalogInput.OptionalCode<Side>(side, "side", errors);
+        var sideFilter = InputFields.OptionalCode<Side>(side, "side", errors);
         if (errors.Count > 0)
         {
             return ProblemResults.Invalid(errors);
@@ -69,7 +71,7 @@ internal static class ComparsaEndpoints
 
         // About 20 rows: sorted here in Spanish order, whatever the database collation.
         var comparsas = await query.ToListAsync(cancellationToken);
-        return TypedResults.Ok(comparsas.OrderBy(c => c.Name, CatalogOrder.Names).Select(ComparsaResponse.From).ToList());
+        return TypedResults.Ok(comparsas.OrderBy(c => c.Name, SpanishOrder.Names).Select(ComparsaResponse.From).ToList());
     }
 
     /// <summary>Out of scope and unknown look the same (BR-12): the comparsa "does not exist" for the caller.</summary>
@@ -129,8 +131,8 @@ internal static class ComparsaEndpoints
         ComparsaRequest request, [NotNullWhen(true)] out ComparsaInput? input, [NotNullWhen(false)] out ProblemHttpResult? invalid)
     {
         var errors = new Dictionary<string, string>();
-        var name = CatalogInput.Text(request.Name, "name", Comparsa.NameMaxLength, errors);
-        var side = CatalogInput.RequiredCode<Side>(request.Side, "side", errors);
+        var name = InputFields.Text(request.Name, "name", Comparsa.NameMaxLength, errors);
+        var side = InputFields.RequiredCode<Side>(request.Side, "side", errors);
         if (name is not null && side is { } validSide && errors.Count == 0)
         {
             (input, invalid) = (new ComparsaInput(name, validSide), null);
