@@ -57,7 +57,10 @@ theme). Every composite has stories there.
 | `ConfirmDialog` | Confirmation of destructive or irreversible actions; reject with `ConfirmFailure` to show why it failed |
 | `Form`, `FormField`, `FormSection` | Forms with React Hook Form and Zod (one submission at a time) |
 | `Button` | Every button: `primary`, `secondary`, `destructive`, `quiet`, `link`; `pending` keeps focus; `asChild` for links |
-| `TextInput`, `PasswordInput`, `SelectInput`, `CheckboxField` | Controls for `FormField` (password with a show/hide toggle) |
+| `TextInput`, `PasswordInput`, `SelectInput`, `CheckboxField`, `DateInput` | Controls for `FormField` (password with a show/hide toggle; date picker shows the browser's locale) |
+| `SearchField` | Labelled search box above a list; filters rows already loaded (term never in the URL, may be personal data) |
+| `FilterSelect` | Labelled select above a list that filters its rows by a category (comparsa, status) |
+| `PageSection` | A titled region for non-form content (table, action, etc.) on a detail page; looks like `FormSection` so they sit together |
 | `QrCode` | A QR code as an image with an accessible name (e.g. authenticator setup) |
 | `RecoveryCodeList` | One-time codes shown once: copy (success or failure announced) and print |
 | `LanguageSwitcher`, `ThemeSwitcher` | Preferences in the top bar |

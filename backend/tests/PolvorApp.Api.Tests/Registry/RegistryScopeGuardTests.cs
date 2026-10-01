@@ -14,7 +14,7 @@ namespace PolvorApp.Api.Tests.Registry;
 
 /// <summary>
 /// Guard for BR-12 on the registry (design D6): every route under <c>/arquebusiers/{…}</c>, today's
-/// and any later one, answers 403 or 404 (never 2xx) to a FiringChief of another comparsa and to one
+/// and any later one, answers 404 (403 when Admin-only) to a FiringChief of another comparsa and to one
 /// without assignments, while the arquebusier's own FiringChief reaches every route that is not
 /// Admin-only. Write routes validate their body before the scope, so the guard sends a valid body;
 /// a new write route fails here until it is taught one.
@@ -51,8 +51,11 @@ public sealed partial class RegistryScopeGuardTests(PostgresFixture postgres, Ma
         {
             foreach (var (client, who) in new[] { (outsiderClient, "a FiringChief of another comparsa"), (unassignedClient, "a FiringChief without assignments") })
             {
+                // Out of scope looks like unknown (404), so existence never leaks; only an Admin-only
+                // route refuses every FiringChief up front (403).
                 var refused = await StatusAsync(client, registry, route, ids);
-                Assert.True(refused is HttpStatusCode.Forbidden or HttpStatusCode.NotFound, $"{route} answered {(int)refused} to {who}.");
+                var expected = route.AdminOnly ? HttpStatusCode.Forbidden : HttpStatusCode.NotFound;
+                Assert.True(refused == expected, $"{route} answered {(int)refused} to {who}, not {(int)expected}.");
             }
 
             var reached = await StatusAsync(registry.FiringChief, registry, route, ids);

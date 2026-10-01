@@ -18,6 +18,10 @@ export const MAX_PHONE_LENGTH = 20;
 export const MAX_FEDERATION_ID = 999_999_999;
 const EARLIEST_BIRTH_DATE = '1900-01-01';
 const PHONE = /^\+?[0-9 ]+$/;
+/** The API takes printable ASCII only in emails (InputFields.IsEmail). */
+const ASCII_ONLY = /^[\x21-\x7e]+$/;
+/** What the API refuses in names (InputFields): control, format, private-use, unassigned, separators. */
+const UNPRINTABLE = /[\p{Cc}\p{Cf}\p{Co}\p{Cn}\p{Zl}\p{Zp}]/u;
 const EMAIL = /^[^\s@"(),:;<>[\]\\]+@[^\s@"(),:;<>[\]\\]+\.[^\s@"(),:;<>[\]\\]+$/;
 
 const GENDERS: readonly string[] = Object.values(Gender);
@@ -92,6 +96,8 @@ export const arquebusierSchema = z
         issue(name, messages.required);
       } else if (text.length > MAX_NAME_LENGTH) {
         issue(name, messages.tooLong);
+      } else if (UNPRINTABLE.test(text)) {
+        issue(name, messages.invalid);
       }
     }
 
@@ -101,7 +107,7 @@ export const arquebusierSchema = z
     const email = values.email.trim();
     if (email.length > MAX_EMAIL_LENGTH) {
       issue('email', messages.tooLong);
-    } else if (email !== '' && !EMAIL.test(email)) {
+    } else if (email !== '' && (!EMAIL.test(email) || !ASCII_ONLY.test(email))) {
       issue('email', messages.email);
     }
 
