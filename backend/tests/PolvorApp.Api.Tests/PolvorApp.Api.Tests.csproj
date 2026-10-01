@@ -22,4 +22,9 @@
     <ProjectReference Include="..\..\src\PolvorApp.Api\PolvorApp.Api.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Shared with the frontend tests so both national ID validators stay identical (design D4). -->
+    <None Include="..\..\..\contracts\test-vectors\national-ids.json" Link="TestVectors\national-ids.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

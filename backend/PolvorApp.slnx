@@ -8,6 +8,10 @@
     <Project Path="src/Modules/IdentityAccess/PolvorApp.IdentityAccess.Contracts/PolvorApp.IdentityAccess.Contracts.csproj" />
     <Project Path="src/Modules/IdentityAccess/PolvorApp.IdentityAccess/PolvorApp.IdentityAccess.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/ArquebusierRegistry/">
+    <Project Path="src/Modules/ArquebusierRegistry/PolvorApp.ArquebusierRegistry.Contracts/PolvorApp.ArquebusierRegistry.Contracts.csproj" />
+    <Project Path="src/Modules/ArquebusierRegistry/PolvorApp.ArquebusierRegistry/PolvorApp.ArquebusierRegistry.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/AuditPrivacy/">
     <Project Path="src/Modules/AuditPrivacy/PolvorApp.AuditPrivacy.Contracts/PolvorApp.AuditPrivacy.Contracts.csproj" />
     <Project Path="src/Modules/AuditPrivacy/PolvorApp.AuditPrivacy/PolvorApp.AuditPrivacy.csproj" />

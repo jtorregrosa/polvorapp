@@ -48,7 +48,7 @@ public sealed class AuthenticatedApiTests(PostgresFixture postgres, MailpitFixtu
     {
         using var client = _host.Factory.CreateClient();
 
-        using var response = await client.GetAsync("/api/arquebusiers", TestContext.Current.CancellationToken);
+        using var response = await client.GetAsync("/api/no-such-route", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);

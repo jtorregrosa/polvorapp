@@ -46,6 +46,7 @@ public sealed class IdentityTestHost : IAsyncDisposable
             // Generous limits so tests are not throttled; rate limiting has its own tests.
             ["RateLimits:Auth:PermitLimit"] = "1000",
             ["RateLimits:AuthEmail:PermitLimit"] = "1000",
+            ["RateLimits:PersonalDataWrites:PermitLimit"] = "1000",
         };
         foreach (var (key, value) in settings ?? new Dictionary<string, string?>())
         {
