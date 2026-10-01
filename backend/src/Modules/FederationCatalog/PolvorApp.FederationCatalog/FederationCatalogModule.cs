@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PolvorApp.FederationCatalog.Assignments;
 using PolvorApp.FederationCatalog.Comparsas;
+using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.FederationCatalog.Endpoints;
 using PolvorApp.FederationCatalog.Persistence;
 using PolvorApp.FederationCatalog.Seeding;
@@ -33,6 +34,7 @@ public sealed class FederationCatalogModule : IModule
         services.AddScoped<AssignmentAdministration>();
         services.AddScoped<WeaponModelAdministration>();
         services.AddScoped<IDataSeeder, CatalogSeeder>();
+        services.AddScoped<ICatalogDirectory, CatalogDirectory>();
 
         // Replaces the identity module's deny-all default, whatever the module order (design D1).
         services.Replace(ServiceDescriptor.Scoped<IFiringChiefAssignmentSource, FiringChiefAssignmentSource>());

@@ -1,6 +1,6 @@
-using System.Net.Mail;
 using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.SharedKernel.Localization;
+using PolvorApp.SharedKernel.Validation;
 
 namespace PolvorApp.IdentityAccess.Users;
 
@@ -23,8 +23,7 @@ internal static class UserInput
         {
             errors["email"] = TooLong;
         }
-        else if (!MailAddress.TryCreate(email, out var parsed) || parsed.Address != email || !parsed.Host.Contains('.', StringComparison.Ordinal)
-            || email.Any(c => c > '~' || char.IsWhiteSpace(c) || char.IsControl(c) || "\"[]\\,;:()<>".Contains(c, StringComparison.Ordinal)))
+        else if (!InputFields.IsPlainEmail(email))
         {
             // Plain ASCII addresses only: the value is the sign-in name and the SMTP recipient.
             errors["email"] = Invalid;

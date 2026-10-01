@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using PolvorApp.FederationCatalog.Assignments;
 using PolvorApp.FederationCatalog.Persistence;
 using PolvorApp.IdentityAccess.Contracts;
+using PolvorApp.SharedKernel.Text;
 
 namespace PolvorApp.FederationCatalog.Endpoints;
 
@@ -50,7 +51,7 @@ internal static class AssignmentEndpoints
         var userIds = await db.Assignments.AsNoTracking().Where(a => a.ComparsaId == id).Select(a => a.UserId).ToListAsync(cancellationToken);
         var chiefs = await users.FindManyAsync(userIds, cancellationToken);
         return TypedResults.Ok(chiefs
-            .OrderBy(u => u.Name, CatalogOrder.Names)
+            .OrderBy(u => u.Name, SpanishOrder.Names)
             .Select(u => new FiringChiefResponse(u.Id, u.Name, u.Email, u.Status))
             .ToList());
     }
@@ -66,7 +67,7 @@ internal static class AssignmentEndpoints
         var comparsas = await db.Comparsas.AsNoTracking()
             .Where(c => db.Assignments.Any(a => a.ComparsaId == c.Id && a.UserId == userId))
             .ToListAsync(cancellationToken);
-        return TypedResults.Ok(comparsas.OrderBy(c => c.Name, CatalogOrder.Names).Select(ComparsaResponse.From).ToList());
+        return TypedResults.Ok(comparsas.OrderBy(c => c.Name, SpanishOrder.Names).Select(ComparsaResponse.From).ToList());
     }
 
     private static async Task<Results<NoContent, ProblemHttpResult>> AssignAsync(
