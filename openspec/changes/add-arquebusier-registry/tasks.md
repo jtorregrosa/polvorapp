@@ -211,5 +211,5 @@
   - an Admin cannot delete a comparsa that has arquebusiers.
 
   Verify: `npm run e2e` passes locally and in CI.
-- [ ] 8.2 Update `docs/mvp.md` (#5 status) and any doc the change touched, with `doc-updater`. Verify: the docs match the code and specs.
+- [x] 8.2 Update `docs/mvp.md` (#5 status) and any doc the change touched, with `doc-updater`. Verify: the docs match the code and specs.
 - [ ] 8.3 Run `verification-loop`: build, types, lint, backend and frontend tests with coverage ≥ 80 % for the registry module and endpoints, a security grep (no real data, no secrets, no personal values in logs or audit), and a diff review. Run `e2e-runner` (Playwright only) and `pr-test-analyzer` on the change. Verify: the PASS report is attached to the pull request, and the findings and follow-ups are summarised before archive.

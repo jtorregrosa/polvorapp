@@ -191,6 +191,25 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
     expect(queries).toEqual([`?comparsaId=${NORTE.id}`]);
   });
 
+  it('offers to try again when the list cannot be loaded', async () => {
+    const user = userEvent.setup();
+    let fail = true;
+    registry(() => [ROW_UNO]);
+    server.use(
+      mock.get('/api/arquebusiers', () =>
+        fail ? new HttpResponse(null, { status: 500 }) : HttpResponse.json([ROW_UNO]),
+      ),
+    );
+    await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
+
+    expect(await screen.findByText('Algo ha fallado. Inténtalo de nuevo.')).toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    fail = false;
+    await user.click(screen.getByRole('button', { name: 'Reintentar' }));
+
+    expect(await screen.findByRole('link', { name: 'García Sintético, Arcabucero' })).toBeInTheDocument();
+  });
+
   it('has no accessibility violations', async () => {
     registry(() => [ROW_UNO, ROW_DOS]);
     const { container } = await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });

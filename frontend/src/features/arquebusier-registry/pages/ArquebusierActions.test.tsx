@@ -50,6 +50,28 @@ describe('Transfer (spec: Transfer between comparsas, Registry screens)', () => 
     expect(bodies).toEqual([{ comparsaId: SUR.id }]);
   });
 
+  it('keeps the dialog open and says why when the target comparsa was deactivated meanwhile', async () => {
+    const user = userEvent.setup();
+    detail();
+    server.use(
+      mock.post(`/api/arquebusiers/${DETAIL_UNO.id}/transfer`, () =>
+        problem(409, 'arquebusiers.comparsaInactive'),
+      ),
+    );
+    await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_ADMIN });
+
+    await screen.findByRole('option', { name: SUR.name });
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Comparsa de destino' }), SUR.id);
+    await user.click(screen.getByRole('button', { name: 'Trasladar' }));
+    const dialog = await screen.findByRole('alertdialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Trasladar' }));
+
+    expect(
+      await within(dialog).findByText('La comparsa está inactiva y no admite nuevos arcabuceros.'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+  });
+
   it('is not offered to a FiringChief', async () => {
     detail();
     await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
@@ -109,6 +131,31 @@ describe('Deletion (spec: Deleting an arquebusier)', () => {
     expect(
       await screen.findByText('Arcabucero García Sintético se ha eliminado del registro.'),
     ).toBeInTheDocument();
+  });
+
+  it('stays on the arquebusier and says to retry when the registry is busy', async () => {
+    const user = userEvent.setup();
+    detail();
+    server.use(mock.delete(`/api/arquebusiers/${DETAIL_UNO.id}`, () => problem(503, 'registry.busy')));
+    const app = await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
+
+    await user.click(await screen.findByRole('button', { name: 'Eliminar arcabucero' }));
+    const dialog = await screen.findByRole('alertdialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Eliminar' }));
+
+    expect(await within(dialog).findByText(/El registro está ocupado/)).toBeInTheDocument();
+    expect(app.location()).toBe(`/arquebusiers/${DETAIL_UNO.id}`);
+  });
+
+  it('has no accessibility violations with the delete confirmation open', async () => {
+    const user = userEvent.setup();
+    detail();
+    await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
+
+    await user.click(await screen.findByRole('button', { name: 'Eliminar arcabucero' }));
+    await screen.findByRole('alertdialog');
+
+    expect(await axeViolations(document.body)).toEqual([]);
   });
 
   it('changes nothing when the confirmation is cancelled', async () => {

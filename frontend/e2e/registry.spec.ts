@@ -12,14 +12,20 @@ import { expect, test as base, waitForShell } from './fixtures';
 
 const NORTE = 'Comparsa Sintética Norte';
 const SUR = 'Comparsa Sintética Sur';
-const SEEDED_ESTE = '0193a100-0000-7000-8000-000000000003';
 /** "Arcabucera Sintética Seis", seeded in Comparsa Sintética Sur: outside the FiringChief's scope. */
 const SEEDED_IN_SUR = '0193a300-0000-7000-8000-000000000006';
 const LETTERS = 'TRWAGMYFPDXBNJZSQVHLCKE';
 
-/** A unique, valid synthetic identity: a very low DNI number and a federation id of the 2xxxxx range. */
+let identities = 0;
+
+/**
+ * A valid synthetic identity, unique across workers, calls and runs of the last day: a low DNI
+ * number (the seed uses lower ones) and a federation id from 201000, above the seed's 1000xx.
+ */
 function syntheticIdentity(): { nationalId: string; federationId: string; lastName: string } {
-  const number = 1000 + Math.floor(Math.random() * 98_000);
+  const second = Math.floor(Date.now() / 1000) % 100_000;
+  identities += 1;
+  const number = 1000 + ((second * 90 + test.info().parallelIndex * 9 + (identities % 9)) % 9_000_000);
   return {
     nationalId: `${String(number).padStart(8, '0')}${LETTERS[number % LETTERS.length]}`,
     federationId: String(200_000 + number),
@@ -178,6 +184,8 @@ test.describe('arquebusier registry as a FiringChief', () => {
     await page.reload();
     await expect(page.getByLabel(/Teléfono/)).toHaveValue('+34 600 000 099');
     await expect(page.getByLabel(/^Estado/)).toHaveValue('RESERVE');
+    await expect(page.getByLabel(/Fecha de caducidad/)).toHaveValue('2029-03-10');
+    await expect(page.getByLabel(/Fecha del curso/)).toHaveValue('2025-11-15');
 
     await page.getByRole('button', { name: 'Eliminar arcabucero' }).click();
     const dialog = page.getByRole('alertdialog', { name: `¿Eliminar a Arcabucera ${identity.lastName}?` });
@@ -201,8 +209,39 @@ test.describe('arquebusier registry as a FiringChief', () => {
     await waitForShell(page);
 
     const table = page.getByRole('table', { name: 'Arcabuceros' });
-    await expect(table.getByRole('link').first()).toBeVisible();
+    await expect(table.getByText(NORTE).first()).toBeVisible();
     await expect(table.getByText(SUR)).toHaveCount(0);
+  });
+
+  test('refuses a DNI/NIE already registered, and takes it again once that arquebusier is deleted', async ({
+    page,
+    deleteAfter,
+  }) => {
+    test.slow();
+    const first = await register(page);
+    deleteAfter(first.id);
+
+    const again = syntheticIdentity();
+    await page.goto('/arquebusiers/new');
+    await waitForShell(page);
+    await page.getByLabel(/ID Unión/).fill(again.federationId);
+    await page.getByLabel(/^DNI\/NIE/).fill(first.nationalId);
+    await page.getByLabel(/^Nombre/).fill('Arcabucera');
+    await page.getByLabel(/^Apellidos/).fill(again.lastName);
+    await page.getByLabel(/Fecha de nacimiento/).fill('1990-05-01');
+    await page.getByLabel(/Género/).selectOption('FEMALE');
+    await page.getByRole('button', { name: 'Registrar arcabucero' }).click();
+    // BR-01: blocking, on the field, without saying whose it is.
+    await expect(page.getByLabel(/^DNI\/NIE/)).toHaveAccessibleDescription(/contacta con la Federación/);
+    await expect(page).toHaveURL('/arquebusiers/new');
+
+    const headers = await antiforgeryHeaders(page);
+    expect((await page.request.delete(`/api/arquebusiers/${first.id}`, { headers })).status()).toBe(204);
+    await page.getByRole('button', { name: 'Registrar arcabucero' }).click();
+
+    await expect(page).toHaveURL(/\/arquebusiers\/[0-9a-f-]{36}$/);
+    deleteAfter(idFromUrl(page));
+    await expect(page.getByLabel(/^DNI\/NIE/)).toHaveValue(first.nationalId);
   });
 
   // The date fields are checked per engine in dates.spec.ts.
@@ -227,7 +266,10 @@ test.describe('arquebusier registry as an Admin', () => {
     const arquebusier = await register(page, NORTE);
     deleteAfter(arquebusier.id);
     const chief = await firingChiefPage(browser);
+    const chiefRow = chief.getByRole('table', { name: 'Arcabuceros' }).getByText(arquebusier.nationalId);
     try {
+      await chief.goto('/arquebusiers');
+      await expect(chiefRow).toBeVisible();
       await chief.goto(`/arquebusiers/${arquebusier.id}`);
       await expect(chief.getByRole('heading', { level: 1, name: arquebusier.name })).toBeVisible();
 
@@ -239,21 +281,67 @@ test.describe('arquebusier registry as an Admin', () => {
       await expect(notice(page, `pertenece ahora a ${SUR}`)).toBeFocused();
       await chief.reload();
       await expect(chief.getByRole('heading', { level: 1, name: 'Página no encontrada' })).toBeVisible();
+      await chief.goto('/arquebusiers');
+      await expect(chief.getByRole('table', { name: 'Arcabuceros' }).getByRole('link').first()).toBeVisible();
+      await expect(chiefRow).toHaveCount(0);
     } finally {
       await chief.context().close();
     }
   });
 
   test('cannot delete a comparsa that has arquebusiers', async ({ page }) => {
-    await page.goto(`/comparsas/${SEEDED_ESTE}`);
-    await waitForShell(page);
+    // A comparsa of its own: if the guard ever broke, no seeded comparsa would be lost.
+    const headers = await antiforgeryHeaders(page);
+    const identity = syntheticIdentity();
+    const created = await page.request.post('/api/comparsas', {
+      headers,
+      data: { name: `Comparsa E2E ${identity.federationId}`, side: 'MOORISH' },
+    });
+    expect(created.status()).toBe(201);
+    const comparsaId = ((await created.json()) as { id: string }).id;
+    let arquebusierId: string | undefined;
+    try {
+      const registered = await page.request.post('/api/arquebusiers', {
+        headers,
+        data: {
+          comparsaId,
+          federationId: Number(identity.federationId),
+          nationalId: identity.nationalId,
+          firstName: 'Arcabucera',
+          lastName: identity.lastName,
+          birthDate: '1990-05-01',
+          email: null,
+          phone: null,
+          gender: 'FEMALE',
+          status: 'ACTIVE',
+          trainingCompletedOn: null,
+          license: null,
+        },
+      });
+      expect(registered.status()).toBe(201);
+      arquebusierId = ((await registered.json()) as { id: string }).id;
 
-    await page.getByRole('button', { name: 'Eliminar comparsa' }).click();
-    const dialog = page.getByRole('alertdialog');
-    await dialog.getByRole('button', { name: 'Eliminar' }).click();
+      await page.goto(`/comparsas/${comparsaId}`);
+      await waitForShell(page);
+      await page.getByRole('button', { name: 'Eliminar comparsa' }).click();
+      const dialog = page.getByRole('alertdialog');
+      await dialog.getByRole('button', { name: 'Eliminar' }).click();
 
-    await expect(dialog).toContainText('Otros registros usan esta comparsa');
-    await dialog.getByRole('button', { name: 'Cancelar' }).click();
+      await expect(dialog).toContainText('Otros registros usan esta comparsa');
+      await dialog.getByRole('button', { name: 'Cancelar' }).click();
+      expect((await page.request.get(`/api/comparsas/${comparsaId}`)).status()).toBe(200);
+    } finally {
+      // The arquebusier first, so the comparsa is no longer in use.
+      const cleanup = [
+        ...(arquebusierId ? [`/api/arquebusiers/${arquebusierId}`] : []),
+        `/api/comparsas/${comparsaId}`,
+      ];
+      for (const resource of cleanup) {
+        expect([204, 404], `cleanup of ${resource}`).toContain(
+          (await page.request.delete(resource, { headers })).status(),
+        );
+      }
+    }
   });
 });
 
