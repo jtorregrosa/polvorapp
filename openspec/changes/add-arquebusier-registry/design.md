@@ -326,6 +326,26 @@ Feature folder `src/features/arquebusier-registry/`:
 - **Status**: the existing `arquebusier` and `license` mappings are reused, and `docs/design/status.md`
   is unchanged. `EXPIRING` stays unused until #7.
 
+**Rules for the screens (from the group 6 reviews, implementation notes):**
+- Dates: `DateInput` reports a partly typed date as `INCOMPLETE_DATE`, so schemas show
+  `registry:validation.date` instead of "required"; schemas also check `isIsoDate` and the bounds,
+  with `todayIso()` (Europe/Madrid) for "not in the future". Optional dates (course, license dates)
+  are `clearable`. Form values map `null` to `''` when loading and `''` to `null` on submit; the
+  native picker follows the browser locale, read-only dates the app language.
+- The computed expiry date is announced in a polite live region (`form.expiresOnComputed`) and is
+  only recomputed while the user has not edited it themselves.
+- Detail and weapon form pages render their form under `key={id}` / `key={weaponId}` with
+  `values` and `resetOptions: { keepDirtyValues: true }`, as `ComparsaDetailPage` does, so moving
+  between records never keeps the previous one's state. `OwnedWeaponFormPage` derives create or
+  edit from `weaponId`, loads the arquebusier (404, inactive-comparsa notice), and offers a
+  "back to the arquebusier" link and a cancel button: the breadcrumbs only reach the list.
+- Delete and remove confirmations put "cannot be undone" first and the Reserve suggestion second,
+  both inside the dialog description. The transfer title names the target comparsa.
+- Server field reasons map to `registry:validation.<reason>`, except `weaponModelId: notFound`,
+  which maps to `validation.modelNotFound`.
+- Playwright (group 8) checks the date fields in Chromium, Firefox and WebKit: typing per segment,
+  an incomplete date and an empty required one. A manual screen-reader pass is a release step.
+
 **i18n**: a new namespace `registry` in `es-ES`, `ca-ES-valencia` and `en`:
 - `arquebusiers.*`: list, search, filters, columns, empty states, form sections and fields with
   hints (nationalId leading zeros), actions, notices;

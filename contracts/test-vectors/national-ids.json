@@ -37,6 +37,8 @@
     {"name": "emoji (surrogate pair)", "input": "12345678\uD83D\uDE00", "error": "invalid"},
     {"name": "NUL character", "input": "12345678\u0000Z", "error": "invalid"},
     {"name": "lower-case NIE prefix with wrong letter", "input": "x1234567a", "error": "checkLetter"},
-    {"name": "longer than 64 characters", "input": "11111111111111111111111111111111111111111111111111111111111111111Z", "error": "invalid"}
+    {"name": "longer than 64 characters", "input": "11111111111111111111111111111111111111111111111111111111111111111Z", "error": "invalid"},
+    {"name": "exactly 64 characters with separators", "input": "12345678Z-------------------------------------------------------", "normalized": "12345678Z"},
+    {"name": "exactly 65 characters with separators", "input": "12345678Z--------------------------------------------------------", "error": "invalid"}
   ]
 }

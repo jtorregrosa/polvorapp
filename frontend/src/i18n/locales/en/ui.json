@@ -41,7 +41,8 @@
   "form": {
     "required": "Required",
     "optional": "Optional",
-    "requiredNote": "Fields marked with * are required."
+    "requiredNote": "Fields marked with * are required.",
+    "clearDate": "Clear date"
   },
   "confirm": {
     "cancel": "Cancel",

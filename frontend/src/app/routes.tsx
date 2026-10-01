@@ -12,6 +12,10 @@ import { InviteUserPage } from '@/features/identity-access/pages/users/InviteUse
 import { UserDetailPage } from '@/features/identity-access/pages/users/UserDetailPage';
 import { UsersPage } from '@/features/identity-access/pages/users/UsersPage';
 import { RequireAdmin, RequireSession } from '@/features/identity-access/RequireSession';
+import { ArquebusierDetailPage } from '@/features/arquebusier-registry/pages/ArquebusierDetailPage';
+import { ArquebusierFormPage } from '@/features/arquebusier-registry/pages/ArquebusierFormPage';
+import { ArquebusiersPage } from '@/features/arquebusier-registry/pages/ArquebusiersPage';
+import { OwnedWeaponFormPage } from '@/features/arquebusier-registry/pages/OwnedWeaponFormPage';
 import { ComparsaDetailPage } from '@/features/federation-catalog/pages/ComparsaDetailPage';
 import { ComparsaFormPage } from '@/features/federation-catalog/pages/ComparsaFormPage';
 import { ComparsasPage } from '@/features/federation-catalog/pages/ComparsasPage';
@@ -64,6 +68,31 @@ export const appRoutes: RouteObject[] = [
                 path: 'account',
                 Component: AccountPage,
                 handle: { breadcrumb: 'nav.account' } satisfies RouteHandle,
+              },
+              {
+                path: 'arquebusiers',
+                Component: ArquebusiersPage,
+                handle: { breadcrumb: 'nav.arquebusiers' } satisfies RouteHandle,
+              },
+              {
+                path: 'arquebusiers/new',
+                Component: ArquebusierFormPage,
+                handle: { breadcrumb: 'nav.arquebusiers' } satisfies RouteHandle,
+              },
+              {
+                path: 'arquebusiers/:id',
+                Component: ArquebusierDetailPage,
+                handle: { breadcrumb: 'nav.arquebusiers' } satisfies RouteHandle,
+              },
+              {
+                path: 'arquebusiers/:id/weapons/new',
+                Component: OwnedWeaponFormPage,
+                handle: { breadcrumb: 'nav.arquebusiers' } satisfies RouteHandle,
+              },
+              {
+                path: 'arquebusiers/:id/weapons/:weaponId',
+                Component: OwnedWeaponFormPage,
+                handle: { breadcrumb: 'nav.arquebusiers' } satisfies RouteHandle,
               },
               {
                 path: 'comparsas',
