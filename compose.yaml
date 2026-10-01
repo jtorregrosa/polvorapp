@@ -21,8 +21,9 @@ services:
       retries: 20
 
   storage:
-    # MinIO no longer publishes community images; Chainguard's source-built image (see design D3).
-    # No healthcheck: the image has no shell or client; nothing depends on it yet.
+    # MinIO no longer publishes community images; Chainguard's source-built image (bootstrap-platform design D3).
+    # No healthcheck: the image has no shell or client. The migrate command waits for it (up to 30 s)
+    # and creates the bucket; the API's readiness check covers it afterwards.
     image: cgr.dev/chainguard/minio@sha256:4692462f35d97d7e82c30371d82f057703c5d9489bcae726010594c812f2d285
     command: ["server", "/data", "--console-address", ":9001"]
     environment:
@@ -33,6 +34,10 @@ services:
     ports:
       - "127.0.0.1:9000:9000"
       - "127.0.0.1:9001:9001"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
 
   mail:
     image: axllent/mailpit:v1.31.3@sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d
@@ -67,9 +72,19 @@ services:
       # Sign-in rate limits per client address; the E2E run raises them (docs/development.md).
       RateLimits__Auth__PermitLimit: ${RATE_LIMIT_AUTH_PER_MINUTE:-10}
       RateLimits__AuthEmail__PermitLimit: ${RATE_LIMIT_AUTH_EMAIL_PER_15_MINUTES:-5}
+      # Registry and photo writes per user and minute; the E2E run raises it (one shared Admin).
+      RateLimits__PersonalDataWrites__PermitLimit: ${RATE_LIMIT_PERSONAL_DATA_WRITES_PER_MINUTE:-60}
+      # Private photo bucket (ADR-0005). Locally the API uses the MinIO root credentials; real
+      # environments use a key limited to this bucket (docs/development.md).
+      Storage__ServiceUrl: http://storage:9000
+      Storage__Bucket: ${STORAGE_BUCKET:-polvorapp-photos}
+      Storage__AccessKey: ${MINIO_ROOT_USER}
+      Storage__SecretKey: ${MINIO_ROOT_PASSWORD}
     depends_on:
       db:
         condition: service_healthy
+      storage:
+        condition: service_started
     restart: "no"
     security_opt:
       - no-new-privileges:true
@@ -89,6 +104,8 @@ services:
     depends_on:
       api-migrate:
         condition: service_completed_successfully
+      storage:
+        condition: service_started
     restart: "no"
     security_opt:
       - no-new-privileges:true
@@ -105,6 +122,8 @@ services:
         condition: service_completed_successfully
       mail:
         condition: service_healthy
+      storage:
+        condition: service_started
     restart: unless-stopped
     # The chiseled image has no shell or HTTP client; web's healthcheck covers the API.
     security_opt:

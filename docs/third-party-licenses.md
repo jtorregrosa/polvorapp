@@ -45,12 +45,15 @@ PostgreSQL License. Transitive dependencies are covered by CI dependency review.
 | `Microsoft.EntityFrameworkCore.Design` | MIT | build |
 | `Microsoft.EntityFrameworkCore.Relational` | MIT | runtime |
 | `Microsoft.Extensions.ApiDescription.Server` | MIT | build |
+| `AWSSDK.S3` | Apache-2.0 | runtime (object storage, ADR-0005) |
 | `Npgsql` | PostgreSQL | runtime |
 | `Npgsql.EntityFrameworkCore.PostgreSQL` | PostgreSQL | runtime |
+| `SkiaSharp`, `SkiaSharp.NativeAssets.Linux.NoDependencies` | MIT (bundled native Skia: BSD-3-Clause; FreeType: FreeType License) | runtime (photo processing, ADR-0005) |
 | `dotnet-ef` (local tool) | MIT | build |
 | `coverlet.MTP` | MIT | test |
 | `Microsoft.AspNetCore.Mvc.Testing` | MIT | test |
 | `Microsoft.Extensions.TimeProvider.Testing` | MIT | test |
+| `Testcontainers.Minio` | MIT | test |
 | `Testcontainers.PostgreSql` | MIT | test |
 | `xunit.v3` | Apache-2.0 | test |
 
@@ -91,6 +94,7 @@ MPL-2.0 packages (`axe-core`, `@axe-core/playwright`) are used unmodified in tes
 | `react-dom` | MIT | runtime |
 | `react-hook-form` | MIT | runtime |
 | `react-i18next` | MIT | runtime |
+| `react-image-crop` | ISC | runtime (photo cropping) |
 | `react-router` | MIT | runtime |
 | `storybook` | MIT | dev |
 | `@storybook/addon-a11y` | MIT | dev |
