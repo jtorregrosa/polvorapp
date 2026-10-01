@@ -1,0 +1,189 @@
+{
+  "arquebusiers": {
+    "title": "Arcabussers",
+    "description": "El registre d'arcabussers de la Federació.",
+    "descriptionFiringChief": "Els arcabussers de les teues comparses.",
+    "new": "Registra un arcabusser",
+    "caption": "Arcabussers",
+    "search": "Busca",
+    "searchHint": "Per nom, DNI/NIE o ID Unió.",
+    "columns": {
+      "name": "Nom",
+      "nationalId": "DNI/NIE",
+      "federationId": "ID Unió",
+      "comparsa": "Comparsa",
+      "status": "Estat",
+      "license": "Llicència"
+    },
+    "filters": {
+      "comparsa": "Comparsa",
+      "status": "Estat",
+      "all": "Totes",
+      "allStatuses": "Tots"
+    },
+    "noLicense": "Sense llicència",
+    "empty": {
+      "title": "Encara no hi ha arcabussers",
+      "description": "Registra el primer amb «Registra un arcabusser»."
+    },
+    "noMatches": "Cap arcabusser coincidix amb la busca o els filtres.",
+    "unassigned": {
+      "title": "Encara no tens cap comparsa assignada",
+      "description": "Un administrador de la Federació t'ha d'assignar a la teua comparsa perquè veges els seus arcabussers."
+    }
+  },
+  "form": {
+    "newTitle": "Registra un arcabusser",
+    "newDescription": "Les dades d'un membre de la comparsa que participa en els actes de disparada.",
+    "personal": "Dades personals",
+    "personalDescription": "El DNI/NIE i l'ID Unió no es poden repetir en tota la Federació.",
+    "comparsa": "Comparsa",
+    "federationId": "ID Unió",
+    "federationIdHint": "El codi de l'arcabusser en l'aplicació de la Federació.",
+    "nationalId": "DNI/NIE",
+    "nationalIdHint": "DNI: 8 dígits i la lletra (afig zeros a l'esquerra si cal). NIE: X, Y o Z, 7 dígits i la lletra.",
+    "firstName": "Nom",
+    "lastName": "Cognoms",
+    "birthDate": "Data de naixement",
+    "gender": "Gènere",
+    "genderHint": "Només per als informes d'igualtat.",
+    "email": "Correu electrònic",
+    "phone": "Telèfon",
+    "status": "Estat",
+    "statusHint": "En reserva no dispara enguany, però continua en la llista.",
+    "license": "Llicència",
+    "licenseDescription": "Només la llicència vigent: en renovar-la, se substituïxen les seues dades.",
+    "licenseType": "Tipus de llicència",
+    "noLicense": "Sense llicència",
+    "pending": "En tràmit",
+    "pendingHint": "Sol·licitada però encara sense expedir: no té dates.",
+    "issuedOn": "Data d'expedició",
+    "expiresOn": "Data de caducitat",
+    "expiresOnHint": "En canviar l'expedició o el tipus es calcula: 5 anys per a AE i 1 any per a A-PROF. Si la canvies tu, ja no es recalcula.",
+    "training": "Curs d'arcabusseria",
+    "trainingDescription": "Només es registra si el curs està fet i quan.",
+    "trainingCompletedOn": "Data del curs",
+    "trainingCompletedOnHint": "Deixa-la buida si encara no ha fet el curs.",
+    "register": "Registra l'arcabusser",
+    "save": "Guarda els canvis",
+    "registered": "{{name}} registrat.",
+    "saved": "Canvis guardats.",
+    "modified": "Una altra persona ha canviat este arcabusser mentre l'editaves. S'han carregat les seues dades actuals: revisa els teus canvis i torna a guardar.",
+    "expiresOnComputed": "Data de caducitat calculada: {{date}}."
+  },
+  "detail": {
+    "back": "Torna als arcabussers",
+    "loading": "Carregant l'arcabusser…",
+    "inactiveComparsa": "La comparsa {{name}} està inactiva: no admet nous arcabussers, però pots continuar editant este."
+  },
+  "ownedWeapons": {
+    "title": "Armes pròpies",
+    "description": "Les armes que posseïx, amb la seua guia de pertinença.",
+    "caption": "Armes pròpies",
+    "columns": {
+      "model": "Model",
+      "kind": "Tipus",
+      "attributes": "Bàndol, mà i grandària",
+      "weaponNumber": "Núm. d'arma",
+      "guide": "Núm. de guia",
+      "actions": "Accions"
+    },
+    "empty": "No té armes pròpies registrades.",
+    "add": "Afig una arma pròpia",
+    "edit": "Edita",
+    "editLabel": "Edita l'arma {{number}}",
+    "remove": "Lleva",
+    "removeLabel": "Lleva l'arma {{number}}",
+    "removeTitle": "Vols llevar l'arma {{number}}?",
+    "removeDescription": "S'esborra de la fitxa de l'arcabusser i no es pot desfer.",
+    "removed": "Arma {{number}} llevada.",
+    "form": {
+      "newTitle": "Afig una arma pròpia",
+      "editTitle": "Edita l'arma pròpia",
+      "description": "El número de guia no es pot repetir en tota la Federació.",
+      "model": "Model",
+      "modelHint": "Del catàleg de la Federació.",
+      "inactiveModel": "{{label}} (retirat)",
+      "weaponNumber": "Núm. d'arma",
+      "weaponNumberHint": "El número gravat en la culata.",
+      "guide": "Núm. de guia de pertinença",
+      "add": "Afig l'arma",
+      "save": "Guarda els canvis",
+      "added": "Arma afegida.",
+      "saved": "Canvis guardats.",
+      "back": "Torna a l'arcabusser"
+    }
+  },
+  "transfer": {
+    "title": "Trasllada a una altra comparsa",
+    "description": "Passa a la comparsa de destinació amb les seues armes pròpies. El que ja s'haja registrat d'edicions passades conserva la seua comparsa.",
+    "target": "Comparsa de destinació",
+    "noTargets": "No hi ha cap altra comparsa activa on traslladar-lo.",
+    "action": "Trasllada",
+    "confirmTitle": "Vols traslladar {{name}} a {{to}}?",
+    "confirmDescription": "Passarà de {{from}} a {{to}} amb les seues armes pròpies. Els caps de disparada de {{from}} deixaran de veure'l.",
+    "confirm": "Trasllada",
+    "done": "{{name}} pertany ara a {{to}}."
+  },
+  "delete": {
+    "title": "Elimina del registre",
+    "description": "Només quan deixa la Federació.",
+    "action": "Elimina l'arcabusser",
+    "confirmTitle": "Vols eliminar {{name}}?",
+    "confirmDescription": "No es pot desfer: s'esborren les seues dades i les seues armes pròpies.",
+    "reserveHint": "Si només deixa de disparar, passa la seua fitxa a Reserva: així es conserven les seues dades. Si torna més endavant després d'eliminar-la, caldrà registrar-la de nou des de zero.",
+    "confirm": "Elimina",
+    "deleted": "{{name}} s'ha eliminat del registre."
+  },
+  "gender": {
+    "MALE": "Home",
+    "FEMALE": "Dona",
+    "UNSPECIFIED": "Sense especificar"
+  },
+  "licenseType": {
+    "AE": "AE (avantcàrrega)",
+    "A_PROF": "A-PROF (professional)"
+  },
+  "errors": {
+    "arquebusiers": {
+      "notFound": "Este arcabusser no existix o no el pots veure.",
+      "comparsaNotFound": "Eixa comparsa no existix o no la pots veure.",
+      "comparsaInactive": "La comparsa està inactiva i no admet nous arcabussers.",
+      "sameComparsa": "L'arcabusser ja pertany a eixa comparsa.",
+      "nationalIdTaken": "Eixe DNI/NIE ja està registrat en la Federació. Si és la mateixa persona, contacta amb la Federació.",
+      "nationalIdTakenAdmin": "Eixe DNI/NIE ja està registrat en la Federació. Busca'l en el registre.",
+      "federationIdTaken": "Eixe ID Unió ja està registrat en la Federació. Si és la mateixa persona, contacta amb la Federació.",
+      "federationIdTakenAdmin": "Eixe ID Unió ja està registrat en la Federació. Busca'l en el registre.",
+      "modified": "Una altra persona ha canviat este arcabusser mentre l'editaves."
+    },
+    "ownedWeapons": {
+      "notFound": "Esta arma ja no existix.",
+      "modelInactive": "Eixe model està retirat del catàleg: tria'n un altre.",
+      "guideTaken": "Eixe número de guia ja està registrat en la Federació.",
+      "modified": "Una altra persona ha canviat esta arma mentre l'editaves."
+    },
+    "registry": {
+      "busy": "El registre està ocupat amb un altre canvi. Torna-ho a provar d'ací a uns segons."
+    },
+    "tooManyRequests": "Has fet molts canvis seguits. Espera un minut i torna-ho a provar.",
+    "validation": "Revisa els camps amb error.",
+    "generic": "Alguna cosa ha fallat. Torna-ho a provar."
+  },
+  "validation": {
+    "required": "Este camp és obligatori.",
+    "invalid": "Este valor no és vàlid.",
+    "tooLong": "És massa llarg.",
+    "choice": "Tria una opció.",
+    "nationalIdInvalid": "No és un DNI ni un NIE: revisa el format.",
+    "checkLetter": "La lletra no correspon als números.",
+    "future": "No pot ser posterior a hui.",
+    "tooOld": "No pot ser anterior a 1900.",
+    "notAfterIssued": "Ha de ser posterior a la data d'expedició.",
+    "datesWhilePending": "Una llicència en tràmit no té dates.",
+    "federationId": "Ha de ser un nombre enter entre 1 i 999.999.999.",
+    "email": "No és un correu electrònic vàlid.",
+    "phone": "Només dígits i espais, amb un + inicial opcional.",
+    "modelNotFound": "Eixe model ja no existix en el catàleg.",
+    "date": "Escriu una data completa: dia, mes i any."
+  }
+}

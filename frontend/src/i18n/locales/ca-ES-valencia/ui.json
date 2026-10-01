@@ -41,7 +41,8 @@
   "form": {
     "required": "Obligatori",
     "optional": "Opcional",
-    "requiredNote": "Els camps marcats amb * són obligatoris."
+    "requiredNote": "Els camps marcats amb * són obligatoris.",
+    "clearDate": "Esborra la data"
   },
   "confirm": {
     "cancel": "Cancel·la",

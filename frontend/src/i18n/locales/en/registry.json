@@ -1,0 +1,189 @@
+{
+  "arquebusiers": {
+    "title": "Arquebusiers",
+    "description": "The Federation's arquebusier registry.",
+    "descriptionFiringChief": "The arquebusiers of your comparsas.",
+    "new": "Register arquebusier",
+    "caption": "Arquebusiers",
+    "search": "Search",
+    "searchHint": "By name, DNI/NIE or Federation ID.",
+    "columns": {
+      "name": "Name",
+      "nationalId": "DNI/NIE",
+      "federationId": "Federation ID",
+      "comparsa": "Comparsa",
+      "status": "Status",
+      "license": "License"
+    },
+    "filters": {
+      "comparsa": "Comparsa",
+      "status": "Status",
+      "all": "All",
+      "allStatuses": "All"
+    },
+    "noLicense": "No license",
+    "empty": {
+      "title": "No arquebusiers yet",
+      "description": "Register the first one with “Register arquebusier”."
+    },
+    "noMatches": "No arquebusier matches the search or the filters.",
+    "unassigned": {
+      "title": "You have no comparsa assigned yet",
+      "description": "A Federation admin has to assign you to your comparsa before you can see its arquebusiers."
+    }
+  },
+  "form": {
+    "newTitle": "Register arquebusier",
+    "newDescription": "The details of a comparsa member who takes part in the firing acts.",
+    "personal": "Personal details",
+    "personalDescription": "The DNI/NIE and the Federation ID cannot be repeated anywhere in the Federation.",
+    "comparsa": "Comparsa",
+    "federationId": "Federation ID",
+    "federationIdHint": "The arquebusier's code in the Federation's app.",
+    "nationalId": "DNI/NIE",
+    "nationalIdHint": "DNI: 8 digits and the letter (add leading zeros if needed). NIE: X, Y or Z, 7 digits and the letter.",
+    "firstName": "First name",
+    "lastName": "Last names",
+    "birthDate": "Date of birth",
+    "gender": "Gender",
+    "genderHint": "Only for equality reports.",
+    "email": "Email",
+    "phone": "Phone",
+    "status": "Status",
+    "statusHint": "In reserve they do not fire this year but stay on the list.",
+    "license": "License",
+    "licenseDescription": "Only the current license: renewing it replaces its details.",
+    "licenseType": "License type",
+    "noLicense": "No license",
+    "pending": "Pending",
+    "pendingHint": "Applied for but not issued yet: it has no dates.",
+    "issuedOn": "Issue date",
+    "expiresOn": "Expiry date",
+    "expiresOnHint": "Worked out when the issue date or the type changes: 5 years for AE and 1 year for A-PROF. Once you change it yourself, it is no longer recalculated.",
+    "training": "Arquebusier course",
+    "trainingDescription": "Only whether the course is done, and when, is recorded.",
+    "trainingCompletedOn": "Course date",
+    "trainingCompletedOnHint": "Leave it empty if they have not done the course yet.",
+    "register": "Register arquebusier",
+    "save": "Save changes",
+    "registered": "{{name}} registered.",
+    "saved": "Changes saved.",
+    "modified": "Someone else changed this arquebusier while you were editing it. Their current details have been loaded: check your changes and save again.",
+    "expiresOnComputed": "Expiry date worked out: {{date}}."
+  },
+  "detail": {
+    "back": "Back to arquebusiers",
+    "loading": "Loading arquebusier…",
+    "inactiveComparsa": "The comparsa {{name}} is inactive: it takes no new arquebusiers, but you can still edit this one."
+  },
+  "ownedWeapons": {
+    "title": "Owned weapons",
+    "description": "The weapons they own, with their ownership guide.",
+    "caption": "Owned weapons",
+    "columns": {
+      "model": "Model",
+      "kind": "Kind",
+      "attributes": "Side, hand and size",
+      "weaponNumber": "Weapon no.",
+      "guide": "Guide no.",
+      "actions": "Actions"
+    },
+    "empty": "No owned weapons registered.",
+    "add": "Add owned weapon",
+    "edit": "Edit",
+    "editLabel": "Edit weapon {{number}}",
+    "remove": "Remove",
+    "removeLabel": "Remove weapon {{number}}",
+    "removeTitle": "Remove weapon {{number}}?",
+    "removeDescription": "It is deleted from the arquebusier's record and this cannot be undone.",
+    "removed": "Weapon {{number}} removed.",
+    "form": {
+      "newTitle": "Add owned weapon",
+      "editTitle": "Edit owned weapon",
+      "description": "The guide number cannot be repeated anywhere in the Federation.",
+      "model": "Model",
+      "modelHint": "From the Federation's catalogue.",
+      "inactiveModel": "{{label}} (retired)",
+      "weaponNumber": "Weapon no.",
+      "weaponNumberHint": "The number engraved on the stock.",
+      "guide": "Ownership guide no.",
+      "add": "Add weapon",
+      "save": "Save changes",
+      "added": "Weapon added.",
+      "saved": "Changes saved.",
+      "back": "Back to the arquebusier"
+    }
+  },
+  "transfer": {
+    "title": "Transfer to another comparsa",
+    "description": "They move to the target comparsa with their owned weapons. Anything already recorded for past editions keeps its comparsa.",
+    "target": "Target comparsa",
+    "noTargets": "There is no other active comparsa to transfer them to.",
+    "action": "Transfer",
+    "confirmTitle": "Transfer {{name}} to {{to}}?",
+    "confirmDescription": "They will move from {{from}} to {{to}} with their owned weapons. The firing chiefs of {{from}} will no longer see them.",
+    "confirm": "Transfer",
+    "done": "{{name}} now belongs to {{to}}."
+  },
+  "delete": {
+    "title": "Delete from the registry",
+    "description": "Only when they leave the Federation.",
+    "action": "Delete arquebusier",
+    "confirmTitle": "Delete {{name}}?",
+    "confirmDescription": "This cannot be undone: their details and owned weapons are erased.",
+    "reserveHint": "If they only stop firing, set their record to Reserve instead: their details are kept. If they come back after the record is deleted, it has to be registered again from scratch.",
+    "confirm": "Delete",
+    "deleted": "{{name}} has been deleted from the registry."
+  },
+  "gender": {
+    "MALE": "Male",
+    "FEMALE": "Female",
+    "UNSPECIFIED": "Unspecified"
+  },
+  "licenseType": {
+    "AE": "AE (muzzle-loading)",
+    "A_PROF": "A-PROF (professional)"
+  },
+  "errors": {
+    "arquebusiers": {
+      "notFound": "This arquebusier does not exist or you cannot see them.",
+      "comparsaNotFound": "That comparsa does not exist or you cannot see it.",
+      "comparsaInactive": "The comparsa is inactive and takes no new arquebusiers.",
+      "sameComparsa": "The arquebusier already belongs to that comparsa.",
+      "nationalIdTaken": "That DNI/NIE is already registered in the Federation. If it is the same person, contact the Federation.",
+      "nationalIdTakenAdmin": "That DNI/NIE is already registered in the Federation. Search for it in the registry.",
+      "federationIdTaken": "That Federation ID is already registered in the Federation. If it is the same person, contact the Federation.",
+      "federationIdTakenAdmin": "That Federation ID is already registered in the Federation. Search for it in the registry.",
+      "modified": "Someone else changed this arquebusier while you were editing it."
+    },
+    "ownedWeapons": {
+      "notFound": "This weapon no longer exists.",
+      "modelInactive": "That model is retired from the catalogue: choose another one.",
+      "guideTaken": "That guide number is already registered in the Federation.",
+      "modified": "Someone else changed this weapon while you were editing it."
+    },
+    "registry": {
+      "busy": "The registry is busy with another change. Try again in a few seconds."
+    },
+    "tooManyRequests": "You have made many changes in a row. Wait a minute and try again.",
+    "validation": "Check the fields with errors.",
+    "generic": "Something went wrong. Try again."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "invalid": "This value is not valid.",
+    "tooLong": "It is too long.",
+    "choice": "Choose an option.",
+    "nationalIdInvalid": "This is neither a DNI nor an NIE: check the format.",
+    "checkLetter": "The letter does not match the digits.",
+    "future": "It cannot be later than today.",
+    "tooOld": "It cannot be earlier than 1900.",
+    "notAfterIssued": "It must be after the issue date.",
+    "datesWhilePending": "A pending license has no dates.",
+    "federationId": "It must be a whole number between 1 and 999,999,999.",
+    "email": "This is not a valid email address.",
+    "phone": "Only digits and spaces, with an optional leading +.",
+    "modelNotFound": "That model no longer exists in the catalogue.",
+    "date": "Enter a complete date: day, month and year."
+  }
+}

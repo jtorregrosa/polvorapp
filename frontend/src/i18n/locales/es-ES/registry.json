@@ -1,0 +1,189 @@
+{
+  "arquebusiers": {
+    "title": "Arcabuceros",
+    "description": "El registro de arcabuceros de la Federación.",
+    "descriptionFiringChief": "Los arcabuceros de tus comparsas.",
+    "new": "Registrar arcabucero",
+    "caption": "Arcabuceros",
+    "search": "Buscar",
+    "searchHint": "Por nombre, DNI/NIE o ID Unión.",
+    "columns": {
+      "name": "Nombre",
+      "nationalId": "DNI/NIE",
+      "federationId": "ID Unión",
+      "comparsa": "Comparsa",
+      "status": "Estado",
+      "license": "Licencia"
+    },
+    "filters": {
+      "comparsa": "Comparsa",
+      "status": "Estado",
+      "all": "Todas",
+      "allStatuses": "Todos"
+    },
+    "noLicense": "Sin licencia",
+    "empty": {
+      "title": "Todavía no hay arcabuceros",
+      "description": "Registra al primero con «Registrar arcabucero»."
+    },
+    "noMatches": "Ningún arcabucero coincide con la búsqueda o los filtros.",
+    "unassigned": {
+      "title": "Todavía no tienes ninguna comparsa asignada",
+      "description": "Un administrador de la Federación tiene que asignarte a tu comparsa para que veas a sus arcabuceros."
+    }
+  },
+  "form": {
+    "newTitle": "Registrar arcabucero",
+    "newDescription": "Los datos de un miembro de la comparsa que participa en los actos de disparo.",
+    "personal": "Datos personales",
+    "personalDescription": "El DNI/NIE y el ID Unión no se pueden repetir en toda la Federación.",
+    "comparsa": "Comparsa",
+    "federationId": "ID Unión",
+    "federationIdHint": "El código del arcabucero en la aplicación de la Federación.",
+    "nationalId": "DNI/NIE",
+    "nationalIdHint": "DNI: 8 dígitos y la letra (añade ceros a la izquierda si hace falta). NIE: X, Y o Z, 7 dígitos y la letra.",
+    "firstName": "Nombre",
+    "lastName": "Apellidos",
+    "birthDate": "Fecha de nacimiento",
+    "gender": "Género",
+    "genderHint": "Solo para los informes de igualdad.",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "status": "Estado",
+    "statusHint": "En reserva no dispara este año, pero sigue en la lista.",
+    "license": "Licencia",
+    "licenseDescription": "Solo la licencia vigente: al renovarla, se sustituyen sus datos.",
+    "licenseType": "Tipo de licencia",
+    "noLicense": "Sin licencia",
+    "pending": "En trámite",
+    "pendingHint": "Solicitada pero todavía sin expedir: no tiene fechas.",
+    "issuedOn": "Fecha de expedición",
+    "expiresOn": "Fecha de caducidad",
+    "expiresOnHint": "Al cambiar la expedición o el tipo se calcula: 5 años para AE y 1 año para A-PROF. Si la cambias tú, ya no se recalcula.",
+    "training": "Curso de arcabucería",
+    "trainingDescription": "Solo se registra si el curso está hecho y cuándo.",
+    "trainingCompletedOn": "Fecha del curso",
+    "trainingCompletedOnHint": "Déjala vacía si todavía no ha hecho el curso.",
+    "register": "Registrar arcabucero",
+    "save": "Guardar cambios",
+    "registered": "{{name}} registrado.",
+    "saved": "Cambios guardados.",
+    "modified": "Otra persona ha cambiado este arcabucero mientras lo editabas. Se han cargado sus datos actuales: revisa tus cambios y vuelve a guardar.",
+    "expiresOnComputed": "Fecha de caducidad calculada: {{date}}."
+  },
+  "detail": {
+    "back": "Volver a arcabuceros",
+    "loading": "Cargando arcabucero…",
+    "inactiveComparsa": "La comparsa {{name}} está inactiva: no admite nuevos arcabuceros, pero puedes seguir editando este."
+  },
+  "ownedWeapons": {
+    "title": "Armas propias",
+    "description": "Las armas que posee, con su guía de pertenencia.",
+    "caption": "Armas propias",
+    "columns": {
+      "model": "Modelo",
+      "kind": "Tipo",
+      "attributes": "Bando, mano y tamaño",
+      "weaponNumber": "Nº de arma",
+      "guide": "Nº de guía",
+      "actions": "Acciones"
+    },
+    "empty": "No tiene armas propias registradas.",
+    "add": "Añadir arma propia",
+    "edit": "Editar",
+    "editLabel": "Editar el arma {{number}}",
+    "remove": "Quitar",
+    "removeLabel": "Quitar el arma {{number}}",
+    "removeTitle": "¿Quitar el arma {{number}}?",
+    "removeDescription": "Se borra de la ficha del arcabucero y no se puede deshacer.",
+    "removed": "Arma {{number}} quitada.",
+    "form": {
+      "newTitle": "Añadir arma propia",
+      "editTitle": "Editar arma propia",
+      "description": "El número de guía no se puede repetir en toda la Federación.",
+      "model": "Modelo",
+      "modelHint": "Del catálogo de la Federación.",
+      "inactiveModel": "{{label}} (retirado)",
+      "weaponNumber": "Nº de arma",
+      "weaponNumberHint": "El número grabado en la culata.",
+      "guide": "Nº de guía de pertenencia",
+      "add": "Añadir arma",
+      "save": "Guardar cambios",
+      "added": "Arma añadida.",
+      "saved": "Cambios guardados.",
+      "back": "Volver al arcabucero"
+    }
+  },
+  "transfer": {
+    "title": "Trasladar a otra comparsa",
+    "description": "Pasa a la comparsa de destino con sus armas propias. Lo que ya se haya registrado de ediciones pasadas conserva su comparsa.",
+    "target": "Comparsa de destino",
+    "noTargets": "No hay otra comparsa activa a la que trasladarlo.",
+    "action": "Trasladar",
+    "confirmTitle": "¿Trasladar a {{name}} a {{to}}?",
+    "confirmDescription": "Pasará de {{from}} a {{to}} con sus armas propias. Los jefes de disparo de {{from}} dejarán de verlo.",
+    "confirm": "Trasladar",
+    "done": "{{name}} pertenece ahora a {{to}}."
+  },
+  "delete": {
+    "title": "Eliminar del registro",
+    "description": "Solo cuando deja la Federación.",
+    "action": "Eliminar arcabucero",
+    "confirmTitle": "¿Eliminar a {{name}}?",
+    "confirmDescription": "No se puede deshacer: se borran sus datos y sus armas propias.",
+    "reserveHint": "Si solo deja de disparar, pasa su ficha a Reserva: así se conservan sus datos. Si vuelve más adelante después de eliminarla, habrá que registrarla de nuevo desde cero.",
+    "confirm": "Eliminar",
+    "deleted": "{{name}} se ha eliminado del registro."
+  },
+  "gender": {
+    "MALE": "Hombre",
+    "FEMALE": "Mujer",
+    "UNSPECIFIED": "Sin especificar"
+  },
+  "licenseType": {
+    "AE": "AE (avancarga)",
+    "A_PROF": "A-PROF (profesional)"
+  },
+  "errors": {
+    "arquebusiers": {
+      "notFound": "Este arcabucero no existe o no puedes verlo.",
+      "comparsaNotFound": "Esa comparsa no existe o no puedes verla.",
+      "comparsaInactive": "La comparsa está inactiva y no admite nuevos arcabuceros.",
+      "sameComparsa": "El arcabucero ya pertenece a esa comparsa.",
+      "nationalIdTaken": "Ese DNI/NIE ya está registrado en la Federación. Si es la misma persona, contacta con la Federación.",
+      "nationalIdTakenAdmin": "Ese DNI/NIE ya está registrado en la Federación. Búscalo en el registro.",
+      "federationIdTaken": "Ese ID Unión ya está registrado en la Federación. Si es la misma persona, contacta con la Federación.",
+      "federationIdTakenAdmin": "Ese ID Unión ya está registrado en la Federación. Búscalo en el registro.",
+      "modified": "Otra persona ha cambiado este arcabucero mientras lo editabas."
+    },
+    "ownedWeapons": {
+      "notFound": "Esta arma ya no existe.",
+      "modelInactive": "Ese modelo está retirado del catálogo: elige otro.",
+      "guideTaken": "Ese número de guía ya está registrado en la Federación.",
+      "modified": "Otra persona ha cambiado esta arma mientras la editabas."
+    },
+    "registry": {
+      "busy": "El registro está ocupado con otro cambio. Inténtalo de nuevo en unos segundos."
+    },
+    "tooManyRequests": "Has hecho muchos cambios seguidos. Espera un minuto y vuelve a intentarlo.",
+    "validation": "Revisa los campos con error.",
+    "generic": "Algo ha fallado. Inténtalo de nuevo."
+  },
+  "validation": {
+    "required": "Este campo es obligatorio.",
+    "invalid": "Este valor no es válido.",
+    "tooLong": "Es demasiado largo.",
+    "choice": "Elige una opción.",
+    "nationalIdInvalid": "No es un DNI ni un NIE: revisa el formato.",
+    "checkLetter": "La letra no corresponde a los números.",
+    "future": "No puede ser posterior a hoy.",
+    "tooOld": "No puede ser anterior a 1900.",
+    "notAfterIssued": "Debe ser posterior a la fecha de expedición.",
+    "datesWhilePending": "Una licencia en trámite no tiene fechas.",
+    "federationId": "Debe ser un número entero entre 1 y 999.999.999.",
+    "email": "No es un correo electrónico válido.",
+    "phone": "Solo dígitos y espacios, con un + inicial opcional.",
+    "modelNotFound": "Ese modelo ya no existe en el catálogo.",
+    "date": "Escribe una fecha completa: día, mes y año."
+  }
+}

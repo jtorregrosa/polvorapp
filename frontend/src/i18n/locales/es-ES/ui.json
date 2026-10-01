@@ -41,7 +41,8 @@
   "form": {
     "required": "Obligatorio",
     "optional": "Opcional",
-    "requiredNote": "Los campos marcados con * son obligatorios."
+    "requiredNote": "Los campos marcados con * son obligatorios.",
+    "clearDate": "Borrar fecha"
   },
   "confirm": {
     "cancel": "Cancelar",

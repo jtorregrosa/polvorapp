@@ -8,12 +8,12 @@ synthetic data only.
 Every page renders inside `AppLayout` and starts with a `PageHeader` (the page's only `h1`).
 Routes declare their breadcrumb with a `handle: { breadcrumb: '<common key>' } satisfies RouteHandle`.
 
-| Template | Structure |
-|---|---|
-| **List** | `PageHeader` (title, count in the description, primary action such as "Add arquebusier") → optional filters → `DataTable` (or `EmptyState` when there is nothing yet) |
-| **Detail** | `PageHeader` with back link, status (`StatusBadge`) and actions → cards with the record's sections → related tables |
-| **Form** | `PageHeader` with back link → `Form` with one `FormSection` per group of fields → submit and cancel at the end |
-| **Dashboard** | `PageHeader` → a grid of `StatCard`s (each linking to its list) → `AlertBanner`s for what needs attention → short tables |
+| Template      | Structure                                                                                                                                                             |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **List**      | `PageHeader` (title, count in the description, primary action such as "Add arquebusier") → optional filters → `DataTable` (or `EmptyState` when there is nothing yet) |
+| **Detail**    | `PageHeader` with back link, status (`StatusBadge`) and actions → cards with the record's sections → related tables                                                   |
+| **Form**      | `PageHeader` with back link → `Form` with one `FormSection` per group of fields → submit and cancel at the end                                                        |
+| **Dashboard** | `PageHeader` → a grid of `StatCard`s (each linking to its list) → `AlertBanner`s for what needs attention → short tables                                              |
 
 ## Forms and validation
 
@@ -23,6 +23,14 @@ Routes declare their breadcrumb with a `handle: { breadcrumb: '<common key>' } s
 - Mark required fields with `required` (visible asterisk + `aria-required`); the form shows the
   "fields marked with * are required" note once.
 - Help text goes in `description` (linked with `aria-describedby`), never in the placeholder.
+- Dates use `DateInput` (the native date picker). Its value is ISO `yyyy-MM-dd` as the API expects;
+  the picker shows it in the **browser's** locale (not the app language), while read-only dates are
+  formatted in the app language. Form defaults are `''`, never `null` (map `null` to `''` when loading
+  and `''` to `null` on submit). A partly typed date is reported as `INCOMPLETE_DATE` so the schema
+  can say "enter a complete date" instead of "required". `min`/`max` only guide the picker and are
+  not announced: the schema checks the bounds (`isIsoDate`, `todayIso()` in Europe/Madrid for "not
+  in the future") and its error states them. Optional dates use `clearable`, because some mobile
+  pickers cannot empty a date. Autofill is off: these forms record other people's dates.
 - Validate on submit, then on change of the invalid field. The first invalid field receives focus;
   errors are announced and linked to their field.
 - Server errors for the whole form go in an `AlertBanner severity="error"` above the submit button.

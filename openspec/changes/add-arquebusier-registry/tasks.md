@@ -157,11 +157,11 @@
 
 ## 6. API contract and frontend foundations
 
-- [ ] 6.1 Regenerate `contracts/openapi.json` and the orval client. Verify: `OpenApiDocumentTests` passes, the generated hooks for `/arquebusiers` exist, and `npm run typecheck` passes.
-- [ ] 6.2 Write Vitest tests that read `contracts/test-vectors/national-ids.json`, then implement the TypeScript national ID validator in `features/arquebusier-registry/`. Verify: the same vectors pass on both sides.
-- [ ] 6.3 Write tests and an axe check for a new `DateInput` composite (native date input inside `FormField`: label, error, `min`/`max`). Then implement it with a story, and document it in `docs/design/patterns.md` (forms). Verify: the tests, the Storybook build and the composite catalogue test pass.
-- [ ] 6.4 Add the `registry` i18n namespace (es-ES, ca-ES-valencia, en) with the enum, error and validation keys from design D8, `common:nav.arquebusiers`, the typed-keys declaration, the navigation entry and the routes with placeholder pages. Verify: the translation completeness test and the navigation test pass.
-- [ ] 6.5 Review group 6 in parallel with `typescript-reviewer`, `react-reviewer` and `a11y-architect`. Fix CRITICAL/HIGH findings.
+- [x] 6.1 Regenerate `contracts/openapi.json` and the orval client. Verify: `OpenApiDocumentTests` passes, the generated hooks for `/arquebusiers` exist, and `npm run typecheck` passes.
+- [x] 6.2 Write Vitest tests that read `contracts/test-vectors/national-ids.json`, then implement the TypeScript national ID validator in `features/arquebusier-registry/`. Verify: the same vectors pass on both sides.
+- [x] 6.3 Write tests and an axe check for a new `DateInput` composite (native date input inside `FormField`: label, error, `min`/`max`). Then implement it with a story, and document it in `docs/design/patterns.md` (forms). Verify: the tests, the Storybook build and the composite catalogue test pass.
+- [x] 6.4 Add the `registry` i18n namespace (es-ES, ca-ES-valencia, en) with the enum, error and validation keys from design D8, `common:nav.arquebusiers`, the typed-keys declaration, the navigation entry and the routes with placeholder pages. Verify: the translation completeness test and the navigation test pass.
+- [x] 6.5 Review group 6 in parallel with `typescript-reviewer`, `react-reviewer` and `a11y-architect`. Fix CRITICAL/HIGH findings.
 
 ## 7. Registry screens
 
