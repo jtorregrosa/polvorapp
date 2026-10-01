@@ -40,3 +40,7 @@ Thumbs.db
 frontend/src/features/__lint_probe_*/
 frontend/src/components/app/__lint_probe_*/
 storybook-static/
+
+# Python caches (skill scripts)
+__pycache__/
+*.pyc
