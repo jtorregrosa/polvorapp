@@ -1,7 +1,8 @@
 # Open Questions
 
 Tracker of discovery questions. Answers are integrated into the relevant doc; the source is
-`sources/answers.md`.
+`sources/answers.md`, except for maintainer decisions taken later, which are recorded here with
+their date.
 
 ## Round 2 — Domain and data
 
@@ -38,7 +39,7 @@ Tracker of discovery questions. Answers are integrated into the relevant doc; th
 | Q-24 | Google Form | One submission **per arquebusier**, same fields as the order spreadsheet. PolvorApp replaces it. | ✅ |
 | Q-25 | Order workflow | Federation opens a corrections window; exceptional cases handled in person (Admin edits). | ✅ |
 | Q-26 | Distribution | Federation records rental flask number per person (laptop + spreadsheet). No signatures; FiringChief validates identities. | ✅ |
-| Q-27 | License | A-PROF renewed yearly (to confirm). No number, no history. | ✅ |
+| Q-27 | License | A-PROF renewed yearly (confirmed by the maintainer, 2026-10-01). No number, no history. | ✅ |
 | Q-28 | Recarga | Not needed. | ✅ |
 | Q-29 | Transfers | Yes, between editions. | ✅ |
 | Q-30 | federationId | Always exists at registration. | ✅ |
@@ -82,8 +83,8 @@ Tracker of discovery questions. Answers are integrated into the relevant doc; th
 | Q-51 | Federation buy-in (project presentation / demo) | Go-live |
 | Q-53 | Official weapon catalogue labels and whether kind must follow the side (Q-07 says Christian = trabuco, but Federation lists show "ARCABUZ CRISTIANO"); PolvorApp allows any combination meanwhile | Go-live |
 
-## Pending for later changes (maintainer)
+## Maintainer decisions
 
-| ID | Topic | Needed before |
-|---|---|---|
-| Q-52 | Does a FiringChief's `User` need a link to their own `Arquebusier` record (a FiringChief may also fire)? Today they are separate records | `add-arquebusier-registry` |
+| ID | Topic | Answer (summary) | Status |
+|---|---|---|---|
+| Q-52 | Link between a FiringChief's `User` and their own `Arquebusier` record (a FiringChief may also fire) | No link: two separate records. A FiringChief who fires is registered like any other arquebusier of their comparsa (`add-arquebusier-registry`). | ✅ |

@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Modules\ArquebusierRegistry\PolvorApp.ArquebusierRegistry\PolvorApp.ArquebusierRegistry.csproj" />
     <ProjectReference Include="..\Modules\AuditPrivacy\PolvorApp.AuditPrivacy\PolvorApp.AuditPrivacy.csproj" />
     <ProjectReference Include="..\Modules\FederationCatalog\PolvorApp.FederationCatalog\PolvorApp.FederationCatalog.csproj" />
     <ProjectReference Include="..\Modules\IdentityAccess\PolvorApp.IdentityAccess\PolvorApp.IdentityAccess.csproj" />

@@ -2922,6 +2922,348 @@
           }
         ]
       }
+    },
+    "/api/arquebusiers": {
+      "get": {
+        "tags": [
+          "Arquebusiers"
+        ],
+        "summary": "The arquebusiers of the caller's comparsas, sorted by last and first name.",
+        "operationId": "ListArquebusiers",
+        "parameters": [
+          {
+            "name": "comparsaId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArquebusierRowResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Arquebusiers"
+        ],
+        "summary": "Registers an arquebusier in an active comparsa of the caller's scope.",
+        "operationId": "RegisterArquebusier",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterArquebusierRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArquebusierResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/arquebusiers/{id}": {
+      "get": {
+        "tags": [
+          "Arquebusiers"
+        ],
+        "summary": "One arquebusier of the caller's comparsas, with license, course and owned weapons.",
+        "operationId": "GetArquebusier",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArquebusierResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Arquebusiers"
+        ],
+        "summary": "Replaces the editable fields of an arquebusier, if the version is still current.",
+        "operationId": "UpdateArquebusier",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateArquebusierRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArquebusierResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -2984,6 +3326,173 @@
             "format": "int32"
           }
         }
+      },
+      "ArquebusierResponse": {
+        "required": [
+          "id",
+          "comparsaId",
+          "comparsaName",
+          "comparsaActive",
+          "federationId",
+          "nationalId",
+          "firstName",
+          "lastName",
+          "birthDate",
+          "email",
+          "phone",
+          "gender",
+          "status",
+          "trainingCompletedOn",
+          "license",
+          "ownedWeapons",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "comparsaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "comparsaName": {
+            "type": "string"
+          },
+          "comparsaActive": {
+            "type": "boolean"
+          },
+          "federationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nationalId": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "gender": {
+            "$ref": "#/components/schemas/Gender"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ArquebusierStatus"
+          },
+          "trainingCompletedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "license": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/LicenseResponse"
+              }
+            ]
+          },
+          "ownedWeapons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OwnedWeaponResponse"
+            }
+          },
+          "version": {
+            "type": "integer",
+            "format": "uint32"
+          }
+        }
+      },
+      "ArquebusierRowResponse": {
+        "required": [
+          "id",
+          "firstName",
+          "lastName",
+          "nationalId",
+          "federationId",
+          "comparsaId",
+          "comparsaName",
+          "status",
+          "licenseStatus",
+          "licenseExpiresOn"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "nationalId": {
+            "type": "string"
+          },
+          "federationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "comparsaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "comparsaName": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ArquebusierStatus"
+          },
+          "licenseStatus": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/LicenseStatus"
+              }
+            ]
+          },
+          "licenseExpiresOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          }
+        }
+      },
+      "ArquebusierStatus": {
+        "enum": [
+          "ACTIVE",
+          "RESERVE"
+        ]
       },
       "ChangePasswordRequest": {
         "required": [
@@ -3112,6 +3621,13 @@
           }
         }
       },
+      "Gender": {
+        "enum": [
+          "MALE",
+          "FEMALE",
+          "UNSPECIFIED"
+        ]
+      },
       "Handedness": {
         "enum": [
           "RIGHT",
@@ -3168,6 +3684,90 @@
           }
         }
       },
+      "LicenseRequest": {
+        "required": [
+          "type",
+          "pending",
+          "issuedOn",
+          "expiresOn"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pending": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "issuedOn": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "expiresOn": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "LicenseResponse": {
+        "required": [
+          "type",
+          "pending",
+          "issuedOn",
+          "expiresOn",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/LicenseType"
+          },
+          "pending": {
+            "type": "boolean"
+          },
+          "issuedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "expiresOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "status": {
+            "$ref": "#/components/schemas/LicenseStatus"
+          }
+        }
+      },
+      "LicenseStatus": {
+        "enum": [
+          "PENDING",
+          "VALID",
+          "EXPIRED"
+        ]
+      },
+      "LicenseType": {
+        "enum": [
+          "AE",
+          "A_PROF"
+        ]
+      },
       "LoginRequest": {
         "required": [
           "email",
@@ -3191,6 +3791,35 @@
         "properties": {
           "next": {
             "$ref": "#/components/schemas/SignInStep"
+          }
+        }
+      },
+      "OwnedWeaponResponse": {
+        "required": [
+          "id",
+          "model",
+          "weaponNumber",
+          "ownershipGuideNumber",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "model": {
+            "$ref": "#/components/schemas/WeaponModelSummary"
+          },
+          "weaponNumber": {
+            "type": "string"
+          },
+          "ownershipGuideNumber": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "uint32"
           }
         }
       },
@@ -3285,6 +3914,104 @@
           }
         }
       },
+      "RegisterArquebusierRequest": {
+        "required": [
+          "comparsaId",
+          "federationId",
+          "nationalId",
+          "firstName",
+          "lastName",
+          "birthDate",
+          "email",
+          "phone",
+          "gender",
+          "status",
+          "trainingCompletedOn",
+          "license"
+        ],
+        "type": "object",
+        "properties": {
+          "comparsaId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "federationId": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "nationalId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "firstName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "birthDate": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "gender": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "trainingCompletedOn": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "license": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/LicenseRequest"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
       "ResetPasswordRequest": {
         "required": [
           "userId",
@@ -3347,6 +4074,104 @@
             "type": "string"
           }
         }
+      },
+      "UpdateArquebusierRequest": {
+        "required": [
+          "federationId",
+          "nationalId",
+          "firstName",
+          "lastName",
+          "birthDate",
+          "email",
+          "phone",
+          "gender",
+          "status",
+          "trainingCompletedOn",
+          "license",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "federationId": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "nationalId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "firstName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "birthDate": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "gender": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "trainingCompletedOn": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "license": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/LicenseRequest"
+              }
+            ]
+          },
+          "version": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "uint32"
+          }
+        },
+        "additionalProperties": false
       },
       "UpdateLocaleRequest": {
         "required": [
@@ -3569,6 +4394,63 @@
           }
         }
       },
+      "WeaponModelSummary": {
+        "required": [
+          "id",
+          "kind",
+          "side",
+          "handedness",
+          "size",
+          "label",
+          "active"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/WeaponKind"
+          },
+          "side": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Side"
+              }
+            ]
+          },
+          "handedness": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Handedness"
+              }
+            ]
+          },
+          "size": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/WeaponSize"
+              }
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      },
       "WeaponSize": {
         "enum": [
           "NORMAL",
@@ -3606,6 +4488,9 @@
     },
     {
       "name": "WeaponModels"
+    },
+    {
+      "name": "Arquebusiers"
     }
   ]
 }

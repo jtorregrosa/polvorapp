@@ -27,16 +27,21 @@ public sealed class MigrateCommandTests(PostgresFixture postgres)
         {
             Assert.True(await TableExistsAsync(connectionString, "catalog", table), table);
         }
+
+        foreach (var table in new[] { "arquebusiers", "owned_weapons", "__EFMigrationsHistory" })
+        {
+            Assert.True(await TableExistsAsync(connectionString, "registry", table), table);
+        }
     }
 
     [Fact]
-    public void The_catalog_migrates_after_the_audit_trail_and_identity()
+    public void Modules_migrate_in_dependency_order()
     {
         using var factory = new ApiFactory("Host=offline");
 
         var order = factory.Services.GetServices<IDatabaseMigrator>().OrderBy(m => m.Order).Select(m => m.Name);
 
-        Assert.Equal(["AuditDbContext", "IdentityAccessDbContext", "FederationCatalogDbContext"], order);
+        Assert.Equal(["AuditDbContext", "IdentityAccessDbContext", "FederationCatalogDbContext", "ArquebusierRegistryDbContext"], order);
     }
 
     [Fact]

@@ -65,25 +65,28 @@ Managed by Admins from both the comparsa and the user pages (maintainer decision
 **Arquebusier**
 | Field | Notes |
 |---|---|
-| `federationId` | Unique. ID in the Federation's external app. Required (always known at sign-up). |
-| `nationalId` | DNI/NIE, stored normalised (uppercase, no spaces), check letter validated. Unique. |
-| `firstName`, `lastName` | |
-| `birthDate` | Age is derived, never stored. |
-| `email`, `phone` | |
+| `federationId` | Whole number 1–999 999 999, unique. ID in the Federation's external app. Required (always known at sign-up). |
+| `nationalId` | DNI (8 digits + letter) or NIE (X/Y/Z + 7 digits + letter), stored normalised (spaces, tabs and hyphens removed, uppercase, ASCII only), check letter validated (BR-01). Unique (BR-02). |
+| `firstName`, `lastName` | 1–100 characters, trimmed, no line breaks or invisible characters. |
+| `birthDate` | Not in the future, not before 1900-01-01. Age is derived, never stored. |
+| `email`, `phone` | Optional. Email: plain address, stored lower-case. Phone: digits and spaces with an optional leading `+`, at most 20 characters. |
 | `gender` | Kept for equality reports (`MALE` \| `FEMALE` \| `UNSPECIFIED`). |
-| `idPhoto` | Mandatory portrait photo (file), also printed on the arquebusier badge. Cropped to a fixed ratio, EXIF stripped. |
-| `trainingCompletedOn` | Date the mandatory course was done; null = not done. |
-| `comparsa` | Current comparsa. Can change between editions (transfer by Admin); past entries keep their comparsa. |
-| `status` | **`ACTIVE` \| `RESERVE`** — the only status. `RESERVE` = not firing (0 kg) but kept on the list (e.g. inactive for a few years, or available as pickup proxy). Leaving the Federation ⇒ the arquebusier is **deleted**. |
+| `idPhoto` | Mandatory portrait photo (file), also printed on the arquebusier badge. Cropped to a fixed ratio, EXIF stripped. Added by `add-arquebusier-photos` (#6); arquebusiers registered before it have none until then. |
+| `trainingCompletedOn` | Date the mandatory course was done, not in the future; null = not done. |
+| `comparsa` | Current comparsa; new arquebusiers only in an active one. Changes only by a transfer (Admin, UC-29), never by an edit; past entries keep their comparsa (BR-13). |
+| `status` | **`ACTIVE` \| `RESERVE`** — the only status, `ACTIVE` by default. `RESERVE` = not firing (0 kg) but kept on the list (e.g. inactive for a few years, or available as pickup proxy). Leaving the Federation ⇒ the arquebusier is **deleted**. |
 
-**License** (current only, no history, no number) — `type` (`AE` | `A_PROF`), `issuedOn`, `expiresOn` (default: AE `issuedOn + 5 years`, A-PROF `issuedOn + 1 year` ❓), `status` (`PENDING` | `VALID` | `EXPIRED` derived), `frontPhoto`, `backPhoto`. Renewal replaces the previous data and photos.
+Edits carry a version (PostgreSQL `xmin`): an edit based on outdated data is rejected, so two
+FiringChiefs of one comparsa never overwrite each other silently.
+
+**License** (current only, no history, no number) — `type` (`AE` | `A_PROF`), `issuedOn`, `expiresOn` (default: AE `issuedOn + 5 years`, A-PROF `issuedOn + 1 year`), `status` (`PENDING` | `VALID` | `EXPIRED` derived from today in Europe/Madrid: valid through its expiry day; no status without a license), `frontPhoto`, `backPhoto`. A pending license has no dates; an issued one has both, `expiresOn` after `issuedOn`, and `issuedOn` not in the future. Renewal replaces the previous data and photos.
 
 **WeaponModel** (catalogue) — `kind` (`TRABUCO` | `ARCABUZ` | `PISTOL`), `side`, `handedness` (`RIGHT` | `LEFT`), `size` (`NORMAL` | `SMALL`), `rentable` (never for pistols, BR-07), `label` (Federation naming, e.g. "TRABUCO CRISTIANO DIESTRO (PEQUEÑO)", unique ignoring case), `active`.
 Side, handedness and size are required for trabucos and arcabuces, whose kind × side × handedness × size
 combination is unique; for pistols they are optional. Kind and side combine freely (maintainer decision:
 Federation labels such as "ARCABUZ CRISTIANO" do not follow Q-07 strictly; Q-53).
 
-**OwnedWeapon** — `owner` (Arquebusier), `model`, `weaponNumber` (engraved), `ownershipGuideNumber`.
+**OwnedWeapon** — `owner` (Arquebusier), `model` (any catalogue kind, pistols included; active when added or changed), `weaponNumber` (engraved, 1–30 characters, **not** unique: numbers of different makers can coincide), `ownershipGuideNumber` (1–30 characters, stored upper-cased, unique across the Federation ignoring case — maintainer decision).
 
 ### Edition-scoped
 

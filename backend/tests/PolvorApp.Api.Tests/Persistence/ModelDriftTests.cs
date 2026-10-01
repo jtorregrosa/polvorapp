@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PolvorApp.Api.Tests.Infrastructure;
+using PolvorApp.ArquebusierRegistry.Persistence;
 using PolvorApp.AuditPrivacy.Persistence;
 using PolvorApp.FederationCatalog.Persistence;
 using PolvorApp.IdentityAccess.Persistence;
@@ -19,5 +20,6 @@ public sealed class ModelDriftTests
         Assert.False(scope.ServiceProvider.GetRequiredService<AuditDbContext>().Database.HasPendingModelChanges(), nameof(AuditDbContext));
         Assert.False(scope.ServiceProvider.GetRequiredService<IdentityAccessDbContext>().Database.HasPendingModelChanges(), nameof(IdentityAccessDbContext));
         Assert.False(scope.ServiceProvider.GetRequiredService<FederationCatalogDbContext>().Database.HasPendingModelChanges(), nameof(FederationCatalogDbContext));
+        Assert.False(scope.ServiceProvider.GetRequiredService<ArquebusierRegistryDbContext>().Database.HasPendingModelChanges(), nameof(ArquebusierRegistryDbContext));
     }
 }

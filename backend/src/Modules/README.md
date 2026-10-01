@@ -64,3 +64,29 @@ reference fails even before any of its types is used.
   Normalise input to NFC first. `lower()` needs a UTF-8 ctype (see `docs/development.md`).
 - **Model drift**: `ModelDriftTests` fails when a context's model changed without a migration;
   add the new context there.
+
+## Conventions shared by modules (from `add-arquebusier-registry`)
+
+- **Reading another module's reference data**: through its read contract, never its tables. For
+  example, `FederationCatalog.Contracts.ICatalogDirectory` returns `ComparsaSummary` and
+  `WeaponModelSummary` so other modules can validate and show comparsas and weapon models. It
+  applies no comparsa scope: the caller enforces BR-12.
+- **Foreign keys into another module's schema** are allowed only to protect a reference against
+  deletion, and only one way, from a later module to an earlier one in migration order (e.g.
+  `registry.arquebusiers.comparsa_id` → `catalog.comparsas`). EF cannot model them, so the
+  migration adds them with `migrationBuilder.Sql` and a literal constraint name, and a database
+  test asserts they exist. Use `ON DELETE NO ACTION`: it raises `foreign_key_violation` (23503),
+  which the owner maps to its `inUse` problem; `RESTRICT` raises `restrict_violation` (23001).
+  Case-insensitive uniqueness may also be enforced by storing a normalised value (e.g. the
+  upper-cased ownership guide) with a check constraint, instead of a generated key column.
+  The referencing module still implements the owner's veto contract (e.g. `ICatalogUsage`), so
+  the normal path never relies on the exception. No code queries the other schema.
+- **Shared field validation**: `SharedKernel.Validation.InputFields` (trimmed NFC text without
+  hidden characters, coded enums) and `SharedKernel.Time.FederationCalendar.Today` (the date in
+  Europe/Madrid for "not in the future" and "expired" rules).
+- **Optimistic concurrency** (the convention new modules follow; the registry is the first): a row
+  edited by several users carries PostgreSQL `xmin` as a `uint` `Version` (`IsRowVersion()`),
+  exposed as `version` and required on `PUT`; `DbUpdateConcurrencyException` becomes a `409` with
+  a `<entity>.modified` code. Lock rows with `SqlQuery<int>("SELECT 1 AS \"Value\" … FOR UPDATE")`
+  (scope in the `WHERE` clause, see `RegistryLocks`) and load them with LINQ afterwards:
+  `SELECT *` omits the `xmin` system column.

@@ -16,7 +16,7 @@ public sealed class ProblemDetailsTests(PostgresFixture postgres)
         await using var factory = new ApiFactory(postgres.ConnectionString);
         using var client = factory.CreateClient();
 
-        var response = await client.GetAsync(new Uri("/api/arquebusiers", UriKind.Relative), TestContext.Current.CancellationToken);
+        var response = await client.GetAsync(new Uri("/api/no-such-route", UriKind.Relative), TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);

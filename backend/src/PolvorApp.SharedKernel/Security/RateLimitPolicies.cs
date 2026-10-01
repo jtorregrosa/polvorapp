@@ -8,4 +8,10 @@ public static class RateLimitPolicies
 
     /// <summary>Requests that send an email to an address typed by an anonymous user: 5 per 15 minutes per client.</summary>
     public const string AuthEmail = "auth-email";
+
+    /// <summary>
+    /// Writes that answer whether a personal identifier exists (registry registration and edits): 60 per
+    /// minute per signed-in user, so duplicate probing cannot run at full speed (add-arquebusier-registry D11).
+    /// </summary>
+    public const string PersonalDataWrites = "personal-data-writes";
 }
