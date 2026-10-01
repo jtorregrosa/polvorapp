@@ -16,6 +16,10 @@ export const REGISTRY_PROBLEM_CODES = [
   'ownedWeapons.guideTaken',
   'ownedWeapons.modified',
   'registry.busy',
+  'photos.notFound',
+  'photos.noLicense',
+  'photos.modified',
+  'storage.unavailable',
 ] as const;
 
 export type RegistryProblemCode = (typeof REGISTRY_PROBLEM_CODES)[number];
@@ -79,6 +83,28 @@ export function problemMessage(t: TFunction<'registry'>, error: unknown, { isAdm
       : t(`errors.${code}`);
   }
   return code === 'validation' ? t('errors.validation') : t('errors.generic');
+}
+
+/** Reasons the API gives for a rejected photo file (spec: Photo validation and processing). */
+export const PHOTO_FILE_REASONS = [
+  'required',
+  'tooLarge',
+  'unsupportedFormat',
+  'tooSmall',
+  'aspectRatio',
+] as const;
+
+/** A translated message for a failed photo upload or removal, including the file's reason. */
+export function photoProblemMessage(t: TFunction<'registry'>, error: unknown): string {
+  const errors =
+    error instanceof ApiProblemError && problemCode(error) === 'validation'
+      ? error.problem?.errors
+      : undefined;
+  const reason = errors && !Array.isArray(errors) ? errors.file : undefined;
+  if (reason !== undefined && (PHOTO_FILE_REASONS as readonly string[]).includes(reason)) {
+    return t(`validation.file.${reason as (typeof PHOTO_FILE_REASONS)[number]}`);
+  }
+  return problemMessage(t, error);
 }
 
 /** Fields whose `invalid` has a more helpful text than "not valid": the one the form itself shows. */

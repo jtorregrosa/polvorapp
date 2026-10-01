@@ -11,8 +11,11 @@ export interface Notice {
 export type Announce = (severity: Notice['severity'], text: string) => void;
 
 /** The state a page hands over when it navigates here, e.g. "Comparsa created." or "Comparsa deleted.". */
-export function noticeState(text: string): { notice: string } {
-  return { notice: text };
+export function noticeState(
+  text: string,
+  severity: Notice['severity'] = 'success',
+): { notice: string; noticeSeverity: Notice['severity'] } {
+  return { notice: text, noticeSeverity: severity };
 }
 
 /**
@@ -24,8 +27,10 @@ export function useNotice(): [Notice | undefined, Announce] {
   const location = useLocation();
   const navigate = useNavigate();
   const [notice, setNotice] = useState<Notice | undefined>(() => {
-    const handed = (location.state as { notice?: unknown } | null)?.notice;
-    return typeof handed === 'string' ? { id: 0, severity: 'success', text: handed } : undefined;
+    const state = location.state as { notice?: unknown; noticeSeverity?: unknown } | null;
+    const handed = state?.notice;
+    const severity = state?.noticeSeverity === 'error' ? 'error' : 'success';
+    return typeof handed === 'string' ? { id: 0, severity, text: handed } : undefined;
   });
 
   useEffect(() => {

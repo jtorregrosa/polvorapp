@@ -20,6 +20,7 @@ export const ROW_UNO: ArquebusierRowResponse = {
   status: 'ACTIVE',
   licenseStatus: 'VALID',
   licenseExpiresOn: '2030-03-10',
+  hasIdPhoto: true,
 };
 
 export const ROW_DOS: ArquebusierRowResponse = {
@@ -33,6 +34,7 @@ export const ROW_DOS: ArquebusierRowResponse = {
   status: 'RESERVE',
   licenseStatus: null,
   licenseExpiresOn: null,
+  hasIdPhoto: false,
 };
 
 export const ROW_TRES: ArquebusierRowResponse = {
@@ -46,6 +48,7 @@ export const ROW_TRES: ArquebusierRowResponse = {
   status: 'ACTIVE',
   licenseStatus: 'EXPIRED',
   licenseExpiresOn: '2025-01-01',
+  hasIdPhoto: true,
 };
 
 export const ARCABUZ: WeaponModelSummary = {
@@ -115,5 +118,6 @@ export const DETAIL_UNO: ArquebusierResponse = {
       version: 12,
     },
   ],
+  photos: { id: null, licenseFront: null, licenseBack: null },
   version: 7,
 };

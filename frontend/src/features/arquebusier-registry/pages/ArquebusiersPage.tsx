@@ -1,4 +1,4 @@
-import { IdCard, Plus } from 'lucide-react';
+import { IdCard, ImageOff, Plus } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
@@ -97,12 +97,21 @@ export function ArquebusiersPage() {
         header: t('arquebusiers.columns.name'),
         sortValue: (row) => `${row.lastName} ${row.firstName}`,
         cell: (row) => (
-          <Link
-            to={`/arquebusiers/${row.id}`}
-            className="font-medium text-primary underline-offset-4 hover:underline"
-          >
-            {`${row.lastName}, ${row.firstName}`}
-          </Link>
+          <div className="flex flex-col gap-1">
+            <Link
+              to={`/arquebusiers/${row.id}`}
+              className="font-medium text-primary underline-offset-4 hover:underline"
+            >
+              {`${row.lastName}, ${row.firstName}`}
+            </Link>
+            {/* Spec "Photo screens": a missing ID photo is said in words, never by colour or icon alone. */}
+            {!row.hasIdPhoto && (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <ImageOff aria-hidden="true" className="size-3.5" />
+                {t('arquebusiers.columns.noIdPhoto')}
+              </span>
+            )}
+          </div>
         ),
       },
       { id: 'nationalId', header: t('arquebusiers.columns.nationalId'), cell: (row) => row.nationalId },

@@ -113,5 +113,41 @@
     "copied": "Codis copiats",
     "print": "Imprimix",
     "failed": "No s'han pogut copiar. Selecciona els codis i copia'ls a mà."
+  },
+  "photoUpload": {
+    "choose": "Afig {{label}}",
+    "replace": "Substitueix {{label}}",
+    "remove": "Lleva {{label}}",
+    "empty": "Sense {{label}}",
+    "loadFailed": "No s'ha pogut carregar la foto",
+    "cropTitle": "Retalla {{label}}",
+    "cropHelp": "Prem Tab per a arribar a la selecció i als seus cantons; amb les fletxes la mous o en canvies la mida (Majúscules: més ràpid). També la pots arrossegar. A la dreta es veu com quedarà.",
+    "cropImage": "Foto triada",
+    "cropArea": "Selecció del retall: utilitza les fletxes per a moure-la",
+    "handles": {
+      "nw": "Cantó superior esquerre: utilitza les fletxes per a canviar la mida",
+      "n": "Vora superior: utilitza les fletxes amunt i avall per a canviar la mida",
+      "ne": "Cantó superior dret: utilitza les fletxes per a canviar la mida",
+      "e": "Vora dreta: utilitza les fletxes esquerra i dreta per a canviar la mida",
+      "se": "Cantó inferior dret: utilitza les fletxes per a canviar la mida",
+      "s": "Vora inferior: utilitza les fletxes amunt i avall per a canviar la mida",
+      "sw": "Cantó inferior esquerre: utilitza les fletxes per a canviar la mida",
+      "w": "Vora esquerra: utilitza les fletxes esquerra i dreta per a canviar la mida"
+    },
+    "rotateLeft": "Gira a l'esquerra",
+    "rotateRight": "Gira a la dreta",
+    "use": "Utilitza la foto",
+    "cancel": "Cancel·la",
+    "uploading": "Pujant la foto…",
+    "uploaded": "Guardada: {{label}}",
+    "errors": {
+      "tooLarge": "L'arxiu és massa gran. Tria una foto de menys de 25 MB.",
+      "unsupportedFormat": "Aquest arxiu no és una imatge que es puga obrir. Utilitza una foto JPEG, PNG o WebP.",
+      "tooSmall": "La foto és massa xicoteta. Tria-ne una amb més resolució o amplia la selecció.",
+      "aspectRatio": "La foto és massa allargada. Retalla-la perquè un costat no faça més del doble que l'altre.",
+      "generic": "No s'ha pogut guardar la foto. Torna-ho a provar."
+    },
+    "preview": "Vista prèvia de la foto retallada",
+    "previewCaption": "Així quedarà"
   }
 }

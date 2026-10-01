@@ -13,7 +13,8 @@
       "federationId": "ID Unió",
       "comparsa": "Comparsa",
       "status": "Estat",
-      "license": "Llicència"
+      "license": "Llicència",
+      "noIdPhoto": "Sense foto de carnet"
     },
     "filters": {
       "comparsa": "Comparsa",
@@ -76,7 +77,9 @@
     "expiresOnComputed": "Data de caducitat calculada: {{date}}.",
     "datesCleared": "Dates de la llicència buidades.",
     "datesRestored": "Dates de la llicència recuperades.",
-    "noActiveComparsa": "No hi ha cap comparsa activa en què pugues registrar arcabussers."
+    "noActiveComparsa": "No hi ha cap comparsa activa en què pugues registrar arcabussers.",
+    "savedReplacePhotos": "Dades guardades. Si has renovat la llicència, substitueix també les seues fotos.",
+    "registeredUnnamedPhotoNotSaved": "Arcabusser registrat, però la foto de carnet no s'ha guardat. Obri'l en la llista per a afegir-la."
   },
   "detail": {
     "back": "Torna als arcabussers",
@@ -176,7 +179,15 @@
     },
     "tooManyRequests": "Has fet molts canvis seguits. Espera un minut i torna-ho a provar.",
     "validation": "Revisa els camps amb error.",
-    "generic": "Alguna cosa ha fallat. Torna-ho a provar."
+    "generic": "Alguna cosa ha fallat. Torna-ho a provar.",
+    "photos": {
+      "notFound": "La foto ja no existix; la pàgina s'ha actualitzat.",
+      "noLicense": "Les fotos de la llicència només es poden afegir quan l'arcabusser té llicència.",
+      "modified": "Una altra persona ha pujat esta foto alhora. Torna-ho a provar."
+    },
+    "storage": {
+      "unavailable": "El magatzem de fotos no respon ara mateix. Torna-ho a provar d'ací a uns minuts."
+    }
   },
   "validation": {
     "required": "Este camp és obligatori.",
@@ -193,7 +204,14 @@
     "email": "No és un correu electrònic vàlid.",
     "phone": "Només dígits i espais, amb un + inicial opcional.",
     "modelNotFound": "Eixe model ja no existix en el catàleg.",
-    "date": "Escriu una data completa: dia, mes i any."
+    "date": "Escriu una data completa: dia, mes i any.",
+    "file": {
+      "required": "No s'ha rebut cap foto. Torna a triar-la.",
+      "tooLarge": "La foto és massa gran: com a màxim 10 MB i 40 megapíxels.",
+      "unsupportedFormat": "L'arxiu no és una foto JPEG, PNG o WebP.",
+      "tooSmall": "La foto és massa xicoteta. Tria-ne una amb més resolució.",
+      "aspectRatio": "La foto no té la forma necessària. Retalla-la de nou."
+    }
   },
   "load": {
     "retry": "Torna-ho a provar",
@@ -201,5 +219,37 @@
     "comparsas": "Sense la llista de comparses no es pot registrar.",
     "models": "Sense el catàleg no es pot triar el model.",
     "list": "No es pot mostrar el llistat filtrat."
+  },
+  "photos": {
+    "idPhoto": "foto de carnet",
+    "frontPhoto": "anvers de la llicència",
+    "backPhoto": "revers de la llicència",
+    "idPhotoAlt": "Foto de carnet de {{name}}",
+    "licensePhotoAlt": "{{photo}} de {{name}}",
+    "noIdPhoto": "Sense foto de carnet",
+    "needsLicense": "Les fotos de la llicència es poden afegir quan la llicència estiga guardada.",
+    "removeConfirm": {
+      "description": "S'esborrarà esta foto de {{name}}. Esta acció no es pot desfer.",
+      "confirm": "Lleva la foto"
+    },
+    "uploadFailedAfterRegister": "{{name}} s'ha registrat, però la foto de carnet no s'ha guardat: {{reason}} La pots afegir ací.",
+    "chosenIdPhotoAlt": "Foto de carnet triada",
+    "idTitle": "Foto de carnet",
+    "frontTitle": "Anvers de la llicència",
+    "backTitle": "Revers de la llicència",
+    "noLicensePhoto": "Encara sense foto",
+    "chosenForRegistration": "Foto de carnet triada; es guardarà en registrar.",
+    "removeTitle": {
+      "id": "Vols llevar la foto de carnet?",
+      "licenseFront": "Vols llevar l'anvers de la llicència?",
+      "licenseBack": "Vols llevar el revers de la llicència?"
+    }
+  },
+  "license": {
+    "removePhotosConfirm": {
+      "title": "Vols llevar la llicència i les seues fotos?",
+      "description": "En guardar sense llicència també s'esborraran les fotos de l'anvers i del revers. Esta acció no es pot desfer.",
+      "confirm": "Guarda i esborra les fotos"
+    }
   }
 }

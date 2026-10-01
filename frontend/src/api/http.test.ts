@@ -1,5 +1,5 @@
 import { http as mock, HttpResponse } from 'msw';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { server } from '@/test/server';
 import { apiFetch, ApiProblemError } from './http';
 
@@ -155,6 +155,24 @@ describe('apiFetch', () => {
 
     expect(response.status).toBe(204);
     expect(response.data).toBeUndefined();
+  });
+
+  it('sends a FormData upload untouched, without a Content-Type, with the anti-forgery token', async () => {
+    document.cookie = 'XSRF-TOKEN=token; path=/';
+    // jsdom's FormData cannot cross MSW's interceptor, so the request is inspected at fetch.
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(HttpResponse.json({}));
+    const body = new FormData();
+    body.append('file', new Blob([new Uint8Array([0xff, 0xd8])], { type: 'image/jpeg' }), 'photo.jpg');
+
+    await apiFetch('/api/upload', { method: 'PUT', body });
+
+    const init = fetchSpy.mock.calls[0]?.[1];
+    const headers = new Headers(init?.headers);
+    // The browser sets the multipart boundary; an explicit Content-Type would break the body.
+    expect(headers.has('Content-Type')).toBe(false);
+    expect(headers.get('X-XSRF-TOKEN')).toBe('token');
+    expect(init?.body).toBe(body);
+    fetchSpy.mockRestore();
   });
 
   it('propagates network failures', async () => {
