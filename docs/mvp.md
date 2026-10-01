@@ -39,7 +39,7 @@ from arquebusier registry to validated orders, billing summary, exports and dist
 | 3 | `add-identity-access` | identity-access | Invitations, login + TOTP 2FA, roles, scoping, minimal audit trail — **done**, archived 2026-09-30 |
 | 4 | `add-federation-catalog` | federation-catalog | Comparsas, FiringChief assignments, weapon model catalogue — **done**, archived 2026-09-30 |
 | 5 | `add-arquebusier-registry` | arquebusier-registry | CRUD, DNI/NIE validation, Active/Reserve, owned weapons — **done**, archived 2026-10-01 |
-| 6 | `add-arquebusier-photos` | arquebusier-registry | ID + license photos, crop, EXIF strip, private storage |
+| 6 | `add-arquebusier-photos` | arquebusier-registry | ID + license photos, crop, EXIF strip, private storage — **done**, archived 2026-10-01 |
 | 6b | `add-comparsa-logos` | federation-catalog | Comparsa logo (Admin uploads; reuses the #6 image pipeline and private storage): shown in the comparsa list and detail, in the FiringChief's header, and available to later PDFs |
 | 7 | `add-compliance-insights` | compliance-insights | Warnings, alerts dashboard, statistics |
 | 8 | `add-registry-import` | arquebusier-registry | Spreadsheet import with validation report |
@@ -59,6 +59,16 @@ onwards; #15 adds the viewer and GDPR tooling.
 
 - `add-offline-distribution-capture` (UC-21): PWA offline capture of flask numbers and handovers.
 - Shooting contest, comparsa notes (UC-08), any change requested by the Federation after the first edition.
+
+## Manual regression before go-live
+
+The maintainer runs one exhaustive manual regression once the basic features are done, instead of
+per change. Checks deferred to it:
+
+- `add-arquebusier-registry`: typing a full and a partial date in Safari (macOS and iOS).
+- `add-arquebusier-photos`: ID and license photos taken with the camera of a real Android phone and
+  an iPhone (HEIC); cropping with a screen reader (NVDA, VoiceOver); `exiftool` over the stored
+  objects in the bucket.
 
 ## Blockers to resolve before go-live (not before starting)
 
