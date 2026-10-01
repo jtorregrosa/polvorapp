@@ -62,14 +62,14 @@ should appoint or confirm its **DPO** (unknown today).
 | ID | Measure |
 |---|---|
 | SEC-01 | EU-hosted infrastructure; TLS everywhere. |
-| SEC-02 | Photos stored in private storage, encrypted at rest, served only via short-lived authorised URLs. |
+| SEC-02 | Photos stored in private storage, encrypted at rest, served only after an authorisation check. *Implemented (`add-arquebusier-photos`)*: private S3-compatible bucket under random object names; the browser never reaches the storage — the API streams each photo after the same comparsa-scope check as the arquebusier (BR-12), with `Cache-Control: no-store`. **Go-live checks**: encryption at rest on the bucket, no public policy or ACL, versioning off (or non-current versions expired within a day, otherwise deleted photos survive), one bucket per environment, a key limited to the bucket. |
 | SEC-03 | Least privilege: FiringChiefs only access their own comparsa (BR-12). |
 | SEC-04 | Email + password with **mandatory 2FA (TOTP) for every user**. Invitation-only accounts. |
 | SEC-05 | Audit log of every change and every export (who, when, what). |
 | SEC-06 | Exports contain only the columns required by each recipient (data minimisation). |
 | SEC-07 | Encrypted daily backups with tested restore. |
-| SEC-08 | Retention: arquebusiers who stop firing stay as RESERVE at the comparsa's discretion; when they leave the Federation they are **deleted** (BR-14). Old license photos are deleted on renewal. Optional: warn FiringChiefs about arquebusiers in RESERVE for more than N years. |
+| SEC-08 | Retention: arquebusiers who stop firing stay as RESERVE at the comparsa's discretion; when they leave the Federation they are **deleted** (BR-14). Old license photos are deleted when new ones are uploaded and when the license is removed; a renewal without new photos keeps the previous ones until they are replaced (accepted, maintainer decision: they stay part of the current license record and the UI reminds the user to replace them). Replaced, removed and deleted images are erased right after the change; if that fails, an hourly sweep erases images no record references (worst case about 2 h). Optional: warn FiringChiefs about arquebusiers in RESERVE for more than N years. |
 | SEC-09 | Data subject rights: export and erasure (UC-26). |
 | SEC-10 | Record of processing activities and, given ID documents and weapons data, a **DPIA** is recommended. |
 | SEC-11 | No real personal data in the repository, test fixtures or non-production environments — critical because the **repository is public**. Synthetic seed data only. |
-| SEC-12 | EXIF metadata (e.g. GPS) stripped from uploaded photos. |
+| SEC-12 | EXIF metadata (e.g. GPS) stripped from uploaded photos. *Implemented*: the browser uploads only the cropped image, and the server re-encodes every photo as a fresh JPEG without EXIF, XMP, IPTC, ICC or comments, after turning it upright. |

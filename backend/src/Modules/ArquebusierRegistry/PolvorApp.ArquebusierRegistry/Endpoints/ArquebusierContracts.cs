@@ -119,6 +119,7 @@ internal sealed record OwnedWeaponResponse(Guid Id, WeaponModelSummary Model, st
 /// <param name="TrainingCompletedOn">Course date; null when not done.</param>
 /// <param name="License">Current license; null when there is none.</param>
 /// <param name="OwnedWeapons">Owned weapons.</param>
+/// <param name="Photos">Which photos exist; the images are read from the photo routes.</param>
 /// <param name="Version">Version to send back when editing.</param>
 internal sealed record ArquebusierResponse(
     Guid Id,
@@ -137,7 +138,26 @@ internal sealed record ArquebusierResponse(
     DateOnly? TrainingCompletedOn,
     LicenseResponse? License,
     IReadOnlyList<OwnedWeaponResponse> OwnedWeapons,
+    ArquebusierPhotosResponse Photos,
     uint Version);
+
+/// <summary>The photos an arquebusier has (spec: Private photo access); null when there is none of a kind.</summary>
+/// <param name="Id">ID photo (<c>idPhoto</c>).</param>
+/// <param name="LicenseFront">Front of the license (<c>frontPhoto</c>).</param>
+/// <param name="LicenseBack">Back of the license (<c>backPhoto</c>).</param>
+internal sealed record ArquebusierPhotosResponse(ArquebusierPhotoResponse? Id, ArquebusierPhotoResponse? LicenseFront, ArquebusierPhotoResponse? LicenseBack);
+
+/// <summary>A stored photo, without the image.</summary>
+/// <param name="Kind">Which photo it is.</param>
+/// <param name="Version">Changes whenever the photo is replaced; add it to the image URL so browsers reload it.</param>
+/// <param name="Width">Width in pixels.</param>
+/// <param name="Height">Height in pixels.</param>
+/// <param name="UploadedAt">When it was uploaded.</param>
+internal sealed record ArquebusierPhotoResponse(ArquebusierPhotoKind Kind, Guid Version, int Width, int Height, DateTimeOffset UploadedAt)
+{
+    public static ArquebusierPhotoResponse From(Photos.ArquebusierPhoto photo) =>
+        new(photo.Kind, photo.Id, photo.Width, photo.Height, photo.UploadedAt);
+}
 
 /// <summary>An arquebusier as listed (spec: Arquebusier visibility).</summary>
 /// <param name="Id">Arquebusier identifier.</param>
@@ -150,6 +170,7 @@ internal sealed record ArquebusierResponse(
 /// <param name="Status">Active or Reserve.</param>
 /// <param name="LicenseStatus">Derived license status; null when there is no license.</param>
 /// <param name="LicenseExpiresOn">License expiry date, if issued.</param>
+/// <param name="HasIdPhoto">Whether the arquebusier has an ID photo.</param>
 internal sealed record ArquebusierRowResponse(
     Guid Id,
     string FirstName,
@@ -160,7 +181,8 @@ internal sealed record ArquebusierRowResponse(
     string ComparsaName,
     ArquebusierStatus Status,
     LicenseStatus? LicenseStatus,
-    DateOnly? LicenseExpiresOn);
+    DateOnly? LicenseExpiresOn,
+    bool HasIdPhoto);
 
 /// <summary>Adds an owned weapon; unknown members are rejected (400).</summary>
 /// <param name="WeaponModelId">An active catalogue model of any kind, pistols included.</param>

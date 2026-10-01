@@ -42,7 +42,8 @@ internal static class RegistryLocks
     /// For an edit: <c>FOR NO KEY UPDATE</c> serialises edits and conflicts with a transfer or
     /// deletion, but not with owned-weapon writes (which share the key). An edit of a unique column
     /// (nationalId, federationId) is a key update for PostgreSQL: its UPDATE then waits for in-flight
-    /// weapon writes, at worst until the lock timeout (503). There is no cycle, so no deadlock.
+    /// weapon writes, at worst until the lock timeout (503). There is no cycle, so no deadlock. Edits
+    /// also wait for in-flight photo writes (<c>FOR SHARE</c>), bounded by the same timeout.
     /// </summary>
     public static Task<bool> LockArquebusierForChangeAsync(this ArquebusierRegistryDbContext db, Guid id, ComparsaAccess access, CancellationToken cancellationToken) =>
         LockAsync(db, id, access, RowLock.NoKeyUpdate, cancellationToken);
@@ -54,6 +55,15 @@ internal static class RegistryLocks
     /// </summary>
     public static Task<bool> LockArquebusierForKeyShareAsync(this ArquebusierRegistryDbContext db, Guid id, ComparsaAccess access, CancellationToken cancellationToken) =>
         LockAsync(db, id, access, RowLock.KeyShare, cancellationToken);
+
+    /// <summary>
+    /// For a photo write (add-arquebusier-photos, design D6): <c>FOR SHARE</c> also conflicts with
+    /// the UPDATE of an edit, so a license photo never slips in while the same license is being
+    /// removed, and a photo never lands on an arquebusier that just left the caller's scope. Photo
+    /// writes do not block each other.
+    /// </summary>
+    public static Task<bool> LockArquebusierForShareAsync(this ArquebusierRegistryDbContext db, Guid id, ComparsaAccess access, CancellationToken cancellationToken) =>
+        LockAsync(db, id, access, RowLock.Share, cancellationToken);
 
     /// <summary>
     /// Whether <paramref name="exception"/> is PostgreSQL giving up on a lock after the timeout, or
@@ -82,6 +92,8 @@ internal static class RegistryLocks
                 $"SELECT 1 AS \"Value\" FROM registry.arquebusiers WHERE id = {id} AND ({all} OR comparsa_id = ANY({comparsaIds})) FOR NO KEY UPDATE"),
             RowLock.KeyShare => db.Database.SqlQuery<int>(
                 $"SELECT 1 AS \"Value\" FROM registry.arquebusiers WHERE id = {id} AND ({all} OR comparsa_id = ANY({comparsaIds})) FOR KEY SHARE"),
+            RowLock.Share => db.Database.SqlQuery<int>(
+                $"SELECT 1 AS \"Value\" FROM registry.arquebusiers WHERE id = {id} AND ({all} OR comparsa_id = ANY({comparsaIds})) FOR SHARE"),
             _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, "Unknown lock mode."),
         };
         return await rows.ToListAsync(cancellationToken) is [_];
@@ -92,5 +104,6 @@ internal static class RegistryLocks
         Update,
         NoKeyUpdate,
         KeyShare,
+        Share,
     }
 }

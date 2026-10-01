@@ -31,6 +31,12 @@ public sealed partial class RegistryScopeGuardTests(PostgresFixture postgres, Ma
         var target = await registry.RegisterAsync(registry.Own.Id);
         var weapon = RegistryData.NewOwnedWeapon(target.GetProperty("id").GetGuid(), model.Id, "SINT-0900");
         await registry.Services.SaveRegistryAsync(weapon);
+
+        // An ID photo, so its own FiringChief can read it (add-arquebusier-photos).
+        using (var upload = await PhotoRequests.UploadAsync(registry.Admin, target.GetProperty("id").GetGuid(), "id", TestImages.Jpeg(600, 800)))
+        {
+            Assert.Equal(HttpStatusCode.OK, upload.StatusCode);
+        }
         var ids = new Dictionary<string, Guid>
         {
             ["id"] = target.GetProperty("id").GetGuid(),
@@ -108,7 +114,14 @@ public sealed partial class RegistryScopeGuardTests(PostgresFixture postgres, Ma
     private static async Task<HttpStatusCode> StatusAsync(HttpClient client, RegistryTestHost registry, GuardedRoute route, Dictionary<string, Guid> ids)
     {
         using var request = new HttpRequestMessage(new HttpMethod(route.Method), PathOf(route, ids));
-        if (route.Method is "POST" or "PUT" or "PATCH")
+        if (route.Method == "PUT" && route.Template.Contains("/photos/", StringComparison.Ordinal))
+        {
+            // A photo upload is a multipart form with a valid image.
+            var file = new ByteArrayContent(TestImages.Jpeg(600, 800));
+            file.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
+            request.Content = new MultipartFormDataContent { { file, "file", "photo.jpg" } };
+        }
+        else if (route.Method is "POST" or "PUT" or "PATCH")
         {
             request.Content = JsonContent.Create(await ValidBodyAsync(registry, route, ids));
         }
@@ -147,9 +160,13 @@ public sealed partial class RegistryScopeGuardTests(PostgresFixture postgres, Ma
     }
 
     private static string PathOf(GuardedRoute route, Dictionary<string, Guid> ids) =>
-        RouteParameter().Replace(route.Template, match => ids.TryGetValue(match.Groups["name"].Value, out var id)
-            ? id.ToString()
-            : throw new InvalidOperationException($"Teach the guard a value for route parameter '{match.Groups["name"].Value}' in {route.Template}."));
+        RouteParameter().Replace(route.Template, match => match.Groups["name"].Value switch
+        {
+            // The photo kind slug: the ID photo, which the guard uploads first.
+            "kind" => "id",
+            var name when ids.TryGetValue(name, out var id) => id.ToString(),
+            var name => throw new InvalidOperationException($"Teach the guard a value for route parameter '{name}' in {route.Template}."),
+        });
 
     /// <summary>Any route parameter directly after <c>/arquebusiers/</c>, whatever its name.</summary>
     [GeneratedRegex(@"/arquebusiers/\{[^}]+\}")]

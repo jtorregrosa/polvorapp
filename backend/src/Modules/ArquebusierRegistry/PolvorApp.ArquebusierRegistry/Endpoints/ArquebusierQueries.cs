@@ -50,6 +50,7 @@ internal sealed class ArquebusierQueries(
                 a.LicensePending,
                 a.LicenseIssuedOn,
                 a.LicenseExpiresOn,
+                HasIdPhoto = db.Photos.Any(p => p.ArquebusierId == a.Id && p.Kind == ArquebusierPhotoKind.Id),
             })
             .ToListAsync(cancellationToken);
         var comparsas = (await catalog.FindComparsasAsync([.. rows.Select(a => a.ComparsaId).Distinct()], cancellationToken))
@@ -72,7 +73,8 @@ internal sealed class ArquebusierQueries(
                     : throw new InvalidOperationException($"Comparsa {a.ComparsaId} of arquebusier {a.Id} is missing from the catalog."),
                 a.Status,
                 a.LicenseType is { } type ? new License(type, a.LicensePending, a.LicenseIssuedOn, a.LicenseExpiresOn).StatusOn(today) : null,
-                a.LicenseExpiresOn))];
+                a.LicenseExpiresOn,
+                a.HasIdPhoto))];
     }
 
     /// <summary>The arquebusier, read-only, or null when it does not exist or is outside the caller's scope.</summary>

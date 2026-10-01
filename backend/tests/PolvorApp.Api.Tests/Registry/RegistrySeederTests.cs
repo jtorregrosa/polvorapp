@@ -17,6 +17,8 @@ using PolvorApp.FederationCatalog.Seeding;
 using PolvorApp.IdentityAccess.Endpoints;
 using PolvorApp.IdentityAccess.Security;
 using PolvorApp.IdentityAccess.Users;
+using PolvorApp.SharedKernel.Images;
+using PolvorApp.SharedKernel.Storage;
 using PolvorApp.SharedKernel.Time;
 using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 
@@ -24,7 +26,7 @@ namespace PolvorApp.Api.Tests.Registry;
 
 /// <summary>Spec "Synthetic registry data" (SEC-11, design D9): fictional, deterministic, safe to run again.</summary>
 [Collection(PostgresGroup.Name)]
-public sealed class RegistrySeederTests(PostgresFixture postgres, MailpitFixture mailpit)
+public sealed class RegistrySeederTests(PostgresFixture postgres, MailpitFixture mailpit, MinioFixture minio)
 {
     private const string SeedPassword = "semilla-sintetica-local";
     private const string SeedKey = "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP";
@@ -113,7 +115,7 @@ public sealed class RegistrySeederTests(PostgresFixture postgres, MailpitFixture
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         db.ChangeTracker.Clear();
         var count = await db.Arquebusiers.CountAsync(TestContext.Current.CancellationToken);
-        var staging = new RegistrySeeder(db, scope.ServiceProvider.GetRequiredService<ICatalogDirectory>(), host.Time, new HostingEnvironment { EnvironmentName = "Staging" }, NullLogger<RegistrySeeder>.Instance);
+        var staging = NewSeeder(scope, host, "Staging");
 
         var error = await Assert.ThrowsAsync<InvalidOperationException>(() => staging.SeedAsync(TestContext.Current.CancellationToken));
 
@@ -132,7 +134,7 @@ public sealed class RegistrySeederTests(PostgresFixture postgres, MailpitFixture
         var model = await db.OwnedWeapons.AsNoTracking().Select(w => w.WeaponModelId).FirstAsync(TestContext.Current.CancellationToken);
         db.OwnedWeapons.Add(RegistryData.NewOwnedWeapon(owner.Id, model, "NO-SINTETICA-1"));
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
-        var staging = new RegistrySeeder(db, scope.ServiceProvider.GetRequiredService<ICatalogDirectory>(), host.Time, new HostingEnvironment { EnvironmentName = "Staging" }, NullLogger<RegistrySeeder>.Instance);
+        var staging = NewSeeder(scope, host, "Staging");
 
         var error = await Assert.ThrowsAsync<InvalidOperationException>(() => staging.SeedAsync(TestContext.Current.CancellationToken));
 
@@ -145,16 +147,112 @@ public sealed class RegistrySeederTests(PostgresFixture postgres, MailpitFixture
         await using var host = await StartAsync();
         await using var scope = host.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<ArquebusierRegistryDbContext>();
-        var seeder = new RegistrySeeder(db, scope.ServiceProvider.GetRequiredService<ICatalogDirectory>(), host.Time, new HostingEnvironment { EnvironmentName = Environments.Development }, NullLogger<RegistrySeeder>.Instance);
+        var seeder = NewSeeder(scope, host, Environments.Development);
 
         await seeder.SeedAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(0, await db.Arquebusiers.CountAsync(TestContext.Current.CancellationToken));
     }
 
-    private Task<IdentityTestHost> StartAsync() =>
-        IdentityTestHost.StartAsync(
-            postgres, mailpit, new Dictionary<string, string?> { [IdentitySeeder.PasswordKey] = SeedPassword, [IdentitySeeder.AuthenticatorKeyKey] = SeedKey });
+    [Fact]
+    public async Task Some_seeded_arquebusiers_get_synthetic_photos_and_others_none()
+    {
+        var bucket = $"seed-{Guid.NewGuid():N}";
+        await using var host = await StartAsync(bucket);
+        Assert.Equal(0, await SeedAsync(host));
+
+        await using var scope = host.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<ArquebusierRegistryDbContext>();
+        var photos = await db.Photos.AsNoTracking().ToListAsync(TestContext.Current.CancellationToken);
+        Assert.Equal(RegistrySeeder.PhotoCount, photos.Count);
+        Assert.Equal(7, photos.Count(p => p.Kind == ArquebusierPhotoKind.Id));
+        Assert.Equal(
+            [ArquebusierPhotoKind.Id, ArquebusierPhotoKind.LicenseFront, ArquebusierPhotoKind.LicenseBack],
+            photos.Where(p => p.ArquebusierId == RegistrySeeder.AllPhotosArquebusier).Select(p => p.Kind).Order());
+        Assert.DoesNotContain(photos, p => p.ArquebusierId == RegistrySeeder.NoPhotosArquebusier);
+        Assert.Equal(photos.Select(p => p.ObjectKey).Order(StringComparer.Ordinal), await minio.ListKeysAsync(bucket, "registry/photos/"));
+
+        using var client = minio.CreateClient();
+        foreach (var photo in photos)
+        {
+            using var stored = await client.GetObjectAsync(bucket, photo.ObjectKey, TestContext.Current.CancellationToken);
+            using var content = new MemoryStream();
+            await stored.ResponseStream.CopyToAsync(content, TestContext.Current.CancellationToken);
+            Assert.Equal("image/jpeg", stored.Headers.ContentType);
+            Assert.DoesNotContain(TestImages.JpegMarkers(content.ToArray()), m => m is 0xE1 or 0xE2 or 0xED or 0xFE);
+            Assert.Equal(photo.Kind == ArquebusierPhotoKind.Id ? (600, 800) : (1000, 630), (photo.Width, photo.Height));
+        }
+    }
+
+    [Fact]
+    public async Task Seeding_again_creates_no_photo_twice_and_restores_a_missing_image()
+    {
+        var bucket = $"seed-{Guid.NewGuid():N}";
+        await using var host = await StartAsync(bucket);
+        Assert.Equal(0, await SeedAsync(host));
+        var keys = await minio.ListKeysAsync(bucket, "registry/photos/");
+        using (var client = minio.CreateClient())
+        {
+            await client.DeleteObjectAsync(bucket, keys[0], TestContext.Current.CancellationToken);
+        }
+
+        Assert.Equal(0, await SeedAsync(host));
+
+        await using var scope = host.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<ArquebusierRegistryDbContext>();
+        Assert.Equal(RegistrySeeder.PhotoCount, await db.Photos.CountAsync(TestContext.Current.CancellationToken));
+        Assert.Equal(keys, await minio.ListKeysAsync(bucket, "registry/photos/"));
+    }
+
+    [Fact]
+    public async Task Outside_local_environments_the_seeders_own_photos_are_accepted()
+    {
+        await using var host = await StartAsync();
+        Assert.Equal(0, await SeedAsync(host));
+        await using var scope = host.Services.CreateAsyncScope();
+
+        await NewSeeder(scope, host, "Staging").SeedAsync(TestContext.Current.CancellationToken);
+
+        var db = scope.ServiceProvider.GetRequiredService<ArquebusierRegistryDbContext>();
+        Assert.Equal(RegistrySeeder.PhotoCount, await db.Photos.CountAsync(TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
+    public async Task Outside_local_environments_a_database_with_a_real_photo_is_refused()
+    {
+        await using var host = await StartAsync();
+        Assert.Equal(0, await SeedAsync(host));
+        await using var scope = host.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<ArquebusierRegistryDbContext>();
+        var owner = RegistrySeeder.NoPhotosArquebusier;
+        db.Photos.Add(RegistryData.NewPhoto(owner, ArquebusierPhotoKind.Id));
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var error = await Assert.ThrowsAsync<InvalidOperationException>(() => NewSeeder(scope, host, "Staging").SeedAsync(TestContext.Current.CancellationToken));
+
+        Assert.Contains("not synthetic", error.Message, StringComparison.Ordinal);
+    }
+
+    private static RegistrySeeder NewSeeder(AsyncServiceScope scope, IdentityTestHost host, string environment) =>
+        new(
+            scope.ServiceProvider.GetRequiredService<ArquebusierRegistryDbContext>(),
+            scope.ServiceProvider.GetRequiredService<ICatalogDirectory>(),
+            scope.ServiceProvider.GetRequiredService<IObjectStorage>(),
+            scope.ServiceProvider.GetRequiredService<IImageNormalizer>(),
+            host.Time,
+            new HostingEnvironment { EnvironmentName = environment },
+            NullLogger<RegistrySeeder>.Instance);
+
+    private Task<IdentityTestHost> StartAsync(string? bucket = null)
+    {
+        var settings = new Dictionary<string, string?> { [IdentitySeeder.PasswordKey] = SeedPassword, [IdentitySeeder.AuthenticatorKeyKey] = SeedKey };
+        foreach (var (key, value) in bucket is null ? new Dictionary<string, string?>() : minio.SettingsFor(bucket))
+        {
+            settings[key] = value;
+        }
+
+        return IdentityTestHost.StartAsync(postgres, mailpit, settings);
+    }
 
     private static Task<int> SeedAsync(IdentityTestHost host) =>
         SeedCommand.RunAsync(host.Services, new HostingEnvironment { EnvironmentName = Environments.Development }, TestContext.Current.CancellationToken);

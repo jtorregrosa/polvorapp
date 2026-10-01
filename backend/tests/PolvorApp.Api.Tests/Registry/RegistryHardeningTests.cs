@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using PolvorApp.Api.Tests.Infrastructure;
+using PolvorApp.ArquebusierRegistry.Endpoints;
 using PolvorApp.ArquebusierRegistry.Persistence;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.FederationCatalog.Persistence;
@@ -160,7 +161,13 @@ public sealed class RegistryHardeningTests(PostgresFixture postgres, MailpitFixt
             .ToList();
 
         Assert.NotEmpty(routes);
-        Assert.All(routes, e => Assert.Equal(64 * 1024, e.Metadata.GetMetadata<IRequestSizeLimitMetadata>()?.MaxRequestBodySize));
+        Assert.All(routes, e =>
+        {
+            // The photo upload takes a 10 MB image plus its multipart framing (add-arquebusier-photos, D5).
+            var upload = e.RoutePattern.RawText!.Contains("/photos/", StringComparison.Ordinal)
+                && e.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods.Contains("PUT") == true;
+            Assert.Equal(upload ? PhotoEndpoints.MaxRequestBytes : 64 * 1024, e.Metadata.GetMetadata<IRequestSizeLimitMetadata>()?.MaxRequestBodySize);
+        });
     }
 
     [Fact]

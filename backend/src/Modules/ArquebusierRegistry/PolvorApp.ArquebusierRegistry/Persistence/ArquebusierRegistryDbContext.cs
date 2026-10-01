@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using PolvorApp.ArquebusierRegistry.Arquebusiers;
 using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ArquebusierRegistry.OwnedWeapons;
+using PolvorApp.ArquebusierRegistry.Photos;
 using PolvorApp.SharedKernel.Auditing;
 using PolvorApp.SharedKernel.Codes;
 using PolvorApp.SharedKernel.Persistence;
@@ -10,7 +11,8 @@ using PolvorApp.SharedKernel.Persistence;
 namespace PolvorApp.ArquebusierRegistry.Persistence;
 
 /// <summary>
-/// Schema <c>registry</c>: arquebusiers and their owned weapons (design D3). The database
+/// Schema <c>registry</c>: arquebusiers, their owned weapons (design D3) and the references to their
+/// photos in the object storage (add-arquebusier-photos, design D4). The database
 /// constraints back up the API's blocking rules against races. The foreign keys into the catalog
 /// schema are added by the migration, because EF cannot model a key into another context.
 /// </summary>
@@ -30,11 +32,19 @@ internal sealed class ArquebusierRegistryDbContext(DbContextOptions<ArquebusierR
     /// <summary>EF-generated foreign key from an owned weapon to its arquebusier.</summary>
     public const string ArquebusierForeignKey = "fk_owned_weapons_arquebusiers_arquebusier_id";
 
+    /// <summary>One photo of each kind per arquebusier: a concurrent first upload of the same kind loses on it.</summary>
+    public const string PhotoKindIndex = "ix_arquebusier_photos_arquebusier_id_kind";
+
+    /// <summary>EF-generated foreign key from a photo to its arquebusier.</summary>
+    public const string PhotoArquebusierForeignKey = "fk_arquebusier_photos_arquebusiers_arquebusier_id";
+
     private const int CodeMaxLength = 16;
 
     public DbSet<Arquebusier> Arquebusiers => Set<Arquebusier>();
 
     public DbSet<OwnedWeapon> OwnedWeapons => Set<OwnedWeapon>();
+
+    public DbSet<ArquebusierPhoto> Photos => Set<ArquebusierPhoto>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -42,6 +52,7 @@ internal sealed class ArquebusierRegistryDbContext(DbContextOptions<ArquebusierR
         modelBuilder.AddAuditTrail();
         MapArquebusiers(modelBuilder);
         MapOwnedWeapons(modelBuilder);
+        MapPhotos(modelBuilder);
     }
 
     private static void MapArquebusiers(ModelBuilder modelBuilder) =>
@@ -122,6 +133,30 @@ internal sealed class ArquebusierRegistryDbContext(DbContextOptions<ArquebusierR
 
             // The catalog's usage check and the foreign key into catalog.weapon_models look up by model.
             weapon.HasIndex(w => w.WeaponModelId);
+        });
+
+    private static void MapPhotos(ModelBuilder modelBuilder) =>
+        modelBuilder.Entity<ArquebusierPhoto>(photo =>
+        {
+            photo.ToTable("arquebusier_photos", table =>
+            {
+                table.HasCheckConstraint("ck_arquebusier_photos_kind", In("kind", EnumCodes.All<ArquebusierPhotoKind>()));
+                table.HasCheckConstraint("ck_arquebusier_photos_dimensions", "width > 0 AND height > 0 AND size_bytes > 0");
+                // Under the registry's prefix, where the orphan sweep looks (design D2).
+                table.HasCheckConstraint("ck_arquebusier_photos_object_key", "object_key LIKE 'registry/photos/%'");
+            });
+            photo.HasKey(p => p.Id);
+            photo.Property(p => p.Id).ValueGeneratedNever();
+            photo.Property(p => p.Kind).HasConversion(new EnumCodeConverter<ArquebusierPhotoKind>()).HasMaxLength(CodeMaxLength);
+            photo.Property(p => p.ObjectKey).HasMaxLength(ArquebusierPhoto.ObjectKeyMaxLength);
+
+            // Deleting an arquebusier removes the references; the objects are deleted after the commit (BR-14).
+            photo.HasOne<Arquebusier>().WithMany().HasForeignKey(p => p.ArquebusierId).OnDelete(DeleteBehavior.Cascade);
+
+            photo.HasIndex(p => new { p.ArquebusierId, p.Kind }).IsUnique().HasDatabaseName(PhotoKindIndex);
+
+            // The orphan sweep asks which keys are referenced (design D2).
+            photo.HasIndex(p => p.ObjectKey).IsUnique();
         });
 
     private static string NotBlankTrimmed(string column) =>

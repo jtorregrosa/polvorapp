@@ -4,6 +4,7 @@ using PolvorApp.ArquebusierRegistry.Arquebusiers;
 using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ArquebusierRegistry.OwnedWeapons;
 using PolvorApp.ArquebusierRegistry.Persistence;
+using PolvorApp.ArquebusierRegistry.Photos;
 using PolvorApp.FederationCatalog.Comparsas;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.FederationCatalog.Persistence;
@@ -74,6 +75,23 @@ public static class RegistryData
         OwnershipGuideNumber = guide,
         CreatedAt = DateTimeOffset.UtcNow,
     };
+
+    /// <summary>A photo row whose object key follows the registry convention; the object itself is not stored.</summary>
+    internal static ArquebusierPhoto NewPhoto(Guid arquebusierId, ArquebusierPhotoKind kind)
+    {
+        var id = Guid.CreateVersion7();
+        return new ArquebusierPhoto
+        {
+            Id = id,
+            ArquebusierId = arquebusierId,
+            Kind = kind,
+            ObjectKey = ArquebusierPhoto.KeyFor(id),
+            Width = 600,
+            Height = 800,
+            SizeBytes = 1000,
+            UploadedAt = DateTimeOffset.UtcNow,
+        };
+    }
 
     /// <summary>Saves comparsas and weapon models in the catalog schema.</summary>
     internal static async Task SaveCatalogAsync(this IServiceProvider services, params object[] entities)

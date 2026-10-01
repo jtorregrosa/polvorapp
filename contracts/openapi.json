@@ -3787,6 +3787,291 @@
           }
         ]
       }
+    },
+    "/api/arquebusiers/{id}/photos/{kind}": {
+      "put": {
+        "tags": [
+          "Arquebusiers"
+        ],
+        "summary": "Uploads or replaces a photo (id, license-front, license-back) of an arquebusier of the caller's comparsas.",
+        "operationId": "UploadArquebusierPhoto",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^(id|license-front|license-back)$",
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/PhotoUploadForm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArquebusierPhotoResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Arquebusiers"
+        ],
+        "summary": "The photo as a JPEG image; never cached.",
+        "operationId": "GetArquebusierPhoto",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^(id|license-front|license-back)$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stream"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Arquebusiers"
+        ],
+        "summary": "Removes a photo; the stored image is erased.",
+        "operationId": "RemoveArquebusierPhoto",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^(id|license-front|license-back)$",
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -3850,6 +4135,84 @@
           }
         }
       },
+      "ArquebusierPhotoKind": {
+        "enum": [
+          "ID",
+          "LICENSE_FRONT",
+          "LICENSE_BACK"
+        ]
+      },
+      "ArquebusierPhotoResponse": {
+        "required": [
+          "kind",
+          "version",
+          "width",
+          "height",
+          "uploadedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/ArquebusierPhotoKind"
+          },
+          "version": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "uploadedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ArquebusierPhotosResponse": {
+        "required": [
+          "id",
+          "licenseFront",
+          "licenseBack"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ArquebusierPhotoResponse"
+              }
+            ]
+          },
+          "licenseFront": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ArquebusierPhotoResponse"
+              }
+            ]
+          },
+          "licenseBack": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ArquebusierPhotoResponse"
+              }
+            ]
+          }
+        }
+      },
       "ArquebusierResponse": {
         "required": [
           "id",
@@ -3868,6 +4231,7 @@
           "trainingCompletedOn",
           "license",
           "ownedWeapons",
+          "photos",
           "version"
         ],
         "type": "object",
@@ -3944,6 +4308,9 @@
               "$ref": "#/components/schemas/OwnedWeaponResponse"
             }
           },
+          "photos": {
+            "$ref": "#/components/schemas/ArquebusierPhotosResponse"
+          },
           "version": {
             "type": "integer",
             "format": "uint32"
@@ -3961,7 +4328,8 @@
           "comparsaName",
           "status",
           "licenseStatus",
-          "licenseExpiresOn"
+          "licenseExpiresOn",
+          "hasIdPhoto"
         ],
         "type": "object",
         "properties": {
@@ -4008,6 +4376,9 @@
               "string"
             ],
             "format": "date"
+          },
+          "hasIdPhoto": {
+            "type": "boolean"
           }
         }
       },
@@ -4156,6 +4527,10 @@
           "RIGHT",
           "LEFT"
         ]
+      },
+      "IFormFile": {
+        "type": "string",
+        "format": "binary"
       },
       "InvitationResponse": {
         "required": [
@@ -4373,6 +4748,17 @@
           "version": {
             "type": "integer",
             "format": "uint32"
+          }
+        }
+      },
+      "PhotoUploadForm": {
+        "required": [
+          "file"
+        ],
+        "type": "object",
+        "properties": {
+          "file": {
+            "$ref": "#/components/schemas/IFormFile"
           }
         }
       },
@@ -4612,6 +4998,10 @@
           "ENROL",
           "DONE"
         ]
+      },
+      "Stream": {
+        "type": "string",
+        "format": "binary"
       },
       "SystemInfoResponse": {
         "required": [

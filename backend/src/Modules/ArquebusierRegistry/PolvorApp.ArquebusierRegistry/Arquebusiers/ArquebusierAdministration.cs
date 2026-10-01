@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ArquebusierRegistry.Persistence;
+using PolvorApp.ArquebusierRegistry.Photos;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.SharedKernel.Auditing;
+using PolvorApp.SharedKernel.Codes;
 
 namespace PolvorApp.ArquebusierRegistry.Arquebusiers;
 
@@ -18,7 +21,8 @@ internal sealed class ArquebusierAdministration(
     ICatalogDirectory catalog,
     IAuditTrail trail,
     TimeProvider time,
-    RegistryWriteGuard guard)
+    RegistryWriteGuard guard,
+    PhotoObjects photoObjects)
 {
     public const string EntityType = "Arquebusier";
 
@@ -80,9 +84,11 @@ internal sealed class ArquebusierAdministration(
     /// Replaces the editable fields of an arquebusier in the caller's scope, if <paramref name="version"/>
     /// is still current. An edit that changes nothing saves and audits nothing (spec: Registering and editing).
     /// </summary>
-    public Task<(RegistryOutcome Outcome, Arquebusier? Arquebusier)> UpdateAsync(
-        Guid id, ArquebusierInput input, uint version, CancellationToken cancellationToken) =>
-        guard.RunAsync<Arquebusier>(nameof(UpdateAsync), id, null, async () =>
+    public async Task<(RegistryOutcome Outcome, Arquebusier? Arquebusier)> UpdateAsync(
+        Guid id, ArquebusierInput input, uint version, CancellationToken cancellationToken)
+    {
+        List<string> erasedImages = [];
+        var result = await guard.RunAsync<Arquebusier>(nameof(UpdateAsync), id, null, async () =>
         {
             // Resolved before the transaction, so no row lock is held while it queries the scope.
             var access = await scope.GetAccessAsync(cancellationToken);
@@ -109,8 +115,15 @@ internal sealed class ArquebusierAdministration(
                 return (duplicate, null);
             }
 
+            // Removing the license removes its photos in the same change; a renewal keeps them (spec: Current license).
+            var licensePhotos = arquebusier.LicenseType is not null && input.License is null
+                ? await db.Photos.Where(p => p.ArquebusierId == id && p.Kind != ArquebusierPhotoKind.Id).ToListAsync(cancellationToken)
+                : [];
+            db.Photos.RemoveRange(licensePhotos);
             Apply(arquebusier, input);
-            Record("ArquebusierUpdated", arquebusier, new { changedFields });
+            Record("ArquebusierUpdated", arquebusier, licensePhotos.Count == 0
+                ? new { changedFields }
+                : (object)new { changedFields, removedPhotos = licensePhotos.Select(p => EnumCodes.ToCode(p.Kind)).Order(StringComparer.Ordinal).ToList() });
             var outcome = await SaveAsync(id, versioned: true, cancellationToken);
             if (outcome != RegistryOutcome.Done)
             {
@@ -118,8 +131,13 @@ internal sealed class ArquebusierAdministration(
             }
 
             await transaction.CommitAsync(cancellationToken);
+            erasedImages = [.. licensePhotos.Select(p => p.ObjectKey)];
             return (RegistryOutcome.Done, arquebusier);
         });
+
+        await photoObjects.DeleteAsync(erasedImages);
+        return result;
+    }
 
     /// <summary>
     /// Moves an arquebusier, with their owned weapons, to another active comparsa (UC-29, BR-13).
@@ -169,12 +187,14 @@ internal sealed class ArquebusierAdministration(
         });
 
     /// <summary>
-    /// Deletes an arquebusier who left the Federation, with their owned weapons (UC-05, BR-14). The
-    /// audit entry keeps only the count of weapons removed, so no personal data remains. Later changes
-    /// extend this: photos (#6) and the anonymisation of past edition entries (#10).
+    /// Deletes an arquebusier who left the Federation, with their owned weapons and photos (UC-05,
+    /// BR-14). The audit entry keeps only the counts of weapons and photos removed, so no personal data
+    /// remains. #10 extends this with the anonymisation of past edition entries.
     /// </summary>
-    public Task<(RegistryOutcome Outcome, Arquebusier? Arquebusier)> DeleteAsync(Guid id, CancellationToken cancellationToken) =>
-        guard.RunAsync<Arquebusier>(nameof(DeleteAsync), id, null, async () =>
+    public async Task<(RegistryOutcome Outcome, Arquebusier? Arquebusier)> DeleteAsync(Guid id, CancellationToken cancellationToken)
+    {
+        List<string> erasedImages = [];
+        var result = await guard.RunAsync<Arquebusier>(nameof(DeleteAsync), id, null, async () =>
         {
             var access = await scope.GetAccessAsync(cancellationToken);
             await using var transaction = await db.BeginWriteAsync(cancellationToken);
@@ -185,14 +205,21 @@ internal sealed class ArquebusierAdministration(
 
             var arquebusier = await db.Arquebusiers.SingleAsync(a => a.Id == id, cancellationToken);
             var ownedWeaponCount = await db.OwnedWeapons.CountAsync(w => w.ArquebusierId == id, cancellationToken);
+            var photoKeys = await db.Photos.Where(p => p.ArquebusierId == id).Select(p => p.ObjectKey).ToListAsync(cancellationToken);
 
-            // The owned weapons go with the row (ON DELETE CASCADE).
+            // The owned weapons and the photo references go with the row (ON DELETE CASCADE).
             db.Arquebusiers.Remove(arquebusier);
-            Record("ArquebusierDeleted", arquebusier, new { ownedWeaponCount });
+            Record("ArquebusierDeleted", arquebusier, new { ownedWeaponCount, photoCount = photoKeys.Count });
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
+            erasedImages = photoKeys;
             return (RegistryOutcome.Done, arquebusier);
         });
+
+        // The images go after the commit (BR-14); a failure is left to the orphan sweep (design D2).
+        await photoObjects.DeleteAsync(erasedImages);
+        return result;
+    }
 
     /// <summary>The names of the fields an edit changes, in a stable order; the values are never recorded (D7).</summary>
     private static List<string> ChangedFields(Arquebusier current, ArquebusierInput input)
