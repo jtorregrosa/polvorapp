@@ -90,3 +90,25 @@ reference fails even before any of its types is used.
   a `<entity>.modified` code. Lock rows with `SqlQuery<int>("SELECT 1 AS \"Value\" … FOR UPDATE")`
   (scope in the `WHERE` clause, see `RegistryLocks`) and load them with LINQ afterwards:
   `SELECT *` omits the `xmin` system column.
+
+## Conventions shared by modules (from `add-arquebusier-photos`)
+
+- **Files** go to the private object storage through `SharedKernel.Storage.IObjectStorage`
+  (ADR-0005), never to the database or the local disk. Each module owns one key prefix per
+  collection, `<module>/<collection>/`, and names objects with a random UUIDv7
+  (`registry/photos/<uuid>.jpg`): a key never contains or derives from personal data. Logs carry
+  keys and sizes only.
+- **Write order**: put the new object, then commit the record that references it, then delete the
+  object it replaced. **Delete order**: commit the removal of the reference, then delete the
+  object. Every failure then leaves an unreferenced object, never a reference without an object.
+  Deleting after commit is best-effort.
+- **Cleanup**: the module implements `SharedKernel.Storage.IStoredObjectOwner` for its prefix
+  (registered as scoped). The platform's `StoredObjectSweeper` asks it, a page of 500 keys at a
+  time, which objects are referenced, and deletes the others once they are more than one hour
+  old. A failure deletes nothing.
+- **Images** are normalised with `SharedKernel.Images.IImageNormalizer` before they are stored:
+  decoded, turned upright, checked against the module's rules, re-encoded and stripped of metadata
+  (SEC-12). Never store the uploaded bytes as they came.
+- **Outages**: `StorageUnavailableException` becomes `503` with the `storage.unavailable` code.
+  Operations that do not need a file must not call the storage before their commit, so they keep
+  working while it is down.

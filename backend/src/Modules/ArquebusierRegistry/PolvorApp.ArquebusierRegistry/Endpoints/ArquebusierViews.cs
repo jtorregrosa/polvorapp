@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PolvorApp.ArquebusierRegistry.Arquebusiers;
+using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ArquebusierRegistry.Persistence;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.SharedKernel.Time;
@@ -24,6 +25,8 @@ internal sealed class ArquebusierViews(ArquebusierRegistryDbContext db, ICatalog
         var models = (await catalog.FindWeaponModelsAsync([.. weapons.Select(w => w.WeaponModelId).Distinct()], cancellationToken))
             .ToDictionary(m => m.Id);
         var today = FederationCalendar.Today(time);
+        var photos = (await db.Photos.AsNoTracking().Where(p => p.ArquebusierId == arquebusier.Id).ToListAsync(cancellationToken))
+            .ToDictionary(p => p.Kind, ArquebusierPhotoResponse.From);
 
         return new ArquebusierResponse(
             arquebusier.Id,
@@ -51,6 +54,10 @@ internal sealed class ArquebusierViews(ArquebusierRegistryDbContext db, ICatalog
                 w.WeaponNumber,
                 w.OwnershipGuideNumber,
                 w.Version))],
+            new ArquebusierPhotosResponse(
+                photos.GetValueOrDefault(ArquebusierPhotoKind.Id),
+                photos.GetValueOrDefault(ArquebusierPhotoKind.LicenseFront),
+                photos.GetValueOrDefault(ArquebusierPhotoKind.LicenseBack)),
             arquebusier.Version);
     }
 }

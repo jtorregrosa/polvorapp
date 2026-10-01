@@ -6,9 +6,12 @@ using PolvorApp.ArquebusierRegistry.Arquebusiers;
 using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ArquebusierRegistry.OwnedWeapons;
 using PolvorApp.ArquebusierRegistry.Persistence;
+using PolvorApp.ArquebusierRegistry.Photos;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.SharedKernel.Hosting;
+using PolvorApp.SharedKernel.Images;
 using PolvorApp.SharedKernel.Seeding;
+using PolvorApp.SharedKernel.Storage;
 using PolvorApp.SharedKernel.Time;
 
 namespace PolvorApp.ArquebusierRegistry.Seeding;
@@ -23,11 +26,15 @@ namespace PolvorApp.ArquebusierRegistry.Seeding;
 /// no audit entries (it is not a user action). The comparsas and models come from the catalogue seeder
 /// (order 20); this module cannot reference it, so their ids are repeated here and tests keep them equal.
 /// The phones are in the Spanish mobile range (there is no reserved fictional range): PolvorApp never
-/// calls or messages them.
+/// calls or messages them. Some arquebusiers get generated placeholder photos (flat shapes, no faces or
+/// text; add-arquebusier-photos, design D10), stored through the same normaliser as uploads; a photo
+/// whose image went missing from the storage is stored again.
 /// </summary>
 internal sealed partial class RegistrySeeder(
     ArquebusierRegistryDbContext db,
     ICatalogDirectory catalog,
+    IObjectStorage storage,
+    IImageNormalizer images,
     TimeProvider time,
     IHostEnvironment environment,
     ILogger<RegistrySeeder> logger) : IDataSeeder
@@ -64,6 +71,13 @@ internal sealed partial class RegistrySeeder(
         (10, 8, 5), // ARCABUZ MORO ZURDO (PEQUEÑO), deactivated: an existing weapon keeps its model
     ];
 
+    /// <summary>Arquebusiers with an ID photo, and those of them (licensed) with both license photos.</summary>
+    private static readonly IReadOnlyList<(int Owner, ArquebusierPhotoKind Kind)> Photos =
+    [
+        .. new[] { 1, 2, 3, 6, 7, 10, 12 }.Select(owner => (owner, ArquebusierPhotoKind.Id)),
+        .. new[] { 1, 2, 6 }.SelectMany(owner => new[] { (owner, ArquebusierPhotoKind.LicenseFront), (owner, ArquebusierPhotoKind.LicenseBack) }),
+    ];
+
     private enum LicenseSeed
     {
         None,
@@ -77,6 +91,14 @@ internal sealed partial class RegistrySeeder(
 
     public static int OwnedWeaponCount => OwnedWeapons.Count;
 
+    public static int PhotoCount => Photos.Count;
+
+    /// <summary>The seeded arquebusier with all three photos (E2E and tests rely on it).</summary>
+    public static Guid AllPhotosArquebusier => ArquebusierSeed.IdOf(1);
+
+    /// <summary>A seeded arquebusier without any photo.</summary>
+    public static Guid NoPhotosArquebusier => ArquebusierSeed.IdOf(4);
+
     /// <summary>After the catalogue seeder (20): arquebusiers refer to its comparsas and models.</summary>
     public int Order => 30;
 
@@ -88,8 +110,90 @@ internal sealed partial class RegistrySeeder(
         var added = await AddArquebusiersAsync(now, today, cancellationToken);
         var weapons = await AddOwnedWeaponsAsync(now, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
-        LogSeeded(logger, added, weapons);
+        var photos = await AddPhotosAsync(now, cancellationToken);
+        LogSeeded(logger, added, weapons, photos);
     }
+
+    /// <summary>
+    /// Stores each image before its reference, as uploads do (design D2). Keys derive from the fixed
+    /// photo ids, so a rerun overwrites the same objects and restores one that went missing.
+    /// </summary>
+    private async Task<int> AddPhotosAsync(DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        var existing = await db.Photos.AsNoTracking().ToDictionaryAsync(p => p.Id, cancellationToken);
+        var owners = await db.Arquebusiers.AsNoTracking()
+            .Select(a => new { a.Id, HasLicense = a.LicenseType != null })
+            .ToDictionaryAsync(a => a.Id, a => a.HasLicense, cancellationToken);
+        var taken = existing.Values.Select(p => (p.ArquebusierId, p.Kind)).ToHashSet();
+        var added = 0;
+        foreach (var (owner, kind) in Photos)
+        {
+            var id = PhotoIdOf(owner, kind);
+            if (existing.TryGetValue(id, out var stored))
+            {
+                await RestoreImageAsync(owner, kind, stored.ObjectKey, cancellationToken);
+                continue;
+            }
+
+            var ownerId = ArquebusierSeed.IdOf(owner);
+            if (!owners.TryGetValue(ownerId, out var hasLicense) || (PhotoStorage.NeedsLicense(kind) && !hasLicense) || !taken.Add((ownerId, kind)))
+            {
+                LogSkipped(logger, "photo", id);
+                continue;
+            }
+
+            var key = ArquebusierPhoto.KeyFor(id);
+            var image = await StoreImageAsync(owner, kind, key, cancellationToken);
+            db.Photos.Add(new ArquebusierPhoto
+            {
+                Id = id,
+                ArquebusierId = ownerId,
+                Kind = kind,
+                ObjectKey = key,
+                Width = image.Width,
+                Height = image.Height,
+                SizeBytes = image.Content.Length,
+                UploadedAt = now,
+            });
+            added++;
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+        return added;
+    }
+
+    private async Task RestoreImageAsync(int owner, ArquebusierPhotoKind kind, string key, CancellationToken cancellationToken)
+    {
+        if (await storage.GetAsync(key, cancellationToken) is { } present)
+        {
+            await present.DisposeAsync();
+            return;
+        }
+
+        await StoreImageAsync(owner, kind, key, cancellationToken);
+    }
+
+    private async Task<NormalizedImage> StoreImageAsync(int owner, ArquebusierPhotoKind kind, string key, CancellationToken cancellationToken)
+    {
+        var source = kind switch
+        {
+            ArquebusierPhotoKind.Id => SyntheticPhotos.IdPhoto(owner),
+            ArquebusierPhotoKind.LicenseFront => SyntheticPhotos.LicenseSide(front: true, owner),
+            _ => SyntheticPhotos.LicenseSide(front: false, owner),
+        };
+        using var stream = new MemoryStream(source);
+        var image = await images.NormalizeAsync(stream, PhotoStorage.RulesFor(kind), cancellationToken) switch
+        {
+            NormalizedImage normalized => normalized,
+            RejectedImage rejected => throw new InvalidOperationException($"The synthetic {kind} photo breaks the photo rules ({rejected.Reason})."),
+            _ => throw new InvalidOperationException($"The synthetic {kind} photo could not be normalised."),
+        };
+        await storage.PutAsync(key, image.Content, PhotoStorage.ContentType, cancellationToken);
+        return image;
+    }
+
+    private static Guid PhotoIdOf(int owner, ArquebusierPhotoKind kind) =>
+        new($"0193a500-0000-7000-8000-{owner:D6}{(int)kind:D6}");
 
     private async Task<int> AddArquebusiersAsync(DateTimeOffset now, DateOnly today, CancellationToken cancellationToken)
     {
@@ -175,17 +279,20 @@ internal sealed partial class RegistrySeeder(
 
         var arquebusierIds = Arquebusiers.Select(a => a.Id).ToList();
         var weaponIds = OwnedWeapons.Select(w => new Guid($"0193a400-0000-7000-8000-{w.Number:D12}")).ToList();
+        var photoIds = Photos.Select(p => PhotoIdOf(p.Owner, p.Kind)).ToList();
         if (await db.Arquebusiers.AnyAsync(a => !arquebusierIds.Contains(a.Id), cancellationToken)
-            || await db.OwnedWeapons.AnyAsync(w => !weaponIds.Contains(w.Id), cancellationToken))
+            || await db.OwnedWeapons.AnyAsync(w => !weaponIds.Contains(w.Id), cancellationToken)
+            || await db.Photos.AnyAsync(p => !photoIds.Contains(p.Id), cancellationToken))
         {
-            throw new InvalidOperationException("The database holds registry data that is not synthetic; refusing to seed it (NFR-13).");
+            // A photo uploaded or replaced by hand counts as real: reset the database to seed it again.
+            throw new InvalidOperationException("The database holds registry data that is not synthetic (rows or photos this seeder did not create); refusing to seed it (NFR-13).");
         }
     }
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "Synthetic registry ensured: {Arquebusiers} arquebusiers and {Weapons} owned weapons added")]
-    private static partial void LogSeeded(ILogger logger, int arquebusiers, int weapons);
+    [LoggerMessage(Level = LogLevel.Information, Message = "Synthetic registry ensured: {Arquebusiers} arquebusiers, {Weapons} owned weapons and {Photos} photos added")]
+    private static partial void LogSeeded(ILogger logger, int arquebusiers, int weapons, int photos);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Synthetic {Kind} {Id} skipped: its comparsa or model is missing, or another row uses its unique values")]
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Synthetic {Kind} {Id} skipped: its comparsa, model, owner or license is missing, or another row uses its unique values")]
     private static partial void LogSkipped(ILogger logger, string kind, Guid id);
 
     /// <param name="Number">Last part of the fixed identifier; also gives the synthetic DNI/NIE and federation id.</param>

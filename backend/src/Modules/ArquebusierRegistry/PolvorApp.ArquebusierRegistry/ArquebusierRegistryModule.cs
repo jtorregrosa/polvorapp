@@ -6,17 +6,19 @@ using PolvorApp.ArquebusierRegistry.Arquebusiers;
 using PolvorApp.ArquebusierRegistry.Endpoints;
 using PolvorApp.ArquebusierRegistry.OwnedWeapons;
 using PolvorApp.ArquebusierRegistry.Persistence;
+using PolvorApp.ArquebusierRegistry.Photos;
 using PolvorApp.ArquebusierRegistry.Seeding;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.SharedKernel.Modules;
 using PolvorApp.SharedKernel.Persistence;
 using PolvorApp.SharedKernel.Seeding;
+using PolvorApp.SharedKernel.Storage;
 
 namespace PolvorApp.ArquebusierRegistry;
 
 /// <summary>
 /// Capability arquebusier-registry (UC-01..05, UC-29; BR-01..03, BR-12..14): arquebusiers, their
-/// current license and training course, owned weapons, transfers and deletion.
+/// current license and training course, owned weapons, photos, transfers and deletion.
 /// </summary>
 public sealed class ArquebusierRegistryModule : IModule
 {
@@ -34,6 +36,11 @@ public sealed class ArquebusierRegistryModule : IModule
         services.AddScoped<RegistryWriteGuard>();
         services.AddScoped<ArquebusierAdministration>();
         services.AddScoped<OwnedWeaponAdministration>();
+        services.AddScoped<ArquebusierPhotoAdministration>();
+        services.AddScoped<PhotoObjects>();
+
+        // One of possibly several owners the platform's orphan sweep asks (design D2): added, never replaced.
+        services.AddScoped<IStoredObjectOwner, RegistryPhotoOwner>();
         services.AddScoped<IDataSeeder, RegistrySeeder>();
         services.AddScoped<ArquebusierViews>();
         services.AddScoped<ArquebusierQueries>();
@@ -43,5 +50,6 @@ public sealed class ArquebusierRegistryModule : IModule
     {
         endpoints.MapArquebusierEndpoints();
         endpoints.MapOwnedWeaponEndpoints();
+        endpoints.MapPhotoEndpoints();
     }
 }

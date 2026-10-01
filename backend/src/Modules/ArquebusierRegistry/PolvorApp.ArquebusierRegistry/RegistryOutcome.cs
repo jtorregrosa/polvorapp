@@ -27,6 +27,21 @@ internal enum RegistryOutcome
 
     /// <summary>Another request held the row past the lock timeout: retry later (503).</summary>
     Busy,
+
+    /// <summary>The arquebusier has no photo of that kind (404).</summary>
+    PhotoNotFound,
+
+    /// <summary>A license photo for an arquebusier without a license (409).</summary>
+    PhotoNeedsLicense,
+
+    /// <summary>Two first uploads of the same kind raced; this one lost (409, reload).</summary>
+    PhotoModified,
+
+    /// <summary>The object storage could not be reached (503, retryable).</summary>
+    StorageUnavailable,
+
+    /// <summary>The uploaded image broke a photo rule: a field error the endpoint builds (400 file: reason).</summary>
+    ImageRejected,
 }
 
 /// <summary>Problem codes of the registry, translated by the UI as <c>registry:errors.&lt;code&gt;</c>.</summary>
@@ -44,6 +59,10 @@ internal static class RegistryProblems
     public const string OwnershipGuideTaken = "ownedWeapons.guideTaken";
     public const string OwnedWeaponModified = "ownedWeapons.modified";
     public const string Busy = "registry.busy";
+    public const string PhotoNotFound = "photos.notFound";
+    public const string PhotoNeedsLicense = "photos.noLicense";
+    public const string PhotoModified = "photos.modified";
+    public const string StorageUnavailable = "storage.unavailable";
 
     public static ProblemHttpResult From(RegistryOutcome outcome) => outcome switch
     {
@@ -60,6 +79,10 @@ internal static class RegistryProblems
         RegistryOutcome.OwnershipGuideTaken => ProblemResults.Conflict(OwnershipGuideTaken),
         RegistryOutcome.OwnedWeaponModified => ProblemResults.Conflict(OwnedWeaponModified),
         RegistryOutcome.Busy => ProblemResults.Problem(StatusCodes.Status503ServiceUnavailable, Busy),
+        RegistryOutcome.PhotoNotFound => ProblemResults.NotFound(PhotoNotFound),
+        RegistryOutcome.PhotoNeedsLicense => ProblemResults.Conflict(PhotoNeedsLicense),
+        RegistryOutcome.PhotoModified => ProblemResults.Conflict(PhotoModified),
+        RegistryOutcome.StorageUnavailable => ProblemResults.Problem(StatusCodes.Status503ServiceUnavailable, StorageUnavailable),
         _ => throw new ArgumentOutOfRangeException(nameof(outcome), outcome, "Not a problem outcome."),
     };
 

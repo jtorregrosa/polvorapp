@@ -71,7 +71,7 @@ Managed by Admins from both the comparsa and the user pages (maintainer decision
 | `birthDate` | Not in the future, not before 1900-01-01. Age is derived, never stored. |
 | `email`, `phone` | Optional. Email: plain address, stored lower-case. Phone: digits and spaces with an optional leading `+`, at most 20 characters. |
 | `gender` | Kept for equality reports (`MALE` \| `FEMALE` \| `UNSPECIFIED`). |
-| `idPhoto` | Mandatory portrait photo (file), also printed on the arquebusier badge. Cropped to a fixed ratio, EXIF stripped. Added by `add-arquebusier-photos` (#6); arquebusiers registered before it have none until then. |
+| `idPhoto` | Portrait photo (file), printed on the arquebusier badge. **Optional** but expected (maintainer decision, `add-arquebusier-photos`): existing arquebusiers, the spreadsheet import (#8) and failed uploads leave arquebusiers without one, shown as "No ID photo". 3:4 portrait within 1 %, at least 600 × 800 px, stored at most 1200 × 1600 (NFR-15). |
 | `trainingCompletedOn` | Date the mandatory course was done, not in the future; null = not done. |
 | `comparsa` | Current comparsa; new arquebusiers only in an active one. Changes only by a transfer (Admin, UC-29), never by an edit; past entries keep their comparsa (BR-13). |
 | `status` | **`ACTIVE` \| `RESERVE`** — the only status, `ACTIVE` by default. `RESERVE` = not firing (0 kg) but kept on the list (e.g. inactive for a few years, or available as pickup proxy). Leaving the Federation ⇒ the arquebusier is **deleted**. |
@@ -79,7 +79,16 @@ Managed by Admins from both the comparsa and the user pages (maintainer decision
 Edits carry a version (PostgreSQL `xmin`): an edit based on outdated data is rejected, so two
 FiringChiefs of one comparsa never overwrite each other silently.
 
-**License** (current only, no history, no number) — `type` (`AE` | `A_PROF`), `issuedOn`, `expiresOn` (default: AE `issuedOn + 5 years`, A-PROF `issuedOn + 1 year`), `status` (`PENDING` | `VALID` | `EXPIRED` derived from today in Europe/Madrid: valid through its expiry day; no status without a license), `frontPhoto`, `backPhoto`. A pending license has no dates; an issued one has both, `expiresOn` after `issuedOn`, and `issuedOn` not in the future. Renewal replaces the previous data and photos.
+**License** (current only, no history, no number) — `type` (`AE` | `A_PROF`), `issuedOn`, `expiresOn` (default: AE `issuedOn + 5 years`, A-PROF `issuedOn + 1 year`), `status` (`PENDING` | `VALID` | `EXPIRED` derived from today in Europe/Madrid: valid through its expiry day; no status without a license), `frontPhoto`, `backPhoto`. A pending license has no dates; an issued one has both, `expiresOn` after `issuedOn`, and `issuedOn` not in the future. Renewal replaces the previous data; the photos are kept until new ones are uploaded (maintainer decision), and removing the license deletes them.
+
+**Photos** (`ArquebusierPhotoKind`: `ID`, `LICENSE_FRONT`, `LICENSE_BACK`; change `add-arquebusier-photos`) —
+at most one of each kind per arquebusier, all optional. License photos need a license (pending or
+issued; blocking). Uploads are JPEG, PNG or WebP of at most 10 MB and 40 megapixels; the server turns
+them upright, re-encodes them as JPEG and strips every metadata (SEC-12). License photos need a long
+side of at least 800 px and sides within a factor of 2, and are stored at most 2000 px on the long
+side. Uploading a kind that exists replaces it and erases the previous image. Images live in private
+object storage under random names; the database only holds the reference (`registry.arquebusier_photos`),
+so an upload never changes the arquebusier's version.
 
 **WeaponModel** (catalogue) — `kind` (`TRABUCO` | `ARCABUZ` | `PISTOL`), `side`, `handedness` (`RIGHT` | `LEFT`), `size` (`NORMAL` | `SMALL`), `rentable` (never for pistols, BR-07), `label` (Federation naming, e.g. "TRABUCO CRISTIANO DIESTRO (PEQUEÑO)", unique ignoring case), `active`.
 Side, handedness and size are required for trabucos and arcabuces, whose kind × side × handedness × size
@@ -153,7 +162,7 @@ accountability and dispute resolution).
 | BR-11 | No powder carryover between editions. | — |
 | BR-12 | FiringChiefs only see and edit their own comparsa (except loans, where the borrower's name is visible). | Block |
 | BR-13 | A transfer moves the arquebusier to the new comparsa for future editions only. | — |
-| BR-14 | Deleting an arquebusier (left the Federation) erases personal data and photos; past edition entries are anonymised so totals stay correct. | — |
+| BR-14 | Deleting an arquebusier (left the Federation) erases personal data and photos (the images right after the deletion, or by the hourly orphan sweep if that fails); past edition entries are anonymised so totals stay correct. | — |
 
 ## 4. Arquebusier badge (UC-30)
 

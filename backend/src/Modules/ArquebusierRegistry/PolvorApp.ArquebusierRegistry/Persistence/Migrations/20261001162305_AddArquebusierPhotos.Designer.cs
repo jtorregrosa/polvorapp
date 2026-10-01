@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PolvorApp.ArquebusierRegistry.Persistence;
@@ -11,9 +12,11 @@ using PolvorApp.ArquebusierRegistry.Persistence;
 namespace PolvorApp.ArquebusierRegistry.Persistence.Migrations
 {
     [DbContext(typeof(ArquebusierRegistryDbContext))]
-    partial class ArquebusierRegistryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261001162305_AddArquebusierPhotos")]
+    partial class AddArquebusierPhotos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

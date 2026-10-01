@@ -38,9 +38,12 @@ public sealed class RegistryTestHost : IAsyncDisposable
     public DateOnly Today => FederationCalendar.Today(Host.Time);
 
     public static async Task<RegistryTestHost> StartAsync(
-        PostgresFixture postgres, MailpitFixture mailpit, Action<Microsoft.Extensions.DependencyInjection.IServiceCollection>? configureServices = null)
+        PostgresFixture postgres,
+        MailpitFixture mailpit,
+        Action<Microsoft.Extensions.DependencyInjection.IServiceCollection>? configureServices = null,
+        IReadOnlyDictionary<string, string?>? settings = null)
     {
-        var registry = new RegistryTestHost(await IdentityTestHost.StartAsync(postgres, mailpit, configureServices: configureServices));
+        var registry = new RegistryTestHost(await IdentityTestHost.StartAsync(postgres, mailpit, settings, configureServices));
         await registry.Services.SaveCatalogAsync(registry.Own, registry.Other, registry.Inactive);
 
         var admin = await registry.Host.CreateUserAsync("admin.registro@example.test", UserRole.Admin);
