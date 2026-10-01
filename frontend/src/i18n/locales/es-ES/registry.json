@@ -13,7 +13,8 @@
       "federationId": "ID Unión",
       "comparsa": "Comparsa",
       "status": "Estado",
-      "license": "Licencia"
+      "license": "Licencia",
+      "noIdPhoto": "Sin foto de carnet"
     },
     "filters": {
       "comparsa": "Comparsa",
@@ -76,7 +77,9 @@
     "expiresOnComputed": "Fecha de caducidad calculada: {{date}}.",
     "datesCleared": "Fechas de la licencia vaciadas.",
     "datesRestored": "Fechas de la licencia recuperadas.",
-    "noActiveComparsa": "No hay ninguna comparsa activa en la que puedas registrar arcabuceros."
+    "noActiveComparsa": "No hay ninguna comparsa activa en la que puedas registrar arcabuceros.",
+    "savedReplacePhotos": "Datos guardados. Si has renovado la licencia, sustituye también sus fotos.",
+    "registeredUnnamedPhotoNotSaved": "Arcabucero registrado, pero la foto de carnet no se ha guardado. Ábrelo en la lista para añadirla."
   },
   "detail": {
     "back": "Volver a arcabuceros",
@@ -176,7 +179,15 @@
     },
     "tooManyRequests": "Has hecho muchos cambios seguidos. Espera un minuto y vuelve a intentarlo.",
     "validation": "Revisa los campos con error.",
-    "generic": "Algo ha fallado. Inténtalo de nuevo."
+    "generic": "Algo ha fallado. Inténtalo de nuevo.",
+    "photos": {
+      "notFound": "La foto ya no existe; la página se ha actualizado.",
+      "noLicense": "Las fotos de la licencia solo se pueden añadir cuando el arcabucero tiene licencia.",
+      "modified": "Otra persona ha subido esta foto a la vez. Vuelve a intentarlo."
+    },
+    "storage": {
+      "unavailable": "El almacén de fotos no responde ahora mismo. Inténtalo de nuevo en unos minutos."
+    }
   },
   "validation": {
     "required": "Este campo es obligatorio.",
@@ -193,7 +204,14 @@
     "email": "No es un correo electrónico válido.",
     "phone": "Solo dígitos y espacios, con un + inicial opcional.",
     "modelNotFound": "Ese modelo ya no existe en el catálogo.",
-    "date": "Escribe una fecha completa: día, mes y año."
+    "date": "Escribe una fecha completa: día, mes y año.",
+    "file": {
+      "required": "No se ha recibido ninguna foto. Vuelve a elegirla.",
+      "tooLarge": "La foto es demasiado grande: como máximo 10 MB y 40 megapíxeles.",
+      "unsupportedFormat": "El archivo no es una foto JPEG, PNG o WebP.",
+      "tooSmall": "La foto es demasiado pequeña. Elige una con más resolución.",
+      "aspectRatio": "La foto no tiene la forma necesaria. Recórtala de nuevo."
+    }
   },
   "load": {
     "retry": "Reintentar",
@@ -201,5 +219,37 @@
     "comparsas": "Sin la lista de comparsas no se puede registrar.",
     "models": "Sin el catálogo no se puede elegir el modelo.",
     "list": "No se puede mostrar el listado filtrado."
+  },
+  "photos": {
+    "idPhoto": "foto de carnet",
+    "frontPhoto": "anverso de la licencia",
+    "backPhoto": "reverso de la licencia",
+    "idPhotoAlt": "Foto de carnet de {{name}}",
+    "licensePhotoAlt": "{{photo}} de {{name}}",
+    "noIdPhoto": "Sin foto de carnet",
+    "needsLicense": "Las fotos de la licencia se pueden añadir cuando la licencia esté guardada.",
+    "removeConfirm": {
+      "description": "Se borrará esta foto de {{name}}. Esta acción no se puede deshacer.",
+      "confirm": "Quitar foto"
+    },
+    "uploadFailedAfterRegister": "{{name}} se ha registrado, pero la foto de carnet no se ha guardado: {{reason}} Puedes añadirla aquí.",
+    "chosenIdPhotoAlt": "Foto de carnet elegida",
+    "idTitle": "Foto de carnet",
+    "frontTitle": "Anverso de la licencia",
+    "backTitle": "Reverso de la licencia",
+    "noLicensePhoto": "Sin foto todavía",
+    "chosenForRegistration": "Foto de carnet elegida; se guardará al registrar.",
+    "removeTitle": {
+      "id": "¿Quitar la foto de carnet?",
+      "licenseFront": "¿Quitar el anverso de la licencia?",
+      "licenseBack": "¿Quitar el reverso de la licencia?"
+    }
+  },
+  "license": {
+    "removePhotosConfirm": {
+      "title": "¿Quitar la licencia y sus fotos?",
+      "description": "Al guardar sin licencia se borrarán también las fotos del anverso y del reverso. Esta acción no se puede deshacer.",
+      "confirm": "Guardar y borrar las fotos"
+    }
   }
 }

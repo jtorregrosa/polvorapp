@@ -113,5 +113,41 @@
     "copied": "Códigos copiados",
     "print": "Imprimir",
     "failed": "No se han podido copiar. Selecciona los códigos y cópialos a mano."
+  },
+  "photoUpload": {
+    "choose": "Añadir {{label}}",
+    "replace": "Sustituir {{label}}",
+    "remove": "Quitar {{label}}",
+    "empty": "Sin {{label}}",
+    "loadFailed": "No se ha podido cargar la foto",
+    "cropTitle": "Recortar {{label}}",
+    "cropHelp": "Pulsa Tab para llegar a la selección y a sus esquinas; con las flechas la mueves o cambias su tamaño (Mayús: más rápido). También puedes arrastrarla. A la derecha se ve cómo quedará.",
+    "cropImage": "Foto elegida",
+    "cropArea": "Selección del recorte: usa las flechas para moverla",
+    "handles": {
+      "nw": "Esquina superior izquierda: usa las flechas para cambiar el tamaño",
+      "n": "Borde superior: usa las flechas arriba y abajo para cambiar el tamaño",
+      "ne": "Esquina superior derecha: usa las flechas para cambiar el tamaño",
+      "e": "Borde derecho: usa las flechas izquierda y derecha para cambiar el tamaño",
+      "se": "Esquina inferior derecha: usa las flechas para cambiar el tamaño",
+      "s": "Borde inferior: usa las flechas arriba y abajo para cambiar el tamaño",
+      "sw": "Esquina inferior izquierda: usa las flechas para cambiar el tamaño",
+      "w": "Borde izquierdo: usa las flechas izquierda y derecha para cambiar el tamaño"
+    },
+    "rotateLeft": "Girar a la izquierda",
+    "rotateRight": "Girar a la derecha",
+    "use": "Usar foto",
+    "cancel": "Cancelar",
+    "uploading": "Subiendo la foto…",
+    "uploaded": "Guardada: {{label}}",
+    "errors": {
+      "tooLarge": "El archivo es demasiado grande. Elige una foto de menos de 25 MB.",
+      "unsupportedFormat": "Este archivo no es una imagen que se pueda abrir. Usa una foto JPEG, PNG o WebP.",
+      "tooSmall": "La foto es demasiado pequeña. Elige una con más resolución o amplía la selección.",
+      "aspectRatio": "La foto es demasiado alargada. Recórtala para que un lado no mida más del doble que el otro.",
+      "generic": "No se ha podido guardar la foto. Inténtalo de nuevo."
+    },
+    "preview": "Vista previa de la foto recortada",
+    "previewCaption": "Así quedará"
   }
 }

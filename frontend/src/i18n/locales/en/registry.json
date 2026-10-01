@@ -13,7 +13,8 @@
       "federationId": "Federation ID",
       "comparsa": "Comparsa",
       "status": "Status",
-      "license": "License"
+      "license": "License",
+      "noIdPhoto": "No ID photo"
     },
     "filters": {
       "comparsa": "Comparsa",
@@ -76,7 +77,9 @@
     "expiresOnComputed": "Expiry date worked out: {{date}}.",
     "datesCleared": "License dates cleared.",
     "datesRestored": "License dates restored.",
-    "noActiveComparsa": "There is no active comparsa you can register arquebusiers in."
+    "noActiveComparsa": "There is no active comparsa you can register arquebusiers in.",
+    "savedReplacePhotos": "Saved. If you renewed the license, replace its photos too.",
+    "registeredUnnamedPhotoNotSaved": "Arquebusier registered, but the ID photo was not saved. Open them from the list to add it."
   },
   "detail": {
     "back": "Back to arquebusiers",
@@ -176,7 +179,15 @@
     },
     "tooManyRequests": "You have made many changes in a row. Wait a minute and try again.",
     "validation": "Check the fields with errors.",
-    "generic": "Something went wrong. Try again."
+    "generic": "Something went wrong. Try again.",
+    "photos": {
+      "notFound": "The photo no longer exists; the page has been refreshed.",
+      "noLicense": "License photos can only be added while the arquebusier has a license.",
+      "modified": "Someone else uploaded this photo at the same time. Try again."
+    },
+    "storage": {
+      "unavailable": "The photo storage is not responding right now. Try again in a few minutes."
+    }
   },
   "validation": {
     "required": "This field is required.",
@@ -193,7 +204,14 @@
     "email": "This is not a valid email address.",
     "phone": "Only digits and spaces, with an optional leading +.",
     "modelNotFound": "That model no longer exists in the catalogue.",
-    "date": "Enter a complete date: day, month and year."
+    "date": "Enter a complete date: day, month and year.",
+    "file": {
+      "required": "No photo was received. Choose it again.",
+      "tooLarge": "The photo is too large: at most 10 MB and 40 megapixels.",
+      "unsupportedFormat": "The file is not a JPEG, PNG or WebP photo.",
+      "tooSmall": "The photo is too small. Choose one with a higher resolution.",
+      "aspectRatio": "The photo does not have the required shape. Crop it again."
+    }
   },
   "load": {
     "retry": "Try again",
@@ -201,5 +219,37 @@
     "comparsas": "Without the list of comparsas you cannot register.",
     "models": "Without the catalogue you cannot choose the model.",
     "list": "The filtered list cannot be shown."
+  },
+  "photos": {
+    "idPhoto": "ID photo",
+    "frontPhoto": "front of the license",
+    "backPhoto": "back of the license",
+    "idPhotoAlt": "ID photo of {{name}}",
+    "licensePhotoAlt": "{{photo}} of {{name}}",
+    "noIdPhoto": "No ID photo",
+    "needsLicense": "License photos can be added once the license is saved.",
+    "removeConfirm": {
+      "description": "This photo of {{name}} will be deleted. This cannot be undone.",
+      "confirm": "Remove photo"
+    },
+    "uploadFailedAfterRegister": "{{name}} has been registered, but the ID photo was not saved: {{reason}} You can add it here.",
+    "chosenIdPhotoAlt": "Chosen ID photo",
+    "idTitle": "ID photo",
+    "frontTitle": "Front of the license",
+    "backTitle": "Back of the license",
+    "noLicensePhoto": "No photo yet",
+    "chosenForRegistration": "ID photo chosen; it will be saved when you register.",
+    "removeTitle": {
+      "id": "Remove the ID photo?",
+      "licenseFront": "Remove the front of the license?",
+      "licenseBack": "Remove the back of the license?"
+    }
+  },
+  "license": {
+    "removePhotosConfirm": {
+      "title": "Remove the license and its photos?",
+      "description": "Saving without a license also deletes the photos of its front and back. This cannot be undone.",
+      "confirm": "Save and delete the photos"
+    }
   }
 }

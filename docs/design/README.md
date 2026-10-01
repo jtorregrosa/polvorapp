@@ -62,6 +62,7 @@ theme). Every composite has stories there.
 | `FilterSelect` | Labelled select above a list that filters its rows by a category (comparsa, status) |
 | `PageSection` | A titled region for non-form content (table, action, etc.) on a detail page; looks like `FormSection` so they sit together |
 | `QrCode` | A QR code as an image with an accessible name (e.g. authenticator setup) |
+| `PhotoUpload` | A photo with add/replace/remove: choose a file or take a picture (phones), crop in a dialog (fixed shape or free, keyboard operable), rotate, then hand the cropped JPEG to the page; checks size and format first; removal through `ConfirmDialog`. Reject `onUpload` with `PhotoUploadFailure` to show a translated reason |
 | `RecoveryCodeList` | One-time codes shown once: copy (success or failure announced) and print |
 | `LanguageSwitcher`, `ThemeSwitcher` | Preferences in the top bar |
 | `PolvorAppMark` | The mark |

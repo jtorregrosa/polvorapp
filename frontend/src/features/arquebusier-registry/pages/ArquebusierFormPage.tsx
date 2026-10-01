@@ -1,12 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import {
   getGetArquebusierQueryKey,
   getListArquebusiersQueryKey,
+  uploadArquebusierPhoto,
   useRegisterArquebusier,
   type registerArquebusierResponse,
 } from '@/api/generated/arquebusiers/arquebusiers';
@@ -17,6 +18,7 @@ import { AlertBanner } from '@/components/app/AlertBanner';
 import { Button } from '@/components/app/Button';
 import { Form } from '@/components/app/FormField';
 import { PageHeader } from '@/components/app/PageHeader';
+import { PhotoUpload } from '@/components/app/PhotoUpload';
 import { useSession } from '@/features/identity-access/session';
 import { noticeState } from '@/lib/notices';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
@@ -28,7 +30,8 @@ import {
   type ArquebusierValues,
 } from '../arquebusierSchema';
 import { LoadFailure } from '../components/LoadFailure';
-import { applyFieldErrors, problemMessage } from '../problems';
+import { ID_PHOTO_RULES } from '../photos';
+import { applyFieldErrors, photoProblemMessage, problemMessage } from '../problems';
 import { ArquebusierFields } from './ArquebusierFields';
 
 /** Spec "Registering and editing arquebusiers": registers an arquebusier in an active comparsa in scope. */
@@ -52,6 +55,20 @@ export function ArquebusierFormPage() {
     resolver: zodResolver(registerSchema),
     defaultValues: EMPTY_ARQUEBUSIER,
   });
+  // The ID photo is chosen and cropped now, and uploaded once the arquebusier exists.
+  const [idPhoto, setIdPhoto] = useState<{ blob: Blob; url: string }>();
+  const idPhotoUrl = useRef<string>(undefined);
+  useEffect(() => {
+    return () => {
+      if (idPhotoUrl.current) URL.revokeObjectURL(idPhotoUrl.current);
+    };
+  }, []);
+  const chooseIdPhoto = (blob: Blob) => {
+    if (idPhotoUrl.current) URL.revokeObjectURL(idPhotoUrl.current);
+    const url = URL.createObjectURL(blob);
+    idPhotoUrl.current = url;
+    setIdPhoto({ blob, url });
+  };
 
   // Spec "Registry screens": the only comparsa in scope is pre-selected.
   useEffect(() => {
@@ -80,20 +97,47 @@ export function ArquebusierFormPage() {
       if (!placed) setFailure(error);
       return;
     }
-    void queryClient.invalidateQueries({ queryKey: getListArquebusiersQueryKey() });
     let created: ArquebusierResponse;
     try {
       created = responseData(response);
     } catch {
-      // Registered, but the answer had no body: show the list, where the new arquebusier is.
-      await navigate('/arquebusiers', { state: noticeState(t('form.registeredUnnamed')) });
+      void queryClient.invalidateQueries({ queryKey: getListArquebusiersQueryKey() });
+      // Registered, but the answer had no body: show the list, where the new arquebusier is. A chosen
+      // photo could not be uploaded without the new id, so say so.
+      await navigate('/arquebusiers', {
+        state: idPhoto
+          ? noticeState(t('form.registeredUnnamedPhotoNotSaved'), 'error')
+          : noticeState(t('form.registeredUnnamed')),
+      });
+      return;
+    }
+    const name = `${created.firstName} ${created.lastName}`;
+    // After the photo upload, so the list never caches the new row without its photo.
+    const refreshList = () => void queryClient.invalidateQueries({ queryKey: getListArquebusiersQueryKey() });
+    if (idPhoto) {
+      try {
+        await uploadArquebusierPhoto(created.id, 'id', { file: idPhoto.blob });
+      } catch (error) {
+        // Spec "Photo screens": registered without the photo; the detail page says why and offers it again.
+        refreshList();
+        queryClient.setQueryData(getGetArquebusierQueryKey(created.id), { ...response, status: 200 });
+        await navigate(`/arquebusiers/${created.id}`, {
+          state: noticeState(
+            t('photos.uploadFailedAfterRegister', { name, reason: photoProblemMessage(t, error) }),
+            'error',
+          ),
+        });
+        return;
+      }
+      // The detail page reads the new photo from the API.
+      refreshList();
+      await navigate(`/arquebusiers/${created.id}`, { state: noticeState(t('form.registered', { name })) });
       return;
     }
     // The detail page opens on the data just returned, so its notice is shown (and focused) at once.
+    refreshList();
     queryClient.setQueryData(getGetArquebusierQueryKey(created.id), { ...response, status: 200 });
-    await navigate(`/arquebusiers/${created.id}`, {
-      state: noticeState(t('form.registered', { name: `${created.firstName} ${created.lastName}` })),
-    });
+    await navigate(`/arquebusiers/${created.id}`, { state: noticeState(t('form.registered', { name })) });
   };
 
   return (
@@ -117,11 +161,35 @@ export function ArquebusierFormPage() {
         </AlertBanner>
       )}
       <Form form={form} onSubmit={onSubmit} className="max-w-xl">
-        <ArquebusierFields form={form} comparsas={active} />
+        <ArquebusierFields
+          form={form}
+          comparsas={active}
+          idPhoto={
+            <PhotoUpload
+              label={t('photos.idPhoto')}
+              photoUrl={idPhoto?.url ?? null}
+              photoAlt={t('photos.chosenIdPhotoAlt')}
+              emptyText={t('photos.noIdPhoto')}
+              uploadedText={t('photos.chosenForRegistration')}
+              // The registration sends the photo chosen when it started.
+              disabled={register.isPending || form.formState.isSubmitting}
+              onUpload={(photo) => {
+                chooseIdPhoto(photo);
+                return Promise.resolve();
+              }}
+              {...ID_PHOTO_RULES}
+            />
+          }
+        />
         {failure !== undefined && (
           <AlertBanner severity="error">{problemMessage(t, failure, { isAdmin })}</AlertBanner>
         )}
-        <Button type="submit" pending={register.isPending} disabled={comparsas.isError || noComparsa}>
+        {/* Pending until the ID photo is uploaded too, not only while the arquebusier is created. */}
+        <Button
+          type="submit"
+          pending={register.isPending || form.formState.isSubmitting}
+          disabled={comparsas.isError || noComparsa}
+        >
           {t('form.register')}
         </Button>
       </Form>

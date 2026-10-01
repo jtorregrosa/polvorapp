@@ -113,5 +113,41 @@
     "copied": "Codes copied",
     "print": "Print",
     "failed": "Couldn't copy them. Select the codes and copy them by hand."
+  },
+  "photoUpload": {
+    "choose": "Add {{label}}",
+    "replace": "Replace {{label}}",
+    "remove": "Remove {{label}}",
+    "empty": "No {{label}}",
+    "loadFailed": "The photo could not be loaded",
+    "cropTitle": "Crop {{label}}",
+    "cropHelp": "Press Tab to reach the selection and its corners; the arrow keys move it or change its size (Shift: faster). You can also drag it. The result is shown beside it.",
+    "cropImage": "Chosen photo",
+    "cropArea": "Crop selection: use the arrow keys to move it",
+    "handles": {
+      "nw": "Top left corner: use the arrow keys to resize",
+      "n": "Top edge: use the up and down arrow keys to resize",
+      "ne": "Top right corner: use the arrow keys to resize",
+      "e": "Right edge: use the left and right arrow keys to resize",
+      "se": "Bottom right corner: use the arrow keys to resize",
+      "s": "Bottom edge: use the up and down arrow keys to resize",
+      "sw": "Bottom left corner: use the arrow keys to resize",
+      "w": "Left edge: use the left and right arrow keys to resize"
+    },
+    "rotateLeft": "Rotate left",
+    "rotateRight": "Rotate right",
+    "use": "Use photo",
+    "cancel": "Cancel",
+    "uploading": "Uploading the photo…",
+    "uploaded": "Saved: {{label}}",
+    "errors": {
+      "tooLarge": "The file is too large. Choose a photo under 25 MB.",
+      "unsupportedFormat": "This file is not an image that can be opened. Use a JPEG, PNG or WebP photo.",
+      "tooSmall": "The photo is too small. Choose one with a higher resolution or enlarge the selection.",
+      "aspectRatio": "The photo is too elongated. Crop it so one side is at most twice as long as the other.",
+      "generic": "The photo could not be saved. Try again."
+    },
+    "preview": "Preview of the cropped photo",
+    "previewCaption": "Result"
   }
 }

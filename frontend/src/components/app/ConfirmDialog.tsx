@@ -1,4 +1,4 @@
-import { useRef, useState, type MouseEvent, type ReactElement } from 'react';
+import { useRef, useState, type MouseEvent, type ReactElement, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AlertDialog,
@@ -37,6 +37,11 @@ export interface ConfirmDialogProps {
   /** Controlled mode, e.g. when opened from a row-actions menu. */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /**
+   * Controlled mode without a trigger: where focus returns when the dialog closes without
+   * `onConfirmed` taking over (WCAG 2.4.3). Otherwise it would land on the page body.
+   */
+  returnFocus?: RefObject<HTMLElement | null>;
 }
 
 /**
@@ -52,6 +57,7 @@ export function ConfirmDialog({
   trigger,
   open: controlledOpen,
   onOpenChange,
+  returnFocus,
 }: ConfirmDialogProps) {
   const { t } = useTranslation('ui');
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
@@ -92,6 +98,9 @@ export function ConfirmDialog({
           if (confirmed.current && onConfirmed) {
             event.preventDefault();
             onConfirmed();
+          } else if (returnFocus?.current) {
+            event.preventDefault();
+            returnFocus.current.focus();
           }
           confirmed.current = false;
         }}

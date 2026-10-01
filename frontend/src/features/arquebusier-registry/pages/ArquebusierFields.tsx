@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { useController, useWatch, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ArquebusierStatus, Gender, LicenseType, type ComparsaResponse } from '@/api/generated/model';
@@ -24,6 +24,10 @@ export interface ArquebusierFieldsProps {
   form: ArquebusierForm;
   /** The active comparsas the caller may register in; the comparsa is only chosen when registering. */
   comparsas?: readonly ComparsaResponse[];
+  /** The ID photo control, shown with the personal data (spec: Photo screens). */
+  idPhoto?: ReactNode;
+  /** The license photo controls, shown with the license. */
+  licensePhotos?: ReactNode;
 }
 
 /**
@@ -31,7 +35,7 @@ export interface ArquebusierFieldsProps {
  * license expiry is filled in from the issue date and type (BR-03) until the user edits it, and the
  * new date is announced; a pending license has no dates.
  */
-export function ArquebusierFields({ form, comparsas }: ArquebusierFieldsProps) {
+export function ArquebusierFields({ form, comparsas, idPhoto, licensePhotos }: ArquebusierFieldsProps) {
   const { t } = useTranslation('registry');
   const { control } = form;
   const today = todayIso();
@@ -137,6 +141,7 @@ export function ArquebusierFields({ form, comparsas }: ArquebusierFieldsProps) {
             />
           )}
         </FormField>
+        {idPhoto}
       </FormSection>
 
       <FormSection title={t('form.license')} description={t('form.licenseDescription')}>
@@ -215,6 +220,7 @@ export function ArquebusierFields({ form, comparsas }: ArquebusierFieldsProps) {
         <p role="status" className="sr-only">
           {expiry.announcement}
         </p>
+        {licensePhotos}
       </FormSection>
 
       <FormSection title={t('form.training')} description={t('form.trainingDescription')}>

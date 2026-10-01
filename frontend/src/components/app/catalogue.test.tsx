@@ -17,7 +17,7 @@ import preview from '../../../.storybook/preview';
 const THEMES = ['light', 'dark'] as const;
 
 /** Files in this folder that are not composites and need no stories (add helpers here). */
-const NOT_COMPOSITES = new Set(['status.ts', 'navigation-match.ts', 'confirm-failure.ts']);
+const NOT_COMPOSITES = new Set(['status.ts', 'navigation-match.ts', 'confirm-failure.ts', 'photo-image.ts']);
 
 /** A text that is a translation key left untranslated, e.g. `status.license.VALID`. */
 const RAW_KEY = /^[a-z][A-Za-z]*(?:\.[A-Za-z0-9_]+)+$/;

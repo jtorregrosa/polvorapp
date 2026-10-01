@@ -47,3 +47,27 @@
     outline: 2px solid Highlight;
   }
 }
+
+/*
+ * Photo crop (react-image-crop, PhotoUpload): design tokens for the handles, targets big enough to
+ * hit (24 px, 44 px on touch), a two-tone focus ring that stays visible on any photo, and no
+ * endless "marching ants" animation (WCAG 2.2.2).
+ */
+.ReactCrop {
+  --rc-focus-color: var(--foreground);
+  --rc-drag-handle-bg-colour: var(--primary);
+  --rc-border-color: var(--background);
+  --rc-drag-handle-size: 24px;
+  --rc-drag-handle-mobile-size: 44px;
+}
+
+.ReactCrop .ReactCrop__crop-selection {
+  animation: none;
+}
+
+.ReactCrop .ReactCrop__drag-handle:focus-visible,
+.ReactCrop .ReactCrop__crop-selection:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--background);
+}
