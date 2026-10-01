@@ -204,7 +204,7 @@
 
 ## 8. End-to-end and verification
 
-- [ ] 8.1 Write Playwright flows on the seeded data:
+- [x] 8.1 Write Playwright flows on the seeded data:
   - a FiringChief registers an arquebusier with an AE license and course, adds an owned weapon, edits the phone, sets `RESERVE` and deletes the arquebusier;
   - a FiringChief cannot open another comparsa's arquebusier by URL (not-found page);
   - an Admin transfers an arquebusier, and the source FiringChief no longer sees it;
@@ -212,4 +212,4 @@
 
   Verify: `npm run e2e` passes locally and in CI.
 - [x] 8.2 Update `docs/mvp.md` (#5 status) and any doc the change touched, with `doc-updater`. Verify: the docs match the code and specs.
-- [ ] 8.3 Run `verification-loop`: build, types, lint, backend and frontend tests with coverage ≥ 80 % for the registry module and endpoints, a security grep (no real data, no secrets, no personal values in logs or audit), and a diff review. Run `e2e-runner` (Playwright only) and `pr-test-analyzer` on the change. Verify: the PASS report is attached to the pull request, and the findings and follow-ups are summarised before archive.
+- [x] 8.3 Run `verification-loop`: build, types, lint, backend and frontend tests with coverage ≥ 80 % for the registry module and endpoints, a security grep (no real data, no secrets, no personal values in logs or audit), and a diff review. Run `e2e-runner` (Playwright only) and `pr-test-analyzer` on the change. Verify: the PASS report is attached to the pull request, and the findings and follow-ups are summarised before archive.
