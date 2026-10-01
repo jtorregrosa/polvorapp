@@ -4,8 +4,12 @@ import { expect, test, waitForShell } from './fixtures';
 /**
  * Native date fields (design D8 of add-arquebusier-registry): each engine renders `type="date"`
  * differently, so typing per segment, a partly typed date and an empty required one are checked in
- * Chromium, Firefox and WebKit on the register form. Nothing is submitted to the server.
+ * Chromium and Firefox on the register form. Playwright's WebKit builds do not behave like Safari
+ * here (a text box on Windows, a field without editable segments on Linux), so WebKit only checks
+ * the empty required date; typing a date in Safari is a manual release check. Nothing is submitted.
  */
+
+const NO_SAFARI_DATE_FIELD = "Playwright's WebKit has no Safari-like date field; checked by hand in Safari";
 
 test.use({ storageState: FIRING_CHIEF_STATE });
 
@@ -14,12 +18,9 @@ test.beforeEach(async ({ page }) => {
   await waitForShell(page);
 });
 
-test('typing the segments gives an ISO date', async ({ page }) => {
+test('typing the segments gives an ISO date', async ({ page, browserName }) => {
+  test.skip(browserName === 'webkit', NO_SAFARI_DATE_FIELD);
   const birthDate = page.getByLabel(/Fecha de nacimiento/);
-  // Some engines (Playwright's WebKit on Windows) have no date field and show a text box instead:
-  // there the form rejects free text as an incomplete date, which the other tests cover.
-  const native = await birthDate.evaluate((input) => (input as HTMLInputElement).type === 'date');
-  test.skip(!native, 'this engine has no native date field');
 
   await birthDate.focus();
   await page.keyboard.type('01051990');
@@ -28,7 +29,8 @@ test('typing the segments gives an ISO date', async ({ page }) => {
   await expect(birthDate).toHaveValue(/^1990-(05-01|01-05)$/);
 });
 
-test('a partly typed date is reported as incomplete, not as empty', async ({ page }) => {
+test('a partly typed date is reported as incomplete, not as empty', async ({ page, browserName }) => {
+  test.skip(browserName === 'webkit', NO_SAFARI_DATE_FIELD);
   const birthDate = page.getByLabel(/Fecha de nacimiento/);
 
   await birthDate.focus();

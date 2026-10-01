@@ -343,11 +343,13 @@ Feature folder `src/features/arquebusier-registry/`:
   both inside the dialog description. The transfer title names the target comparsa.
 - Server field reasons map to `registry:validation.<reason>`, except `weaponModelId: notFound`,
   which maps to `validation.modelNotFound`.
-- Playwright (group 8) checks the date fields in Chromium, Firefox and WebKit (`e2e/dates.spec.ts`):
+- Playwright (group 8) checks the date fields in Chromium and Firefox (`e2e/dates.spec.ts`):
   typing per segment, an incomplete date and an empty required one. The segment order follows the
   browser's own language, not the page's. Chromium fires no input event while a date is partly
-  typed, so `DateInput` also reports it on blur and on Enter. A manual screen-reader pass is a
-  release step.
+  typed, so `DateInput` also reports it on blur and on Enter. Playwright's WebKit builds have no
+  Safari-like date field (a text box on Windows, a field without editable segments on Linux, seen
+  in CI), so WebKit only checks the empty required date. Typing a full and a partial date in Safari
+  (macOS and iOS) and a screen-reader pass are manual release steps.
 
 **Rules from the group 7 reviews:**
 - A failed background refetch keeps the loaded data on screen with a `LoadFailure` banner
