@@ -343,8 +343,25 @@ Feature folder `src/features/arquebusier-registry/`:
   both inside the dialog description. The transfer title names the target comparsa.
 - Server field reasons map to `registry:validation.<reason>`, except `weaponModelId: notFound`,
   which maps to `validation.modelNotFound`.
-- Playwright (group 8) checks the date fields in Chromium, Firefox and WebKit: typing per segment,
-  an incomplete date and an empty required one. A manual screen-reader pass is a release step.
+- Playwright (group 8) checks the date fields in Chromium, Firefox and WebKit (`e2e/dates.spec.ts`):
+  typing per segment, an incomplete date and an empty required one. The segment order follows the
+  browser's own language, not the page's. Chromium fires no input event while a date is partly
+  typed, so `DateInput` also reports it on blur and on Enter. A manual screen-reader pass is a
+  release step.
+
+**Rules from the group 7 reviews:**
+- A failed background refetch keeps the loaded data on screen with a `LoadFailure` banner
+  ("may be out of date", retry); only a first load that fails replaces the page.
+- A `notFound` answer to a write means someone else removed the record: removing it again counts as
+  done, and an edit refreshes into the not-found page.
+- A comparsa filter in the address waits for the comparsas before listing, so the list is never
+  shown unfiltered first; searching and filtering announce the row count in a live region.
+- Sections that are not field groups (owned weapons, transfer, delete) are `PageSection`s with an
+  `h2`, not fieldsets. Row actions are named by model and number.
+- Dates cleared by ticking "pending" or removing the license type come back when that is undone,
+  and both changes are announced; the expiry default follows the type again after a clear.
+- `applyFieldErrors` returns true only when every reported field was placed, so the page also shows
+  its banner otherwise.
 
 **i18n**: a new namespace `registry` in `es-ES`, `ca-ES-valencia` and `en`:
 - `arquebusiers.*`: list, search, filters, columns, empty states, form sections and fields with
@@ -485,6 +502,14 @@ a database that holds non-synthetic arquebusiers. E2E tests rely on these rows.
   slower than the general 60 per minute; revisit if the Warning logs show probing.
 - `xmin` can jump after `VACUUM FREEZE`; a client then gets one spurious `409 modified` and
   reloads. Accepted.
+- Group 7 reviews, not blocking:
+  - Failed requests collapse into `errors.generic` without the problem's `traceId`. Showing it, or
+    logging it client-side, would help support; this is a platform change for every feature.
+  - Search normalises every row on each keystroke; precompute a search text per row if it ever
+    shows in profiling (about 800 rows for an Admin today).
+  - At 375 px the tables scroll inside their region, which is allowed; a stacked layout for
+    phones, with the row actions first, is a design-system change for every list.
+  - A stale success notice stays until the next one replaces it.
 
 ## Risks / Trade-offs
 

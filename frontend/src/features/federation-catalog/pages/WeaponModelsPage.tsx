@@ -13,7 +13,7 @@ import { PageHeader } from '@/components/app/PageHeader';
 import { StatusBadge } from '@/components/app/StatusBadge';
 import { knownFilter, withFilter } from '@/lib/search-filters';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
-import { useNotice } from '../notices';
+import { useNotice } from '@/lib/notices';
 import { problemMessage } from '../problems';
 
 const KINDS = Object.values(WeaponKind);

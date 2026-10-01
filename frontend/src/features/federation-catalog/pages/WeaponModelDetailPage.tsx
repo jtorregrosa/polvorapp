@@ -25,7 +25,7 @@ import { PageHeader } from '@/components/app/PageHeader';
 import { StatusBadge } from '@/components/app/StatusBadge';
 import { NotFoundPage } from '@/features/platform/pages/NotFoundPage';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
-import { noticeState, useNotice, type Announce } from '../notices';
+import { noticeState, useNotice, type Announce } from '@/lib/notices';
 import { applyFieldErrors, problemMessage } from '../problems';
 import { WeaponModelFields } from './WeaponModelFields';
 import {

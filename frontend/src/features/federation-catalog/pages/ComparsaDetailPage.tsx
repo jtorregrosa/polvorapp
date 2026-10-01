@@ -31,7 +31,7 @@ import { useSession } from '@/features/identity-access/session';
 import { NotFoundPage } from '@/features/platform/pages/NotFoundPage';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { FiringChiefsSection } from '../components/FiringChiefsSection';
-import { noticeState, useNotice, type Announce } from '../notices';
+import { noticeState, useNotice, type Announce } from '@/lib/notices';
 import { applyFieldErrors, problemMessage } from '../problems';
 import { ComparsaFields } from './ComparsaFields';
 import {

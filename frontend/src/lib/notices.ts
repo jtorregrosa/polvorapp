@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
 export interface Notice {
@@ -34,8 +34,9 @@ export function useNotice(): [Notice | undefined, Announce] {
     }
   }, [location.state, navigate]);
 
-  const announce: Announce = (severity, text) => {
+  // Stable, so pages can list it as a dependency without recomputing on every render.
+  const announce: Announce = useCallback((severity, text) => {
     setNotice((previous) => ({ id: (previous?.id ?? 0) + 1, severity, text }));
-  };
+  }, []);
   return [notice, announce];
 }

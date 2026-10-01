@@ -5,7 +5,7 @@
     "descriptionFiringChief": "The arquebusiers of your comparsas.",
     "new": "Register arquebusier",
     "caption": "Arquebusiers",
-    "search": "Search",
+    "search": "Search arquebusiers",
     "searchHint": "By name, DNI/NIE or Federation ID.",
     "columns": {
       "name": "Name",
@@ -30,7 +30,9 @@
     "unassigned": {
       "title": "You have no comparsa assigned yet",
       "description": "A Federation admin has to assign you to your comparsa before you can see its arquebusiers."
-    }
+    },
+    "resultCount_one": "{{count}} arquebusier",
+    "resultCount_other": "{{count}} arquebusiers"
   },
   "form": {
     "newTitle": "Register arquebusier",
@@ -53,6 +55,7 @@
     "statusHint": "In reserve they do not fire this year but stay on the list.",
     "license": "License",
     "licenseDescription": "Only the current license: renewing it replaces its details.",
+    "datesNeedType": "Choose a license type to enter its dates.",
     "licenseType": "License type",
     "noLicense": "No license",
     "pending": "Pending",
@@ -67,9 +70,13 @@
     "register": "Register arquebusier",
     "save": "Save changes",
     "registered": "{{name}} registered.",
+    "registeredUnnamed": "Arquebusier registered.",
     "saved": "Changes saved.",
     "modified": "Someone else changed this arquebusier while you were editing it. Their current details have been loaded: check your changes and save again.",
-    "expiresOnComputed": "Expiry date worked out: {{date}}."
+    "expiresOnComputed": "Expiry date worked out: {{date}}.",
+    "datesCleared": "License dates cleared.",
+    "datesRestored": "License dates restored.",
+    "noActiveComparsa": "There is no active comparsa you can register arquebusiers in."
   },
   "detail": {
     "back": "Back to arquebusiers",
@@ -79,7 +86,7 @@
   "ownedWeapons": {
     "title": "Owned weapons",
     "description": "The weapons they own, with their ownership guide.",
-    "caption": "Owned weapons",
+    "caption": "Owned weapons of {{name}}",
     "columns": {
       "model": "Model",
       "kind": "Kind",
@@ -91,9 +98,9 @@
     "empty": "No owned weapons registered.",
     "add": "Add owned weapon",
     "edit": "Edit",
-    "editLabel": "Edit weapon {{number}}",
+    "editLabel": "Edit weapon {{model}} no. {{number}}",
     "remove": "Remove",
-    "removeLabel": "Remove weapon {{number}}",
+    "removeLabel": "Remove weapon {{model}} no. {{number}}",
     "removeTitle": "Remove weapon {{number}}?",
     "removeDescription": "It is deleted from the arquebusier's record and this cannot be undone.",
     "removed": "Weapon {{number}} removed.",
@@ -111,7 +118,8 @@
       "save": "Save changes",
       "added": "Weapon added.",
       "saved": "Changes saved.",
-      "back": "Back to the arquebusier"
+      "back": "Back to the arquebusier",
+      "cancel": "Cancel"
     }
   },
   "transfer": {
@@ -123,7 +131,8 @@
     "confirmTitle": "Transfer {{name}} to {{to}}?",
     "confirmDescription": "They will move from {{from}} to {{to}} with their owned weapons. The firing chiefs of {{from}} will no longer see them.",
     "confirm": "Transfer",
-    "done": "{{name}} now belongs to {{to}}."
+    "done": "{{name}} now belongs to {{to}}.",
+    "chooseHint": "Choose the destination comparsa to transfer."
   },
   "delete": {
     "title": "Delete from the registry",
@@ -160,7 +169,7 @@
       "notFound": "This weapon no longer exists.",
       "modelInactive": "That model is retired from the catalogue: choose another one.",
       "guideTaken": "That guide number is already registered in the Federation.",
-      "modified": "Someone else changed this weapon while you were editing it."
+      "modified": "Someone else has changed this weapon. Its current data has been loaded without losing what you typed: check it and save again."
     },
     "registry": {
       "busy": "The registry is busy with another change. Try again in a few seconds."
@@ -185,5 +194,12 @@
     "phone": "Only digits and spaces, with an optional leading +.",
     "modelNotFound": "That model no longer exists in the catalogue.",
     "date": "Enter a complete date: day, month and year."
+  },
+  "load": {
+    "retry": "Try again",
+    "stale": "What you see may be out of date.",
+    "comparsas": "Without the list of comparsas you cannot register.",
+    "models": "Without the catalogue you cannot choose the model.",
+    "list": "The filtered list cannot be shown."
   }
 }

@@ -5,7 +5,7 @@
     "descriptionFiringChief": "Los arcabuceros de tus comparsas.",
     "new": "Registrar arcabucero",
     "caption": "Arcabuceros",
-    "search": "Buscar",
+    "search": "Buscar arcabuceros",
     "searchHint": "Por nombre, DNI/NIE o ID Unión.",
     "columns": {
       "name": "Nombre",
@@ -30,7 +30,9 @@
     "unassigned": {
       "title": "Todavía no tienes ninguna comparsa asignada",
       "description": "Un administrador de la Federación tiene que asignarte a tu comparsa para que veas a sus arcabuceros."
-    }
+    },
+    "resultCount_one": "{{count}} arcabucero",
+    "resultCount_other": "{{count}} arcabuceros"
   },
   "form": {
     "newTitle": "Registrar arcabucero",
@@ -53,6 +55,7 @@
     "statusHint": "En reserva no dispara este año, pero sigue en la lista.",
     "license": "Licencia",
     "licenseDescription": "Solo la licencia vigente: al renovarla, se sustituyen sus datos.",
+    "datesNeedType": "Elige un tipo de licencia para indicar sus fechas.",
     "licenseType": "Tipo de licencia",
     "noLicense": "Sin licencia",
     "pending": "En trámite",
@@ -67,9 +70,13 @@
     "register": "Registrar arcabucero",
     "save": "Guardar cambios",
     "registered": "{{name}} registrado.",
+    "registeredUnnamed": "Arcabucero registrado.",
     "saved": "Cambios guardados.",
     "modified": "Otra persona ha cambiado este arcabucero mientras lo editabas. Se han cargado sus datos actuales: revisa tus cambios y vuelve a guardar.",
-    "expiresOnComputed": "Fecha de caducidad calculada: {{date}}."
+    "expiresOnComputed": "Fecha de caducidad calculada: {{date}}.",
+    "datesCleared": "Fechas de la licencia vaciadas.",
+    "datesRestored": "Fechas de la licencia recuperadas.",
+    "noActiveComparsa": "No hay ninguna comparsa activa en la que puedas registrar arcabuceros."
   },
   "detail": {
     "back": "Volver a arcabuceros",
@@ -79,7 +86,7 @@
   "ownedWeapons": {
     "title": "Armas propias",
     "description": "Las armas que posee, con su guía de pertenencia.",
-    "caption": "Armas propias",
+    "caption": "Armas propias de {{name}}",
     "columns": {
       "model": "Modelo",
       "kind": "Tipo",
@@ -91,9 +98,9 @@
     "empty": "No tiene armas propias registradas.",
     "add": "Añadir arma propia",
     "edit": "Editar",
-    "editLabel": "Editar el arma {{number}}",
+    "editLabel": "Editar el arma {{model}} nº {{number}}",
     "remove": "Quitar",
-    "removeLabel": "Quitar el arma {{number}}",
+    "removeLabel": "Quitar el arma {{model}} nº {{number}}",
     "removeTitle": "¿Quitar el arma {{number}}?",
     "removeDescription": "Se borra de la ficha del arcabucero y no se puede deshacer.",
     "removed": "Arma {{number}} quitada.",
@@ -111,7 +118,8 @@
       "save": "Guardar cambios",
       "added": "Arma añadida.",
       "saved": "Cambios guardados.",
-      "back": "Volver al arcabucero"
+      "back": "Volver al arcabucero",
+      "cancel": "Cancelar"
     }
   },
   "transfer": {
@@ -123,7 +131,8 @@
     "confirmTitle": "¿Trasladar a {{name}} a {{to}}?",
     "confirmDescription": "Pasará de {{from}} a {{to}} con sus armas propias. Los jefes de disparo de {{from}} dejarán de verlo.",
     "confirm": "Trasladar",
-    "done": "{{name}} pertenece ahora a {{to}}."
+    "done": "{{name}} pertenece ahora a {{to}}.",
+    "chooseHint": "Elige la comparsa de destino para poder trasladar."
   },
   "delete": {
     "title": "Eliminar del registro",
@@ -160,7 +169,7 @@
       "notFound": "Esta arma ya no existe.",
       "modelInactive": "Ese modelo está retirado del catálogo: elige otro.",
       "guideTaken": "Ese número de guía ya está registrado en la Federación.",
-      "modified": "Otra persona ha cambiado esta arma mientras la editabas."
+      "modified": "Otra persona ha cambiado esta arma. Se han cargado sus datos actuales sin perder lo que has escrito: revísalo y vuelve a guardar."
     },
     "registry": {
       "busy": "El registro está ocupado con otro cambio. Inténtalo de nuevo en unos segundos."
@@ -185,5 +194,12 @@
     "phone": "Solo dígitos y espacios, con un + inicial opcional.",
     "modelNotFound": "Ese modelo ya no existe en el catálogo.",
     "date": "Escribe una fecha completa: día, mes y año."
+  },
+  "load": {
+    "retry": "Reintentar",
+    "stale": "Lo que ves puede no estar actualizado.",
+    "comparsas": "Sin la lista de comparsas no se puede registrar.",
+    "models": "Sin el catálogo no se puede elegir el modelo.",
+    "list": "No se puede mostrar el listado filtrado."
   }
 }

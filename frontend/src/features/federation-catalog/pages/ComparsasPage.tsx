@@ -15,7 +15,7 @@ import { StatusBadge } from '@/components/app/StatusBadge';
 import { useSession } from '@/features/identity-access/session';
 import { knownFilter, withFilter } from '@/lib/search-filters';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
-import { useNotice } from '../notices';
+import { useNotice } from '@/lib/notices';
 import { problemMessage } from '../problems';
 
 const SIDES = Object.values(Side);

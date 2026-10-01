@@ -165,7 +165,7 @@
 
 ## 7. Registry screens
 
-- [ ] 7.1 Write component tests for `ArquebusiersPage`:
+- [x] 7.1 Write component tests for `ArquebusiersPage`:
   - columns, status and license badges, and "No license";
   - accent- and case-insensitive search by name, nationalId and federationId;
   - comparsa and status filters, with the comparsa filter hidden for a single comparsa;
@@ -174,7 +174,7 @@
   - axe passes.
 
   Then implement the page with translations in the 3 locales. Verify: the tests pass.
-- [ ] 7.2 Write component tests for the register and edit form (`ArquebusierFields`):
+- [x] 7.2 Write component tests for the register and edit form (`ArquebusierFields`):
   - the comparsa is pre-selected when there is one, and only active comparsas in scope are offered;
   - nationalId check-letter feedback appears on blur;
   - expires-on is pre-filled for AE and A_PROF until edited;
@@ -184,14 +184,14 @@
   - axe passes.
 
   Then implement `ArquebusierFormPage` and the edit part of `ArquebusierDetailPage` with translations. Verify: the tests pass.
-- [ ] 7.3 Write component tests for the owned weapons section and `OwnedWeaponFormPage`:
+- [x] 7.3 Write component tests for the owned weapons section and `OwnedWeaponFormPage`:
   - list with translated model attributes;
   - add and edit, with only active models plus the current inactive one;
   - remove with confirmation;
   - the guide-taken and model-inactive errors are shown.
 
   Then implement them with translations. Verify: the tests pass.
-- [ ] 7.4 Write component tests for transfer and delete:
+- [x] 7.4 Write component tests for transfer and delete:
   - the transfer section exists only for Admins, offers the other active comparsas, and its confirmation names both comparsas;
   - the delete confirmation names the arquebusier, says it cannot be undone, and suggests Reserve for someone who only stops firing;
   - after deletion the user returns to the list with a focused notice;
@@ -199,8 +199,8 @@
   - the inactive-comparsa banner is shown.
 
   Then implement both with translations. Verify: the tests pass.
-- [ ] 7.5 Check the screens at 375 px and in dark mode in Storybook or the running app, and fix any overflow (NFR-01). Verify: no horizontal page scroll, and touch targets meet WCAG 2.5.8.
-- [ ] 7.6 Review group 7 in parallel with `react-reviewer`, `typescript-reviewer`, `a11y-architect` and `silent-failure-hunter`. Fix CRITICAL/HIGH findings.
+- [x] 7.5 Check the screens at 375 px and in dark mode in Storybook or the running app, and fix any overflow (NFR-01). Verify: no horizontal page scroll, and touch targets meet WCAG 2.5.8.
+- [x] 7.6 Review group 7 in parallel with `react-reviewer`, `typescript-reviewer`, `a11y-architect` and `silent-failure-hunter`. Fix CRITICAL/HIGH findings.
 
 ## 8. End-to-end and verification
 
