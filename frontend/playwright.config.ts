@@ -49,5 +49,18 @@ export default defineConfig({
       use: { ...devices['Desktop Safari'], storageState: ADMIN_STATE },
       dependencies: ['setup'],
     },
+    // Image decoding, EXIF orientation and canvas export differ per engine: the photo flows too.
+    {
+      name: 'photos-firefox',
+      testMatch: /photos\.spec\.ts$/,
+      use: { ...devices['Desktop Firefox'], storageState: ADMIN_STATE },
+      dependencies: ['setup'],
+    },
+    {
+      name: 'photos-webkit',
+      testMatch: /photos\.spec\.ts$/,
+      use: { ...devices['Desktop Safari'], storageState: ADMIN_STATE },
+      dependencies: ['setup'],
+    },
   ],
 });
