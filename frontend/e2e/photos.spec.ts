@@ -194,6 +194,21 @@ async function storedPhoto(page: Page, url: string): Promise<Buffer> {
   return bytes;
 }
 
+/**
+ * Waits for the dialog's opening animations (overlay fade, zoom) to end: mid-fade, colours blend
+ * with the page behind and contrast checks depend on the engine's timing.
+ */
+async function animationsDone(page: Page): Promise<void> {
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity)
+        .map((animation) => animation.finished),
+    ),
+  );
+}
+
 /** Registers an arquebusier (cleaned up after the test), optionally with an issued AE license. */
 async function register(
   page: Page,
@@ -292,7 +307,9 @@ test.describe('arquebusier photos', () => {
       withExifOrientation6(sideways),
       'image/jpeg',
     );
-    expect(await axeViolations()).toEqual([]);
+    await animationsDone(page);
+    // The crop dialog; the page behind it is inert and covered by the overlay.
+    expect(await axeViolations(page, '[role="dialog"]')).toEqual([]);
     const url = await confirmAndWait(page, `Foto de carnet de Arcabucera ${lastName}`);
     await expect(dialog).toBeHidden();
 
@@ -454,7 +471,9 @@ test.describe('the crop dialog at 320 px', () => {
       expect(box, name).not.toBeNull();
       expect((box?.x ?? -1) >= 0 && (box?.x ?? 0) + (box?.width ?? 0) <= 320, name).toBe(true);
     }
-    expect(await axeViolations()).toEqual([]);
+    await animationsDone(page);
+    // The crop dialog; the page behind it is inert and covered by the overlay.
+    expect(await axeViolations(page, '[role="dialog"]')).toEqual([]);
 
     // Nothing is changed: the dialog is cancelled.
     await dialog.getByRole('button', { name: 'Cancelar' }).click();

@@ -7,7 +7,8 @@ interface Fixtures {
   /** Fails the test on any Content-Security-Policy violation or uncaught page error. */
   pageProblems: string[];
   /** WCAG 2.1 A/AA violations on the current page, or on `target` (NFR-07). */
-  axeViolations: (target?: Page) => Promise<string[]>;
+  /** WCAG 2.1 AA violations of the page, or only of `include` (a CSS selector, e.g. an open dialog). */
+  axeViolations: (target?: Page, include?: string) => Promise<string[]>;
 }
 
 export const test = base.extend<Fixtures>({
@@ -31,10 +32,9 @@ export const test = base.extend<Fixtures>({
     { auto: true },
   ],
   axeViolations: async ({ page }, use) => {
-    await use(async (target = page) => {
-      const results = await new AxeBuilder({ page: target })
-        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-        .analyze();
+    await use(async (target = page, include) => {
+      const builder = new AxeBuilder({ page: target }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']);
+      const results = await (include ? builder.include(include) : builder).analyze();
       return results.violations.map(
         (v) => `${v.id}: ${v.help} (${v.nodes.map((node) => node.target.join(' ')).join(', ')})`,
       );
