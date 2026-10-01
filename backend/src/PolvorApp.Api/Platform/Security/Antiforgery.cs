@@ -34,8 +34,10 @@ internal static partial class Antiforgery
         {
             if (context.Request.Path.StartsWithSegments("/api") && !IsSafe(context.Request.Method))
             {
+                // Without the header the request is invalid anyway; checking first keeps the validator
+                // from reading a form body (e.g. a large upload) to look for a form token.
                 var antiforgery = context.RequestServices.GetRequiredService<IAntiforgery>();
-                if (!await antiforgery.IsRequestValidAsync(context))
+                if (string.IsNullOrEmpty(context.Request.Headers[HeaderName]) || !await antiforgery.IsRequestValidAsync(context))
                 {
                     LogRejected(context.RequestServices.GetRequiredService<ILogger<IAntiforgery>>());
                     await Results.Problem(
