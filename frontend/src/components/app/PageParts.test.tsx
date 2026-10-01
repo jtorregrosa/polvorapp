@@ -7,6 +7,7 @@ import { renderWithProviders } from '@/test/render';
 import { AlertBanner } from './AlertBanner';
 import { EmptyState } from './EmptyState';
 import { PageHeader } from './PageHeader';
+import { PageSection } from './PageSection';
 import { StatCard } from './StatCard';
 
 afterEach(() => {
@@ -174,6 +175,27 @@ describe('page parts accessibility', () => {
       </MemoryRouter>,
     );
 
+    expect(await axeViolations(container)).toEqual([]);
+  });
+});
+
+describe('PageSection', () => {
+  it('is a region named by its h2 and described by its description, with actions beside the heading', async () => {
+    const { container } = await renderWithProviders(
+      <PageSection
+        title="Armas propias"
+        description="Las que tiene a su nombre"
+        actions={<button type="button">Añadir</button>}
+      >
+        <p>Sin armas</p>
+      </PageSection>,
+    );
+
+    const region = screen.getByRole('region', { name: 'Armas propias' });
+    expect(within(region).getByRole('heading', { level: 2, name: 'Armas propias' })).toBeInTheDocument();
+    expect(region).toHaveAccessibleDescription('Las que tiene a su nombre');
+    expect(within(region).getByRole('button', { name: 'Añadir' })).toBeInTheDocument();
+    expect(within(region).getByText('Sin armas')).toBeInTheDocument();
     expect(await axeViolations(container)).toEqual([]);
   });
 });

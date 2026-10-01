@@ -38,7 +38,16 @@ export type DateInputProps = Omit<
  * picker and are not announced by screen readers: the form schema checks the bounds and its error
  * says them. Autofill is off by default, since these forms record other people's dates.
  */
-export function DateInput({ value, onChange, clearable = false, ref, disabled, ...props }: DateInputProps) {
+export function DateInput({
+  value,
+  onChange,
+  onBlur,
+  onKeyDown,
+  clearable = false,
+  ref,
+  disabled,
+  ...props
+}: DateInputProps) {
   const { t } = useTranslation('ui');
   const input = useRef<HTMLInputElement | null>(null);
   const shown = value === INCOMPLETE_DATE ? '' : value;
@@ -64,8 +73,22 @@ export function DateInput({ value, onChange, clearable = false, ref, disabled, .
         onChange={(event) =>
           onChange?.(event.currentTarget.validity.badInput ? INCOMPLETE_DATE : event.currentTarget.value)
         }
+        onBlur={(event) => {
+          // Chromium fires no input event while a date is only partly typed: report it on leaving.
+          if (event.currentTarget.validity.badInput && value !== INCOMPLETE_DATE) {
+            onChange?.(INCOMPLETE_DATE);
+          }
+          onBlur?.(event);
+        }}
+        onKeyDown={(event) => {
+          // Enter submits without leaving the field: report a partly typed date first.
+          if (event.key === 'Enter' && event.currentTarget.validity.badInput && value !== INCOMPLETE_DATE) {
+            onChange?.(INCOMPLETE_DATE);
+          }
+          onKeyDown?.(event);
+        }}
       />
-      {clearable && shown && !disabled && (
+      {clearable && Boolean(value) && !disabled && (
         <Button
           type="button"
           variant="quiet"

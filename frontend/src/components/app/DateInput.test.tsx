@@ -94,6 +94,21 @@ describe('DateInput', () => {
     expect(onSubmit).toHaveBeenCalledWith({ issuedOn: '2024-03-10', courseOn: '' }, expect.anything());
   });
 
+  it('reports a date left partly typed as incomplete when focus leaves it', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    await renderWithProviders(<DatesForm onSubmit={onSubmit} />);
+    const input = screen.getByLabelText(/Fecha de expedición/);
+
+    // Chromium fires no input event while only the day and month are typed.
+    await user.click(input);
+    Object.defineProperty(input, 'validity', { configurable: true, value: { badInput: true } });
+    await user.click(screen.getByRole('button', { name: 'Guardar' }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(input).toHaveAccessibleDescription(/fecha completa/i);
+  });
+
   it('reports a partly typed date as incomplete, not as empty', async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();

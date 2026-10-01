@@ -38,7 +38,7 @@ test.describe('platform', () => {
   });
 
   test('answers unknown API routes with localised problem details', async ({ request }) => {
-    const response = await request.get('/api/arquebusiers', {
+    const response = await request.get('/api/no-such-route', {
       headers: { 'Accept-Language': 'ca-ES-valencia' },
     });
 

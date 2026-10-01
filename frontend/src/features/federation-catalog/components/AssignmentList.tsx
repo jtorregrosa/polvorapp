@@ -12,7 +12,7 @@ import { DataTable, type DataTableColumn } from '@/components/app/DataTable';
 import { Form, FormField } from '@/components/app/FormField';
 import { FormSection } from '@/components/app/FormSection';
 import { SelectInput, type SelectOption } from '@/components/app/SelectInput';
-import type { Notice } from '../notices';
+import type { Notice } from '@/lib/notices';
 import { messages, problemMessage } from '../problems';
 
 const addSchema = z.object({ candidate: z.string().min(1, messages.choice) });

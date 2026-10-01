@@ -5,7 +5,7 @@
     "descriptionFiringChief": "Els arcabussers de les teues comparses.",
     "new": "Registra un arcabusser",
     "caption": "Arcabussers",
-    "search": "Busca",
+    "search": "Busca arcabussers",
     "searchHint": "Per nom, DNI/NIE o ID Unió.",
     "columns": {
       "name": "Nom",
@@ -30,7 +30,9 @@
     "unassigned": {
       "title": "Encara no tens cap comparsa assignada",
       "description": "Un administrador de la Federació t'ha d'assignar a la teua comparsa perquè veges els seus arcabussers."
-    }
+    },
+    "resultCount_one": "{{count}} arcabusser",
+    "resultCount_other": "{{count}} arcabussers"
   },
   "form": {
     "newTitle": "Registra un arcabusser",
@@ -53,6 +55,7 @@
     "statusHint": "En reserva no dispara enguany, però continua en la llista.",
     "license": "Llicència",
     "licenseDescription": "Només la llicència vigent: en renovar-la, se substituïxen les seues dades.",
+    "datesNeedType": "Tria un tipus de llicència per a indicar-ne les dates.",
     "licenseType": "Tipus de llicència",
     "noLicense": "Sense llicència",
     "pending": "En tràmit",
@@ -67,9 +70,13 @@
     "register": "Registra l'arcabusser",
     "save": "Guarda els canvis",
     "registered": "{{name}} registrat.",
+    "registeredUnnamed": "Arcabusser registrat.",
     "saved": "Canvis guardats.",
     "modified": "Una altra persona ha canviat este arcabusser mentre l'editaves. S'han carregat les seues dades actuals: revisa els teus canvis i torna a guardar.",
-    "expiresOnComputed": "Data de caducitat calculada: {{date}}."
+    "expiresOnComputed": "Data de caducitat calculada: {{date}}.",
+    "datesCleared": "Dates de la llicència buidades.",
+    "datesRestored": "Dates de la llicència recuperades.",
+    "noActiveComparsa": "No hi ha cap comparsa activa en què pugues registrar arcabussers."
   },
   "detail": {
     "back": "Torna als arcabussers",
@@ -79,7 +86,7 @@
   "ownedWeapons": {
     "title": "Armes pròpies",
     "description": "Les armes que posseïx, amb la seua guia de pertinença.",
-    "caption": "Armes pròpies",
+    "caption": "Armes pròpies de {{name}}",
     "columns": {
       "model": "Model",
       "kind": "Tipus",
@@ -91,9 +98,9 @@
     "empty": "No té armes pròpies registrades.",
     "add": "Afig una arma pròpia",
     "edit": "Edita",
-    "editLabel": "Edita l'arma {{number}}",
+    "editLabel": "Edita l’arma {{model}} núm. {{number}}",
     "remove": "Lleva",
-    "removeLabel": "Lleva l'arma {{number}}",
+    "removeLabel": "Lleva l’arma {{model}} núm. {{number}}",
     "removeTitle": "Vols llevar l'arma {{number}}?",
     "removeDescription": "S'esborra de la fitxa de l'arcabusser i no es pot desfer.",
     "removed": "Arma {{number}} llevada.",
@@ -111,7 +118,8 @@
       "save": "Guarda els canvis",
       "added": "Arma afegida.",
       "saved": "Canvis guardats.",
-      "back": "Torna a l'arcabusser"
+      "back": "Torna a l'arcabusser",
+      "cancel": "Cancel·la"
     }
   },
   "transfer": {
@@ -123,7 +131,8 @@
     "confirmTitle": "Vols traslladar {{name}} a {{to}}?",
     "confirmDescription": "Passarà de {{from}} a {{to}} amb les seues armes pròpies. Els caps de disparada de {{from}} deixaran de veure'l.",
     "confirm": "Trasllada",
-    "done": "{{name}} pertany ara a {{to}}."
+    "done": "{{name}} pertany ara a {{to}}.",
+    "chooseHint": "Tria la comparsa de destinació per a poder traslladar."
   },
   "delete": {
     "title": "Elimina del registre",
@@ -160,7 +169,7 @@
       "notFound": "Esta arma ja no existix.",
       "modelInactive": "Eixe model està retirat del catàleg: tria'n un altre.",
       "guideTaken": "Eixe número de guia ja està registrat en la Federació.",
-      "modified": "Una altra persona ha canviat esta arma mentre l'editaves."
+      "modified": "Una altra persona ha canviat esta arma. S’han carregat les seues dades actuals sense perdre el que has escrit: revisa-ho i torna a guardar."
     },
     "registry": {
       "busy": "El registre està ocupat amb un altre canvi. Torna-ho a provar d'ací a uns segons."
@@ -185,5 +194,12 @@
     "phone": "Només dígits i espais, amb un + inicial opcional.",
     "modelNotFound": "Eixe model ja no existix en el catàleg.",
     "date": "Escriu una data completa: dia, mes i any."
+  },
+  "load": {
+    "retry": "Torna-ho a provar",
+    "stale": "El que veus pot no estar actualitzat.",
+    "comparsas": "Sense la llista de comparses no es pot registrar.",
+    "models": "Sense el catàleg no es pot triar el model.",
+    "list": "No es pot mostrar el llistat filtrat."
   }
 }

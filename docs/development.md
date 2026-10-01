@@ -263,12 +263,14 @@ times from one address, so raise the per-address sign-in limits for the run (CI 
 ```bash
 RATE_LIMIT_AUTH_PER_MINUTE=300 RATE_LIMIT_AUTH_EMAIL_PER_15_MINUTES=100 docker compose up -d --build --wait
 docker compose run --rm api-seed
-cd frontend && npx playwright install --with-deps chromium   # once
+cd frontend && npx playwright install --with-deps chromium firefox webkit   # once
 npm run e2e
 ```
 
 A `setup` project signs the seeded Admin and a FiringChief in once and saves their sessions in
-`frontend/e2e/.auth/` (git-ignored); specs start as the Admin. Journeys that need a fresh user
+`frontend/e2e/.auth/` (git-ignored); specs start as the Admin. The `dates-firefox` and
+`dates-webkit` projects run only `e2e/dates.spec.ts`, because native date fields differ per engine;
+an engine without one (Playwright's WebKit on Windows) skips the typing check. Journeys that need a fresh user
 invite one through the UI, read the link from Mailpit's API and enrol with a computed TOTP code
 (`e2e/identity.ts`), so runs never collide on a code.
 

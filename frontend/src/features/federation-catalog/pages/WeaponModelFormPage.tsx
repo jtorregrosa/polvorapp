@@ -15,7 +15,7 @@ import { Button } from '@/components/app/Button';
 import { Form } from '@/components/app/FormField';
 import { PageHeader } from '@/components/app/PageHeader';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
-import { noticeState } from '../notices';
+import { noticeState } from '@/lib/notices';
 import { applyFieldErrors, problemMessage } from '../problems';
 import { WeaponModelFields } from './WeaponModelFields';
 import {
