@@ -1,15 +1,18 @@
+using PolvorApp.Api.Platform.Storage;
 using PolvorApp.SharedKernel.Persistence;
 
 namespace PolvorApp.Api.Platform.Database;
 
 /// <summary>
-/// The <c>migrate</c> host command: applies every module's migrations in order. Migrations never
+/// The <c>migrate</c> host command: applies every module's migrations in order, then makes sure the
+/// object storage bucket exists (design D1 of add-arquebusier-photos). Migrations never
 /// run on web startup (spec: Local environment with one command); compose runs this command in a
 /// one-shot service before the API starts.
 /// </summary>
 internal static partial class MigrateCommand
 {
     public const string Verb = "migrate";
+    private const string StorageContext = "object storage";
 
     public static async Task<int> RunAsync(IServiceProvider services, CancellationToken cancellationToken)
     {
@@ -35,11 +38,15 @@ internal static partial class MigrateCommand
             }
 
             LogCompleted(logger, migrators.Count);
+
+            // Files live next to the database: the bucket must exist before the API starts (ADR-0005).
+            current = StorageContext;
+            await scope.ServiceProvider.GetRequiredService<StorageBootstrapper>().EnsureBucketAsync(cancellationToken);
             return 0;
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            LogCancelled(logger);
+            LogCancelled(logger, current);
             return 1;
         }
         catch (Exception exception)
@@ -56,8 +63,8 @@ internal static partial class MigrateCommand
     [LoggerMessage(Level = LogLevel.Information, Message = "Migrations applied for {Count} module contexts")]
     private static partial void LogCompleted(ILogger logger, int count);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Migration was cancelled")]
-    private static partial void LogCancelled(ILogger logger);
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Migration was cancelled in {Context}")]
+    private static partial void LogCancelled(ILogger logger, string context);
 
     [LoggerMessage(Level = LogLevel.Critical, Message = "Migration failed in {Context}")]
     private static partial void LogFailed(ILogger logger, string context, Exception exception);

@@ -24,6 +24,11 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         _environment = environment;
         _configureServices = configureServices;
         var all = new Dictionary<string, string?>(DefaultSettings);
+        foreach (var (key, value) in MinioFixture.SharedSettings ?? new Dictionary<string, string?>())
+        {
+            all[key] = value;
+        }
+
         if (environment is not ("Development" or "Testing"))
         {
             // Outside local environments email must use TLS and links https (spec: Transactional email).
@@ -52,6 +57,14 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         ["Email:Security"] = "None",
         ["Email:From"] = "PolvorApp <no-reply@polvorapp.example>",
         ["App:PublicBaseUrl"] = "http://localhost:8080",
+        ["Storage:ServiceUrl"] = "http://localhost:9000",
+        ["Storage:Bucket"] = "polvorapp-test",
+        ["Storage:AccessKey"] = "test-only-access-key",
+        ["Storage:SecretKey"] = "test-only-secret-key",
+
+        // Hosts share one bucket but not one database: a sweep (fired by a test clock moved
+        // forward) would delete the photos of every other test. Sweeper tests enable it themselves.
+        ["Storage:SweepEnabled"] = "false",
     };
 
     public CapturingLoggerProvider Logs { get; } = new();

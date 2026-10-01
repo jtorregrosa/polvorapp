@@ -14,7 +14,9 @@ internal static class HealthEndpoints
 
     public static IServiceCollection AddPlatformHealthChecks(this IServiceCollection services)
     {
-        services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("database", tags: [ReadyTag], timeout: CheckTimeout);
+        services.AddHealthChecks()
+            .AddCheck<DatabaseHealthCheck>("database", tags: [ReadyTag], timeout: CheckTimeout)
+            .AddCheck<StorageHealthCheck>("storage", tags: [ReadyTag], timeout: CheckTimeout);
         return services;
     }
 

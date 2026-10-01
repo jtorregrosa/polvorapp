@@ -33,8 +33,8 @@ cp .env.example .env          # once; placeholders only, never commit .env
 docker compose up --build     # UI + API on http://localhost:8080
 ```
 
-The one-shot `api-migrate` service applies the database migrations before `api` starts; the API
-itself never migrates on startup.
+The one-shot `api-migrate` service applies the database migrations and creates the photo bucket
+(`STORAGE_BUCKET`) before `api` starts; the API itself never migrates on startup.
 
 | Service | Address (loopback only) |
 |---|---|
@@ -57,6 +57,8 @@ export ASPNETCORE_ENVIRONMENT=Development
 export ConnectionStrings__Postgres="Host=localhost;Database=polvorapp;Username=polvorapp;Password=local-only-change-me"
 export Email__SmtpHost=localhost Email__SmtpPort=1025 Email__Security=None
 export Email__From=no-reply@polvorapp.example App__PublicBaseUrl=http://localhost:5173
+export Storage__ServiceUrl=http://localhost:9000 Storage__Bucket=polvorapp-photos
+export Storage__AccessKey=polvorapp Storage__SecretKey=local-only-change-me
 dotnet watch --project backend/src/PolvorApp.Api run --urls http://localhost:5080
 ```
 
@@ -67,6 +69,8 @@ $env:ASPNETCORE_ENVIRONMENT = 'Development'
 $env:ConnectionStrings__Postgres = 'Host=localhost;Database=polvorapp;Username=polvorapp;Password=local-only-change-me'
 $env:Email__SmtpHost = 'localhost'; $env:Email__SmtpPort = '1025'; $env:Email__Security = 'None'
 $env:Email__From = 'no-reply@polvorapp.example'; $env:App__PublicBaseUrl = 'http://localhost:5173'
+$env:Storage__ServiceUrl = 'http://localhost:9000'; $env:Storage__Bucket = 'polvorapp-photos'
+$env:Storage__AccessKey = 'polvorapp'; $env:Storage__SecretKey = 'local-only-change-me'
 dotnet watch --project backend/src/PolvorApp.Api run --urls http://localhost:5080
 ```
 
@@ -81,6 +85,42 @@ UI on <http://localhost:5173>:
 ```bash
 cd frontend && npm ci && npm run dev
 ```
+
+### Object storage (photos)
+
+Photos live in a private S3-compatible bucket (ADR-0005): MinIO locally, any S3-compatible
+provider in an EU region elsewhere. The browser never talks to it; the API streams photos after
+its access checks. Settings (`Storage__*`, validated at startup, values never logged):
+
+| Setting | Meaning |
+|---|---|
+| `Storage__ServiceUrl` | S3 endpoint; https outside `Development` and `Testing`, unless the storage runs on the same machine (loopback) |
+| `Storage__Bucket` | Bucket name; `migrate` creates it when it is missing |
+| `Storage__AccessKey`, `Storage__SecretKey` | Credentials |
+| `Storage__Region` | Signing region, default `us-east-1` |
+| `Storage__ForcePathStyle` | `true` (default) for MinIO and most providers |
+| `Storage__ServerSideEncryption` | `None` (default, rely on bucket encryption) or `Aes256` |
+| `Storage__SweepEnabled` | `true` (default); `false` while restoring backups |
+| `Storage__SweepIntervalMinutes` | Orphan sweep interval, default 60 |
+| `Storage__BootstrapMaxWaitSeconds` | How long `migrate` waits for the storage, default 30 |
+
+Locally the API uses the MinIO **root** credentials from `.env`; that is acceptable only on a
+developer machine. The MinIO console (<http://localhost:9001>, root credentials) shows the stored
+objects. Real environments:
+
+- use a key limited to the bucket (get, put, delete and list objects; create bucket only if
+  `migrate` should create it);
+- turn on encryption at rest, keep the bucket private (no public policy or ACL), and leave
+  **versioning off** (or expire non-current versions within a day): with versioning, a delete
+  only hides a photo, which breaks erasure (BR-14);
+- give every environment its **own bucket**: the orphan sweep deletes objects that the
+  environment's database does not reference;
+- set `Storage__SweepEnabled=false` while restoring the database or the bucket from a backup, and
+  turn it on again once both come from the same point in time.
+
+The sweep refuses (and logs an Error) a run that would delete more than 100 objects and more than
+half of what it scanned, because that looks like a database and a bucket that do not belong
+together.
 
 ### Synthetic seed data
 
@@ -155,7 +195,7 @@ The API image runs one command instead of the web server when given a verb:
 
 | Command | What it does |
 |---|---|
-| `migrate` | Applies every module's migrations (run by the `api-migrate` service). |
+| `migrate` | Applies every module's migrations and creates the storage bucket if it is missing (run by the `api-migrate` service). |
 | `seed` | Creates the synthetic data above (`Development`, `Staging`, `Testing` only). |
 | `create-admin --email <email> --name <name> [--locale es-ES\|ca-ES-valencia\|en]` | Invites the first Admin on a new installation (email with the invitation link). Refused once an Admin can sign in; run again to resend the invitation to the same invited Admin. |
 
@@ -261,7 +301,7 @@ Playwright runs against the compose stack with the synthetic users seeded. The s
 times from one address, so raise the per-address sign-in limits for the run (CI does the same):
 
 ```bash
-RATE_LIMIT_AUTH_PER_MINUTE=300 RATE_LIMIT_AUTH_EMAIL_PER_15_MINUTES=100 docker compose up -d --build --wait
+RATE_LIMIT_AUTH_PER_MINUTE=300 RATE_LIMIT_AUTH_EMAIL_PER_15_MINUTES=100 RATE_LIMIT_PERSONAL_DATA_WRITES_PER_MINUTE=600 docker compose up -d --build --wait
 docker compose run --rm api-seed
 cd frontend && npx playwright install --with-deps chromium firefox webkit   # once
 npm run e2e
