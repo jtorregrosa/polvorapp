@@ -36,6 +36,12 @@ internal sealed record ArquebusierInput(
     DateOnly? TrainingCompletedOn,
     License? License);
 
+/// <summary>The owned-weapon fields as received.</summary>
+internal sealed record OwnedWeaponFields(Guid? WeaponModelId, string? WeaponNumber, string? OwnershipGuideNumber);
+
+/// <summary>Validated owned-weapon fields; the guide number is upper-cased so uniqueness ignores case.</summary>
+internal sealed record OwnedWeaponInput(Guid WeaponModelId, string WeaponNumber, string OwnershipGuideNumber);
+
 /// <summary>
 /// Blocking field rules of the registry (spec: Arquebusier data, National ID validation, Current
 /// license, Training course, Active and Reserve status; design D5). Every invalid field is reported
@@ -245,5 +251,22 @@ internal static class RegistryInput
         }
 
         return type is null || hasDates ? null : new License(type.Value, Pending: true, null, null);
+    }
+
+    /// <summary>Spec "Owned weapons (UC-04)": the model is required, both numbers 1 to 30 characters.</summary>
+    public static (OwnedWeaponInput? Input, IReadOnlyDictionary<string, string> Errors) Read(OwnedWeaponFields fields)
+    {
+        ArgumentNullException.ThrowIfNull(fields);
+        var errors = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (fields.WeaponModelId is null)
+        {
+            errors["weaponModelId"] = InputFields.Required;
+        }
+
+        var weaponNumber = InputFields.Text(fields.WeaponNumber, "weaponNumber", OwnedWeapons.OwnedWeapon.NumberMaxLength, errors);
+        var guide = InputFields.Text(fields.OwnershipGuideNumber, "ownershipGuideNumber", OwnedWeapons.OwnedWeapon.NumberMaxLength, errors);
+        return errors.Count > 0
+            ? (null, errors)
+            : (new OwnedWeaponInput(fields.WeaponModelId!.Value, weaponNumber!, guide!.ToUpperInvariant()), errors);
     }
 }

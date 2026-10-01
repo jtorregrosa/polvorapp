@@ -35,6 +35,7 @@ public sealed partial class RegistryScopeGuardTests(PostgresFixture postgres, Ma
         {
             ["id"] = target.GetProperty("id").GetGuid(),
             ["weaponId"] = weapon.Id,
+            ["modelId"] = model.Id,
         };
 
         var outsider = await registry.Host.CreateUserAsync("jefe.ajeno@example.test", UserRole.FiringChief);
@@ -95,7 +96,7 @@ public sealed partial class RegistryScopeGuardTests(PostgresFixture postgres, Ma
             .Where(e => ArquebusierChild().IsMatch(e.RoutePattern.RawText ?? string.Empty))
             .SelectMany(e => (e.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods ?? ["GET"]).Select(method => new GuardedRoute(
                 method,
-                "/" + e.RoutePattern.RawText!.TrimStart('/'),
+                "/" + e.RoutePattern.RawText!.Trim('/'),
                 e.Metadata.GetOrderedMetadata<IAuthorizeData>().Any(a => a.Policy == AuthorizationPolicies.Admin))))
             .Distinct()
             .OrderBy(r => r.Method == "DELETE")
@@ -124,6 +125,19 @@ public sealed partial class RegistryScopeGuardTests(PostgresFixture postgres, Ma
                 var edit = ArquebusierEditingTests.EditOf(current);
                 edit["phone"] = "+34 6" + Random.Shared.Next(10_000_000, 99_999_999).ToString(System.Globalization.CultureInfo.InvariantCulture);
                 return edit;
+            case "POST /api/arquebusiers/{id:guid}/transfer":
+                return new { comparsaId = registry.Other.Id };
+            case "POST /api/arquebusiers/{id:guid}/owned-weapons":
+                return new { weaponModelId = ids["modelId"], weaponNumber = "1", ownershipGuideNumber = "GUARD-" + Guid.NewGuid().ToString("N")[..8] };
+            case "PUT /api/arquebusiers/{id:guid}/owned-weapons/{weaponId:guid}":
+                var weapon = current.GetProperty("ownedWeapons").EnumerateArray().Single(w => w.GetProperty("id").GetGuid() == ids["weaponId"]);
+                return new
+                {
+                    weaponModelId = ids["modelId"],
+                    weaponNumber = Random.Shared.Next(1, 9999).ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    ownershipGuideNumber = weapon.GetProperty("ownershipGuideNumber").GetString(),
+                    version = weapon.GetProperty("version").GetUInt32(),
+                };
             default:
                 throw new InvalidOperationException($"Teach the guard a valid body for {key}.");
         }

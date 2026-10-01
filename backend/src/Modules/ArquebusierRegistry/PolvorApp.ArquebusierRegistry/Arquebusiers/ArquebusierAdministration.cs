@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using PolvorApp.ArquebusierRegistry.Persistence;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.IdentityAccess.Contracts;
@@ -11,22 +10,21 @@ namespace PolvorApp.ArquebusierRegistry.Arquebusiers;
 /// Writes to arquebusiers (specs: Registering and editing arquebusiers, Federation-wide uniqueness,
 /// Transfer, Deleting; design D5, D10). Every write is scoped to the caller's comparsas (BR-12),
 /// audited in the same transaction without personal values (D7), and backed by the database
-/// constraints when it races with another request. Rejections are logged with ids only (D11).
+/// constraints when it races with another request.
 /// </summary>
-internal sealed partial class ArquebusierAdministration(
+internal sealed class ArquebusierAdministration(
     ArquebusierRegistryDbContext db,
     IComparsaScope scope,
-    ICurrentUser currentUser,
     ICatalogDirectory catalog,
     IAuditTrail trail,
     TimeProvider time,
-    ILogger<ArquebusierAdministration> logger)
+    RegistryWriteGuard guard)
 {
     public const string EntityType = "Arquebusier";
 
     public Task<(RegistryOutcome Outcome, Arquebusier? Arquebusier)> RegisterAsync(
         Guid comparsaId, ArquebusierInput input, CancellationToken cancellationToken) =>
-        GuardedAsync(nameof(RegisterAsync), null, async () =>
+        guard.RunAsync<Arquebusier>(nameof(RegisterAsync), null, null, async () =>
         {
             var access = await scope.GetAccessAsync(cancellationToken);
             if (!access.CanAccess(comparsaId))
@@ -84,7 +82,7 @@ internal sealed partial class ArquebusierAdministration(
     /// </summary>
     public Task<(RegistryOutcome Outcome, Arquebusier? Arquebusier)> UpdateAsync(
         Guid id, ArquebusierInput input, uint version, CancellationToken cancellationToken) =>
-        GuardedAsync(nameof(UpdateAsync), id, async () =>
+        guard.RunAsync<Arquebusier>(nameof(UpdateAsync), id, null, async () =>
         {
             // Resolved before the transaction, so no row lock is held while it queries the scope.
             var access = await scope.GetAccessAsync(cancellationToken);
@@ -124,30 +122,77 @@ internal sealed partial class ArquebusierAdministration(
         });
 
     /// <summary>
-    /// Runs a write, turning a lock timeout (another request holds the row for too long) into the
-    /// retryable <see cref="RegistryOutcome.Busy"/> and logging every rejection with ids only (D11).
+    /// Moves an arquebusier, with their owned weapons, to another active comparsa (UC-29, BR-13).
+    /// Admin-only at the endpoint. The row is locked <c>FOR UPDATE</c>, so no edit or weapon write of
+    /// the previous comparsa's FiringChiefs lands after the move; the foreign key decides a race with
+    /// the deletion of the target.
     /// </summary>
-    private async Task<(RegistryOutcome Outcome, Arquebusier? Arquebusier)> GuardedAsync(
-        string operation, Guid? arquebusierId, Func<Task<(RegistryOutcome Outcome, Arquebusier? Arquebusier)>> write)
-    {
-        (RegistryOutcome Outcome, Arquebusier? Arquebusier) result;
-        try
+    public Task<(RegistryOutcome Outcome, Arquebusier? Arquebusier)> TransferAsync(
+        Guid id, Guid targetComparsaId, CancellationToken cancellationToken) =>
+        guard.RunAsync<Arquebusier>(nameof(TransferAsync), id, null, async () =>
         {
-            result = await write();
-        }
-        catch (Exception exception) when (RegistryLocks.IsLockTimeout(exception))
-        {
-            db.ChangeTracker.Clear();
-            result = (RegistryOutcome.Busy, null);
-        }
+            var access = await scope.GetAccessAsync(cancellationToken);
+            var target = await catalog.FindComparsaAsync(targetComparsaId, cancellationToken);
+            await using var transaction = await db.BeginWriteAsync(cancellationToken);
+            if (!await db.LockArquebusierForUpdateAsync(id, access, cancellationToken))
+            {
+                return (RegistryOutcome.ArquebusierNotFound, null);
+            }
 
-        if (result.Outcome != RegistryOutcome.Done)
-        {
-            LogRejected(logger, operation, result.Outcome, arquebusierId, currentUser.UserId);
-        }
+            var arquebusier = await db.Arquebusiers.SingleAsync(a => a.Id == id, cancellationToken);
+            if (arquebusier.ComparsaId == targetComparsaId)
+            {
+                return (RegistryOutcome.SameComparsa, null);
+            }
 
-        return result;
-    }
+            if (target is null || !access.CanAccess(targetComparsaId))
+            {
+                return (RegistryOutcome.ComparsaNotFound, null);
+            }
+
+            if (!target.Active)
+            {
+                return (RegistryOutcome.ComparsaInactive, null);
+            }
+
+            // Recorded under the previous comparsa, with both ids, before the move.
+            Record("ArquebusierTransferred", arquebusier, new { fromComparsaId = arquebusier.ComparsaId, toComparsaId = targetComparsaId });
+            arquebusier.ComparsaId = targetComparsaId;
+            var outcome = await SaveAsync(id, versioned: true, cancellationToken);
+            if (outcome != RegistryOutcome.Done)
+            {
+                return (outcome, null);
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+            return (RegistryOutcome.Done, arquebusier);
+        });
+
+    /// <summary>
+    /// Deletes an arquebusier who left the Federation, with their owned weapons (UC-05, BR-14). The
+    /// audit entry keeps only the count of weapons removed, so no personal data remains. Later changes
+    /// extend this: photos (#6) and the anonymisation of past edition entries (#10).
+    /// </summary>
+    public Task<(RegistryOutcome Outcome, Arquebusier? Arquebusier)> DeleteAsync(Guid id, CancellationToken cancellationToken) =>
+        guard.RunAsync<Arquebusier>(nameof(DeleteAsync), id, null, async () =>
+        {
+            var access = await scope.GetAccessAsync(cancellationToken);
+            await using var transaction = await db.BeginWriteAsync(cancellationToken);
+            if (!await db.LockArquebusierForUpdateAsync(id, access, cancellationToken))
+            {
+                return (RegistryOutcome.ArquebusierNotFound, null);
+            }
+
+            var arquebusier = await db.Arquebusiers.SingleAsync(a => a.Id == id, cancellationToken);
+            var ownedWeaponCount = await db.OwnedWeapons.CountAsync(w => w.ArquebusierId == id, cancellationToken);
+
+            // The owned weapons go with the row (ON DELETE CASCADE).
+            db.Arquebusiers.Remove(arquebusier);
+            Record("ArquebusierDeleted", arquebusier, new { ownedWeaponCount });
+            await db.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+            return (RegistryOutcome.Done, arquebusier);
+        });
 
     /// <summary>The names of the fields an edit changes, in a stable order; the values are never recorded (D7).</summary>
     private static List<string> ChangedFields(Arquebusier current, ArquebusierInput input)
@@ -225,7 +270,7 @@ internal sealed partial class ArquebusierAdministration(
             && OutcomeOf(constraint) is { } outcome)
         {
             db.ChangeTracker.Clear();
-            LogLostRace(logger, arquebusierId, constraint);
+            guard.LostRace(arquebusierId, constraint);
             return outcome;
         }
     }
@@ -243,10 +288,4 @@ internal sealed partial class ArquebusierAdministration(
     /// <summary>Audit entries name what changed, never personal values (design D7).</summary>
     private void Record(string action, Arquebusier arquebusier, object? data = null) =>
         trail.Record(db, new AuditRecord(action, EntityType, arquebusier.Id.ToString(), data, ComparsaId: arquebusier.ComparsaId));
-
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Registry {Operation} rejected with {Outcome} for arquebusier {ArquebusierId} by user {UserId}")]
-    private static partial void LogRejected(ILogger logger, string operation, RegistryOutcome outcome, Guid? arquebusierId, Guid? userId);
-
-    [LoggerMessage(Level = LogLevel.Information, Message = "Registry write for arquebusier {ArquebusierId} lost a race on {Constraint}")]
-    private static partial void LogLostRace(ILogger logger, Guid arquebusierId, string constraint);
 }

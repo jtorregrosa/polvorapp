@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PolvorApp.ArquebusierRegistry.Arquebusiers;
 using PolvorApp.ArquebusierRegistry.Endpoints;
+using PolvorApp.ArquebusierRegistry.OwnedWeapons;
 using PolvorApp.ArquebusierRegistry.Persistence;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.SharedKernel.Modules;
@@ -28,10 +29,16 @@ public sealed class ArquebusierRegistryModule : IModule
 
         // One of possibly several vetoes the catalog asks before a deletion: added, never replaced.
         services.AddScoped<ICatalogUsage, RegistryCatalogUsage>();
+        services.AddScoped<RegistryWriteGuard>();
         services.AddScoped<ArquebusierAdministration>();
+        services.AddScoped<OwnedWeaponAdministration>();
         services.AddScoped<ArquebusierViews>();
         services.AddScoped<ArquebusierQueries>();
     }
 
-    public void MapEndpoints(IEndpointRouteBuilder endpoints) => endpoints.MapArquebusierEndpoints();
+    public void MapEndpoints(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapArquebusierEndpoints();
+        endpoints.MapOwnedWeaponEndpoints();
+    }
 }

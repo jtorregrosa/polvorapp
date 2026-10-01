@@ -42,20 +42,35 @@ public sealed class RegistryHardeningTests(PostgresFixture postgres, MailpitFixt
     }
 
     [Fact]
+    public async Task Two_weapons_with_the_same_guide_added_at_once_store_one()
+    {
+        BarrierAuditTrail barrier = null!;
+        await using var registry = await RegistryTestHost.StartAsync(
+            postgres, mailpit, services => barrier = BarrierAuditTrail.Decorate(services, "OwnedWeaponAdded", parties: 2));
+        var model = RegistryData.NewWeaponModel("ARCABUZ SINTÉTICO CARRERA");
+        await registry.Services.SaveCatalogAsync(model);
+        var owners = new[] { await registry.RegisterAsync(registry.Own.Id), await registry.RegisterAsync(registry.Other.Id) };
+
+        var responses = await Task.WhenAll(owners.Select(owner => registry.Admin.PostAsJsonAsync(
+            $"/api/arquebusiers/{owner.GetProperty("id").GetGuid()}/owned-weapons",
+            new { weaponModelId = model.Id, weaponNumber = "1", ownershipGuideNumber = "SINT-RACE" },
+            TestContext.Current.CancellationToken)));
+
+        Assert.Equal(2, barrier.Arrived);
+        Assert.Single(responses, r => r.StatusCode == HttpStatusCode.Created);
+        await AssertProblemAsync(Assert.Single(responses, r => r.StatusCode != HttpStatusCode.Created), HttpStatusCode.Conflict, "ownedWeapons.guideTaken");
+    }
+
+    [Fact]
     public async Task A_comparsa_deleted_between_the_catalog_lookup_and_the_insert_is_not_found()
     {
-        DeletingCatalogDirectory directory = null!;
-        await using var registry = await RegistryTestHost.StartAsync(postgres, mailpit, services =>
-        {
-            var original = services.Last(d => d.ServiceType == typeof(ICatalogDirectory));
-            services.Remove(original);
-            services.AddScoped<ICatalogDirectory>(provider => directory = new DeletingCatalogDirectory(
-                (ICatalogDirectory)ActivatorUtilities.CreateInstance(provider, original.ImplementationType!), provider));
-        });
+        DeletingCatalogDirectory deleting = null!;
+        await using var registry = await RegistryTestHost.StartAsync(postgres, mailpit, services => deleting = DeletingCatalogDirectory.Decorate(services));
+        deleting.Target = registry.Own.Id;
 
         using var response = await registry.Admin.PostAsync("/api/arquebusiers", RegistryTestHost.NewArquebusier(registry.Own.Id));
 
-        Assert.True(directory.Deleted);
+        Assert.True(deleting.Deleted);
         await AssertProblemAsync(response, HttpStatusCode.NotFound, "arquebusiers.comparsaNotFound");
     }
 
@@ -216,30 +231,5 @@ public sealed class RegistryHardeningTests(PostgresFixture postgres, MailpitFixt
     {
         var detail = await ReadAsync<JsonElement>(await client.GetAsync($"/api/arquebusiers/{id}", TestContext.Current.CancellationToken));
         return detail.GetProperty("license").GetProperty("status").GetString();
-    }
-
-    /// <summary>Deletes the comparsa right after answering that it exists and is active: the race of design D10.</summary>
-    private sealed class DeletingCatalogDirectory(ICatalogDirectory inner, IServiceProvider services) : ICatalogDirectory
-    {
-        public bool Deleted { get; private set; }
-
-        public async Task<ComparsaSummary?> FindComparsaAsync(Guid comparsaId, CancellationToken cancellationToken)
-        {
-            var comparsa = await inner.FindComparsaAsync(comparsaId, cancellationToken);
-            await using var scope = services.CreateAsyncScope();
-            var db = scope.ServiceProvider.GetRequiredService<FederationCatalogDbContext>();
-            await db.Assignments.Where(a => a.ComparsaId == comparsaId).ExecuteDeleteAsync(cancellationToken);
-            Deleted = await db.Comparsas.Where(c => c.Id == comparsaId).ExecuteDeleteAsync(cancellationToken) == 1;
-            return comparsa;
-        }
-
-        public Task<IReadOnlyList<ComparsaSummary>> FindComparsasAsync(IReadOnlyCollection<Guid> comparsaIds, CancellationToken cancellationToken) =>
-            inner.FindComparsasAsync(comparsaIds, cancellationToken);
-
-        public Task<WeaponModelSummary?> FindWeaponModelAsync(Guid weaponModelId, CancellationToken cancellationToken) =>
-            inner.FindWeaponModelAsync(weaponModelId, cancellationToken);
-
-        public Task<IReadOnlyList<WeaponModelSummary>> FindWeaponModelsAsync(IReadOnlyCollection<Guid> weaponModelIds, CancellationToken cancellationToken) =>
-            inner.FindWeaponModelsAsync(weaponModelIds, cancellationToken);
     }
 }

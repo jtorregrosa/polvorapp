@@ -39,8 +39,10 @@ internal static class RegistryLocks
         LockAsync(db, id, access, RowLock.Update, cancellationToken);
 
     /// <summary>
-    /// For an edit that keeps the key: <c>FOR NO KEY UPDATE</c> serialises edits and conflicts with a
-    /// transfer or deletion, but not with owned-weapon writes (which share the key).
+    /// For an edit: <c>FOR NO KEY UPDATE</c> serialises edits and conflicts with a transfer or
+    /// deletion, but not with owned-weapon writes (which share the key). An edit of a unique column
+    /// (nationalId, federationId) is a key update for PostgreSQL: its UPDATE then waits for in-flight
+    /// weapon writes, at worst until the lock timeout (503). There is no cycle, so no deadlock.
     /// </summary>
     public static Task<bool> LockArquebusierForChangeAsync(this ArquebusierRegistryDbContext db, Guid id, ComparsaAccess access, CancellationToken cancellationToken) =>
         LockAsync(db, id, access, RowLock.NoKeyUpdate, cancellationToken);
@@ -53,10 +55,13 @@ internal static class RegistryLocks
     public static Task<bool> LockArquebusierForKeyShareAsync(this ArquebusierRegistryDbContext db, Guid id, ComparsaAccess access, CancellationToken cancellationToken) =>
         LockAsync(db, id, access, RowLock.KeyShare, cancellationToken);
 
-    /// <summary>Whether <paramref name="exception"/> is PostgreSQL giving up on a lock after the timeout.</summary>
-    public static bool IsLockTimeout(Exception exception) =>
-        exception is PostgresException { SqlState: PostgresErrorCodes.LockNotAvailable }
-        || exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.LockNotAvailable };
+    /// <summary>
+    /// Whether <paramref name="exception"/> is PostgreSQL giving up on a lock after the timeout, or
+    /// aborting one side of a deadlock (two edits swapping unique values): both are worth a retry.
+    /// </summary>
+    public static bool IsRetryable(Exception exception) =>
+        (exception as PostgresException ?? exception.InnerException as PostgresException)?.SqlState
+            is PostgresErrorCodes.LockNotAvailable or PostgresErrorCodes.DeadlockDetected;
 
     private static async Task<bool> LockAsync(
         ArquebusierRegistryDbContext db, Guid id, ComparsaAccess access, RowLock mode, CancellationToken cancellationToken)

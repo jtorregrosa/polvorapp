@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using PolvorApp.ArquebusierRegistry.Arquebusiers;
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.SharedKernel.Http;
 using PolvorApp.SharedKernel.Security;
 using PolvorApp.SharedKernel.Time;
@@ -45,6 +46,17 @@ internal static class ArquebusierEndpoints
             .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict)
             .RequireRateLimiting(RateLimitPolicies.PersonalDataWrites).ProducesProblem(StatusCodes.Status429TooManyRequests)
             .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
+        group.MapPost("/{id:guid}/transfer", TransferAsync).WithName("TransferArquebusier")
+            .WithSummary("Moves an arquebusier and their owned weapons to another active comparsa (Admin only).")
+            .RequireAuthorization(AuthorizationPolicies.Admin)
+            .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status503ServiceUnavailable)
+            .RequireRateLimiting(RateLimitPolicies.PersonalDataWrites).ProducesProblem(StatusCodes.Status429TooManyRequests);
+        group.MapDelete("/{id:guid}", DeleteAsync).WithName("DeleteArquebusier")
+            .WithSummary("Deletes an arquebusier who left the Federation, with their owned weapons; it cannot be undone.")
+            .ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status503ServiceUnavailable)
+            .RequireRateLimiting(RateLimitPolicies.PersonalDataWrites).ProducesProblem(StatusCodes.Status429TooManyRequests);
         return endpoints;
     }
 
@@ -112,6 +124,25 @@ internal static class ArquebusierEndpoints
             (RegistryOutcome.Done, { } arquebusier) => TypedResults.Ok(await views.DetailAsync(arquebusier, cancellationToken)),
             var (outcome, _) => RegistryProblems.From(outcome),
         };
+    }
+
+    private static async Task<Results<NoContent, ProblemHttpResult>> TransferAsync(
+        Guid id, TransferArquebusierRequest request, ArquebusierAdministration administration, CancellationToken cancellationToken)
+    {
+        if (request.ComparsaId is not { } comparsaId)
+        {
+            return ProblemResults.Invalid(new Dictionary<string, string> { ["comparsaId"] = InputFields.Required });
+        }
+
+        var (outcome, _) = await administration.TransferAsync(id, comparsaId, cancellationToken);
+        return outcome == RegistryOutcome.Done ? TypedResults.NoContent() : RegistryProblems.From(outcome);
+    }
+
+    private static async Task<Results<NoContent, ProblemHttpResult>> DeleteAsync(
+        Guid id, ArquebusierAdministration administration, CancellationToken cancellationToken)
+    {
+        var (outcome, _) = await administration.DeleteAsync(id, cancellationToken);
+        return outcome == RegistryOutcome.Done ? TypedResults.NoContent() : RegistryProblems.From(outcome);
     }
 
     private static bool TryRead(

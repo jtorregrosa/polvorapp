@@ -18,6 +18,9 @@ internal enum RegistryOutcome
     FederationIdTaken,
     ArquebusierModified,
     OwnedWeaponNotFound,
+
+    /// <summary>The chosen weapon model does not exist: a field error (400 weaponModelId: notFound).</summary>
+    WeaponModelNotFound,
     WeaponModelInactive,
     OwnershipGuideTaken,
     OwnedWeaponModified,
@@ -52,6 +55,7 @@ internal static class RegistryProblems
         RegistryOutcome.FederationIdTaken => ProblemResults.Conflict(FederationIdTaken),
         RegistryOutcome.ArquebusierModified => ProblemResults.Conflict(ArquebusierModified),
         RegistryOutcome.OwnedWeaponNotFound => ProblemResults.NotFound(OwnedWeaponNotFound),
+        RegistryOutcome.WeaponModelNotFound => ProblemResults.Invalid(new Dictionary<string, string> { ["weaponModelId"] = "notFound" }),
         RegistryOutcome.WeaponModelInactive => ProblemResults.Conflict(WeaponModelInactive),
         RegistryOutcome.OwnershipGuideTaken => ProblemResults.Conflict(OwnershipGuideTaken),
         RegistryOutcome.OwnedWeaponModified => ProblemResults.Conflict(OwnedWeaponModified),
