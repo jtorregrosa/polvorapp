@@ -239,6 +239,9 @@ async function register(
   const { id } = (await response.json()) as { id: string };
   deleteAfter(id);
   await expect(page).toHaveURL(new RegExp(`/arquebusiers/${id}$`));
+  // Let the detail page finish loading: navigating away mid-request aborts its fetches, which
+  // WebKit reports as access-control errors.
+  await waitForShell(page);
   return { id, lastName: identity.lastName };
 }
 
