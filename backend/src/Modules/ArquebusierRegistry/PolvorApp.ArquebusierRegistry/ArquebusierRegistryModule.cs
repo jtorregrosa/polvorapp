@@ -6,9 +6,11 @@ using PolvorApp.ArquebusierRegistry.Arquebusiers;
 using PolvorApp.ArquebusierRegistry.Endpoints;
 using PolvorApp.ArquebusierRegistry.OwnedWeapons;
 using PolvorApp.ArquebusierRegistry.Persistence;
+using PolvorApp.ArquebusierRegistry.Seeding;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.SharedKernel.Modules;
 using PolvorApp.SharedKernel.Persistence;
+using PolvorApp.SharedKernel.Seeding;
 
 namespace PolvorApp.ArquebusierRegistry;
 
@@ -32,6 +34,7 @@ public sealed class ArquebusierRegistryModule : IModule
         services.AddScoped<RegistryWriteGuard>();
         services.AddScoped<ArquebusierAdministration>();
         services.AddScoped<OwnedWeaponAdministration>();
+        services.AddScoped<IDataSeeder, RegistrySeeder>();
         services.AddScoped<ArquebusierViews>();
         services.AddScoped<ArquebusierQueries>();
     }

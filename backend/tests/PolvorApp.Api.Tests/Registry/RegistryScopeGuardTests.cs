@@ -123,7 +123,7 @@ public sealed partial class RegistryScopeGuardTests(PostgresFixture postgres, Ma
         {
             case "PUT /api/arquebusiers/{id:guid}":
                 var edit = ArquebusierEditingTests.EditOf(current);
-                edit["phone"] = "+34 6" + Random.Shared.Next(10_000_000, 99_999_999).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                edit["phone"] = "+34 600 000 " + Random.Shared.Next(100, 999).ToString(System.Globalization.CultureInfo.InvariantCulture);
                 return edit;
             case "POST /api/arquebusiers/{id:guid}/transfer":
                 return new { comparsaId = registry.Other.Id };
