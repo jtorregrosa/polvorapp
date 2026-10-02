@@ -28,7 +28,9 @@ namespace PolvorApp.ArquebusierRegistry.Seeding;
 /// The phones are in the Spanish mobile range (there is no reserved fictional range): PolvorApp never
 /// calls or messages them. Some arquebusiers get generated placeholder photos (flat shapes, no faces or
 /// text; add-arquebusier-photos, design D10), stored through the same normaliser as uploads; a photo
-/// whose image went missing from the storage is stored again.
+/// whose image went missing from the storage is stored again. Together the arquebusiers show every
+/// compliance warning (add-compliance-insights, design D9), including an expiring license and an
+/// arquebusier under 18, on a freshly seeded database; existing rows are never refreshed.
 /// </summary>
 internal sealed partial class RegistrySeeder(
     ArquebusierRegistryDbContext db,
@@ -59,6 +61,10 @@ internal sealed partial class RegistrySeeder(
         new(11, Este, "Arcabucero", "Sintético Once", Gender.Male, ArquebusierStatus.Active, LicenseSeed.None, Course: false),
         new(12, Este, "Arcabucera", "Sintética Doce", Gender.Unspecified, ArquebusierStatus.Reserve, LicenseSeed.Valid, Course: true),
         new(13, Oeste, "Arcabucero", "Sintético Trece", Gender.Male, ArquebusierStatus.Reserve, LicenseSeed.Expired, Course: true),
+
+        // Under 18, with a license expiring within 12 months, no course and no ID photo: four warnings
+        // (change add-compliance-insights, design D9).
+        new(14, Norte, "Arcabucera", "Sintética Catorce", Gender.Female, ArquebusierStatus.Active, LicenseSeed.Expiring, Course: false, AgeYears: 16),
     ];
 
     /// <summary>Owner number, catalogue model number (see the catalogue seeder) and guide number.</summary>
@@ -76,6 +82,13 @@ internal sealed partial class RegistrySeeder(
     [
         .. new[] { 1, 2, 3, 6, 7, 10, 12 }.Select(owner => (owner, ArquebusierPhotoKind.Id)),
         .. new[] { 1, 2, 6 }.SelectMany(owner => new[] { (owner, ArquebusierPhotoKind.LicenseFront), (owner, ArquebusierPhotoKind.LicenseBack) }),
+
+        // An issued license with only its front photo: the LICENSE_PHOTOS_MISSING warning.
+        (7, ArquebusierPhotoKind.LicenseFront),
+
+        // License photos but no ID photo (design D9).
+        (14, ArquebusierPhotoKind.LicenseFront),
+        (14, ArquebusierPhotoKind.LicenseBack),
     ];
 
     private enum LicenseSeed
@@ -84,6 +97,7 @@ internal sealed partial class RegistrySeeder(
         Pending,
         Valid,
         ValidProf,
+        Expiring,
         Expired,
     }
 
@@ -304,9 +318,10 @@ internal sealed partial class RegistrySeeder(
     /// <param name="License">Which license state the arquebusier has.</param>
     /// <param name="Course">Whether the course is done.</param>
     /// <param name="Nie">An NIE (X prefix) instead of a DNI.</param>
+    /// <param name="AgeYears">A fixed age on the seed day; otherwise 20 + Number years.</param>
     private sealed record ArquebusierSeed(
         int Number, Guid ComparsaId, string FirstName, string LastName, Gender Gender, ArquebusierStatus Status,
-        LicenseSeed License, bool Course, bool Nie = false)
+        LicenseSeed License, bool Course, bool Nie = false, int? AgeYears = null)
     {
         private const string Letters = "TRWAGMYFPDXBNJZSQVHLCKE";
 
@@ -331,7 +346,7 @@ internal sealed partial class RegistrySeeder(
                 NationalId = NationalId,
                 FirstName = FirstName,
                 LastName = LastName,
-                BirthDate = today.AddYears(-20 - Number).AddDays(-Number * 7),
+                BirthDate = today.AddYears(-(AgeYears ?? 20 + Number)).AddDays(-Number * 7),
                 Email = Number % 4 == 0 ? null : $"arcabucero.{Number:D2}@polvorapp.example",
                 Phone = Number % 3 == 0 ? null : $"+34 600 000 {Number:D3}",
                 Gender = Gender,
@@ -344,6 +359,7 @@ internal sealed partial class RegistrySeeder(
                 LicenseSeed.Pending => (LicenseType.Ae, true, (DateOnly?)null, (DateOnly?)null),
                 LicenseSeed.Valid => (LicenseType.Ae, false, today.AddYears(-1), today.AddYears(4)),
                 LicenseSeed.ValidProf => (LicenseType.AProf, false, today.AddMonths(-2), today.AddMonths(10)),
+                LicenseSeed.Expiring => (LicenseType.Ae, false, today.AddMonths(3).AddYears(-5), today.AddMonths(3)),
                 LicenseSeed.Expired => (LicenseType.Ae, false, today.AddYears(-6), today.AddYears(-1)),
                 _ => ((LicenseType?)null, false, (DateOnly?)null, (DateOnly?)null),
             };
