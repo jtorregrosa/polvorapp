@@ -36,7 +36,7 @@ describe('NotFoundPage', () => {
 
     await user.click(screen.getByRole('link', { name: 'Volver al inicio' }));
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Bienvenida' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Inicio' })).toBeInTheDocument();
   });
 
   it('has no accessibility violations', async () => {

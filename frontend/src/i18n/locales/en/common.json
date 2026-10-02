@@ -18,15 +18,8 @@
     }
   },
   "home": {
-    "title": "Welcome",
-    "description": "Arquebusier management portal of the Federation.",
-    "sectionsTitle": "What you can do",
-    "sections": {
-      "arquebusiers": "Registrations, licenses, courses, photos and owned weapons of the arquebusiers.",
-      "comparsas": "The comparsas and their firing chiefs.",
-      "weapon-models": "The catalogue of weapon models.",
-      "users": "Users, invitations and permissions."
-    }
+    "title": "Home",
+    "description": "What needs attention among the arquebusiers: compliance warnings and the next license expiries."
   },
   "notFound": {
     "title": "Page not found",
@@ -42,10 +35,13 @@
   "nav": {
     "home": "Home",
     "arquebusiers": "Arquebusiers",
+    "statistics": "Statistics",
     "comparsas": "Comparsas",
     "weaponModels": "Weapon models",
     "users": "Users",
-    "account": "My account"
+    "account": "My account",
+    "warningCount_one": "{{count}} with a warning",
+    "warningCount_other": "{{count}} with warnings"
   },
   "forbidden": {
     "title": "Access denied",

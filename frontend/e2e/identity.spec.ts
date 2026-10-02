@@ -43,7 +43,7 @@ test.describe('identity and access', () => {
     await user.getByLabel(/^Contraseña/).fill(account.password);
     await user.getByRole('button', { name: 'Continuar' }).click();
 
-    await expect(user.getByRole('heading', { level: 1, name: 'Bienvenida' })).toBeVisible();
+    await expect(user.getByRole('heading', { level: 1, name: 'Inicio' })).toBeVisible();
     await expect(user).toHaveURL('/');
     await context.close();
   });

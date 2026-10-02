@@ -18,15 +18,8 @@
     }
   },
   "home": {
-    "title": "Benvinguda",
-    "description": "Portal de gestió d'arcabussers de la Federació.",
-    "sectionsTitle": "Què pots fer",
-    "sections": {
-      "arquebusiers": "Altes, llicències, cursos, fotos i armes pròpies dels arcabussers.",
-      "comparsas": "Les comparses i els seus caps de disparada.",
-      "weapon-models": "El catàleg de models d’arma.",
-      "users": "Usuaris, invitacions i permisos."
-    }
+    "title": "Inici",
+    "description": "El que necessita atenció en els arcabussers: avisos de compliment i pròximes caducitats."
   },
   "notFound": {
     "title": "No s'ha trobat la pàgina",
@@ -42,10 +35,13 @@
   "nav": {
     "home": "Inici",
     "arquebusiers": "Arcabussers",
+    "statistics": "Estadístiques",
     "comparsas": "Comparses",
     "weaponModels": "Models d'arma",
     "users": "Usuaris",
-    "account": "El meu compte"
+    "account": "El meu compte",
+    "warningCount_one": "{{count}} amb avís",
+    "warningCount_other": "{{count}} amb avisos"
   },
   "forbidden": {
     "title": "Accés no permés",
