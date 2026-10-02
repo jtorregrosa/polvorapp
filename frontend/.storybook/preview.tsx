@@ -93,7 +93,11 @@ const preview: Preview = {
   initialGlobals: { locale: 'es-ES', theme: 'light' },
   parameters: {
     layout: 'fullscreen',
-    a11y: { test: 'error' },
+    // WCAG 2.2 A/AA (NFR-07), the same tags as src/test/axe.ts and e2e/fixtures.ts.
+    a11y: {
+      test: 'error',
+      options: { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] } },
+    },
   },
 };
 

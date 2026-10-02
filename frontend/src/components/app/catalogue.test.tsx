@@ -10,14 +10,21 @@ import { axeViolations } from '@/test/axe';
 import preview from '../../../.storybook/preview';
 
 // Spec: Component catalogue. Every composite has stories, and every story renders in the three UI
-// languages and both themes without automatically detectable WCAG 2.1 A/AA violations. jsdom has
+// languages and both themes without automatically detectable WCAG 2.2 A/AA violations. jsdom has
 // no layout, so axe cannot measure colour contrast here: contrast is verified on the tokens
 // (src/styles/contrast.test.ts) and in the browser by the Playwright axe checks.
 
 const THEMES = ['light', 'dark'] as const;
 
 /** Files in this folder that are not composites and need no stories (add helpers here). */
-const NOT_COMPOSITES = new Set(['status.ts', 'navigation-match.ts', 'confirm-failure.ts', 'photo-image.ts']);
+const NOT_COMPOSITES = new Set([
+  'status.ts',
+  'navigation-match.ts',
+  'confirm-failure.ts',
+  'photo-image.ts',
+  'use-app-form.ts',
+  'save-notice.ts',
+]);
 
 /** A text that is a translation key left untranslated, e.g. `status.license.VALID`. */
 const RAW_KEY = /^[a-z][A-Za-z]*(?:\.[A-Za-z0-9_]+)+$/;

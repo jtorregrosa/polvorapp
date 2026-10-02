@@ -1,4 +1,15 @@
-import { ImageOff, RotateCcw, RotateCw } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+  ImageOff,
+  Minus,
+  Plus,
+  RotateCcw,
+  RotateCw,
+  type LucideIcon,
+} from 'lucide-react';
 import { useEffect, useId, useRef, useState, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactCrop, { centerCrop, makeAspectCrop, type PercentCrop } from 'react-image-crop';
@@ -11,6 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Button as ButtonPrimitive } from '@/components/ui/button';
 import { AlertBanner } from './AlertBanner';
 import { Button } from './Button';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -137,6 +149,41 @@ function initialCrop(image: LoadedImage, aspect: number | undefined): PercentCro
   );
 }
 
+/** One press of a crop button moves or resizes the crop by this share of the image (SC 2.5.7). */
+const CROP_STEP_PERCENT = 5;
+/** The crop never gets smaller than this share of the image's width. */
+const MIN_CROP_PERCENT = 10;
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+/** The crop moved by a step, kept inside the image. */
+function moveCrop(crop: PercentCrop, dx: number, dy: number): PercentCrop {
+  return {
+    ...crop,
+    x: clamp(crop.x + dx * CROP_STEP_PERCENT, 0, 100 - crop.width),
+    y: clamp(crop.y + dy * CROP_STEP_PERCENT, 0, 100 - crop.height),
+  };
+}
+
+/**
+ * The crop made a step larger or smaller around its centre, keeping a fixed shape when the screen
+ * asks for one, and kept inside the image.
+ */
+function resizeCrop(crop: PercentCrop, direction: 1 | -1, image: LoadedImage, aspect?: number): PercentCrop {
+  // In percentages a fixed shape is not 1:1: height % = width % × image width / (aspect × image height).
+  const ratio = aspect ? image.width / (aspect * image.height) : crop.height / crop.width;
+  const widest = Math.min(100, 100 / ratio);
+  const width = clamp(crop.width + direction * CROP_STEP_PERCENT, MIN_CROP_PERCENT, widest);
+  const height = width * ratio;
+  return {
+    unit: '%',
+    width,
+    height,
+    x: clamp(crop.x + (crop.width - width) / 2, 0, 100 - width),
+    y: clamp(crop.y + (crop.height - height) / 2, 0, 100 - height),
+  };
+}
+
 /** The translation key for why a chosen file could not be opened. */
 function loadProblem(
   error: unknown,
@@ -183,6 +230,7 @@ export function PhotoUpload({
 
   // Images decoded after the control went away are released at once.
   const mounted = useRef(true);
+  const previewRequest = useRef(0);
   useEffect(() => {
     mounted.current = true;
     return () => {
@@ -209,12 +257,16 @@ export function PhotoUpload({
 
   /** Shows the cropped result before it is used (spec: preview the result before confirming). */
   const showPreview = async (source: LoadedImage, region: PercentCrop) => {
+    const request = ++previewRequest.current;
     try {
       const next = await previewOf(source, toPixels(region, source), PREVIEW_WIDTH);
-      if (mounted.current) setPreview(next);
+      // A quicker later request may have answered first: only the latest crop is shown.
+      if (mounted.current && request === previewRequest.current) setPreview(next);
       else releaseImage(next);
     } catch {
-      // A missing preview does not stop the crop; "Use photo" reports real failures.
+      // A missing preview does not stop the crop; "Use photo" reports real failures. An old
+      // preview must not stay as if it matched the new crop.
+      if (mounted.current && request === previewRequest.current) setPreview(undefined);
     }
   };
 
@@ -255,6 +307,31 @@ export function PhotoUpload({
     setCrop(start);
     void showPreview(loaded, start);
   };
+
+  const adjustCrop = (change: (current: PercentCrop, source: LoadedImage) => PercentCrop) => {
+    if (!image || !crop) return;
+    const next = change(crop, image);
+    setCrop(next);
+    setCropProblem(undefined);
+    void showPreview(image, next);
+  };
+
+  const cropTools: {
+    id: string;
+    icon: LucideIcon;
+    change: (current: PercentCrop, source: LoadedImage) => PercentCrop;
+  }[] = [
+    { id: 'up', icon: ArrowUp, change: (current) => moveCrop(current, 0, -1) },
+    { id: 'down', icon: ArrowDown, change: (current) => moveCrop(current, 0, 1) },
+    { id: 'left', icon: ArrowLeft, change: (current) => moveCrop(current, -1, 0) },
+    { id: 'right', icon: ArrowRight, change: (current) => moveCrop(current, 1, 0) },
+    {
+      id: 'smaller',
+      icon: Minus,
+      change: (current, source) => resizeCrop(current, -1, source, rules.aspect),
+    },
+    { id: 'larger', icon: Plus, change: (current, source) => resizeCrop(current, 1, source, rules.aspect) },
+  ];
 
   const rotate = async (direction: 1 | -1) => {
     if (!image) return;
@@ -331,11 +408,13 @@ export function PhotoUpload({
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      {/* Long labels ("Replace front of the license") wrap inside narrow columns (WCAG 1.4.10). */}
+      <div className="flex min-w-0 flex-wrap gap-2">
         <Button
           ref={chooseButton}
           type="button"
           variant="secondary"
+          className="h-auto min-h-control max-w-full py-2 text-left whitespace-normal"
           pending={opening}
           disabled={disabled}
           aria-describedby={disabled && disabledHint ? hintId : undefined}
@@ -352,7 +431,12 @@ export function PhotoUpload({
             // The remove action goes away with the photo: focus the add action instead (WCAG 2.4.3).
             onConfirmed={() => chooseButton.current?.focus()}
             trigger={
-              <Button type="button" variant="quiet" disabled={disabled}>
+              <Button
+                type="button"
+                variant="quiet"
+                disabled={disabled}
+                className="h-auto min-h-control max-w-full py-2 text-left whitespace-normal"
+              >
                 {t('photoUpload.remove', { label })}
               </Button>
             }
@@ -446,12 +530,33 @@ export function PhotoUpload({
               )}
             </div>
           )}
+          {image && (
+            // Moving and resizing without dragging (SC 2.5.7); the arrow keys also work on the crop.
+            <div role="group" aria-label={t('photoUpload.cropTools.label')} className="flex flex-wrap gap-1">
+              {cropTools.map(({ id, icon: Icon, change }) => (
+                <ButtonPrimitive
+                  key={id}
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  disabled={working}
+                  aria-label={t(`photoUpload.cropTools.${id}` as 'photoUpload.cropTools.up')}
+                  title={t(`photoUpload.cropTools.${id}` as 'photoUpload.cropTools.up')}
+                  onClick={() => {
+                    adjustCrop(change);
+                  }}
+                >
+                  <Icon aria-hidden="true" />
+                </ButtonPrimitive>
+              ))}
+            </div>
+          )}
           {cropProblem && <AlertBanner severity="error">{cropProblem}</AlertBanner>}
           {/* Inside the dialog: the page behind it is hidden from screen readers while it is open. */}
           <p role="status" className="sr-only">
             {uploading ? t('photoUpload.uploading') : ''}
           </p>
-          <DialogFooter className="flex-col flex-wrap gap-2 sm:flex-row sm:justify-between">
+          <DialogFooter className="flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-between">
             <div className="flex flex-wrap gap-2">
               <Button
                 type="button"

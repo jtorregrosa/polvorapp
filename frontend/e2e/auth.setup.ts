@@ -8,10 +8,13 @@ import { ADMIN_STATE, FIRING_CHIEF_STATE, SEEDED, signIn, type Account } from '.
 async function saveSession(page: import('@playwright/test').Page, account: Account, path: string) {
   await signIn(page, account);
   // Sign-in applies the user's preferred language; the specs expect Spanish, so make it the preference again.
-  const language = page.getByRole('combobox', { name: /^(Idioma|Language)$/ });
-  if ((await language.inputValue()) !== 'es-ES') {
+  if ((await page.locator('html').getAttribute('lang')) !== 'es-ES') {
     const saved = page.waitForResponse('**/api/account/locale');
-    await language.selectOption('es-ES');
+    await page
+      .getByRole('banner')
+      .getByRole('button', { name: /^(Menú de|Menu for) / })
+      .click();
+    await page.getByRole('menuitemradio', { name: 'Español' }).click();
     expect((await saved).ok()).toBe(true);
   }
   // Leave the UI language to each spec's browser locale.

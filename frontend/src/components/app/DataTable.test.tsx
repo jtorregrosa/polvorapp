@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { axeViolations } from '@/test/axe';
 import { renderWithProviders } from '@/test/render';
+import { createMemoryRouter, Link, RouterProvider } from 'react-router';
 import { DataTable, type DataTableColumn } from './DataTable';
 
 // Synthetic data only.
@@ -296,5 +297,133 @@ describe('DataTable', () => {
     );
 
     expect(await axeViolations(container)).toEqual([]);
+  });
+});
+
+describe('DataTable rows that lead to a record (spec: Data tables)', () => {
+  interface Person {
+    id: string;
+    name: string;
+    nationalId: string;
+    comparsa: string;
+  }
+  const PEOPLE: Person[] = [
+    { id: 'p1', name: 'Ana Sintética', nationalId: '00000001R', comparsa: 'Comparsa Norte' },
+    { id: 'p2', name: 'Berta Ficticia', nationalId: '00000002W', comparsa: 'Comparsa Sur' },
+  ];
+  const linkColumns: DataTableColumn<Person>[] = [
+    {
+      id: 'name',
+      header: 'Nombre',
+      cell: (row) => <Link to={`/people/${row.id}`}>{row.name}</Link>,
+      secondary: (row) => row.nationalId,
+    },
+    { id: 'comparsa', header: 'Comparsa', cell: (row) => row.comparsa },
+  ];
+
+  function renderPeople(width = 1024) {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
+    const router = createMemoryRouter(
+      [
+        {
+          path: '/people',
+          element: (
+            <DataTable
+              caption="Personas"
+              data={PEOPLE}
+              columns={linkColumns}
+              getRowId={(row) => row.id}
+              getRowHref={(row) => `/people/${row.id}`}
+              mobileRow={(row) => (
+                <>
+                  <Link to={`/people/${row.id}`}>{row.name}</Link>
+                  <span>{`${row.nationalId} · ${row.comparsa}`}</span>
+                </>
+              )}
+            />
+          ),
+        },
+        { path: '/people/:id', element: <h1>Ficha</h1> },
+      ],
+      { initialEntries: ['/people'] },
+    );
+    return renderWithProviders(<RouterProvider router={router} />);
+  }
+
+  afterEach(() => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 });
+  });
+
+  it('shows a secondary line under a cell', async () => {
+    await renderPeople();
+
+    const cell = screen.getByRole('cell', { name: /Ana Sintética/ });
+    expect(within(cell).getByText('00000001R')).toHaveClass('text-help', 'text-muted-foreground');
+  });
+
+  it('opens the record when any cell of the row is clicked', async () => {
+    const user = userEvent.setup();
+    await renderPeople();
+
+    await user.click(screen.getByRole('cell', { name: 'Comparsa Sur' }));
+
+    expect(await screen.findByRole('heading', { name: 'Ficha' })).toBeInTheDocument();
+  });
+
+  it('leaves modified clicks and clicks on controls to the browser', async () => {
+    const user = userEvent.setup();
+    await renderPeople();
+
+    await user.keyboard('{Control>}');
+    await user.click(screen.getByRole('cell', { name: 'Comparsa Sur' }));
+    await user.keyboard('{/Control}');
+
+    expect(screen.queryByRole('heading', { name: 'Ficha' })).not.toBeInTheDocument();
+  });
+
+  it('keeps the name link as the only tab stop of the row', async () => {
+    const user = userEvent.setup();
+    await renderPeople();
+
+    const region = screen.getByRole('region', { name: 'Personas' });
+    region.focus();
+    await user.tab();
+
+    expect(screen.getByRole('link', { name: 'Ana Sintética' })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole('link', { name: 'Berta Ficticia' })).toHaveFocus();
+    for (const row of screen.getAllByRole('row')) expect(row).not.toHaveAttribute('tabindex');
+  });
+
+  it('changes the row background at once, without a transition', async () => {
+    await renderPeople();
+
+    const row = screen.getByRole('cell', { name: 'Comparsa Sur' }).closest('tr');
+    expect(row?.className).not.toMatch(/transition/);
+    expect(row).toHaveClass('cursor-pointer');
+  });
+
+  it('shows each row as a stacked item on a phone, without a wide table', async () => {
+    const user = userEvent.setup();
+    await renderPeople(360);
+
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    const items = within(screen.getByRole('list', { name: 'Personas' })).getAllByRole('listitem');
+    expect(items).toHaveLength(2);
+    expect(items[0]).toHaveTextContent('Ana Sintética00000001R · Comparsa Norte');
+
+    const second = items[1];
+    if (!second) throw new Error('No second item');
+    await user.click(within(second).getByText(/Comparsa Sur/));
+    expect(await screen.findByRole('heading', { name: 'Ficha' })).toBeInTheDocument();
+  });
+
+  it('has no accessibility violations as a table and as a list', async () => {
+    const { container, unmount } = await renderPeople();
+    expect(await axeViolations(container)).toEqual([]);
+    unmount();
+
+    const phone = await renderPeople(360);
+    expect(await axeViolations(phone.container)).toEqual([]);
   });
 });

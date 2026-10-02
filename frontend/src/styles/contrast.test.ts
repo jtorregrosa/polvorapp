@@ -6,13 +6,13 @@ import { checkContrast, contrastRatio, describeFailure, parseThemes, type Contra
 
 const tokensCss = readFileSync(join(import.meta.dirname, 'tokens.css'), 'utf8');
 
-const TEXT = 4.5; // WCAG 2.1 AA, normal text (1.4.3)
-const UI = 3; // WCAG 2.1 AA, non-text contrast (1.4.11)
+const TEXT = 4.5; // WCAG 2.2 AA, normal text (1.4.3)
+const UI = 3; // WCAG 2.2 AA, non-text contrast (1.4.11)
 
-/** Token pairs that are used together in the UI (design D3). */
+/** Token pairs that are used together in the UI (design D2, D3; ADR-0013). */
 const PAIRS: ContrastPair[] = [
   { foreground: 'foreground', background: 'background', minimum: TEXT },
-  ...(['muted', 'secondary', 'accent'] as const).map((surface) => ({
+  ...(['muted', 'secondary', 'accent', 'surface-2'] as const).map((surface) => ({
     foreground: 'foreground',
     background: surface,
     minimum: TEXT,
@@ -24,8 +24,7 @@ const PAIRS: ContrastPair[] = [
   { foreground: 'muted-foreground', background: 'muted', minimum: TEXT },
   { foreground: 'muted-foreground', background: 'secondary', minimum: TEXT },
   { foreground: 'muted-foreground', background: 'accent', minimum: TEXT },
-  { foreground: 'muted-foreground', background: 'sidebar', minimum: TEXT },
-  { foreground: 'muted-foreground', background: 'sidebar-accent', minimum: TEXT },
+  { foreground: 'muted-foreground', background: 'surface-2', minimum: TEXT },
   { foreground: 'muted-foreground', background: 'popover', minimum: TEXT },
   { foreground: 'secondary-foreground', background: 'secondary', minimum: TEXT },
   { foreground: 'accent-foreground', background: 'accent', minimum: TEXT },
@@ -37,7 +36,14 @@ const PAIRS: ContrastPair[] = [
   { foreground: 'primary', background: 'primary-soft', minimum: TEXT },
   { foreground: 'primary', background: 'muted', minimum: TEXT },
   { foreground: 'primary', background: 'secondary', minimum: TEXT },
-  { foreground: 'primary', background: 'sidebar', minimum: TEXT },
+  { foreground: 'primary', background: 'surface-2', minimum: TEXT },
+  { foreground: 'primary', background: 'accent', minimum: TEXT },
+  { foreground: 'primary', background: 'secondary-hover', minimum: TEXT },
+  // Hover and pressed states of filled buttons are solid tokens, never an opacity (design D3).
+  { foreground: 'primary-foreground', background: 'primary-hover', minimum: TEXT },
+  { foreground: 'destructive-foreground', background: 'destructive-hover', minimum: TEXT },
+  { foreground: 'secondary-foreground', background: 'secondary-hover', minimum: TEXT },
+  { foreground: 'muted-foreground', background: 'secondary-hover', minimum: TEXT },
   ...(['success', 'warning', 'destructive', 'info'] as const).flatMap((tone) => [
     { foreground: `${tone}-foreground`, background: tone, minimum: TEXT },
     { foreground: `${tone}-soft-foreground`, background: `${tone}-soft`, minimum: TEXT },
@@ -47,10 +53,15 @@ const PAIRS: ContrastPair[] = [
     { foreground: `${tone}-soft-foreground`, background: 'background', minimum: TEXT },
   ]),
   { foreground: 'destructive', background: 'muted', minimum: TEXT },
+  { foreground: 'destructive', background: 'surface-2', minimum: TEXT },
+  // The night sidebar is dark in both themes (ADR-0013): its own text, accent and focus pairs.
   { foreground: 'sidebar-foreground', background: 'sidebar', minimum: TEXT },
+  { foreground: 'sidebar-muted-foreground', background: 'sidebar', minimum: TEXT },
   { foreground: 'sidebar-accent-foreground', background: 'sidebar-accent', minimum: TEXT },
   { foreground: 'sidebar-foreground', background: 'sidebar-accent', minimum: TEXT },
-  { foreground: 'sidebar-primary', background: 'sidebar', minimum: UI },
+  { foreground: 'sidebar-muted-foreground', background: 'sidebar-accent', minimum: TEXT },
+  { foreground: 'sidebar-primary', background: 'sidebar', minimum: TEXT },
+  { foreground: 'sidebar-primary', background: 'sidebar-accent', minimum: TEXT },
   { foreground: 'sidebar-primary-foreground', background: 'sidebar-primary', minimum: TEXT },
   { foreground: 'input', background: 'card', minimum: UI },
   { foreground: 'input', background: 'background', minimum: UI },
@@ -59,12 +70,15 @@ const PAIRS: ContrastPair[] = [
   { foreground: 'input', background: 'popover', minimum: UI },
   { foreground: 'input', background: 'muted', minimum: UI },
   { foreground: 'input', background: 'secondary', minimum: UI },
-  { foreground: 'ring', background: 'sidebar-accent', minimum: UI },
   { foreground: 'ring', background: 'popover', minimum: UI },
+  { foreground: 'ring', background: 'surface-2', minimum: UI },
+  { foreground: 'ring', background: 'accent', minimum: UI },
+  { foreground: 'input', background: 'surface-2', minimum: UI },
   { foreground: 'sidebar-ring', background: 'sidebar', minimum: UI },
+  { foreground: 'sidebar-ring', background: 'sidebar-accent', minimum: UI },
 ];
 
-describe('design token contrast (WCAG 2.1 AA)', () => {
+describe('design token contrast (WCAG 2.2 AA)', () => {
   const themes = parseThemes(tokensCss);
 
   it('defines a light and a dark theme with the same tokens', () => {

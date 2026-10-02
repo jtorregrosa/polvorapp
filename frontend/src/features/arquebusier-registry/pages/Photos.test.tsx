@@ -65,6 +65,15 @@ function detail(current: () => ArquebusierResponse) {
   );
 }
 
+/** Opens the license panel, chooses "no license" and saves, which asks to confirm (spec: Current license). */
+async function removeLicense() {
+  await userEvent.click(await screen.findByRole('button', { name: 'Editar licencia' }));
+  const panel = await screen.findByRole('dialog', { name: 'Editar licencia' });
+  await userEvent.click(within(panel).getByRole('radio', { name: 'Sin licencia' }));
+  await userEvent.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
+  return panel;
+}
+
 function chooseFile(index = 0) {
   const input = document.querySelectorAll<HTMLInputElement>('input[type="file"]')[index];
   if (!input) throw new Error('No file input');
@@ -96,8 +105,14 @@ describe('Photos on the detail page (spec: Photo screens, Private photo access)'
       'src',
       `/api/arquebusiers/${DETAIL_UNO.id}/photos/id?v=${ID_PHOTO.version}`,
     );
-    const personal = screen.getByRole('group', { name: /Datos personales/ });
-    expect(within(personal).getByRole('button', { name: 'Sustituir foto de carnet' })).toBeInTheDocument();
+    // Spec "Photo screens": the ID photo is in the record header, beside the name.
+    const header = photo.closest('header');
+    expect(header).toContainElement(
+      screen.getByRole('heading', { level: 1, name: 'Arcabucero García Sintético' }),
+    );
+    expect(
+      within(header ?? document.body).getByRole('button', { name: 'Sustituir foto de carnet' }),
+    ).toBeInTheDocument();
   });
 
   it('says there is no ID photo, and offers adding one', async () => {
@@ -258,37 +273,36 @@ describe('Photos on the detail page (spec: Photo screens, Private photo access)'
     server.use(mock.put(`/api/arquebusiers/${DETAIL_UNO.id}`, saved.resolver));
     await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
 
-    await userEvent.selectOptions(await screen.findByLabelText(/Tipo de licencia/), '');
-    await userEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+    const panel = await removeLicense();
     const dialog = await screen.findByRole('alertdialog', { name: '¿Quitar la licencia y sus fotos?' });
     await userEvent.click(within(dialog).getByRole('button', { name: 'Cancelar' }));
 
     expect(saved.bodies).toEqual([]);
-    expect(screen.getByLabelText(/Tipo de licencia/)).toHaveValue('');
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Guardar cambios' })).toHaveFocus();
-    });
+    // The panel stays open with the choice, to save something else or cancel.
+    expect(within(panel).getByRole('radio', { name: 'Sin licencia' })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
   });
 
-  it('moves the focus to the refused field after a confirmed license removal', async () => {
+  it('lists the refused field after a confirmed license removal', async () => {
     detail(() => ({ ...DETAIL_UNO, photos: { ...NO_PHOTOS, licenseFront: FRONT } }));
     server.use(
       mock.put(`/api/arquebusiers/${DETAIL_UNO.id}`, () => problem(409, 'arquebusiers.nationalIdTaken')),
     );
     await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
 
-    await userEvent.selectOptions(await screen.findByLabelText(/Tipo de licencia/), '');
-    await userEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+    const panel = await removeLicense();
     const dialog = await screen.findByRole('alertdialog', { name: '¿Quitar la licencia y sus fotos?' });
     await userEvent.click(within(dialog).getByRole('button', { name: 'Guardar y borrar las fotos' }));
 
     await waitFor(() => {
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
-    // The refused field takes the focus with its message (WCAG 2.4.3, 3.3.1).
-    await waitFor(() => {
-      expect(screen.getByLabelText(/^DNI\/NIE/)).toHaveFocus();
-    });
+    // A refusal about a field outside the panel is listed in its error summary (WCAG 3.3.1).
+    expect(await within(panel).findByRole('group', { name: 'Hay un problema' })).toHaveTextContent(
+      /contacta con la Federación/,
+    );
   });
 
   it('shows why a confirmed license removal failed, once the confirmation has closed', async () => {
@@ -296,15 +310,16 @@ describe('Photos on the detail page (spec: Photo screens, Private photo access)'
     server.use(mock.put(`/api/arquebusiers/${DETAIL_UNO.id}`, () => problem(409, 'arquebusiers.modified')));
     await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
 
-    await userEvent.selectOptions(await screen.findByLabelText(/Tipo de licencia/), '');
-    await userEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+    const panel = await removeLicense();
     const dialog = await screen.findByRole('alertdialog', { name: '¿Quitar la licencia y sus fotos?' });
     await userEvent.click(within(dialog).getByRole('button', { name: 'Guardar y borrar las fotos' }));
 
     await waitFor(() => {
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
-    expect(await screen.findByRole('alert')).toHaveTextContent(/ha cambiado/);
+    expect(await within(panel).findByRole('group', { name: 'Hay un problema' })).toHaveTextContent(
+      /ha cambiado/,
+    );
   });
 
   it('removes the license once confirmed', async () => {
@@ -313,8 +328,7 @@ describe('Photos on the detail page (spec: Photo screens, Private photo access)'
     server.use(mock.put(`/api/arquebusiers/${DETAIL_UNO.id}`, saved.resolver));
     await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
 
-    await userEvent.selectOptions(await screen.findByLabelText(/Tipo de licencia/), '');
-    await userEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+    await removeLicense();
     const dialog = await screen.findByRole('alertdialog', { name: '¿Quitar la licencia y sus fotos?' });
     await userEvent.click(within(dialog).getByRole('button', { name: 'Guardar y borrar las fotos' }));
 
@@ -330,14 +344,20 @@ describe('Photos on the detail page (spec: Photo screens, Private photo access)'
     server.use(mock.put(`/api/arquebusiers/${DETAIL_UNO.id}`, saved.resolver));
     await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
 
-    fireEvent.change(await screen.findByLabelText(/Fecha de expedición/), {
+    await userEvent.click(await screen.findByRole('button', { name: 'Editar licencia' }));
+    const panel = await screen.findByRole('dialog', { name: 'Editar licencia' });
+    fireEvent.change(within(panel).getByLabelText(/Fecha de expedición/), {
       target: { value: '2026-03-10' },
     });
-    await userEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+    await userEvent.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
 
-    expect(
-      await screen.findByText('Datos guardados. Si has renovado la licencia, sustituye también sus fotos.'),
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.getByText('Datos guardados. Si has renovado la licencia, sustituye también sus fotos.', {
+          selector: '[role=status]',
+        }),
+      ).toBeInTheDocument();
+    });
   });
 });
 
@@ -348,7 +368,7 @@ describe('ID photo when registering (spec: Photo screens)', () => {
     await user.type(screen.getByLabelText(/^Nombre/), 'Arcabucera');
     await user.type(screen.getByLabelText(/^Apellidos/), 'Sintética Nueva');
     fireEvent.change(screen.getByLabelText(/Fecha de nacimiento/), { target: { value: '1990-05-01' } });
-    await user.selectOptions(screen.getByLabelText(/Género/), 'FEMALE');
+    await user.click(screen.getByRole('radio', { name: 'Mujer' }));
   }
 
   function registration(created: ArquebusierResponse) {

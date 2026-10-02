@@ -1,4 +1,4 @@
-/** WCAG 2.1 contrast checks over the colour tokens of tokens.css (design D3). */
+/** WCAG 2.2 contrast checks (the 2.1 formula, unchanged in 2.2) over the colour tokens of tokens.css (design D3). */
 
 export type TokenMap = Readonly<Record<string, string>>;
 

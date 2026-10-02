@@ -21,7 +21,7 @@ function comparsaWithChiefs(comparsa: ComparsaResponse, initial: FiringChiefResp
 }
 
 async function section() {
-  return screen.findByRole('group', { name: 'Jefes de disparo' });
+  return screen.findByRole('region', { name: 'Jefes de disparo' });
 }
 
 /** The table row that contains `text`. */
@@ -36,7 +36,7 @@ describe('FiringChiefs section of a comparsa (spec: Managing assignments from th
     comparsaWithChiefs(NORTE, [asFiringChief(CHIEF_UNO), asFiringChief(CHIEF_DOS)]);
     await renderApp(`/comparsas/${NORTE.id}`, { session: SYNTHETIC_ADMIN });
 
-    const table = await within(await section()).findByRole('table', { name: 'Jefes de disparo' });
+    const table = await within(await section()).findByRole('table', { name: /^Jefes de disparo de / });
     await within(table).findByText('Jefe Sintético Uno');
     const uno = rowOf(table, 'Jefe Sintético Uno');
     expect(within(uno).getByText('jefe.uno@polvorapp.example')).toBeInTheDocument();
@@ -56,7 +56,7 @@ describe('FiringChiefs section of a comparsa (spec: Managing assignments from th
         within(choice)
           .getAllByRole('option')
           .map((option) => option.textContent),
-      ).toEqual(['Elige una opción.', 'Jefa Sintética Dos (jefa.dos@polvorapp.example)']);
+      ).toEqual(['Jefa Sintética Dos (jefa.dos@polvorapp.example)']);
     });
   });
 
@@ -88,7 +88,7 @@ describe('FiringChiefs section of a comparsa (spec: Managing assignments from th
       expect(notice).toHaveFocus();
     });
     expect(assigned).toEqual([CHIEF_DOS.id]);
-    expect(await within(group).findByRole('table', { name: 'Jefes de disparo' })).toHaveTextContent(
+    expect(await within(group).findByRole('table', { name: /^Jefes de disparo de / })).toHaveTextContent(
       'Jefa Sintética Dos',
     );
   });
@@ -194,7 +194,7 @@ describe('FiringChiefs section of a comparsa (spec: Managing assignments from th
     expect(
       within(group).queryByText('Todavía no hay ningún jefe de disparo asignado.'),
     ).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Eliminar comparsa' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Más acciones' })).toBeInTheDocument();
   });
 
   it('shows why an assignment was rejected and refreshes the list', async () => {

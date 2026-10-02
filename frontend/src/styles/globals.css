@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
-@import '@fontsource-variable/inter';
+@import '@fontsource-variable/bricolage-grotesque';
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
 @import './tokens.css';
 
 /* Dark theme is class-based (.dark on <html>), set by ThemeProvider and public/theme-init.js. */
@@ -12,7 +14,7 @@
   }
 
   body {
-    @apply bg-background font-sans text-foreground antialiased;
+    @apply bg-background font-sans text-body text-foreground antialiased;
   }
 
   :focus-visible {
@@ -20,15 +22,194 @@
   }
 }
 
-/* Honour reduced motion for every animation and transition (WCAG 2.3.3). */
+/*
+ * Reduced motion (WCAG 2.3.3, design D5): no movement or scaling, fades of at most 100 ms, no
+ * looping animations. Busy states stay announced by `aria-busy` and the button text.
+ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
+    --tw-enter-translate-x: 0 !important;
+    --tw-enter-translate-y: 0 !important;
+    --tw-enter-scale: 1 !important;
+    --tw-exit-translate-x: 0 !important;
+    --tw-exit-translate-y: 0 !important;
+    --tw-exit-scale: 1 !important;
+    animation-duration: var(--duration-fast) !important;
     animation-iteration-count: 1 !important;
+    transition-duration: var(--duration-fast) !important;
     scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
+    scale: none !important;
+  }
+
+  .animate-pulse,
+  .animate-spin {
+    animation: none !important;
+  }
+
+  [data-slot='native-select-wrapper'] > select::picker(select),
+  [data-slot='native-select-wrapper'] > select:not(:open)::picker(select) {
+    translate: none !important;
+    transition-duration: var(--duration-fast) !important;
+  }
+
+  [data-slot='native-select-wrapper'] > select::picker-icon,
+  [data-slot='native-select-wrapper'] > select:open::picker-icon {
+    rotate: none !important;
+    transition: none !important;
+  }
+}
+
+/*
+ * Sticky bars never hide the focused control (SC 2.4.11): scrolling to a focused or linked
+ * element leaves room for the top bar and, on forms, for the action bar.
+ */
+html {
+  scroll-padding-block-start: calc(var(--topbar-height, var(--spacing-topbar)) + var(--spacing-group));
+}
+
+html:has([data-slot='action-bar']) {
+  scroll-padding-block-end: calc(var(--action-bar-height, var(--spacing-action-bar)) + var(--spacing-group));
+}
+
+/* On very short screens the action bar scrolls with the form, leaving room to read (SC 1.4.10). */
+@media (max-height: 32rem) {
+  [data-slot='action-bar'] {
+    position: static;
+  }
+
+  html:has([data-slot='action-bar']) {
+    scroll-padding-block-end: var(--spacing-group);
+  }
+}
+
+/* Meters (KeyFacts): a track in the muted surface and a bar in the accent, in every engine. */
+meter[data-slot='meter'] {
+  appearance: none;
+  border-radius: 999px;
+  background: var(--muted);
+  box-shadow: inset 0 0 0 1px var(--input);
+  overflow: hidden;
+}
+
+meter[data-slot='meter']::-webkit-meter-bar {
+  border: 0;
+  border-radius: 999px;
+  background: var(--muted);
+}
+
+meter[data-slot='meter']::-webkit-meter-optimum-value {
+  border-radius: 999px;
+  background: var(--primary);
+}
+
+meter[data-slot='meter']::-moz-meter-bar {
+  border-radius: 999px;
+  background: var(--primary);
+}
+
+/*
+ * Styled select list (design D11, spec: Styled select). Where the browser supports a customizable
+ * select (Chromium today), the list of the `native-select` primitive follows the menu style; other
+ * browsers keep their native picker. The placeholder option is never offered as a choice. The select
+ * is found through its wrapper, because `FormField` replaces the select's own `data-slot`.
+ */
+@supports (appearance: base-select) {
+  [data-slot='native-select-wrapper'] > select,
+  [data-slot='native-select-wrapper'] > select::picker(select) {
+    appearance: base-select;
+  }
+
+  [data-slot='native-select-wrapper'] > select {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  [data-slot='native-select-wrapper'] > select ~ [data-slot='native-select-icon'] {
+    display: none;
+  }
+
+  [data-slot='native-select-wrapper'] > select::picker-icon {
+    margin-inline-start: auto;
+    color: var(--muted-foreground);
+    transition: rotate var(--duration-base) var(--ease-out);
+  }
+
+  [data-slot='native-select-wrapper'] > select:open::picker-icon {
+    rotate: 180deg;
+  }
+
+  [data-slot='native-select-wrapper'] > select::picker(select) {
+    margin-block: 0.375rem;
+    padding: 0.25rem;
+    min-width: anchor-size(width);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--popover);
+    color: var(--popover-foreground);
+    box-shadow: var(--elevation-2);
+    opacity: 1;
+    translate: 0 0;
+    transition:
+      opacity var(--duration-base) var(--ease-out),
+      translate var(--duration-base) var(--ease-out),
+      display var(--duration-base) allow-discrete,
+      overlay var(--duration-base) allow-discrete;
+  }
+
+  [data-slot='native-select-wrapper'] > select:not(:open)::picker(select) {
+    opacity: 0;
+    translate: 0 -0.25rem;
+    transition-duration: var(--duration-fast);
+  }
+
+  @starting-style {
+    [data-slot='native-select-wrapper'] > select:open::picker(select) {
+      opacity: 0;
+      translate: 0 -0.25rem;
+    }
+  }
+
+  [data-slot='native-select-wrapper'] > select option {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 2.25rem;
+    padding-inline: 0.625rem;
+    border-radius: var(--radius-sm);
+  }
+
+  [data-slot='native-select-wrapper'] > select option:hover {
+    background: var(--accent);
+  }
+
+  [data-slot='native-select-wrapper'] > select option:focus,
+  [data-slot='native-select-wrapper'] > select option:focus-visible {
+    background: var(--accent);
+    outline: 2px solid var(--ring);
+    outline-offset: -2px;
+  }
+
+  @media (pointer: coarse) {
+    [data-slot='native-select-wrapper'] > select option {
+      min-height: 2.75rem;
+    }
+  }
+
+  [data-slot='native-select-wrapper'] > select option:checked {
+    font-weight: 600;
+  }
+
+  [data-slot='native-select-wrapper'] > select option::checkmark {
+    order: 1;
+    margin-inline-start: auto;
+    color: var(--primary);
+  }
+
+  [data-slot='native-select-wrapper'] > select option[data-placeholder] {
+    display: none;
   }
 }
 
@@ -38,13 +219,35 @@
  */
 @media (forced-colors: active) {
   [data-slot='badge'],
-  [data-slot='button'],
+  [data-slot='button']:not([data-variant='link'], [data-variant='ghost']),
   [data-status-badge] {
     border: 1px solid CanvasText;
   }
 
   :focus-visible {
     outline: 2px solid Highlight;
+  }
+
+  /* States drawn with backgrounds get a system-colour mark instead. */
+  meter[data-slot='meter'] {
+    border: 1px solid CanvasText;
+  }
+
+  meter[data-slot='meter']::-webkit-meter-optimum-value {
+    background: Highlight;
+  }
+
+  meter[data-slot='meter']::-moz-meter-bar {
+    background: Highlight;
+  }
+
+  [data-slot='stat-filter'] [aria-pressed='true'] {
+    outline: 3px solid Highlight;
+    outline-offset: -3px;
+  }
+
+  [data-slot='tabs-trigger'][data-state='active']::after {
+    background: Highlight;
   }
 }
 

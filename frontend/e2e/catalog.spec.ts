@@ -47,6 +47,16 @@ const idFromUrl = (page: Page): string => new URL(page.url()).pathname.split('/'
 const notice = (scope: Page | ReturnType<Page['getByRole']>, text: string) =>
   scope.getByRole('status').filter({ hasText: text });
 
+/** A list's rows: a table on wide screens, stacked items on a phone (spec: Data tables). */
+const rows = (scope: Page | ReturnType<Page['getByRole']>, name: string | RegExp) =>
+  scope.getByRole('table', { name }).or(scope.getByRole('list', { name }));
+
+/** Opens "More actions" of the record header and chooses an item. */
+async function moreAction(page: Page, name: string): Promise<void> {
+  await page.getByRole('button', { name: 'Más acciones' }).click();
+  await page.getByRole('menuitem', { name }).click();
+}
+
 async function expectNoHorizontalOverflow(page: Page): Promise<void> {
   const overflows = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(overflows).toBe(false);
@@ -68,30 +78,26 @@ test.describe('federation catalogue as an Admin', () => {
     await page.keyboard.press('Escape');
     await page.getByRole('link', { name: 'Nueva comparsa' }).click();
     await page.getByRole('textbox', { name: /Nombre/ }).fill(name);
-    await page.getByRole('combobox', { name: /Bando/ }).selectOption('MOORISH');
+    await page.getByRole('radio', { name: 'Moro' }).click();
     await page.getByRole('button', { name: 'Crear comparsa' }).click();
     await expect(page.getByRole('heading', { level: 1, name })).toBeVisible();
     const comparsaId = idFromUrl(page);
     deleteAfter(`/api/comparsas/${comparsaId}`);
     await expect(notice(page, 'Comparsa creada.')).toBeFocused();
 
-    const chiefs = page.getByRole('group', { name: 'Jefes de disparo', exact: true });
+    const chiefs = page.getByRole('region', { name: 'Jefes de disparo', exact: true });
     await chiefs
       .getByRole('combobox', { name: /Jefe de disparo que añadir/ })
       .selectOption({ label: 'Jefe Sintético Uno (jefe.uno@polvorapp.example)' });
     await chiefs.getByRole('button', { name: 'Añadir' }).click();
     await expect(notice(chiefs, 'Jefe Sintético Uno ya es jefe de disparo de esta comparsa.')).toBeFocused();
-    await expect(chiefs.getByRole('table', { name: 'Jefes de disparo' })).toContainText(
-      'jefe.uno@polvorapp.example',
-    );
-    await expect(page.getByRole('region', { name: 'Jefes de disparo' })).toBeVisible();
+    await expect(rows(chiefs, `Jefes de disparo de ${name}`)).toContainText('jefe.uno@polvorapp.example');
 
     // The same assignment, seen and removed from the other side: the FiringChief's user page.
     await page.goto(`/users/${JEFE_UNO}`);
     await waitForShell(page);
-    const comparsas = page.getByRole('group', { name: 'Comparsas', exact: true });
-    await expect(comparsas.getByRole('table', { name: 'Comparsas' })).toContainText(name);
-    await expect(page.getByRole('region', { name: 'Comparsas' })).toBeVisible();
+    const comparsas = page.getByRole('region', { name: 'Comparsas', exact: true });
+    await expect(rows(comparsas, /^Comparsas de /)).toContainText(name);
     await expectNoHorizontalOverflow(page);
     await comparsas.getByRole('button', { name: `Quitar ${name}` }).click();
     await page
@@ -99,10 +105,11 @@ test.describe('federation catalogue as an Admin', () => {
       .getByRole('button', { name: `Quitar ${name}` })
       .click();
     await expect(notice(comparsas, `Comparsa ${name} quitada.`)).toBeFocused();
-    await expect(comparsas.getByRole('table', { name: 'Comparsas' })).not.toContainText(name);
+    await expect(rows(comparsas, /^Comparsas de /)).not.toContainText(name);
 
     await page.goto(`/comparsas/${comparsaId}`);
-    await page.getByRole('button', { name: 'Eliminar comparsa' }).click();
+    await waitForShell(page);
+    await moreAction(page, 'Eliminar comparsa');
     const dialog = page.getByRole('alertdialog', { name: `¿Eliminar ${name}?` });
     await expect(dialog).toContainText('No se puede deshacer.');
     await dialog.getByRole('button', { name: 'Eliminar comparsa' }).click();
@@ -118,20 +125,22 @@ test.describe('federation catalogue as an Admin', () => {
 
     await page.goto('/weapon-models/new');
     await waitForShell(page);
-    await page.getByRole('combobox', { name: /Tipo/ }).selectOption('TRABUCO');
+    await page.getByRole('radio', { name: 'Trabuco' }).click();
     const rentable = page.getByRole('checkbox', { name: 'Se puede alquilar' });
     await rentable.check();
-    await page.getByRole('combobox', { name: /Tipo/ }).selectOption('PISTOL');
-    await expect(rentable).toBeDisabled();
-    await expect(rentable).not.toBeChecked();
+    await page.getByRole('radio', { name: 'Pistola' }).click();
+    // A pistol is never rented (BR-07): the option is not offered.
+    await expect(rentable).toHaveCount(0);
     await page.getByRole('textbox', { name: /Nombre/ }).fill(label);
     await page.getByRole('button', { name: 'Crear modelo' }).click();
 
     await expect(page.getByRole('heading', { level: 1, name: label })).toBeVisible();
     deleteAfter(`/api/weapon-models/${idFromUrl(page)}`);
-    await expect(page.getByRole('checkbox', { name: 'Se puede alquilar' })).not.toBeChecked();
+    const data = page.getByRole('region', { name: 'Modelo de arma' });
+    await expect(data).toContainText('Se puede alquilar');
+    await expect(data).toContainText('Sin indicar');
 
-    await page.getByRole('button', { name: 'Eliminar modelo' }).click();
+    await moreAction(page, 'Eliminar modelo');
     await page.getByRole('alertdialog').getByRole('button', { name: 'Eliminar modelo' }).click();
     await expect(notice(page, 'Modelo de arma eliminado.')).toBeFocused();
     // The list has loaded before the deleted row is looked for.
@@ -149,10 +158,10 @@ test.describe('federation catalogue as a FiringChief', () => {
     await page.goto('/comparsas');
     await waitForShell(page);
 
-    const table = page.getByRole('table', { name: 'Comparsas' });
-    await expect(table.getByRole('link', { name: 'Comparsa Sintética Norte' })).toBeVisible();
+    const list = rows(page, 'Comparsas');
+    await expect(list.getByRole('link', { name: 'Comparsa Sintética Norte' })).toBeVisible();
     // The seed assigns Jefa Sintética Dos to Norte only (docs/development.md).
-    await expect(table.getByRole('link')).toHaveCount(1);
+    await expect(list.getByRole('link')).toHaveCount(1);
     await expect(page.getByRole('link', { name: 'Nueva comparsa' })).toHaveCount(0);
 
     const navigation = await openNavigation(page);
@@ -172,7 +181,9 @@ test.describe('federation catalogue as a FiringChief', () => {
 
     await page.goto(`/comparsas/${SEEDED_NORTE}`);
     await expect(page.getByRole('heading', { level: 1, name: 'Comparsa Sintética Norte' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Eliminar comparsa' })).toHaveCount(0);
+    await expect(page.getByRole('region', { name: 'Datos de la comparsa' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Más acciones' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /^Editar/ })).toHaveCount(0);
   });
 });
 
@@ -193,16 +204,30 @@ test.describe('accessibility of the catalogue pages', () => {
         // Sur always has a candidate (Jefa Sintética Dos), so the add control is scanned too.
         await page.goto(`/comparsas/${SEEDED_SUR}`);
         await waitForShell(page);
-        await expect(page.getByRole('table', { name: 'Jefes de disparo' })).toBeVisible();
+        await expect(rows(page, /^Jefes de disparo de /)).toBeVisible();
         await expect(page.getByRole('combobox', { name: /Jefe de disparo que añadir/ })).toBeVisible();
         await expectNoHorizontalOverflow(page);
         expect(await axeViolations()).toEqual([]);
       });
 
+      test('comparsa detail with its edit panel open', async ({ page, axeViolations }) => {
+        await page.goto(`/comparsas/${SEEDED_SUR}`);
+        await waitForShell(page);
+        await page.getByRole('button', { name: 'Editar datos de la comparsa' }).click();
+        const panel = page.getByRole('dialog', { name: 'Editar datos de la comparsa' });
+        await expect(panel.getByRole('radio', { name: 'Moro' })).toBeVisible();
+        // Let the panel finish sliding in: axe reads colours mid-animation otherwise.
+        await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== 'running'));
+        expect(await axeViolations(page, '[role="dialog"]')).toEqual([]);
+        await page.keyboard.press('Escape');
+        await expect(panel).toBeHidden();
+        await expect(page.getByRole('button', { name: 'Editar datos de la comparsa' })).toBeFocused();
+      });
+
       test('user page with the comparsas of a FiringChief', async ({ page, axeViolations }) => {
         await page.goto(`/users/${JEFE_UNO}`);
         await waitForShell(page);
-        await expect(page.getByRole('table', { name: 'Comparsas' })).toBeVisible();
+        await expect(rows(page, /^Comparsas de /)).toBeVisible();
         await expect(page.getByRole('combobox', { name: /Comparsa que añadir/ })).toBeVisible();
         await expectNoHorizontalOverflow(page);
         expect(await axeViolations()).toEqual([]);
@@ -219,7 +244,9 @@ test.describe('accessibility of the catalogue pages', () => {
       test('weapon model form', async ({ page, axeViolations }) => {
         await page.goto('/weapon-models/new');
         await waitForShell(page);
-        await expect(page.getByRole('combobox', { name: /Tipo/ })).toBeVisible();
+        // A trabuco reveals every attribute, so they are scanned too.
+        await page.getByRole('radio', { name: 'Trabuco' }).click();
+        await expect(page.getByRole('radiogroup', { name: 'Tamaño' })).toBeVisible();
         await expectNoHorizontalOverflow(page);
         expect(await axeViolations()).toEqual([]);
       });

@@ -220,7 +220,11 @@ describe('Owned weapon form (spec: Owned weapons)', () => {
     await user.type(number, '5005');
     await user.click(screen.getByRole('button', { name: 'Guardar cambios' }));
 
-    expect(await screen.findByText(/Otra persona ha cambiado esta arma/)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole('group', { name: 'Hay un problema' })).toHaveTextContent(
+        /Otra persona ha cambiado esta arma/,
+      );
+    });
     await waitFor(() => {
       expect(screen.getByLabelText(/^Nº de guía/)).toHaveValue('SINT-0077');
     });
@@ -246,6 +250,29 @@ describe('Owned weapon form (spec: Owned weapons)', () => {
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Página no encontrada' }),
     ).toBeInTheDocument();
+  });
+
+  it('still says why nothing was saved when the weapon is gone and the record cannot be reloaded', async () => {
+    const user = userEvent.setup();
+    let failing = false;
+    server.use(
+      mock.get(`/api/arquebusiers/${DETAIL_UNO.id}`, () =>
+        failing ? problem(500, 'internal') : HttpResponse.json(DETAIL_UNO),
+      ),
+      mock.get('/api/comparsas', () => HttpResponse.json([NORTE])),
+      mock.get('/api/weapon-models', () => HttpResponse.json(MODELS.filter((model) => model.active))),
+      mock.put(`/api/arquebusiers/${DETAIL_UNO.id}/owned-weapons/${WEAPON.id}`, () => {
+        failing = true;
+        return problem(404, 'ownedWeapons.notFound');
+      }),
+    );
+    await renderApp(`/arquebusiers/${DETAIL_UNO.id}/weapons/${WEAPON.id}`, {
+      session: SYNTHETIC_FIRING_CHIEF,
+    });
+
+    await user.click(await screen.findByRole('button', { name: 'Guardar cambios' }));
+
+    expect(await screen.findByRole('group', { name: 'Hay un problema' })).toBeInTheDocument();
   });
 
   it('says the model cannot be chosen while the catalogue cannot be loaded, and retries', async () => {

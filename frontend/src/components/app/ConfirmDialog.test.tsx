@@ -1,5 +1,5 @@
 import { screen, waitFor, within } from '@testing-library/react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Button } from '@/components/ui/button';
@@ -205,6 +205,64 @@ describe('ConfirmDialog', () => {
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
     expect(onConfirmed).not.toHaveBeenCalled();
+  });
+
+  it('stays open without a message when the action returns false', async () => {
+    const user = userEvent.setup();
+    const onConfirm = vi.fn(() => false);
+    await renderDialog(onConfirm);
+
+    await user.click(screen.getByRole('button', { name: 'Eliminar' }));
+    await user.click(await screen.findByRole('button', { name: 'Eliminar arcabucero' }));
+
+    expect(onConfirm).toHaveBeenCalledOnce();
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Eliminar arcabucero' })).not.toHaveAttribute('aria-busy');
+  });
+
+  it('starts on the given field and returns focus to the given element when cancelled', async () => {
+    const user = userEvent.setup();
+    function Owner() {
+      const [open, setOpen] = useState(false);
+      const field = useRef<HTMLInputElement>(null);
+      const back = useRef<HTMLButtonElement>(null);
+      return (
+        <>
+          <Button
+            onClick={() => {
+              setOpen(true);
+            }}
+          >
+            Abrir
+          </Button>
+          <Button ref={back}>Más acciones</Button>
+          <ConfirmDialog
+            open={open}
+            onOpenChange={setOpen}
+            initialFocus={field}
+            returnFocus={back}
+            title="¿Trasladar?"
+            description="Elige el destino."
+            confirmLabel="Trasladar"
+            onConfirm={vi.fn()}
+          >
+            <input ref={field} aria-label="Destino" />
+          </ConfirmDialog>
+        </>
+      );
+    }
+    await renderWithProviders(<Owner />);
+
+    await user.click(screen.getByRole('button', { name: 'Abrir' }));
+    await waitFor(() => {
+      expect(screen.getByRole('textbox', { name: 'Destino' })).toHaveFocus();
+    });
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Más acciones' })).toHaveFocus();
+    });
   });
 
   it('translates the cancel option', async () => {

@@ -1,5 +1,5 @@
 import { screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { http as mock, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import type { UserResponse } from '@/api/generated/model';
@@ -113,8 +113,25 @@ describe('UsersPage (spec: User management by Admins)', () => {
   });
 });
 
+/** A saved change is announced politely, without moving focus (spec: Detail pages in read mode). */
+async function expectSaved(text: string): Promise<void> {
+  await waitFor(() => {
+    expect(screen.getByText(text, { selector: '[role=status]' })).toBeInTheDocument();
+  });
+}
+
+async function moreAction(user: UserEvent, name: string): Promise<void> {
+  await user.click(await screen.findByRole('button', { name: 'Más acciones' }));
+  await user.click(await screen.findByRole('menuitem', { name }));
+}
+
+async function editAccount(user: UserEvent) {
+  await user.click(await screen.findByRole('button', { name: 'Editar datos de la cuenta' }));
+  return screen.findByRole('dialog', { name: 'Editar datos de la cuenta' });
+}
+
 describe('InviteUserPage (spec: Invitation-only accounts)', () => {
-  async function fillInvitation(user: ReturnType<typeof userEvent.setup>) {
+  async function fillInvitation(user: UserEvent) {
     await user.type(screen.getByLabelText(/^Correo electrónico/), 'nueva@polvorapp.example');
     await user.type(screen.getByLabelText(/^Nombre/), 'Nueva Sintética');
     await user.selectOptions(screen.getByLabelText(/^Idioma de los correos/), 'en');
@@ -129,6 +146,8 @@ describe('InviteUserPage (spec: Invitation-only accounts)', () => {
     userDetails(created);
     const app = await asAdmin('/users/new');
 
+    // A FiringChief by default, chosen among radio cards.
+    expect(screen.getByRole('radio', { name: 'Jefe de disparo' })).toHaveAttribute('aria-checked', 'true');
     await fillInvitation(user);
 
     expect(await screen.findByText('Invitación enviada a nueva@polvorapp.example.')).toBeInTheDocument();
@@ -145,17 +164,27 @@ describe('InviteUserPage (spec: Invitation-only accounts)', () => {
 
     await user.click(screen.getByRole('button', { name: 'Enviar invitación' }));
 
-    expect(await screen.findAllByText('Este campo es obligatorio.')).toHaveLength(2);
+    expect(
+      await screen.findAllByText('Este campo es obligatorio.', { selector: '[data-slot="form-message"]' }),
+    ).toHaveLength(2);
+    await waitFor(() => {
+      expect(screen.getByRole('group', { name: 'Hay un problema' })).toHaveFocus();
+    });
   });
 
-  it('says when the email is already taken', async () => {
+  it('says on the email field when the email is already taken', async () => {
     const user = userEvent.setup();
     server.use(mock.post('/api/users', () => problem(409, 'users.emailTaken')));
     await asAdmin('/users/new');
 
     await fillInvitation(user);
 
-    expect(await screen.findByText('Ya existe un usuario con ese correo.')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Ya existe un usuario con ese correo.', {
+        selector: '[data-slot="form-message"]',
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Correo electrónico/)).toHaveAttribute('aria-invalid', 'true');
   });
 
   it('continues on the new user’s page when the email could not be sent', async () => {
@@ -175,6 +204,12 @@ describe('InviteUserPage (spec: Invitation-only accounts)', () => {
     expect(screen.getByRole('button', { name: 'Reenviar invitación' })).toBeInTheDocument();
   });
 
+  it('offers to cancel back to the list', async () => {
+    await asAdmin('/users/new');
+
+    expect(await screen.findByRole('link', { name: 'Cancelar' })).toHaveAttribute('href', '/users');
+  });
+
   it('has no accessibility violations', async () => {
     const { container } = await asAdmin('/users/new');
 
@@ -182,8 +217,22 @@ describe('InviteUserPage (spec: Invitation-only accounts)', () => {
   });
 });
 
-describe('UserDetailPage (spec: User management by Admins)', () => {
-  it('edits the name, role and email language', async () => {
+describe('UserDetailPage (specs: User management by Admins, Detail pages in read mode)', () => {
+  it('shows the user read-only with role, status and two-step state in the header', async () => {
+    userDetails(CHIEF);
+    await asAdmin(`/users/${CHIEF.id}`);
+
+    const heading = await screen.findByRole('heading', { level: 1, name: 'Jefa Sintética' });
+    const header = heading.closest('header');
+    expect(header).toHaveTextContent('Jefe de disparo');
+    expect(header).toHaveTextContent('Verificación en dos pasos: Activada');
+    const account = screen.getByRole('region', { name: 'Datos de la cuenta' });
+    expect(account).toHaveTextContent('jefa@polvorapp.example');
+    expect(account).toHaveTextContent('Valencià');
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+  });
+
+  it('edits the name, role and email language in a panel', async () => {
     const user = userEvent.setup();
     const details = userDetails(CHIEF);
     const update = recordBodies(() => {
@@ -192,38 +241,39 @@ describe('UserDetailPage (spec: User management by Admins)', () => {
     });
     server.use(mock.put(`/api/users/${CHIEF.id}`, update.resolver));
     await asAdmin(`/users/${CHIEF.id}`);
-    const name = await screen.findByLabelText(/^Nombre/);
 
+    const panel = await editAccount(user);
+    const name = within(panel).getByLabelText(/^Nombre/);
     await user.clear(name);
     await user.type(name, 'Jefa Renombrada');
-    await user.selectOptions(screen.getByLabelText(/^Rol/), 'ADMIN');
-    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+    await user.click(within(panel).getByRole('radio', { name: 'Administrador' }));
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
 
-    const notice = await screen.findByText('Cambios guardados.');
-    expect(notice.closest('[data-severity]')).toHaveFocus();
+    await expectSaved('Cambios guardados');
     expect(await screen.findByRole('heading', { level: 1, name: 'Jefa Renombrada' })).toBeInTheDocument();
-    expect(screen.getByLabelText(/^Nombre/)).toHaveValue('Jefa Renombrada');
     expect(update.bodies).toEqual([{ name: 'Jefa Renombrada', role: 'ADMIN', locale: 'ca-ES-valencia' }]);
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Editar datos de la cuenta' })).toHaveFocus();
+    });
   });
 
-  it('shows the last-Admin refusal', async () => {
+  it('keeps the panel open with the last-Admin refusal', async () => {
     const user = userEvent.setup();
     const admin: UserResponse = { ...CHIEF, role: 'ADMIN' };
     userDetails(admin);
     server.use(mock.put(`/api/users/${admin.id}`, () => problem(409, 'users.lastAdmin')));
     await asAdmin(`/users/${admin.id}`);
 
-    await user.selectOptions(await screen.findByLabelText(/^Rol/), 'FIRING_CHIEF');
-    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+    const panel = await editAccount(user);
+    await user.click(within(panel).getByRole('radio', { name: 'Jefe de disparo' }));
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
 
-    expect(
-      await screen.findByText(
-        'Es el único administrador activo: invita o reactiva a otro administrador antes de hacer este cambio.',
-      ),
-    ).toBeInTheDocument();
+    expect(await within(panel).findByRole('group', { name: 'Hay un problema' })).toHaveTextContent(
+      'Es el único administrador activo: invita o reactiva a otro administrador antes de hacer este cambio.',
+    );
   });
 
-  it('deactivates a user only after confirming', async () => {
+  it('deactivates a user from "More actions" only after confirming, set apart as destructive', async () => {
     const user = userEvent.setup();
     const details = userDetails(CHIEF);
     let calls = 0;
@@ -236,18 +286,30 @@ describe('UserDetailPage (spec: User management by Admins)', () => {
     );
     await asAdmin(`/users/${CHIEF.id}`);
 
-    await user.click(await screen.findByRole('button', { name: 'Desactivar usuario' }));
-    const dialog = screen.getByRole('alertdialog', { name: '¿Desactivar a Jefa Sintética?' });
+    await user.click(await screen.findByRole('button', { name: 'Más acciones' }));
+    const menu = await screen.findByRole('menu');
+    expect(
+      within(menu)
+        .getAllByRole('menuitem')
+        .map((item) => item.textContent),
+    ).toEqual(['Restablecer la verificación en dos pasos', 'Desactivar usuario']);
+    expect(within(menu).getByRole('separator')).toBeInTheDocument();
+    await user.click(within(menu).getByRole('menuitem', { name: 'Desactivar usuario' }));
+    const dialog = await screen.findByRole('alertdialog', { name: '¿Desactivar a Jefa Sintética?' });
     await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }));
     expect(calls).toBe(0);
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Más acciones' })).toHaveFocus();
+    });
 
-    await user.click(screen.getByRole('button', { name: 'Desactivar usuario' }));
+    await moreAction(user, 'Desactivar usuario');
     await user.click(
-      within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Desactivar usuario' }),
+      within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Desactivar usuario' }),
     );
 
-    expect(await screen.findByText('Usuario desactivado.')).toBeInTheDocument();
-    expect(await screen.findByRole('button', { name: 'Reactivar usuario' })).toBeInTheDocument();
+    await expectSaved('Usuario desactivado.');
+    await user.click(screen.getByRole('button', { name: 'Más acciones' }));
+    expect(await screen.findByRole('menuitem', { name: 'Reactivar usuario' })).toBeInTheDocument();
     expect(calls).toBe(1);
   });
 
@@ -257,12 +319,10 @@ describe('UserDetailPage (spec: User management by Admins)', () => {
     server.use(mock.post(`/api/users/${CHIEF.id}/deactivate`, () => problem(409, 'users.lastAdmin')));
     await asAdmin(`/users/${CHIEF.id}`);
 
-    await user.click(await screen.findByRole('button', { name: 'Desactivar usuario' }));
-    await user.click(
-      within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Desactivar usuario' }),
-    );
+    await moreAction(user, 'Desactivar usuario');
+    const dialog = await screen.findByRole('alertdialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Desactivar usuario' }));
 
-    const dialog = screen.getByRole('alertdialog');
     expect(
       await within(dialog).findByText(
         'Es el único administrador activo: invita o reactiva a otro administrador antes de hacer este cambio.',
@@ -289,18 +349,48 @@ describe('UserDetailPage (spec: User management by Admins)', () => {
       }),
     );
     await asAdmin(`/users/${self.id}`);
-    const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
-    expect(within(navigation).getByRole('link', { name: 'Usuarios' })).toBeInTheDocument();
+    const navigation = screen.getByRole('navigation', { name: 'Navegación principal', hidden: true });
+    expect(within(navigation).getByRole('link', { name: 'Usuarios', hidden: true })).toBeInTheDocument();
 
-    await user.selectOptions(await screen.findByLabelText(/^Rol/), 'FIRING_CHIEF');
-    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+    const panel = await editAccount(user);
+    await user.click(within(panel).getByRole('radio', { name: 'Jefe de disparo' }));
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
 
     await waitFor(() => {
-      expect(within(navigation).queryByRole('link', { name: 'Usuarios' })).not.toBeInTheDocument();
+      expect(
+        within(navigation).queryByRole('link', { name: 'Usuarios', hidden: true }),
+      ).not.toBeInTheDocument();
     });
   });
 
-  it('resets two-step verification only after confirming', async () => {
+  it('signs the Admin out when their own session cannot be reloaded after changing their role', async () => {
+    const user = userEvent.setup();
+    const self: UserResponse = {
+      ...CHIEF,
+      id: SYNTHETIC_ADMIN.id,
+      name: SYNTHETIC_ADMIN.name,
+      role: 'ADMIN',
+    };
+    userDetails(self);
+    server.use(
+      mock.put(`/api/users/${self.id}`, () => {
+        server.use(mock.get('/api/account', () => problem(500, 'unexpected')));
+        return HttpResponse.json({ ...self, role: 'FIRING_CHIEF' });
+      }),
+    );
+    const app = await asAdmin(`/users/${self.id}`);
+
+    const panel = await editAccount(user);
+    await user.click(within(panel).getByRole('radio', { name: 'Jefe de disparo' }));
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
+
+    // Never left with privileges it may no longer have.
+    await waitFor(() => {
+      expect(app.location()).toBe('/login');
+    });
+  });
+
+  it('resets two-step verification from "More actions" only after confirming', async () => {
     const user = userEvent.setup();
     const details = userDetails(CHIEF);
     server.use(
@@ -311,24 +401,24 @@ describe('UserDetailPage (spec: User management by Admins)', () => {
     );
     await asAdmin(`/users/${CHIEF.id}`);
 
-    await user.click(await screen.findByRole('button', { name: 'Restablecer la verificación en dos pasos' }));
+    await moreAction(user, 'Restablecer la verificación en dos pasos');
     await user.click(
       within(
-        screen.getByRole('alertdialog', {
+        await screen.findByRole('alertdialog', {
           name: '¿Restablecer la verificación en dos pasos de Jefa Sintética?',
         }),
       ).getByRole('button', { name: 'Restablecer la verificación en dos pasos' }),
     );
 
-    expect(await screen.findByText('Verificación en dos pasos restablecida.')).toBeInTheDocument();
+    await expectSaved('Verificación en dos pasos restablecida.');
     await waitFor(() => {
-      expect(
-        screen.queryByRole('button', { name: 'Restablecer la verificación en dos pasos' }),
-      ).not.toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 1 }).closest('header')).toHaveTextContent(
+        'Verificación en dos pasos: No configurada',
+      );
     });
   });
 
-  it('resends an invitation', async () => {
+  it('resends an invitation from the header', async () => {
     const user = userEvent.setup();
     userDetails(INVITED);
     let calls = 0;
@@ -342,8 +432,49 @@ describe('UserDetailPage (spec: User management by Admins)', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Reenviar invitación' }));
 
-    expect(await screen.findByText('Invitación reenviada.')).toBeInTheDocument();
+    await expectSaved('Invitación reenviada.');
     expect(calls).toBe(1);
+  });
+
+  it('clears an earlier failure once a later action succeeds', async () => {
+    const user = userEvent.setup();
+    userDetails(INVITED);
+    let calls = 0;
+    server.use(
+      mock.post(`/api/users/${INVITED.id}/invitation`, () => {
+        calls += 1;
+        return calls === 1 ? problem(500, 'unexpected') : new HttpResponse(null, { status: 204 });
+      }),
+    );
+    await asAdmin(`/users/${INVITED.id}`);
+
+    await user.click(await screen.findByRole('button', { name: 'Reenviar invitación' }));
+    const failure = await screen.findByRole('alert');
+    await waitFor(() => {
+      expect(failure).toHaveFocus();
+    });
+    await user.click(screen.getByRole('button', { name: 'Reenviar invitación' }));
+
+    await expectSaved('Invitación reenviada.');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('reactivates a deactivated user from "More actions"', async () => {
+    const user = userEvent.setup();
+    const details = userDetails({ ...CHIEF, status: 'DEACTIVATED' });
+    server.use(
+      mock.post(`/api/users/${CHIEF.id}/reactivate`, () => {
+        details.set({ status: 'ACTIVE' });
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    await asAdmin(`/users/${CHIEF.id}`);
+
+    await moreAction(user, 'Reactivar usuario');
+
+    await expectSaved('Usuario reactivado.');
+    await user.click(screen.getByRole('button', { name: 'Más acciones' }));
+    expect(await screen.findByRole('menuitem', { name: 'Desactivar usuario' })).toBeInTheDocument();
   });
 
   it('says when the user does not exist', async () => {
@@ -353,11 +484,16 @@ describe('UserDetailPage (spec: User management by Admins)', () => {
     expect(await screen.findByText('Este usuario no existe.')).toBeInTheDocument();
   });
 
-  it('has no accessibility violations', async () => {
+  it('has no accessibility violations, read-only and with the panel open', async () => {
+    const user = userEvent.setup();
     userDetails(CHIEF);
     const { container } = await asAdmin(`/users/${CHIEF.id}`);
     await screen.findByRole('heading', { level: 1, name: 'Jefa Sintética' });
 
     expect(await axeViolations(container)).toEqual([]);
+    const panel = await editAccount(user);
+    await waitFor(async () => {
+      expect(await axeViolations(panel)).toEqual([]);
+    });
   });
 });

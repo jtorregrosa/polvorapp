@@ -1,16 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { RowData } from '@tanstack/react-table';
-import { createContext, use, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { createContext, use, useMemo, useState, type ReactNode } from 'react';
+import { useAppForm } from '@/components/app/use-app-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { AlertBanner } from '@/components/app/AlertBanner';
 import { Button } from '@/components/app/Button';
 import { ConfirmDialog } from '@/components/app/ConfirmDialog';
-import { ConfirmFailure } from '@/components/app/confirm-failure';
+import { explainFailure } from '@/components/app/confirm-failure';
 import { DataTable, type DataTableColumn } from '@/components/app/DataTable';
 import { Form, FormField } from '@/components/app/FormField';
-import { FormSection } from '@/components/app/FormSection';
+import { SectionCard } from '@/components/app/SectionCard';
 import { SelectInput, type SelectOption } from '@/components/app/SelectInput';
 import type { Notice } from '@/lib/notices';
 import { messages, problemMessage } from '../problems';
@@ -27,6 +27,8 @@ export interface AssignmentCandidate {
 
 export interface AssignmentListText {
   title: string;
+  /** Names the table, distinct from the section's title, e.g. "Firing chiefs of Comparsa Norte". */
+  caption: string;
   description: string;
   emptyText: string;
   addLabel: string;
@@ -51,6 +53,8 @@ export interface AssignmentListProps<TRow extends RowData> {
   columns: readonly DataTableColumn<TRow>[];
   getRowId: (row: TRow) => string;
   getRowName: (row: TRow) => string;
+  /** The row as a stacked item on phones (name first); its remove button is added after it. */
+  describeRow: (row: TRow) => ReactNode;
   isLoading: boolean;
   /** A failed load of the rows or the candidates: shown instead of a misleading empty state. */
   error?: unknown;
@@ -90,13 +94,12 @@ function RemoveCell({ row }: { row: unknown }) {
       title={text.removeTitle(name)}
       description={text.removeDescription}
       confirmLabel={text.remove(name)}
-      onConfirm={async () => {
-        try {
-          await onRemove(row);
-        } catch (error) {
-          throw new ConfirmFailure(problemMessage(t, error));
-        }
-      }}
+      onConfirm={() =>
+        explainFailure(
+          () => onRemove(row),
+          (error) => problemMessage(t, error),
+        )
+      }
       onConfirmed={() => {
         announce('success', text.removed(name));
         void onChanged();
@@ -122,6 +125,7 @@ export function AssignmentList<TRow extends RowData>({
   columns,
   getRowId,
   getRowName,
+  describeRow,
   isLoading,
   error,
   candidates,
@@ -134,7 +138,7 @@ export function AssignmentList<TRow extends RowData>({
   const announce = (severity: Notice['severity'], message: string): void => {
     setNotice((previous) => ({ id: (previous?.id ?? 0) + 1, severity, text: message }));
   };
-  const form = useForm<AddValues>({ resolver: zodResolver(addSchema), defaultValues: { candidate: '' } });
+  const form = useAppForm<AddValues>({ resolver: zodResolver(addSchema), defaultValues: { candidate: '' } });
 
   const add = async ({ candidate }: AddValues): Promise<void> => {
     const name = candidates.find((option) => option.id === candidate)?.name ?? '';
@@ -149,11 +153,8 @@ export function AssignmentList<TRow extends RowData>({
   };
 
   const options = useMemo<SelectOption[]>(
-    () => [
-      { value: '', label: t('validation.choice') },
-      ...candidates.map(({ id, label }) => ({ value: id, label })),
-    ],
-    [candidates, t],
+    () => candidates.map(({ id, label }) => ({ value: id, label })),
+    [candidates],
   );
 
   const actionsHeader = t('comparsas.actions.title');
@@ -180,16 +181,16 @@ export function AssignmentList<TRow extends RowData>({
   };
 
   const addControl = text.addBlocked ? (
-    <p className="text-sm text-muted-foreground">{text.addBlocked}</p>
+    <p className="text-help text-muted-foreground">{text.addBlocked}</p>
   ) : candidates.length === 0 ? (
-    <p className="text-sm text-muted-foreground">{text.noCandidates}</p>
+    <p className="text-help text-muted-foreground">{text.noCandidates}</p>
   ) : (
-    <Form form={form} onSubmit={add} requiredNote={false} className="flex flex-wrap items-start gap-3">
-      <FormField control={form.control} name="candidate" label={text.addLabel} required>
-        {(field) => <SelectInput {...field} options={options} />}
+    <Form form={form} onSubmit={add} requiredNote={false} className="flex flex-wrap items-end gap-3">
+      <FormField control={form.control} name="candidate" label={text.addLabel} width="long">
+        {(field) => <SelectInput {...field} placeholder={t('validation.choice')} options={options} />}
       </FormField>
-      {/* Level with the select, below its label, whether or not an error shows under it. */}
-      <Button type="submit" variant="secondary" className="mt-6" pending={form.formState.isSubmitting}>
+      {/* Level with the select, whether or not an error shows between its label and it. */}
+      <Button type="submit" variant="secondary" pending={form.formState.isSubmitting}>
         {text.add}
       </Button>
     </Form>
@@ -198,7 +199,7 @@ export function AssignmentList<TRow extends RowData>({
   const failed = error !== undefined && error !== null;
 
   return (
-    <FormSection title={text.title} description={text.description}>
+    <SectionCard span="full" title={text.title} description={text.description}>
       {notice && (
         <AlertBanner key={notice.id} severity={notice.severity} focusOnMount>
           {notice.text}
@@ -210,10 +211,18 @@ export function AssignmentList<TRow extends RowData>({
         <>
           <RowActionsContext value={rowActions}>
             <DataTable
-              caption={text.title}
+              caption={text.caption}
               data={rows}
               columns={allColumns}
               getRowId={getRowId}
+              mobileRow={(row) => (
+                <>
+                  {describeRow(row)}
+                  <span>
+                    <RemoveCell row={row} />
+                  </span>
+                </>
+              )}
               isLoading={isLoading}
               paginated={false}
               emptyText={text.emptyText}
@@ -222,6 +231,6 @@ export function AssignmentList<TRow extends RowData>({
           {!isLoading && addControl}
         </>
       )}
-    </FormSection>
+    </SectionCard>
   );
 }

@@ -1,54 +1,116 @@
-import { IdCard, ImageOff, Plus } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { IdCard, Plus } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useSearchParams } from 'react-router';
+import { Link } from 'react-router';
 import { useListArquebusiers } from '@/api/generated/arquebusiers/arquebusiers';
 import { useListComparsas } from '@/api/generated/comparsas/comparsas';
-import {
-  ArquebusierStatus,
-  type ArquebusierRowResponse,
-  type ComparsaResponse,
-  type ListArquebusiersParams,
-} from '@/api/generated/model';
-import { AlertBanner } from '@/components/app/AlertBanner';
+import type { ArquebusierRowResponse, ComparsaResponse, ListArquebusiersParams } from '@/api/generated/model';
+import { NoticeBanner } from '@/components/app/AlertBanner';
 import { Button } from '@/components/app/Button';
-import { DataTable, type DataTableColumn } from '@/components/app/DataTable';
+import { DataTable } from '@/components/app/DataTable';
 import { EmptyState } from '@/components/app/EmptyState';
+import { FilterBar, NoMatches } from '@/components/app/FilterBar';
 import { FilterSelect } from '@/components/app/FilterSelect';
 import { PageHeader } from '@/components/app/PageHeader';
 import { SearchField } from '@/components/app/SearchField';
-import { StatusBadge } from '@/components/app/StatusBadge';
+import { StatFilter } from '@/components/app/StatFilter';
 import { useSession } from '@/features/identity-access/session';
 import { useNotice } from '@/lib/notices';
-import { knownFilter, withFilter } from '@/lib/search-filters';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { LoadFailure } from '../components/LoadFailure';
-import { matchesSearch, searchKey } from '../search';
+import { useArquebusierColumns } from '../components/useArquebusierColumns';
+import { filterRows, useArquebusierFilters } from '../components/useArquebusierFilters';
 
-const STATUSES = Object.values(ArquebusierStatus);
-
-/** Pause after the last keystroke before the count is announced, so it is not read per letter. */
+/** Pause after the last keystroke before the count is shown and announced, so it is not read per letter. */
 const ANNOUNCE_DELAY_MS = 400;
 
-/** The text for the result-count live region: `text`, shortly after it settles, once the user has filtered. */
-function useResultCount(filtered: { readonly current: boolean }, text: string): string {
-  const [announced, setAnnounced] = useState('');
+/** `text` once it has settled for a moment, so typing a search does not announce every letter. */
+function useSettled(text: string): string {
+  const [settled, setSettled] = useState(text);
   useEffect(() => {
-    if (!filtered.current || text === '') return undefined;
     const timer = setTimeout(() => {
-      setAnnounced(text);
+      setSettled(text);
     }, ANNOUNCE_DELAY_MS);
     return () => {
       clearTimeout(timer);
     };
-  }, [filtered, text]);
-  return announced;
+  }, [text]);
+  return settled;
+}
+
+interface ListProps {
+  rows: readonly ArquebusierRowResponse[];
+  loaded: boolean;
+  loading: boolean;
+  comparsas: readonly ComparsaResponse[];
+  filters: ReturnType<typeof useArquebusierFilters>;
+}
+
+/** The counters, the filter bar and the table (or "nothing matches") of the list template. */
+function ArquebusierList({ rows, loaded, loading, comparsas, filters }: ListProps) {
+  const { t } = useTranslation('registry');
+  const { columns, mobileRow } = useArquebusierColumns();
+  const { status, license, searchTerm } = filters;
+  const shown = useMemo(
+    () => filterRows(rows, { status, license, searchTerm }),
+    [rows, status, license, searchTerm],
+  );
+  const resultText = useSettled(
+    loaded && filters.filtered ? t('arquebusiers.resultCount', { count: shown.length }) : '',
+  );
+
+  return (
+    <>
+      {loaded && <StatFilter label={t('arquebusiers.counters.label')} items={filters.counters(rows)} />}
+      <FilterBar
+        filters={
+          comparsas.length > 1 && (
+            <FilterSelect
+              label={t('arquebusiers.filters.comparsa')}
+              value={filters.comparsaId}
+              onChange={(value) => {
+                filters.setFilter('comparsaId', value);
+              }}
+              options={[
+                { value: '', label: t('arquebusiers.filters.all') },
+                ...comparsas.map((comparsa) => ({ value: comparsa.id, label: comparsa.name })),
+              ]}
+            />
+          )
+        }
+        search={
+          <SearchField
+            label={t('arquebusiers.search')}
+            hint={t('arquebusiers.searchHint')}
+            value={filters.term}
+            onChange={filters.setTerm}
+          />
+        }
+        resultText={resultText}
+      />
+      {loaded && shown.length === 0 ? (
+        <NoMatches title={t('arquebusiers.noMatches')} onClear={filters.clearFilters} />
+      ) : (
+        <DataTable
+          caption={t('arquebusiers.caption')}
+          data={shown}
+          columns={columns}
+          getRowId={(row) => row.id}
+          getRowHref={(row) => `/arquebusiers/${row.id}`}
+          mobileRow={mobileRow}
+          isLoading={loading}
+          emptyText={t('arquebusiers.noMatches')}
+        />
+      )}
+    </>
+  );
 }
 
 /**
  * Specs "Arquebusier visibility (BR-12)" and "Registry screens": the arquebusiers of the caller's
- * comparsas (every one for an Admin), filtered by comparsa and status through the API, and searched
- * in the loaded rows by name, DNI/NIE or federation id. The search term stays out of the address,
+ * comparsas (every one for an Admin), filtered by comparsa through the API, and by status and
+ * license state with the counters above the list, which count the rows in scope (design D10). The
+ * search looks at the loaded rows by name, DNI/NIE or federation id and stays out of the address,
  * because it may be a DNI.
  */
 export function ArquebusiersPage() {
@@ -57,25 +119,16 @@ export function ArquebusiersPage() {
   const session = useSession();
   const isAdmin = session.account?.role === 'ADMIN';
   const signedIn = session.status === 'signedIn';
-  const [search, setSearch] = useSearchParams();
-  const [term, setTerm] = useState('');
-  // Counts are announced once the user has searched or filtered, not on the first load.
-  const filtered = useRef(false);
 
   const comparsas = useListComparsas({ includeInactive: true }, { query: { enabled: signedIn } });
   const comparsaList = useMemo(() => (comparsas.data?.data ?? []) as ComparsaResponse[], [comparsas.data]);
-  const comparsaId = knownFilter(
-    search.get('comparsaId'),
-    comparsaList.map((comparsa) => comparsa.id),
-  );
-  const status = knownFilter(search.get('status'), STATUSES);
-  const params: ListArquebusiersParams = {
-    ...(comparsaId ? { comparsaId } : {}),
-    ...(status ? { status } : {}),
-  };
+  const comparsaIds = useMemo(() => comparsaList.map((comparsa) => comparsa.id), [comparsaList]);
+  const filters = useArquebusierFilters(comparsaIds);
+  const { comparsaId } = filters;
+  const params: ListArquebusiersParams = comparsaId ? { comparsaId } : {};
   // A comparsa filter in the address is only known once the comparsas are: until then nothing is
   // listed, rather than every arquebusier the caller may see.
-  const waitingForComparsas = search.get('comparsaId') !== null && !comparsas.isSuccess;
+  const waitingForComparsas = filters.comparsaInAddress && !comparsas.isSuccess;
   const arquebusiers = useListArquebusiers(params, {
     query: { enabled: signedIn && !waitingForComparsas },
   });
@@ -84,86 +137,10 @@ export function ArquebusiersPage() {
     [arquebusiers.data],
   );
 
-  const searchTerm = searchKey(term);
-  const shown = useMemo(
-    () => (searchTerm ? rows.filter((row) => matchesSearch(row, searchTerm)) : rows),
-    [rows, searchTerm],
-  );
-
-  const columns = useMemo<DataTableColumn<ArquebusierRowResponse>[]>(
-    () => [
-      {
-        id: 'name',
-        header: t('arquebusiers.columns.name'),
-        sortValue: (row) => `${row.lastName} ${row.firstName}`,
-        cell: (row) => (
-          <div className="flex flex-col gap-1">
-            <Link
-              to={`/arquebusiers/${row.id}`}
-              className="font-medium text-primary underline-offset-4 hover:underline"
-            >
-              {`${row.lastName}, ${row.firstName}`}
-            </Link>
-            {/* Spec "Photo screens": a missing ID photo is said in words, never by colour or icon alone. */}
-            {!row.hasIdPhoto && (
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <ImageOff aria-hidden="true" className="size-3.5" />
-                {t('arquebusiers.columns.noIdPhoto')}
-              </span>
-            )}
-          </div>
-        ),
-      },
-      { id: 'nationalId', header: t('arquebusiers.columns.nationalId'), cell: (row) => row.nationalId },
-      {
-        id: 'federationId',
-        header: t('arquebusiers.columns.federationId'),
-        align: 'end',
-        sortValue: (row) => row.federationId,
-        cell: (row) => row.federationId,
-      },
-      {
-        id: 'comparsa',
-        header: t('arquebusiers.columns.comparsa'),
-        sortValue: (row) => row.comparsaName,
-        cell: (row) => row.comparsaName,
-      },
-      {
-        id: 'status',
-        header: t('arquebusiers.columns.status'),
-        cell: (row) => <StatusBadge kind="arquebusier" value={row.status} />,
-      },
-      {
-        id: 'license',
-        header: t('arquebusiers.columns.license'),
-        cell: (row) =>
-          row.licenseStatus ? (
-            <StatusBadge kind="license" value={row.licenseStatus} />
-          ) : (
-            <span className="text-sm text-muted-foreground">{t('arquebusiers.noLicense')}</span>
-          ),
-      },
-    ],
-    [t],
-  );
-
-  const setFilter = (key: 'comparsaId' | 'status', value: string): void => {
-    filtered.current = true;
-    setSearch(withFilter(search, key, value), { replace: true });
-  };
-
   const [notice] = useNotice();
-  const resultCount = useResultCount(
-    filtered,
-    arquebusiers.isSuccess
-      ? shown.length === 0
-        ? t('arquebusiers.noMatches')
-        : t('arquebusiers.resultCount', { count: shown.length })
-      : '',
-  );
   const unassigned = !isAdmin && comparsas.isSuccess && comparsaList.length === 0;
   const canRegister = isAdmin || comparsaList.some((comparsa) => comparsa.active);
-  const neverFilled = arquebusiers.isSuccess && rows.length === 0 && !comparsaId && !status;
+  const neverFilled = arquebusiers.isSuccess && rows.length === 0 && !comparsaId;
   const registerAction = canRegister && (
     <Button asChild>
       <Link to="/arquebusiers/new">
@@ -172,6 +149,8 @@ export function ArquebusiersPage() {
       </Link>
     </Button>
   );
+  const showList =
+    !unassigned && !neverFilled && !arquebusiers.isError && !(waitingForComparsas && comparsas.isError);
 
   return (
     <>
@@ -180,26 +159,17 @@ export function ArquebusiersPage() {
         description={isAdmin ? t('arquebusiers.description') : t('arquebusiers.descriptionFiringChief')}
         actions={!unassigned && registerAction}
       />
-      {notice && (
-        <AlertBanner key={notice.id} severity={notice.severity} className="mb-4 max-w-xl" focusOnMount>
-          {notice.text}
-        </AlertBanner>
-      )}
+      <NoticeBanner notice={notice} />
       {comparsas.isError && (
         <LoadFailure
-          className="mb-4"
           error={comparsas.error}
           consequence={waitingForComparsas ? t('load.list') : undefined}
           onRetry={() => comparsas.refetch()}
         />
       )}
       {arquebusiers.isError && (
-        <LoadFailure className="mb-4" error={arquebusiers.error} onRetry={() => arquebusiers.refetch()} />
+        <LoadFailure error={arquebusiers.error} onRetry={() => arquebusiers.refetch()} />
       )}
-      {/* Searching and filtering change the table silently: say how many rows remain (WCAG 4.1.3). */}
-      <p role="status" className="sr-only">
-        {resultCount}
-      </p>
       {unassigned && (
         <EmptyState
           icon={IdCard}
@@ -214,59 +184,15 @@ export function ArquebusiersPage() {
           description={canRegister ? t('arquebusiers.empty.description') : undefined}
         />
       )}
-      {!unassigned &&
-        !neverFilled &&
-        !arquebusiers.isError &&
-        !(waitingForComparsas && comparsas.isError) && (
-          <>
-            <div className="mb-4 flex flex-wrap items-start gap-4">
-              <SearchField
-                label={t('arquebusiers.search')}
-                hint={t('arquebusiers.searchHint')}
-                value={term}
-                onChange={(value) => {
-                  filtered.current = true;
-                  setTerm(value);
-                }}
-              />
-              {comparsaList.length > 1 && (
-                <FilterSelect
-                  label={t('arquebusiers.filters.comparsa')}
-                  value={comparsaId}
-                  onChange={(value) => {
-                    setFilter('comparsaId', value);
-                  }}
-                  options={[
-                    { value: '', label: t('arquebusiers.filters.all') },
-                    ...comparsaList.map((comparsa) => ({ value: comparsa.id, label: comparsa.name })),
-                  ]}
-                />
-              )}
-              <FilterSelect
-                label={t('arquebusiers.filters.status')}
-                value={status}
-                onChange={(value) => {
-                  setFilter('status', value);
-                }}
-                options={[
-                  { value: '', label: t('arquebusiers.filters.allStatuses') },
-                  ...STATUSES.map((value) => ({
-                    value,
-                    label: t(`status.arquebusier.${value}`, { ns: 'ui' }),
-                  })),
-                ]}
-              />
-            </div>
-            <DataTable
-              caption={t('arquebusiers.caption')}
-              data={shown}
-              columns={columns}
-              getRowId={(row) => row.id}
-              isLoading={arquebusiers.isPending}
-              emptyText={t('arquebusiers.noMatches')}
-            />
-          </>
-        )}
+      {showList && (
+        <ArquebusierList
+          rows={rows}
+          loaded={arquebusiers.isSuccess}
+          loading={arquebusiers.isPending}
+          comparsas={comparsaList}
+          filters={filters}
+        />
+      )}
     </>
   );
 }

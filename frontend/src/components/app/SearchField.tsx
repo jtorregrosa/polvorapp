@@ -19,14 +19,16 @@ export function SearchField({ label, hint, value, onChange }: SearchFieldProps) 
   const id = useId();
   const hintId = useId();
   return (
-    <div className="grid gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium">
+    <div className="grid gap-field">
+      <label htmlFor={id} className="text-label">
         {label}
       </label>
       <TextInput
         id={id}
         type="search"
         autoComplete="off"
+        // Searches by names and identity numbers: never sent to a cloud spellchecker.
+        spellCheck={false}
         value={value}
         aria-describedby={hint ? hintId : undefined}
         onChange={(event) => {
@@ -34,7 +36,7 @@ export function SearchField({ label, hint, value, onChange }: SearchFieldProps) 
         }}
       />
       {hint && (
-        <p id={hintId} className="text-sm text-muted-foreground">
+        <p id={hintId} className="text-help text-muted-foreground">
           {hint}
         </p>
       )}

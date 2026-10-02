@@ -1,7 +1,9 @@
-import { expect, openNavigation, test, waitForShell } from './fixtures';
+import { chooseTheme, expect, openNavigation, openUserMenu, test, waitForShell } from './fixtures';
 
 test.describe('application layout', () => {
-  test('shows breadcrumbs and switchers in the top bar', async ({ page }) => {
+  test('shows the breadcrumbs and the user menu, which holds the switchers, in the top bar', async ({
+    page,
+  }) => {
     await page.goto('/does/not/exist');
     await waitForShell(page);
 
@@ -9,8 +11,25 @@ test.describe('application layout', () => {
     const breadcrumbs = banner.getByRole('navigation', { name: 'Ruta de navegación' });
     await expect(breadcrumbs.getByRole('link', { name: 'Inicio' })).toHaveAttribute('href', '/');
     await expect(breadcrumbs.getByText('Página no encontrada')).toHaveAttribute('aria-current', 'page');
-    await expect(banner.getByRole('combobox', { name: 'Idioma' })).toBeVisible();
-    await expect(banner.getByRole('button', { name: /^Tema/ })).toBeVisible();
+    const menu = await openUserMenu(page);
+    await expect(menu.getByRole('group', { name: 'Idioma' })).toBeVisible();
+    await expect(menu.getByRole('group', { name: 'Tema' })).toBeVisible();
+  });
+
+  test('uses the width up to 1680 px beside the sidebar, with the top bar aligned to it', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 2560, height: 1200 });
+    await page.goto('/');
+    await waitForShell(page);
+
+    const content = await page.getByRole('main').locator('> div').first().boundingBox();
+    const bar = await page.getByRole('banner').locator('> div').first().boundingBox();
+    const sidebar = await page.locator('[data-slot="sidebar-container"]').boundingBox();
+    expect(content?.width).toBe(1680);
+    expect(bar?.x).toBe(content?.x);
+    expect(bar?.width).toBe(content?.width);
+    expect((content?.x ?? 0) - ((sidebar?.x ?? 0) + (sidebar?.width ?? 0))).toBe(28);
   });
 
   test('navigates from the navigation and marks the current page', async ({ page }) => {
@@ -45,6 +64,74 @@ test.describe('navigation drawer on small screens', () => {
     await expect(drawer).toBeHidden();
     await expect(trigger).toBeFocused();
   });
+
+  test('opens with a short fade and no slide when the user asks for reduced motion', async ({ page }) => {
+    // Animations at a hundredth of their speed (Chromium): still running when they are read, while
+    // their declared duration is unchanged. Otherwise a 100 ms fade may already be over.
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Animation.enable');
+    await cdp.send('Animation.setPlaybackRate', { playbackRate: 0.01 });
+    /** The drawer's opening animation: its duration and whether any keyframe moves it. */
+    const openDrawer = async () => {
+      await page.goto('/');
+      await waitForShell(page);
+      await page.getByRole('button', { name: 'Mostrar u ocultar la navegación' }).click();
+      return page.getByRole('dialog').evaluate((element) => {
+        const [animation] = element.getAnimations();
+        if (!animation) return null;
+        const keyframes = (animation.effect as KeyframeEffect).getKeyframes();
+        return {
+          duration: Number(animation.effect?.getComputedTiming().duration),
+          moves: keyframes.some((frame) => /translate3d\((?!0px, 0px)/.test(String(frame.transform ?? ''))),
+        };
+      });
+    };
+
+    // Without the preference the drawer slides in, so the check below is not vacuous.
+    const normal = await openDrawer();
+    expect(normal?.moves).toBe(true);
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const reduced = await openDrawer();
+    expect(reduced).not.toBeNull();
+    expect(reduced?.moves).toBe(false);
+    expect(reduced?.duration).toBeLessThanOrEqual(100);
+  });
+
+  test('opens an edit panel with a short fade and no slide when the user asks for reduced motion', async ({
+    page,
+  }) => {
+    // Animations at a hundredth of their speed (Chromium): still running when they are read, while
+    // their declared duration is unchanged. Otherwise a 100 ms fade may already be over.
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Animation.enable');
+    await cdp.send('Animation.setPlaybackRate', { playbackRate: 0.01 });
+    /** The edit panel's opening animation: its duration and whether any keyframe moves it. */
+    const openPanel = async () => {
+      await page.goto('/comparsas/0193a100-0000-7000-8000-000000000001');
+      await waitForShell(page);
+      await page.getByRole('button', { name: 'Editar datos de la comparsa' }).click();
+      return page.getByRole('dialog', { name: 'Editar datos de la comparsa' }).evaluate((element) => {
+        const [animation] = element.getAnimations();
+        if (!animation) return null;
+        const keyframes = (animation.effect as KeyframeEffect).getKeyframes();
+        return {
+          duration: Number(animation.effect?.getComputedTiming().duration),
+          moves: keyframes.some((frame) => /translate3d\((?!0px, 0px)/.test(String(frame.transform ?? ''))),
+        };
+      });
+    };
+
+    // Without the preference the panel slides in, so the check below is not vacuous.
+    const normal = await openPanel();
+    expect(normal?.moves).toBe(true);
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const reduced = await openPanel();
+    expect(reduced).not.toBeNull();
+    expect(reduced?.moves).toBe(false);
+    expect(reduced?.duration).toBeLessThanOrEqual(100);
+  });
 });
 
 test.describe('theme', () => {
@@ -52,8 +139,7 @@ test.describe('theme', () => {
     await page.goto('/');
     await waitForShell(page);
 
-    await page.getByRole('button', { name: /^Tema/ }).click();
-    await page.getByRole('menuitemradio', { name: 'Oscuro' }).click();
+    await chooseTheme(page, 'Oscuro');
     await expect(page.locator('html')).toHaveClass(/dark/);
 
     await page.addInitScript(() => {

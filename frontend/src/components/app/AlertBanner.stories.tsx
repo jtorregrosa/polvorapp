@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { AlertBanner } from './AlertBanner';
+import { AlertBanner, NoticeBanner } from './AlertBanner';
 
 const meta = {
   title: 'Composites/AlertBanner',
@@ -34,4 +34,9 @@ export const LongValencian: Story = {
     children:
       'Revisa la documentació abans de tancar la comanda de pólvora de la comparsa; els avisos no bloquegen l’enviament.',
   },
+};
+
+/** The outcome of an action handed over by the previous page, e.g. after a deletion. */
+export const Notice: Story = {
+  render: () => <NoticeBanner notice={{ id: 1, severity: 'success', text: 'Comparsa eliminada.' }} />,
 };

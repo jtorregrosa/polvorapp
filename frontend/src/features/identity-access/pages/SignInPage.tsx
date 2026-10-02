@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useAppForm } from '@/components/app/use-app-form';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { z } from 'zod';
@@ -42,14 +42,14 @@ function ReasonNotice({ reason }: { reason: string | null }) {
   const { t } = useTranslation('identity');
   if (reason === 'expired') {
     return (
-      <AlertBanner severity="info" className="mb-4" focusOnMount>
+      <AlertBanner severity="info" focusOnMount>
         {t('signIn.expired')}
       </AlertBanner>
     );
   }
   if (reason === 'stepExpired') {
     return (
-      <AlertBanner severity="info" className="mb-4" focusOnMount>
+      <AlertBanner severity="info" focusOnMount>
         {t('errors.auth.stepExpired')}
       </AlertBanner>
     );
@@ -67,7 +67,10 @@ export function SignInPage() {
   const completeSignIn = useCompleteSignIn();
   const login = useLogin();
   const [error, setError] = useState<unknown>();
-  const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { email: '', password: '' } });
+  const form = useAppForm<Values>({
+    resolver: zodResolver(schema),
+    defaultValues: { email: '', password: '' },
+  });
 
   const onSubmit = async (values: Values): Promise<void> => {
     setError(undefined);
@@ -99,10 +102,12 @@ export function SignInPage() {
       <PageHeader title={t('signIn.title')} description={t('signIn.description')} />
       {error === undefined && <ReasonNotice reason={search.get('reason')} />}
       <Form form={form} onSubmit={onSubmit} requiredNote={false}>
-        <FormField control={form.control} name="email" label={t('signIn.email')} required>
-          {(field) => <TextInput type="email" autoComplete="username" inputMode="email" {...field} />}
+        <FormField control={form.control} name="email" label={t('signIn.email')}>
+          {(field) => (
+            <TextInput type="email" autoComplete="username" inputMode="email" spellCheck={false} {...field} />
+          )}
         </FormField>
-        <FormField control={form.control} name="password" label={t('signIn.password')} required>
+        <FormField control={form.control} name="password" label={t('signIn.password')}>
           {(field) => <PasswordInput autoComplete="current-password" {...field} />}
         </FormField>
         {error !== undefined && <AlertBanner severity="error">{problemMessage(t, error)}</AlertBanner>}
@@ -110,8 +115,11 @@ export function SignInPage() {
           {t('signIn.submit')}
         </Button>
       </Form>
-      <p className="mt-6 text-sm">
-        <Link to="/password/forgot" className="font-medium text-primary underline-offset-4 hover:underline">
+      <p className="text-body">
+        <Link
+          to="/password/forgot"
+          className="font-medium text-primary underline underline-offset-4 hover:no-underline"
+        >
           {t('signIn.forgot')}
         </Link>
       </p>

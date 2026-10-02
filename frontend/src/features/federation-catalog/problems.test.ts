@@ -41,20 +41,15 @@ describe('catalogue problems', () => {
     );
 
     expect(applied).toBe(true);
-    expect(setError).toHaveBeenCalledWith(
-      'rentable',
-      { type: 'server', message: messages.pistolNotRentable },
-      { shouldFocus: true },
-    );
-    expect(setError).toHaveBeenCalledWith(
-      'label',
-      { type: 'server', message: messages.invalid },
-      { shouldFocus: false },
-    );
+    expect(setError).toHaveBeenCalledWith('rentable', {
+      type: 'server',
+      message: messages.pistolNotRentable,
+    });
+    expect(setError).toHaveBeenCalledWith('label', { type: 'server', message: messages.invalid });
     expect(setError).toHaveBeenCalledTimes(2);
   });
 
-  it('puts a conflict about one field on that field and focuses it', () => {
+  it('puts a conflict about one field on that field', () => {
     const setError = vi.fn();
 
     const applied = applyFieldErrors<{ name: string }>(
@@ -65,11 +60,10 @@ describe('catalogue problems', () => {
     );
 
     expect(applied).toBe(true);
-    expect(setError).toHaveBeenCalledWith(
-      'name',
-      { type: 'server', message: 'catalog:errors.comparsas.nameTaken' },
-      { shouldFocus: true },
-    );
+    expect(setError).toHaveBeenCalledWith('name', {
+      type: 'server',
+      message: 'catalog:errors.comparsas.nameTaken',
+    });
   });
 
   it('applies nothing for other problems', () => {

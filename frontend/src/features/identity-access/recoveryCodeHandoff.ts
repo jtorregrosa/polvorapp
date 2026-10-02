@@ -1,5 +1,5 @@
 import { useQueryClient, type QueryClient } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 /**
  * New recovery codes travel from the page that created them to the page that shows them in memory
@@ -19,5 +19,9 @@ export function useHandedOverRecoveryCodes(): { codes: readonly string[]; forget
   const forget = useCallback(() => {
     queryClient.removeQueries({ queryKey: RECOVERY_CODES_KEY });
   }, [queryClient]);
+  // Read once, then gone from the cache: leaving the page and coming back never shows them again.
+  useEffect(() => {
+    forget();
+  }, [forget]);
   return { codes, forget };
 }

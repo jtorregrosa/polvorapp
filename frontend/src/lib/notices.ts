@@ -20,10 +20,11 @@ export function noticeState(
 
 /**
  * The page's outcome notice: starts with one handed over by the previous page (shown once, not
- * again after a reload or on coming back) and is replaced by each `announce`. Rendered as an
- * `AlertBanner` with `focusOnMount`, so focus never gets lost when a control goes away.
+ * again after a reload or on coming back) and is replaced by each `announce`; `clear` removes it
+ * when a later action makes it out of date. Rendered as an `AlertBanner` with `focusOnMount`, so
+ * focus never gets lost when a control goes away.
  */
-export function useNotice(): [Notice | undefined, Announce] {
+export function useNotice(): [Notice | undefined, Announce, () => void] {
   const location = useLocation();
   const navigate = useNavigate();
   const [notice, setNotice] = useState<Notice | undefined>(() => {
@@ -43,5 +44,8 @@ export function useNotice(): [Notice | undefined, Announce] {
   const announce: Announce = useCallback((severity, text) => {
     setNotice((previous) => ({ id: (previous?.id ?? 0) + 1, severity, text }));
   }, []);
-  return [notice, announce];
+  const clear = useCallback(() => {
+    setNotice(undefined);
+  }, []);
+  return [notice, announce, clear];
 }

@@ -14,7 +14,8 @@
       "comparsa": "Comparsa",
       "status": "Status",
       "license": "License",
-      "noIdPhoto": "No ID photo"
+      "noIdPhoto": "No ID photo",
+      "expiresOn": "Expires on {{date}}"
     },
     "filters": {
       "comparsa": "Comparsa",
@@ -33,7 +34,16 @@
       "description": "A Federation admin has to assign you to your comparsa before you can see its arquebusiers."
     },
     "resultCount_one": "{{count}} arquebusier",
-    "resultCount_other": "{{count}} arquebusiers"
+    "resultCount_other": "{{count}} arquebusiers",
+    "counters": {
+      "label": "Arquebusiers at a glance",
+      "active": "Active",
+      "reserve": "In reserve",
+      "expired": "Expired license",
+      "pending": "License pending",
+      "none": "No license"
+    },
+    "resultCount_zero": "No arquebusier matches the search or the filters."
   },
   "form": {
     "newTitle": "Register arquebusier",
@@ -79,12 +89,60 @@
     "datesRestored": "License dates restored.",
     "noActiveComparsa": "There is no active comparsa you can register arquebusiers in.",
     "savedReplacePhotos": "Saved. If you renewed the license, replace its photos too.",
-    "registeredUnnamedPhotoNotSaved": "Arquebusier registered, but the ID photo was not saved. Open them from the list to add it."
+    "registeredUnnamedPhotoNotSaved": "Arquebusier registered, but the ID photo was not saved. Open them from the list to add it.",
+    "membership": "Comparsa and status",
+    "membershipDescription": "The comparsa it is registered in, and whether it shoots this year.",
+    "help": "Have the identity document at hand and, if there is one, the weapons license. You can add the ID photo now or later from the record.",
+    "cancel": "Cancel"
   },
   "detail": {
     "back": "Back to arquebusiers",
     "loading": "Loading arquebusier…",
-    "inactiveComparsa": "The comparsa {{name}} is inactive: it takes no new arquebusiers, but you can still edit this one."
+    "inactiveComparsa": "The comparsa {{name}} is inactive: it takes no new arquebusiers, but you can still edit this one.",
+    "keyFacts": {
+      "label": "Key facts",
+      "licenseExpires": "License expires",
+      "licenseElapsed": "{{percent}} % of the license's validity has passed",
+      "noLicense": "No license",
+      "pending": "Pending",
+      "course": "Course",
+      "noCourse": "Not done",
+      "weapons": "Owned weapons"
+    },
+    "warnings": {
+      "title": "Compliance warnings",
+      "license": "The license is not valid.",
+      "course": "No arquebusier course is recorded.",
+      "hint": "These are warnings, not errors: you can still save."
+    },
+    "sections": {
+      "personal": {
+        "edit": "Edit personal data",
+        "name": "personal data"
+      },
+      "license": {
+        "edit": "Edit license",
+        "name": "license"
+      },
+      "course": {
+        "edit": "Edit course",
+        "name": "course"
+      }
+    },
+    "values": {
+      "pending": "Pending, no dates yet",
+      "courseDone": "Done on {{date}}",
+      "courseNotDone": "Not recorded"
+    },
+    "status": {
+      "toReserve": "Move to reserve",
+      "toActive": "Make active",
+      "changed": "{{name}} is now {{status}}."
+    },
+    "courseState": {
+      "done": "Course done",
+      "missing": "No course"
+    }
   },
   "ownedWeapons": {
     "title": "Owned weapons",
@@ -122,7 +180,8 @@
       "added": "Weapon added.",
       "saved": "Changes saved.",
       "back": "Back to the arquebusier",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "section": "Weapon"
     }
   },
   "transfer": {

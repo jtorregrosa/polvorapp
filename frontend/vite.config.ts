@@ -21,8 +21,8 @@ export default defineConfig({
         start_url: '/',
         display: 'standalone',
         // Token values (src/styles/tokens.css): primary and light background.
-        theme_color: '#c2410c',
-        background_color: '#faf9f7',
+        theme_color: '#b8430b',
+        background_color: '#f3f3f6',
       },
       workbox: {
         // A new version takes over at once instead of waiting for every tab to close: without

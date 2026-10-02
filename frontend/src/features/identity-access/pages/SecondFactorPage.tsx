@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useAppForm } from '@/components/app/use-app-form';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { z } from 'zod';
@@ -30,7 +30,7 @@ export function SecondFactorPage() {
   const [rememberDevice, setRememberDevice] = useState(false);
   const [error, setError] = useState<unknown>();
   const [signedIn, setSignedIn] = useState(false);
-  const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { code: '' } });
+  const form = useAppForm<Values>({ resolver: zodResolver(schema), defaultValues: { code: '' } });
 
   /** Loads the session and goes on; a failure leaves the person here, signed in, to retry. */
   const finish = async (): Promise<void> => {
@@ -69,8 +69,10 @@ export function SecondFactorPage() {
     <>
       <PageHeader title={t('secondFactor.title')} description={t('secondFactor.description')} />
       <Form form={form} onSubmit={onSubmit} requiredNote={false}>
-        <FormField control={form.control} name="code" label={t('secondFactor.code')} required>
-          {(field) => <TextInput autoComplete="one-time-code" inputMode="numeric" {...field} />}
+        <FormField control={form.control} name="code" label={t('secondFactor.code')}>
+          {(field) => (
+            <TextInput autoComplete="one-time-code" inputMode="numeric" spellCheck={false} {...field} />
+          )}
         </FormField>
         <CheckboxField
           label={t('secondFactor.rememberDevice')}
@@ -83,14 +85,15 @@ export function SecondFactorPage() {
           {t('secondFactor.submit')}
         </Button>
       </Form>
-      <p className="mt-6 text-sm">
+      <p className="text-body">
         <Link
           to={`/login/recovery-code?returnTo=${encodeURIComponent(returnTo)}`}
-          className="font-medium text-primary underline-offset-4 hover:underline"
+          className="font-medium text-primary underline underline-offset-4 hover:no-underline"
         >
           {t('secondFactor.useRecoveryCode')}
         </Link>
       </p>
+      <p className="text-help text-muted-foreground">{t('secondFactor.lostEverything')}</p>
     </>
   );
 }

@@ -1,12 +1,14 @@
 import { cva } from 'class-variance-authority';
-import { cn } from 'cn';
+import { cn } from '@/lib/cn';
 import { CircleCheck, CircleX, Info, TriangleAlert, type LucideIcon } from 'lucide-react';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { Notice } from '@/lib/notices';
 
 export type AlertSeverity = 'info' | 'success' | 'warning' | 'error';
 
-const banner = cva('flex gap-3 rounded-lg px-4 py-3 text-sm', {
+// The transparent border shows in forced colours (Windows high contrast), where backgrounds go.
+const banner = cva('flex gap-3 rounded-lg border border-transparent px-4 py-3 text-sm', {
   variants: {
     severity: {
       info: 'bg-info-soft text-info-soft-foreground',
@@ -34,6 +36,11 @@ export interface AlertBannerProps {
    * (e.g. a confirmed deactivation), so it is read and focus is not lost (WCAG 2.4.3).
    */
   focusOnMount?: boolean;
+  /**
+   * False for a lasting state shown with the page (e.g. "this comparsa is inactive"): not a live
+   * region, so it is read in place and never competes with the announcement of an action.
+   */
+  live?: boolean;
 }
 
 /**
@@ -48,6 +55,7 @@ export function AlertBanner({
   children,
   className,
   focusOnMount = false,
+  live = true,
 }: AlertBannerProps) {
   const { t } = useTranslation('ui');
   const region = useRef<HTMLDivElement>(null);
@@ -62,7 +70,7 @@ export function AlertBanner({
   return (
     <div
       ref={region}
-      role={severity === 'error' ? 'alert' : 'status'}
+      role={live ? (severity === 'error' ? 'alert' : 'status') : undefined}
       data-severity={severity}
       tabIndex={focusOnMount ? -1 : undefined}
       className={cn(banner({ severity }), 'outline-none', className)}
@@ -80,5 +88,18 @@ export function AlertBanner({
         <div>{children}</div>
       </div>
     </div>
+  );
+}
+
+/**
+ * The outcome notice of a page (`useNotice`), under its header: shown and focused afresh for each
+ * new notice, so focus is never lost when the control that acted goes away.
+ */
+export function NoticeBanner({ notice }: { notice: Notice | undefined }) {
+  if (!notice) return null;
+  return (
+    <AlertBanner key={notice.id} severity={notice.severity} className="max-w-form" focusOnMount>
+      {notice.text}
+    </AlertBanner>
   );
 }

@@ -42,35 +42,47 @@ export function defaultExpiry(type: string, issuedOn: string): string {
   return `${String(target).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(Math.min(day, lastDay)).padStart(2, '0')}`;
 }
 
-/**
- * The arquebusier form as the register and edit pages validate it (specs: Arquebusier data,
- * National ID validation, Current license, Training course), mirroring the server's blocking rules
- * so most mistakes are caught before submitting. Every rule is checked in one pass.
- */
-export const arquebusierSchema = z
-  .object({
-    comparsaId: z.string(),
-    federationId: z.string(),
-    nationalId: z.string(),
-    firstName: z.string(),
-    lastName: z.string(),
-    birthDate: z.string(),
-    email: z.string(),
-    phone: z.string(),
-    gender: z.string(),
-    status: z.string(),
-    trainingCompletedOn: z.string(),
-    licenseType: z.string(),
-    licensePending: z.boolean(),
-    issuedOn: z.string(),
-    expiresOn: z.string(),
-  })
-  .superRefine((values, context) => {
-    const issue = (path: string, message: string) => {
-      context.addIssue({ code: 'custom', path: [path], message });
-    };
-    const today = todayIso();
+const SHAPE = {
+  comparsaId: z.string(),
+  federationId: z.string(),
+  nationalId: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  birthDate: z.string(),
+  email: z.string(),
+  phone: z.string(),
+  gender: z.string(),
+  status: z.string(),
+  trainingCompletedOn: z.string(),
+  licenseType: z.string(),
+  licensePending: z.boolean(),
+  issuedOn: z.string(),
+  expiresOn: z.string(),
+};
 
+type Field = keyof typeof SHAPE;
+
+/**
+ * The sections of the record (design D9): each field belongs to exactly one. The detail page edits
+ * `personal`, `license` and `course` in their own panels; `record` holds what record actions change
+ * (the comparsa by a transfer, the status from "More actions").
+ */
+export const SECTION_FIELDS = {
+  personal: ['federationId', 'nationalId', 'firstName', 'lastName', 'birthDate', 'gender', 'email', 'phone'],
+  license: ['licenseType', 'licensePending', 'issuedOn', 'expiresOn'],
+  course: ['trainingCompletedOn'],
+  record: ['comparsaId', 'status'],
+} as const satisfies Record<string, readonly Field[]>;
+
+export type ArquebusierSection = keyof typeof SECTION_FIELDS;
+
+type Values = z.output<z.ZodObject<typeof SHAPE>>;
+type Issue = (path: Field, message: string) => void;
+
+/** The blocking rules of each section, mirroring the server's (specs: Arquebusier data, National ID, Current license, Training course). */
+const CHECKS: Record<ArquebusierSection, (values: Values, issue: Issue) => void> = {
+  personal: (values, issue) => {
+    const today = todayIso();
     const federationId = values.federationId.trim();
     if (federationId === '') {
       issue('federationId', messages.required);
@@ -102,7 +114,6 @@ export const arquebusierSchema = z
     }
 
     checkDate(values.birthDate, 'birthDate', { required: true, today, earliest: EARLIEST_BIRTH_DATE }, issue);
-    checkDate(values.trainingCompletedOn, 'trainingCompletedOn', { required: false, today }, issue);
 
     const email = values.email.trim();
     if (email.length > MAX_EMAIL_LENGTH) {
@@ -121,24 +132,62 @@ export const arquebusierSchema = z
     if (!GENDERS.includes(values.gender)) {
       issue('gender', messages.choice);
     }
-    if (!STATUSES.includes(values.status)) {
-      issue('status', messages.choice);
-    }
-
+  },
+  license: (values, issue) => {
     if (values.licenseType !== '' && !values.licensePending) {
-      checkDate(values.issuedOn, 'issuedOn', { required: true, today }, issue);
+      checkDate(values.issuedOn, 'issuedOn', { required: true, today: todayIso() }, issue);
       checkDate(values.expiresOn, 'expiresOn', { required: false }, issue);
       if (isIsoDate(values.issuedOn) && isIsoDate(values.expiresOn) && values.expiresOn <= values.issuedOn) {
         issue('expiresOn', messages.notAfterIssued);
       }
     }
+  },
+  course: (values, issue) => {
+    checkDate(
+      values.trainingCompletedOn,
+      'trainingCompletedOn',
+      { required: false, today: todayIso() },
+      issue,
+    );
+  },
+  record: (values, issue) => {
+    if (!STATUSES.includes(values.status)) {
+      issue('status', messages.choice);
+    }
+  },
+};
+
+/** A schema over every field that checks only the rules of `sections`: other stored values never block it. */
+function schemaFor(sections: readonly ArquebusierSection[]) {
+  return z.object(SHAPE).superRefine((values, context) => {
+    const issue: Issue = (path, message) => {
+      context.addIssue({ code: 'custom', path: [path], message });
+    };
+    for (const section of sections) CHECKS[section](values, issue);
   });
+}
+
+/**
+ * The whole arquebusier as the register form validates it, mirroring the server's blocking rules
+ * so most mistakes are caught before submitting. Every rule is checked in one pass.
+ */
+export const arquebusierSchema = schemaFor(['personal', 'license', 'course', 'record']);
+
+/**
+ * One section of the detail page (design D9): the record's values, checked by that section's rules
+ * only, so a stored value outside the section can never block saving it.
+ */
+export const SECTION_SCHEMAS = {
+  personal: schemaFor(['personal']),
+  license: schemaFor(['license']),
+  course: schemaFor(['course']),
+} as const;
 
 function checkDate(
   value: string,
-  path: string,
+  path: Field,
   { required, today, earliest }: { required: boolean; today?: string; earliest?: string },
-  issue: (path: string, message: string) => void,
+  issue: Issue,
 ): void {
   if (value === '') {
     if (required) issue(path, messages.required);

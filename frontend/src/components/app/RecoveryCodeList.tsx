@@ -34,7 +34,8 @@ export function RecoveryCodeList({ codes }: RecoveryCodeListProps) {
       <ul
         role="list"
         aria-label={t('recoveryCodes.label')}
-        className="grid grid-cols-2 gap-2 rounded-md border bg-muted/50 p-4 font-mono text-sm"
+        // One column on phones, so a code never overflows (WCAG 1.4.10).
+        className="grid grid-cols-1 gap-2 rounded-md border bg-muted/50 p-4 font-mono text-sm break-all sm:grid-cols-2"
       >
         {codes.map((code) => (
           <li key={code} className="tracking-wider">

@@ -1,4 +1,4 @@
-import { useRef, useState, type MouseEvent, type ReactElement, type RefObject } from 'react';
+import { useRef, useState, type MouseEvent, type ReactElement, type ReactNode, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AlertDialog,
@@ -24,8 +24,10 @@ export interface ConfirmDialogProps {
   /**
    * May be asynchronous: the dialog stays open and disabled until it settles, and on failure. A
    * {@link ConfirmFailure} rejection shows its (translated) message; anything else a generic one.
+   * Returning `false` keeps the dialog open without a message, e.g. when a field inside it already
+   * says what is missing.
    */
-  onConfirm: () => void | Promise<void>;
+  onConfirm: () => unknown;
   /**
    * Runs after the dialog has closed following a successful confirmation, e.g. to show the
    * outcome with a focused notice. Focus is then left to it instead of returning to the trigger,
@@ -42,6 +44,12 @@ export interface ConfirmDialogProps {
    * `onConfirmed` taking over (WCAG 2.4.3). Otherwise it would land on the page body.
    */
   returnFocus?: RefObject<HTMLElement | null>;
+  /** Choices the confirmation needs, e.g. the destination of a transfer, under the description. */
+  children?: ReactNode;
+  /** What takes focus when the dialog opens, e.g. a field in `children`; the cancel option otherwise. */
+  initialFocus?: RefObject<HTMLElement | null>;
+  /** `primary` for an irreversible action that destroys nothing (a transfer); `destructive` otherwise. */
+  tone?: 'destructive' | 'primary';
 }
 
 /**
@@ -58,6 +66,9 @@ export function ConfirmDialog({
   open: controlledOpen,
   onOpenChange,
   returnFocus,
+  children,
+  tone = 'destructive',
+  initialFocus,
 }: ConfirmDialogProps) {
   const { t } = useTranslation('ui');
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
@@ -79,7 +90,10 @@ export function ConfirmDialog({
     setPending(true);
     setFailure(undefined);
     try {
-      await onConfirm();
+      if ((await onConfirm()) === false) {
+        setPending(false);
+        return;
+      }
       confirmed.current = true;
       setPending(false);
       setUncontrolledOpen(false);
@@ -94,6 +108,12 @@ export function ConfirmDialog({
     <AlertDialog open={open} onOpenChange={setOpen}>
       {trigger && <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>}
       <AlertDialogContent
+        onOpenAutoFocus={(event) => {
+          if (initialFocus?.current) {
+            event.preventDefault();
+            initialFocus.current.focus();
+          }
+        }}
         onCloseAutoFocus={(event) => {
           if (confirmed.current && onConfirmed) {
             event.preventDefault();
@@ -109,12 +129,13 @@ export function ConfirmDialog({
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
+        {children}
         {failure && <AlertBanner severity="error">{failure}</AlertBanner>}
         <AlertDialogFooter>
           <AlertDialogCancel disabled={pending}>{t('confirm.cancel')}</AlertDialogCancel>
           {/* Busy rather than disabled while pending, so focus stays on it (WCAG 2.4.3). */}
           <AlertDialogAction
-            variant="destructive"
+            variant={tone === 'destructive' ? 'destructive' : 'default'}
             aria-disabled={pending || undefined}
             aria-busy={pending || undefined}
             className="aria-disabled:cursor-progress aria-disabled:opacity-50"

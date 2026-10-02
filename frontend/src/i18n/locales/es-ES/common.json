@@ -19,7 +19,14 @@
   },
   "home": {
     "title": "Bienvenida",
-    "description": "Portal de gestión de arcabuceros de la Federación."
+    "description": "Portal de gestión de arcabuceros de la Federación.",
+    "sectionsTitle": "Qué puedes hacer",
+    "sections": {
+      "arquebusiers": "Altas, licencias, cursos, fotos y armas propias de los arcabuceros.",
+      "comparsas": "Las comparsas y sus jefes de disparo.",
+      "weapon-models": "El catálogo de modelos de arma.",
+      "users": "Usuarios, invitaciones y permisos."
+    }
   },
   "notFound": {
     "title": "Página no encontrada",

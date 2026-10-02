@@ -1,6 +1,7 @@
 import { SearchX } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { Button } from '@/components/app/Button';
 import { EmptyState } from '@/components/app/EmptyState';
 import { PageHeader } from '@/components/app/PageHeader';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
@@ -17,9 +18,9 @@ export function NotFoundPage() {
         icon={SearchX}
         title={t('notFound.description')}
         action={
-          <Link to="/" className="font-medium text-primary underline-offset-4 hover:underline">
-            {t('actions.backHome')}
-          </Link>
+          <Button asChild variant="secondary">
+            <Link to="/">{t('actions.backHome')}</Link>
+          </Button>
         }
       />
     </>

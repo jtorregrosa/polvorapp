@@ -120,4 +120,45 @@ describe('ComparsasPage (specs: Comparsas, Comparsa visibility)', () => {
       expect(await axeViolations(container)).toEqual([]);
     });
   });
+
+  it('stacks each comparsa on a phone, with its side and status', async () => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 360 });
+    try {
+      comparsas(() => [NORTE, SUR]);
+      await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
+
+      const list = await screen.findByRole('list', { name: 'Comparsas' });
+      // Skeleton items first, then the comparsas.
+      await within(list).findByRole('link', { name: NORTE.name });
+      const norte = within(list)
+        .getAllByRole('listitem')
+        .find((item) => item.textContent.includes(NORTE.name));
+      if (!norte) throw new Error('No item for Norte');
+      expect(norte).toHaveTextContent('Cristiano');
+      expect(within(norte).getByRole('link', { name: NORTE.name })).toHaveAttribute(
+        'href',
+        `/comparsas/${NORTE.id}`,
+      );
+      expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 });
+    }
+  });
+
+  it('opens a comparsa from anywhere on its row and says how many are listed (list template)', async () => {
+    const user = userEvent.setup();
+    comparsas(() => [NORTE, SUR]);
+    server.use(
+      mock.get(`/api/comparsas/${NORTE.id}`, () => HttpResponse.json(NORTE)),
+      mock.get(`/api/comparsas/${NORTE.id}/firing-chiefs`, () => HttpResponse.json([])),
+    );
+    const app = await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
+    const table = await screen.findByRole('table', { name: 'Comparsas' });
+    await within(table).findByRole('link', { name: 'Comparsa Sintética Norte' });
+
+    expect(screen.getByText('2 comparsas', { selector: '[role=status]' })).toBeInTheDocument();
+    await user.click(within(rowOf(table, 'Comparsa Sintética Norte')).getByText('Cristiano'));
+
+    expect(app.location()).toBe(`/comparsas/${NORTE.id}`);
+  });
 });

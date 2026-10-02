@@ -15,7 +15,8 @@
     "rememberDevice": "Remember this device for 30 days",
     "rememberDeviceHelp": "Don't select this on shared computers.",
     "submit": "Verify",
-    "useRecoveryCode": "Don't have your phone? Use a recovery code"
+    "useRecoveryCode": "Don't have your phone? Use a recovery code",
+    "lostEverything": "Lost your phone and your recovery codes? Ask an administrator to reset your two-step verification."
   },
   "recovery": {
     "title": "Recovery code",
@@ -148,11 +149,24 @@
     "resetTwoFactor": "Reset two-step verification",
     "resetTwoFactorTitle": "Reset two-step verification for {{name}}?",
     "resetTwoFactorDescription": "Their authenticator app and recovery codes will be removed, their sessions will end and they will have to set it up again the next time they sign in.",
-    "twoFactorReset": "Two-step verification reset."
+    "twoFactorReset": "Two-step verification reset.",
+    "resultCount_one": "{{count}} user",
+    "resultCount_other": "{{count}} users",
+    "sections": {
+      "account": "Account details",
+      "edit": "Edit account details",
+      "editName": "account details"
+    },
+    "cancel": "Cancel",
+    "twoFactorState": "Two-step verification: {{state}}"
   },
   "roles": {
     "ADMIN": "Administrator",
-    "FIRING_CHIEF": "Firing chief"
+    "FIRING_CHIEF": "Firing chief",
+    "hints": {
+      "FIRING_CHIEF": "Manages the arquebusiers of the comparsas assigned to them.",
+      "ADMIN": "Manages everything: the catalogue, the users and every comparsa."
+    }
   },
   "errors": {
     "auth": {
@@ -186,5 +200,17 @@
     "PasswordTooLong": "Must be 128 characters or fewer.",
     "PasswordIsEmail": "It cannot be your email address.",
     "PasswordTooCommon": "This password is too common. Try a phrase."
+  },
+  "comparsas": {
+    "actions": {
+      "deleteDescriptionUnknown": "This cannot be undone. Its firing chiefs, if any, will lose access to it."
+    }
+  },
+  "weaponModels": {
+    "form": {
+      "attributesShown": "Side, hand and size follow."
+    },
+    "rentable": "Rentable",
+    "notRentable": "Not rentable"
   }
 }

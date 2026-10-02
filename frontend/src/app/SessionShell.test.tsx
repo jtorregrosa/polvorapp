@@ -131,7 +131,8 @@ describe('language (spec: Switch UI language)', () => {
     server.use(mock.put('/api/account/locale', save.resolver));
     const app = await renderApp('/', { session: SYNTHETIC_ADMIN });
 
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Idioma' }), 'ca-ES-valencia');
+    await user.click(screen.getByRole('button', { name: 'Menú de Admin Sintética' }));
+    await user.click(await screen.findByRole('menuitemradio', { name: 'Valencià' }));
 
     await waitFor(() => {
       expect(save.bodies).toEqual([{ locale: 'ca-ES-valencia' }]);
@@ -147,7 +148,8 @@ describe('language (spec: Switch UI language)', () => {
     server.use(mock.put('/api/account/locale', () => problem(503, 'unavailable')));
     const app = await renderApp('/', { session: SYNTHETIC_ADMIN });
 
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Idioma' }), 'en');
+    await user.click(screen.getByRole('button', { name: 'Menú de Admin Sintética' }));
+    await user.click(await screen.findByRole('menuitemradio', { name: 'English' }));
 
     expect(
       await screen.findByText(

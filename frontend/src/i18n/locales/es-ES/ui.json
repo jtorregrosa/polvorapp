@@ -41,8 +41,13 @@
   "form": {
     "required": "Obligatorio",
     "optional": "Opcional",
-    "requiredNote": "Los campos marcados con * son obligatorios.",
-    "clearDate": "Borrar fecha"
+    "requiredNote": "Todos los campos son obligatorios salvo los marcados como opcionales.",
+    "clearDate": "Borrar fecha",
+    "optionalSuffix": "(opcional)",
+    "errorSummaryTitle": "Hay un problema",
+    "index": "En este formulario",
+    "help": "Ayuda",
+    "unexpectedError": "No se ha podido guardar. Inténtalo de nuevo."
   },
   "confirm": {
     "cancel": "Cancelar",
@@ -121,7 +126,7 @@
     "empty": "Sin {{label}}",
     "loadFailed": "No se ha podido cargar la foto",
     "cropTitle": "Recortar {{label}}",
-    "cropHelp": "Pulsa Tab para llegar a la selección y a sus esquinas; con las flechas la mueves o cambias su tamaño (Mayús: más rápido). También puedes arrastrarla. A la derecha se ve cómo quedará.",
+    "cropHelp": "Mueve o cambia el tamaño de la selección con los botones, con las flechas del teclado (Tab para llegar a la selección y a sus esquinas; Mayús: más rápido) o arrastrándola. A la derecha se ve cómo quedará.",
     "cropImage": "Foto elegida",
     "cropArea": "Selección del recorte: usa las flechas para moverla",
     "handles": {
@@ -148,6 +153,25 @@
       "generic": "No se ha podido guardar la foto. Inténtalo de nuevo."
     },
     "preview": "Vista previa de la foto recortada",
-    "previewCaption": "Así quedará"
+    "previewCaption": "Así quedará",
+    "cropTools": {
+      "label": "Ajustar el recorte",
+      "up": "Mover el recorte hacia arriba",
+      "down": "Mover el recorte hacia abajo",
+      "left": "Mover el recorte a la izquierda",
+      "right": "Mover el recorte a la derecha",
+      "smaller": "Hacer el recorte más pequeño",
+      "larger": "Hacer el recorte más grande"
+    }
+  },
+  "filters": {
+    "clear": "Quitar los filtros"
+  },
+  "detail": {
+    "moreActions": "Más acciones",
+    "notGiven": "No consta",
+    "edit": "Editar",
+    "saved": "Cambios guardados",
+    "saveChanges": "Guardar cambios"
   }
 }

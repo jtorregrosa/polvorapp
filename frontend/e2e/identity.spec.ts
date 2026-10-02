@@ -2,6 +2,8 @@ import { expect, openNavigation, test, waitForShell } from './fixtures';
 import { FIRING_CHIEF_STATE, inviteFiringChief, linkFromEmail, signIn, uniqueEmail } from './identity';
 
 const SIGNED_OUT = { cookies: [], origins: [] };
+/** A seeded FiringChief (docs/development.md), never changed by these tests. */
+const JEFE_UNO = '0193a000-0000-7000-8000-000000000002';
 
 test.describe('identity and access', () => {
   // Whole journeys with new users: once per run is enough, and it keeps within the auth rate limits.
@@ -79,9 +81,11 @@ test.describe('identity and access', () => {
 
     await page.goto(account.detailPath);
     await expect(page.getByRole('heading', { level: 1, name: account.name })).toBeVisible();
-    await page.getByRole('button', { name: 'Desactivar usuario' }).click();
+    await page.getByRole('button', { name: 'Más acciones' }).click();
+    await page.getByRole('menuitem', { name: 'Desactivar usuario' }).click();
     await page.getByRole('alertdialog').getByRole('button', { name: 'Desactivar usuario' }).click();
-    await expect(page.getByText('Usuario desactivado.')).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: 'Usuario desactivado.' })).toHaveCount(1);
+    await expect(page.getByRole('button', { name: 'Más acciones' })).toBeFocused();
 
     expect((await user.request.get('/api/account')).status()).toBe(401);
     await user.reload();
@@ -100,6 +104,32 @@ test.describe('identity and access', () => {
 
     await expect(page.getByText('El correo o la contraseña no son válidos.')).toBeVisible();
     await context.close();
+  });
+});
+
+test.describe('signing in (SC 3.3.8 accessible authentication)', () => {
+  test.use({ storageState: SIGNED_OUT });
+
+  test('accepts pasted email and password, as from a password manager', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'clipboard permissions are granted in Chromium only');
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.goto('/login');
+    await expect(page.getByRole('heading', { level: 1, name: 'Iniciar sesión' })).toBeVisible();
+
+    for (const [label, text] of [
+      [/^Correo electrónico/, 'pegado@polvorapp.example'],
+      [/^Contraseña/, 'a pasted passphrase'],
+    ] as const) {
+      const field = page.getByLabel(label);
+      await page.evaluate((value) => navigator.clipboard.writeText(value), text);
+      await field.focus();
+      await page.keyboard.press('ControlOrMeta+V');
+      await expect(field).toHaveValue(text);
+    }
+    // The password can be shown to check what was pasted.
+    await page.getByRole('button', { name: 'Mostrar la contraseña' }).click();
+    await expect(page.getByLabel(/^Contraseña/)).toHaveAttribute('type', 'text');
+    await expect(page.getByLabel(/^Correo electrónico/)).toHaveAttribute('autocomplete', 'username');
   });
 });
 
@@ -135,8 +165,35 @@ test.describe('accessibility of the identity pages', () => {
 
       test('users page', async ({ page, axeViolations }) => {
         await page.goto('/users');
-        await expect(page.getByRole('table', { name: 'Usuarios' })).toBeVisible();
-        await expect(page.getByRole('link', { name: 'Admin Sintética' })).toBeVisible();
+        // A table on wide screens, stacked items on a phone.
+        const users = page
+          .getByRole('table', { name: 'Usuarios' })
+          .or(page.getByRole('list', { name: 'Usuarios' }));
+        await expect(users.getByRole('link', { name: 'Admin Sintética' })).toBeVisible();
+
+        expect(await axeViolations(page)).toEqual([]);
+      });
+
+      test('user page, read-only and with its edit panel open', async ({ page, axeViolations }) => {
+        await page.goto(`/users/${JEFE_UNO}`);
+        await waitForShell(page);
+        await expect(page.getByRole('region', { name: 'Datos de la cuenta' })).toBeVisible();
+        expect(await axeViolations(page)).toEqual([]);
+
+        await page.getByRole('button', { name: 'Editar datos de la cuenta' }).click();
+        const panel = page.getByRole('dialog', { name: 'Editar datos de la cuenta' });
+        await expect(panel.getByRole('radio', { name: 'Jefe de disparo' })).toBeChecked();
+        // Let the panel finish sliding in: axe reads colours mid-animation otherwise.
+        await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== 'running'));
+        expect(await axeViolations(page, '[role="dialog"]')).toEqual([]);
+        await page.keyboard.press('Escape');
+        await expect(page.getByRole('button', { name: 'Editar datos de la cuenta' })).toBeFocused();
+      });
+
+      test('account page', async ({ page, axeViolations }) => {
+        await page.goto('/account');
+        await waitForShell(page);
+        await expect(page.getByRole('region', { name: 'Cambiar la contraseña' })).toBeVisible();
 
         expect(await axeViolations(page)).toEqual([]);
       });

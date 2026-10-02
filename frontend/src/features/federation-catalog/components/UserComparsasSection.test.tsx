@@ -21,7 +21,7 @@ function userWithComparsas(user: UserResponse, initial: ComparsaResponse[]) {
 }
 
 async function section() {
-  return screen.findByRole('group', { name: 'Comparsas' });
+  return screen.findByRole('region', { name: 'Comparsas' });
 }
 
 describe('Comparsas section of a user (spec: Managing assignments from the comparsa and from the user)', () => {
@@ -30,7 +30,7 @@ describe('Comparsas section of a user (spec: Managing assignments from the compa
     await renderApp(`/users/${CHIEF_UNO.id}`, { session: SYNTHETIC_ADMIN });
 
     const group = await section();
-    const table = await within(group).findByRole('table', { name: 'Comparsas' });
+    const table = await within(group).findByRole('table', { name: /^Comparsas de / });
     expect(await within(table).findByText('Comparsa Sintética Oeste')).toBeInTheDocument();
     expect(within(table).getByText('Comparsa Sintética Norte')).toBeInTheDocument();
     const choice = within(group).getByRole('combobox', { name: 'Comparsa que añadir' });
@@ -39,7 +39,7 @@ describe('Comparsas section of a user (spec: Managing assignments from the compa
         within(choice)
           .getAllByRole('option')
           .map((option) => option.textContent),
-      ).toEqual(['Elige una opción.', 'Comparsa Sintética Sur']);
+      ).toEqual(['Comparsa Sintética Sur']);
     });
   });
 
@@ -68,7 +68,7 @@ describe('Comparsas section of a user (spec: Managing assignments from the compa
       expect(notice).toHaveFocus();
     });
     expect(assigned).toEqual([SUR.id]);
-    expect(await within(group).findByRole('table', { name: 'Comparsas' })).toHaveTextContent(
+    expect(await within(group).findByRole('table', { name: /^Comparsas de / })).toHaveTextContent(
       'Comparsa Sintética Sur',
     );
   });
@@ -93,7 +93,7 @@ describe('Comparsas section of a user (spec: Managing assignments from the compa
     expect(
       await within(group).findByText('La comparsa está inactiva y no admite nuevos jefes de disparo.'),
     ).toBeInTheDocument();
-    expect(await within(group).findByRole('table', { name: 'Comparsas' })).toHaveTextContent(
+    expect(await within(group).findByRole('table', { name: /^Comparsas de / })).toHaveTextContent(
       'Comparsa Sintética Norte',
     );
   });
@@ -144,7 +144,7 @@ describe('Comparsas section of a user (spec: Managing assignments from the compa
 
     await screen.findByRole('heading', { level: 1, name: OTRA_ADMIN.name });
     await waitFor(() => {
-      expect(screen.queryByRole('group', { name: 'Comparsas' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('region', { name: 'Comparsas' })).not.toBeInTheDocument();
     });
   });
 

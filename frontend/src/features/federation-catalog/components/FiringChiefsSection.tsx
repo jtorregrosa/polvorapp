@@ -62,6 +62,7 @@ export function FiringChiefsSection({
   const text = useMemo<AssignmentListText>(
     () => ({
       title: t('firingChiefs.title'),
+      caption: t('firingChiefs.caption', { name: comparsa.name }),
       description: t('firingChiefs.description'),
       emptyText: t('firingChiefs.empty'),
       addLabel: t('firingChiefs.addLabel'),
@@ -75,7 +76,7 @@ export function FiringChiefsSection({
       removeTitle: (name) => t('firingChiefs.removeTitle', { name }),
       removeDescription: t('firingChiefs.removeDescription'),
     }),
-    [comparsa.active, t],
+    [comparsa.active, comparsa.name, t],
   );
 
   const onAdd = useCallback((userId: string) => assign({ id: comparsa.id, userId }), [assign, comparsa.id]);
@@ -91,6 +92,15 @@ export function FiringChiefsSection({
       columns={columns}
       getRowId={chiefId}
       getRowName={chiefName}
+      describeRow={(chief) => (
+        <>
+          <span className="font-semibold text-foreground">{chief.name}</span>
+          <span className="flex flex-wrap items-center gap-2 text-help break-all text-muted-foreground">
+            {chief.email}
+            <StatusBadge kind="user" value={chief.status} />
+          </span>
+        </>
+      )}
       isLoading={isLoading || users.isPending}
       error={error ?? users.error ?? undefined}
       candidates={candidates}

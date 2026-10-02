@@ -7,7 +7,6 @@ import { renderWithProviders } from '@/test/render';
 import { AlertBanner } from './AlertBanner';
 import { EmptyState } from './EmptyState';
 import { PageHeader } from './PageHeader';
-import { PageSection } from './PageSection';
 import { StatCard } from './StatCard';
 
 afterEach(() => {
@@ -98,6 +97,13 @@ describe('AlertBanner', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Aviso: Revisa los datos');
   });
 
+  it('keeps its shape in forced colours with a border (Windows high contrast)', async () => {
+    await renderWithProviders(<AlertBanner severity="info">Dato</AlertBanner>);
+
+    // A transparent border takes the system text colour when colours are forced.
+    expect(screen.getByRole('status')).toHaveClass('border', 'border-transparent');
+  });
+
   it.each([
     ['error', 'alert', 'Error'],
     ['warning', 'status', 'Aviso'],
@@ -175,27 +181,6 @@ describe('page parts accessibility', () => {
       </MemoryRouter>,
     );
 
-    expect(await axeViolations(container)).toEqual([]);
-  });
-});
-
-describe('PageSection', () => {
-  it('is a region named by its h2 and described by its description, with actions beside the heading', async () => {
-    const { container } = await renderWithProviders(
-      <PageSection
-        title="Armas propias"
-        description="Las que tiene a su nombre"
-        actions={<button type="button">Añadir</button>}
-      >
-        <p>Sin armas</p>
-      </PageSection>,
-    );
-
-    const region = screen.getByRole('region', { name: 'Armas propias' });
-    expect(within(region).getByRole('heading', { level: 2, name: 'Armas propias' })).toBeInTheDocument();
-    expect(region).toHaveAccessibleDescription('Las que tiene a su nombre');
-    expect(within(region).getByRole('button', { name: 'Añadir' })).toBeInTheDocument();
-    expect(within(region).getByText('Sin armas')).toBeInTheDocument();
     expect(await axeViolations(container)).toEqual([]);
   });
 });

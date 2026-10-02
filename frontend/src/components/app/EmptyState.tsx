@@ -21,8 +21,8 @@ export function EmptyState({ title, description, icon: Icon, action, headingLeve
           <Icon aria-hidden="true" className="size-5" />
         </span>
       )}
-      <Heading className="text-base font-semibold text-foreground">{title}</Heading>
-      {description && <p className="max-w-prose text-sm text-muted-foreground">{description}</p>}
+      <Heading className="text-section text-foreground">{title}</Heading>
+      {description && <p className="max-w-prose text-body text-muted-foreground">{description}</p>}
       {action && <div className="mt-2">{action}</div>}
     </div>
   );

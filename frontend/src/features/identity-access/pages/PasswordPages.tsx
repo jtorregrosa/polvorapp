@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useAppForm } from '@/components/app/use-app-form';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
 import { z } from 'zod';
@@ -16,7 +16,7 @@ import { NewPasswordForm } from './NewPasswordForm';
 function BackToSignIn() {
   const { t } = useTranslation('identity');
   return (
-    <Link to="/login" className="font-medium text-primary underline-offset-4 hover:underline">
+    <Link to="/login" className="font-medium text-primary underline underline-offset-4 hover:no-underline">
       {t('password.backToSignIn')}
     </Link>
   );
@@ -30,7 +30,10 @@ export function ForgotPasswordPage() {
   const { t } = useTranslation('identity');
   const forgot = useForgotPassword();
   useDocumentTitle(t(forgot.isSuccess ? 'password.sentTitle' : 'password.forgotTitle'));
-  const form = useForm<ForgotValues>({ resolver: zodResolver(forgotSchema), defaultValues: { email: '' } });
+  const form = useAppForm<ForgotValues>({
+    resolver: zodResolver(forgotSchema),
+    defaultValues: { email: '' },
+  });
 
   if (forgot.isSuccess) {
     return (
@@ -40,7 +43,7 @@ export function ForgotPasswordPage() {
           description={t('password.sentDescription')}
           focusOnMount
         />
-        <p className="text-sm">
+        <p className="text-body">
           <BackToSignIn />
         </p>
       </>
@@ -57,15 +60,17 @@ export function ForgotPasswordPage() {
         }}
         requiredNote={false}
       >
-        <FormField control={form.control} name="email" label={t('signIn.email')} required>
-          {(field) => <TextInput type="email" autoComplete="username" inputMode="email" {...field} />}
+        <FormField control={form.control} name="email" label={t('signIn.email')}>
+          {(field) => (
+            <TextInput type="email" autoComplete="username" inputMode="email" spellCheck={false} {...field} />
+          )}
         </FormField>
         {forgot.isError && <AlertBanner severity="error">{problemMessage(t, forgot.error)}</AlertBanner>}
         <Button type="submit" pending={forgot.isPending}>
           {t('password.forgotSubmit')}
         </Button>
       </Form>
-      <p className="mt-6 text-sm">
+      <p className="text-body">
         <BackToSignIn />
       </p>
     </>
@@ -87,7 +92,7 @@ export function ResetPasswordPage() {
     return (
       <>
         <PageHeader title={t('password.resetDone')} focusOnMount />
-        <p className="text-sm">
+        <p className="text-body">
           <BackToSignIn />
         </p>
       </>
@@ -101,8 +106,11 @@ export function ResetPasswordPage() {
           description={t('password.invalidDescription')}
           focusOnMount={reset.isError}
         />
-        <p className="text-sm">
-          <Link to="/password/forgot" className="font-medium text-primary underline-offset-4 hover:underline">
+        <p className="text-body">
+          <Link
+            to="/password/forgot"
+            className="font-medium text-primary underline underline-offset-4 hover:no-underline"
+          >
             {t('password.forgotTitle')}
           </Link>
         </p>

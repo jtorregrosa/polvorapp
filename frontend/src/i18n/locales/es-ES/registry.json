@@ -14,7 +14,8 @@
       "comparsa": "Comparsa",
       "status": "Estado",
       "license": "Licencia",
-      "noIdPhoto": "Sin foto de carnet"
+      "noIdPhoto": "Sin foto de carnet",
+      "expiresOn": "Caduca el {{date}}"
     },
     "filters": {
       "comparsa": "Comparsa",
@@ -33,7 +34,16 @@
       "description": "Un administrador de la Federación tiene que asignarte a tu comparsa para que veas a sus arcabuceros."
     },
     "resultCount_one": "{{count}} arcabucero",
-    "resultCount_other": "{{count}} arcabuceros"
+    "resultCount_other": "{{count}} arcabuceros",
+    "counters": {
+      "label": "Resumen de arcabuceros",
+      "active": "En activo",
+      "reserve": "En reserva",
+      "expired": "Licencia caducada",
+      "pending": "Licencia en trámite",
+      "none": "Sin licencia"
+    },
+    "resultCount_zero": "Ningún arcabucero coincide con la búsqueda o los filtros."
   },
   "form": {
     "newTitle": "Registrar arcabucero",
@@ -79,12 +89,60 @@
     "datesRestored": "Fechas de la licencia recuperadas.",
     "noActiveComparsa": "No hay ninguna comparsa activa en la que puedas registrar arcabuceros.",
     "savedReplacePhotos": "Datos guardados. Si has renovado la licencia, sustituye también sus fotos.",
-    "registeredUnnamedPhotoNotSaved": "Arcabucero registrado, pero la foto de carnet no se ha guardado. Ábrelo en la lista para añadirla."
+    "registeredUnnamedPhotoNotSaved": "Arcabucero registrado, pero la foto de carnet no se ha guardado. Ábrelo en la lista para añadirla.",
+    "membership": "Comparsa y estado",
+    "membershipDescription": "La comparsa en la que se registra y si dispara este año.",
+    "help": "Ten a mano el documento de identidad y, si la tiene, la licencia de armas. La foto de carnet puedes añadirla ahora o más tarde desde su ficha.",
+    "cancel": "Cancelar"
   },
   "detail": {
     "back": "Volver a arcabuceros",
     "loading": "Cargando arcabucero…",
-    "inactiveComparsa": "La comparsa {{name}} está inactiva: no admite nuevos arcabuceros, pero puedes seguir editando este."
+    "inactiveComparsa": "La comparsa {{name}} está inactiva: no admite nuevos arcabuceros, pero puedes seguir editando este.",
+    "keyFacts": {
+      "label": "Datos clave",
+      "licenseExpires": "Licencia caduca",
+      "licenseElapsed": "Ha pasado el {{percent}} % de la vigencia de la licencia",
+      "noLicense": "Sin licencia",
+      "pending": "En trámite",
+      "course": "Curso",
+      "noCourse": "Sin curso",
+      "weapons": "Armas propias"
+    },
+    "warnings": {
+      "title": "Avisos de cumplimiento",
+      "license": "La licencia no está vigente.",
+      "course": "No consta el curso de arcabucería.",
+      "hint": "Son avisos, no errores: se puede guardar igualmente."
+    },
+    "sections": {
+      "personal": {
+        "edit": "Editar datos personales",
+        "name": "datos personales"
+      },
+      "license": {
+        "edit": "Editar licencia",
+        "name": "licencia"
+      },
+      "course": {
+        "edit": "Editar curso",
+        "name": "curso"
+      }
+    },
+    "values": {
+      "pending": "En trámite, todavía sin fechas",
+      "courseDone": "Hecho el {{date}}",
+      "courseNotDone": "No consta"
+    },
+    "status": {
+      "toReserve": "Pasar a reserva",
+      "toActive": "Pasar a activo",
+      "changed": "{{name}} está ahora en {{status}}."
+    },
+    "courseState": {
+      "done": "Curso hecho",
+      "missing": "Sin curso"
+    }
   },
   "ownedWeapons": {
     "title": "Armas propias",
@@ -122,7 +180,8 @@
       "added": "Arma añadida.",
       "saved": "Cambios guardados.",
       "back": "Volver al arcabucero",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "section": "Arma"
     }
   },
   "transfer": {

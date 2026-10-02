@@ -62,6 +62,26 @@ const idFromUrl = (page: Page): string => new URL(page.url()).pathname.split('/'
 
 const notice = (page: Page, text: string | RegExp) => page.getByRole('status').filter({ hasText: text });
 
+/** The arquebusiers list: a table on wide screens, stacked items on a phone. */
+const arquebusierList = (page: Page) =>
+  page.getByRole('table', { name: 'Arcabuceros' }).or(page.getByRole('list', { name: 'Arcabuceros' }));
+
+const comparsaSelect = (page: Page) => page.getByRole('combobox', { name: 'Comparsa' });
+
+/** Opens a section's edit panel on the detail page (spec: Detail pages in read mode). */
+async function editSection(page: Page, name: string) {
+  await page.getByRole('button', { name }).click();
+  const panel = page.getByRole('dialog', { name });
+  await expect(panel).toBeVisible();
+  return panel;
+}
+
+/** Opens "More actions" of the record header and chooses an item. */
+async function moreAction(page: Page, name: string) {
+  await page.getByRole('button', { name: 'Más acciones' }).click();
+  await page.getByRole('menuitem', { name }).click();
+}
+
 /**
  * WCAG 2.5.8 minimum target size: controls in the main content measure at least 24 by 24 CSS pixels,
  * or are spaced so that a 24 px circle centred on them meets no other target (the spacing exception,
@@ -115,14 +135,14 @@ async function register(
   await page.goto('/arquebusiers/new');
   await waitForShell(page);
   if (comparsa) {
-    await page.getByLabel(/^Comparsa/).selectOption({ label: comparsa });
+    await comparsaSelect(page).selectOption({ label: comparsa });
   }
   await page.getByLabel(/ID Unión/).fill(identity.federationId);
   await page.getByLabel(/^DNI\/NIE/).fill(identity.nationalId);
   await page.getByLabel(/^Nombre/).fill('Arcabucera');
   await page.getByLabel(/^Apellidos/).fill(identity.lastName);
   await page.getByLabel(/Fecha de nacimiento/).fill('1990-05-01');
-  await page.getByLabel(/Género/).selectOption('FEMALE');
+  await page.getByRole('radio', { name: 'Mujer' }).click();
   await page.getByRole('button', { name: 'Registrar arcabucero' }).click();
   await expect(page).toHaveURL(/\/arquebusiers\/[0-9a-f-]{36}$/);
   return { id: idFromUrl(page), name: `Arcabucera ${identity.lastName}`, nationalId: identity.nationalId };
@@ -145,14 +165,14 @@ test.describe('arquebusier registry as a FiringChief', () => {
     await page.goto('/arquebusiers/new');
     await waitForShell(page);
     // The FiringChief's only active comparsa is pre-selected.
-    await expect(page.getByLabel(/^Comparsa/)).toHaveValue('0193a100-0000-7000-8000-000000000001');
+    await expect(comparsaSelect(page)).toHaveValue('0193a100-0000-7000-8000-000000000001');
     await page.getByLabel(/ID Unión/).fill(identity.federationId);
     await page.getByLabel(/^DNI\/NIE/).fill(identity.nationalId.toLowerCase());
     await page.getByLabel(/^Nombre/).fill('Arcabucera');
     await page.getByLabel(/^Apellidos/).fill(identity.lastName);
     await page.getByLabel(/Fecha de nacimiento/).fill('1990-05-01');
-    await page.getByLabel(/Género/).selectOption('FEMALE');
-    await page.getByLabel(/Tipo de licencia/).selectOption('AE');
+    await page.getByRole('radio', { name: 'Mujer' }).click();
+    await page.getByRole('radio', { name: /^AE/ }).click();
     await page.getByLabel(/Fecha de expedición/).fill('2024-03-10');
     await expect(page.getByLabel(/Fecha de caducidad/)).toHaveValue('2029-03-10');
     await page.getByLabel(/Fecha del curso/).fill('2025-11-15');
@@ -165,7 +185,7 @@ test.describe('arquebusier registry as a FiringChief', () => {
     await expect(
       page.getByRole('heading', { level: 1, name: `Arcabucera ${identity.lastName}` }),
     ).toBeVisible();
-    await expect(page.getByLabel(/^DNI\/NIE/)).toHaveValue(identity.nationalId);
+    await expect(page.getByRole('region', { name: 'Datos personales' })).toContainText(identity.nationalId);
 
     await page.getByRole('link', { name: 'Añadir arma propia' }).click();
     await page.getByLabel(/^Modelo/).selectOption({ label: 'PISTOLA' });
@@ -174,20 +194,27 @@ test.describe('arquebusier registry as a FiringChief', () => {
     await page.getByRole('button', { name: 'Añadir arma' }).click();
     await expect(page).toHaveURL(`/arquebusiers/${id}`);
     await expect(
-      page.getByRole('table', { name: /^Armas propias de / }).getByText(`E2E-${identity.federationId}`),
+      page
+        .getByRole('table', { name: /^Armas propias de / })
+        .or(page.getByRole('list', { name: /^Armas propias de / }))
+        .getByText(`E2E-${identity.federationId}`),
     ).toBeVisible();
 
-    await page.getByLabel(/Teléfono/).fill('+34 600 000 099');
-    await page.getByLabel(/^Estado/).selectOption('RESERVE');
-    await page.getByRole('button', { name: 'Guardar cambios' }).click();
-    await expect(notice(page, 'Cambios guardados.')).toBeVisible();
+    const personal = await editSection(page, 'Editar datos personales');
+    await personal.getByLabel(/Teléfono/).fill('+34 600 000 099');
+    await personal.getByRole('button', { name: 'Guardar cambios' }).click();
+    await expect(personal).toBeHidden();
+    await expect(notice(page, 'Cambios guardados')).toHaveCount(1);
+    await expect(page.getByRole('button', { name: 'Editar datos personales' })).toBeFocused();
+    await moreAction(page, 'Pasar a reserva');
+    await expect(notice(page, 'está ahora en Reserva')).toHaveCount(1);
     await page.reload();
-    await expect(page.getByLabel(/Teléfono/)).toHaveValue('+34 600 000 099');
-    await expect(page.getByLabel(/^Estado/)).toHaveValue('RESERVE');
-    await expect(page.getByLabel(/Fecha de caducidad/)).toHaveValue('2029-03-10');
-    await expect(page.getByLabel(/Fecha del curso/)).toHaveValue('2025-11-15');
+    await expect(page.getByRole('region', { name: 'Datos personales' })).toContainText('+34 600 000 099');
+    await expect(page.locator('main header').getByText('Reserva')).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Licencia' })).toContainText('10/03/2029');
+    await expect(page.getByRole('region', { name: 'Curso de arcabucería' })).toContainText('15/11/2025');
 
-    await page.getByRole('button', { name: 'Eliminar arcabucero' }).click();
+    await moreAction(page, 'Eliminar arcabucero');
     const dialog = page.getByRole('alertdialog', { name: `¿Eliminar a Arcabucera ${identity.lastName}?` });
     await expect(dialog).toContainText('No se puede deshacer');
     await expect(dialog).toContainText('Reserva');
@@ -208,9 +235,9 @@ test.describe('arquebusier registry as a FiringChief', () => {
     await page.goto('/arquebusiers');
     await waitForShell(page);
 
-    const table = page.getByRole('table', { name: 'Arcabuceros' });
-    await expect(table.getByText(NORTE).first()).toBeVisible();
-    await expect(table.getByText(SUR)).toHaveCount(0);
+    const list = arquebusierList(page);
+    await expect(list.getByText(NORTE).first()).toBeVisible();
+    await expect(list.getByText(SUR)).toHaveCount(0);
   });
 
   test('refuses a DNI/NIE already registered, and takes it again once that arquebusier is deleted', async ({
@@ -229,7 +256,7 @@ test.describe('arquebusier registry as a FiringChief', () => {
     await page.getByLabel(/^Nombre/).fill('Arcabucera');
     await page.getByLabel(/^Apellidos/).fill(again.lastName);
     await page.getByLabel(/Fecha de nacimiento/).fill('1990-05-01');
-    await page.getByLabel(/Género/).selectOption('FEMALE');
+    await page.getByRole('radio', { name: 'Mujer' }).click();
     await page.getByRole('button', { name: 'Registrar arcabucero' }).click();
     // BR-01: blocking, on the field, without saying whose it is.
     await expect(page.getByLabel(/^DNI\/NIE/)).toHaveAccessibleDescription(/contacta con la Federación/);
@@ -241,22 +268,122 @@ test.describe('arquebusier registry as a FiringChief', () => {
 
     await expect(page).toHaveURL(/\/arquebusiers\/[0-9a-f-]{36}$/);
     deleteAfter(idFromUrl(page));
-    await expect(page.getByLabel(/^DNI\/NIE/)).toHaveValue(first.nationalId);
+    await expect(page.getByRole('region', { name: 'Datos personales' })).toContainText(first.nationalId);
   });
 
   // The date fields are checked per engine in dates.spec.ts.
-  test('explains a wrong DNI letter as soon as the field is left', async ({ page }) => {
+  test('explains a wrong DNI letter in the error summary, which takes focus, and at the field', async ({
+    page,
+  }) => {
     await page.goto('/arquebusiers/new');
     await waitForShell(page);
 
     await page.getByLabel(/^DNI\/NIE/).fill('12345678A');
-    await page.getByLabel(/^Nombre/).focus();
+    await page.getByRole('button', { name: 'Registrar arcabucero' }).click();
 
-    await expect(page.getByText('La letra no corresponde a los números.')).toBeVisible();
+    const summary = page.getByRole('group', { name: 'Hay un problema' });
+    await expect(summary).toBeFocused();
+    await summary.getByRole('link', { name: /^DNI\/NIE: La letra no corresponde/ }).click();
+    await expect(page.getByLabel(/^DNI\/NIE/)).toBeFocused();
+    await expect(page.getByLabel(/^DNI\/NIE/)).toHaveAccessibleDescription(/La letra no corresponde/);
+  });
+
+  test('never hides the focused field under the action bar (SC 2.4.11)', async ({ page }) => {
+    await page.goto('/arquebusiers/new');
+    await waitForShell(page);
+    const bar = page.locator('[data-slot="action-bar"]');
+
+    for (let step = 0; step < 24; step += 1) {
+      await page.keyboard.press('Tab');
+      const covered = await page.evaluate(() => {
+        const focused = document.activeElement;
+        const actions = document.querySelector('[data-slot="action-bar"]');
+        if (!focused || !actions || actions.contains(focused) || focused === document.body) return false;
+        return focused.getBoundingClientRect().bottom > actions.getBoundingClientRect().top + 1;
+      });
+      expect(covered, `step ${String(step)}`).toBe(false);
+    }
+    await expect(bar).toBeVisible();
+  });
+
+  test('filters the list with a counter and announces the count', async ({ page }) => {
+    await page.goto('/arquebusiers');
+    await waitForShell(page);
+    const counters = page.getByRole('group', { name: 'Resumen de arcabuceros' });
+    const active = counters.getByRole('button', { name: /En activo/ });
+
+    await active.click();
+
+    await expect(active).toHaveAttribute('aria-pressed', 'true');
+    await expect(page).toHaveURL(/status=ACTIVE/);
+    await expect(page.getByRole('status').filter({ hasText: /arcabucer/ })).toHaveCount(1);
+    await active.click();
+    await expect(active).toHaveAttribute('aria-pressed', 'false');
   });
 });
 
 test.describe('arquebusier registry as an Admin', () => {
+  test('filters by license and comparsa, keeps the filters in the address and clears them', async ({
+    page,
+  }) => {
+    await page.goto('/arquebusiers');
+    await waitForShell(page);
+    const counters = page.getByRole('group', { name: 'Resumen de arcabuceros' });
+    const expired = counters.getByRole('button', { name: /Licencia caducada/ });
+    const list = arquebusierList(page);
+
+    await expired.click();
+    await expect(expired).toHaveAttribute('aria-pressed', 'true');
+    await expect(page).toHaveURL(/license=EXPIRED/);
+    await expect(list.getByText('Caducada').first()).toBeVisible();
+    await expect(list.getByText('Vigente')).toHaveCount(0);
+    await page.reload();
+    await waitForShell(page);
+    await expect(expired).toHaveAttribute('aria-pressed', 'true');
+
+    await comparsaSelect(page).selectOption({ label: SUR });
+    await expect(page).toHaveURL(/comparsaId=/);
+    await expect(list.getByText(NORTE)).toHaveCount(0);
+
+    await page.getByRole('searchbox').fill('zzzz sin coincidencias');
+    await expect(
+      page.getByRole('heading', { name: 'Ningún arcabucero coincide con la búsqueda o los filtros.' }),
+    ).toBeVisible();
+    await page.getByRole('button', { name: 'Quitar los filtros' }).click();
+    await expect(page).toHaveURL(/\/arquebusiers$/);
+    await expect(expired).toHaveAttribute('aria-pressed', 'false');
+    await expect(list.getByText(NORTE).first()).toBeVisible();
+    await expect(page.locator('[data-slot="filter-bar"]').locator('input, select').first()).toBeFocused();
+  });
+
+  test('lists every missing field in the error summary and links each one to its field', async ({ page }) => {
+    await page.goto('/arquebusiers/new');
+    await waitForShell(page);
+
+    await page.getByRole('button', { name: 'Registrar arcabucero' }).click();
+
+    const summary = page.getByRole('group', { name: 'Hay un problema' });
+    await expect(summary).toBeFocused();
+    for (const name of [
+      /^Comparsa/,
+      /^ID Unión/,
+      /^DNI\/NIE/,
+      /^Nombre/,
+      /^Apellidos/,
+      /^Fecha de nacimiento/,
+      /^Género/,
+    ]) {
+      await expect(summary.getByRole('link', { name })).toBeVisible();
+    }
+    await summary.getByRole('link', { name: /^Apellidos/ }).click();
+    const lastName = page.getByLabel(/^Apellidos/);
+    await expect(lastName).toBeFocused();
+    await lastName.fill('Sintética');
+    // A fixed field leaves the summary at once.
+    await expect(summary.getByRole('link', { name: /^Apellidos/ })).toHaveCount(0);
+    await expect(summary.getByRole('link', { name: /^Nombre/ })).toBeVisible();
+  });
+
   test("transfers an arquebusier, after which the previous comparsa's FiringChief no longer sees it", async ({
     page,
     browser,
@@ -266,15 +393,15 @@ test.describe('arquebusier registry as an Admin', () => {
     const arquebusier = await register(page, NORTE);
     deleteAfter(arquebusier.id);
     const chief = await firingChiefPage(browser);
-    const chiefRow = chief.getByRole('table', { name: 'Arcabuceros' }).getByText(arquebusier.nationalId);
+    const chiefRow = arquebusierList(chief).getByText(arquebusier.nationalId);
     try {
       await chief.goto('/arquebusiers');
       await expect(chiefRow).toBeVisible();
       await chief.goto(`/arquebusiers/${arquebusier.id}`);
       await expect(chief.getByRole('heading', { level: 1, name: arquebusier.name })).toBeVisible();
 
-      await page.getByRole('combobox', { name: 'Comparsa de destino' }).selectOption({ label: SUR });
       await page.getByRole('button', { name: 'Trasladar' }).click();
+      await page.getByRole('combobox', { name: 'Comparsa de destino' }).selectOption({ label: SUR });
       const dialog = page.getByRole('alertdialog', { name: `¿Trasladar a ${arquebusier.name} a ${SUR}?` });
       await dialog.getByRole('button', { name: 'Trasladar' }).click();
 
@@ -282,7 +409,7 @@ test.describe('arquebusier registry as an Admin', () => {
       await chief.reload();
       await expect(chief.getByRole('heading', { level: 1, name: 'Página no encontrada' })).toBeVisible();
       await chief.goto('/arquebusiers');
-      await expect(chief.getByRole('table', { name: 'Arcabuceros' }).getByRole('link').first()).toBeVisible();
+      await expect(arquebusierList(chief).getByRole('link').first()).toBeVisible();
       await expect(chiefRow).toHaveCount(0);
     } finally {
       await chief.context().close();
@@ -323,7 +450,7 @@ test.describe('arquebusier registry as an Admin', () => {
 
       await page.goto(`/comparsas/${comparsaId}`);
       await waitForShell(page);
-      await page.getByRole('button', { name: 'Eliminar comparsa' }).click();
+      await moreAction(page, 'Eliminar comparsa');
       const dialog = page.getByRole('alertdialog');
       await dialog.getByRole('button', { name: 'Eliminar' }).click();
 

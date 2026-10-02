@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useAppForm } from '@/components/app/use-app-form';
 import { useTranslation } from 'react-i18next';
 import type { z } from 'zod';
 import { AlertBanner } from '@/components/app/AlertBanner';
@@ -29,7 +29,7 @@ export function NewPasswordForm({
   error,
 }: NewPasswordFormProps) {
   const { t } = useTranslation('identity');
-  const form = useForm<Values>({
+  const form = useAppForm<Values>({
     resolver: zodResolver(newPasswordFields),
     defaultValues: { password: '', confirm: '' },
   });
@@ -42,11 +42,10 @@ export function NewPasswordForm({
         name="password"
         label={passwordLabel}
         description={t('password.rules')}
-        required
       >
         {(field) => <PasswordInput autoComplete="new-password" {...field} />}
       </FormField>
-      <FormField control={form.control} name="confirm" label={confirmLabel} required>
+      <FormField control={form.control} name="confirm" label={confirmLabel}>
         {(field) => <PasswordInput autoComplete="new-password" {...field} />}
       </FormField>
       {error !== null && error !== undefined && (

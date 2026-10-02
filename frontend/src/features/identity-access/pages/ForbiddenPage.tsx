@@ -1,5 +1,8 @@
+import { ShieldX } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { Button } from '@/components/app/Button';
+import { EmptyState } from '@/components/app/EmptyState';
 import { PageHeader } from '@/components/app/PageHeader';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 
@@ -10,12 +13,16 @@ export function ForbiddenPage() {
 
   return (
     <>
-      <PageHeader title={t('forbidden.title')} description={t('forbidden.description')} />
-      <p className="text-sm">
-        <Link to="/" className="font-medium text-primary underline-offset-4 hover:underline">
-          {t('actions.backHome')}
-        </Link>
-      </p>
+      <PageHeader title={t('forbidden.title')} />
+      <EmptyState
+        icon={ShieldX}
+        title={t('forbidden.description')}
+        action={
+          <Button asChild variant="secondary">
+            <Link to="/">{t('actions.backHome')}</Link>
+          </Button>
+        }
+      />
     </>
   );
 }

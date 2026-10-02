@@ -7,8 +7,9 @@ import { UserRole, UserStatus, type ListUsersParams, type UserResponse } from '@
 import { AlertBanner } from '@/components/app/AlertBanner';
 import { Button } from '@/components/app/Button';
 import { DataTable, type DataTableColumn } from '@/components/app/DataTable';
-import { PageHeader } from '@/components/app/PageHeader';
+import { FilterBar } from '@/components/app/FilterBar';
 import { FilterSelect } from '@/components/app/FilterSelect';
+import { PageHeader } from '@/components/app/PageHeader';
 import { StatusBadge } from '@/components/app/StatusBadge';
 import { formatDate } from '@/lib/format';
 import { knownFilter, withFilter } from '@/lib/search-filters';
@@ -40,10 +41,7 @@ export function UsersPage() {
         header: t('users.columns.name'),
         sortValue: (user) => user.name,
         cell: (user) => (
-          <Link
-            to={`/users/${user.id}`}
-            className="font-medium text-primary underline-offset-4 hover:underline"
-          >
+          <Link to={`/users/${user.id}`} className="font-semibold text-foreground hover:underline">
             {user.name}
           </Link>
         ),
@@ -99,30 +97,35 @@ export function UsersPage() {
           </Button>
         }
       />
-      <div className="mb-4 flex flex-wrap gap-4">
-        <FilterSelect
-          label={t('users.filters.role')}
-          value={role}
-          onChange={(value) => {
-            setFilter('role', value);
-          }}
-          options={[
-            { value: '', label: t('users.filters.all') },
-            ...ROLES.map((value) => ({ value, label: t(`roles.${value}`) })),
-          ]}
-        />
-        <FilterSelect
-          label={t('users.filters.status')}
-          value={status}
-          onChange={(value) => {
-            setFilter('status', value);
-          }}
-          options={[
-            { value: '', label: t('users.filters.all') },
-            ...STATUSES.map((value) => ({ value, label: tUi(`status.user.${value}`) })),
-          ]}
-        />
-      </div>
+      <FilterBar
+        resultText={users.isSuccess ? t('users.resultCount', { count: rows.length }) : ''}
+        filters={
+          <>
+            <FilterSelect
+              label={t('users.filters.role')}
+              value={role}
+              onChange={(value) => {
+                setFilter('role', value);
+              }}
+              options={[
+                { value: '', label: t('users.filters.all') },
+                ...ROLES.map((value) => ({ value, label: t(`roles.${value}`) })),
+              ]}
+            />
+            <FilterSelect
+              label={t('users.filters.status')}
+              value={status}
+              onChange={(value) => {
+                setFilter('status', value);
+              }}
+              options={[
+                { value: '', label: t('users.filters.all') },
+                ...STATUSES.map((value) => ({ value, label: tUi(`status.user.${value}`) })),
+              ]}
+            />
+          </>
+        }
+      />
       {users.isError ? (
         <AlertBanner severity="error">{problemMessage(t, users.error)}</AlertBanner>
       ) : (
@@ -131,6 +134,19 @@ export function UsersPage() {
           data={rows}
           columns={columns}
           getRowId={(user) => user.id}
+          getRowHref={(user) => `/users/${user.id}`}
+          mobileRow={(user) => (
+            <>
+              <Link to={`/users/${user.id}`} className="font-semibold text-foreground">
+                {user.name}
+              </Link>
+              <span className="text-help break-all text-muted-foreground">{user.email}</span>
+              <span className="flex flex-wrap items-center gap-2 text-help text-muted-foreground">
+                {t(`roles.${user.role}`)}
+                <StatusBadge kind="user" value={user.status} />
+              </span>
+            </>
+          )}
           isLoading={users.isPending}
         />
       )}

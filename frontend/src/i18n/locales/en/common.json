@@ -19,7 +19,14 @@
   },
   "home": {
     "title": "Welcome",
-    "description": "Arquebusier management portal of the Federation."
+    "description": "Arquebusier management portal of the Federation.",
+    "sectionsTitle": "What you can do",
+    "sections": {
+      "arquebusiers": "Registrations, licenses, courses, photos and owned weapons of the arquebusiers.",
+      "comparsas": "The comparsas and their firing chiefs.",
+      "weapon-models": "The catalogue of weapon models.",
+      "users": "Users, invitations and permissions."
+    }
   },
   "notFound": {
     "title": "Page not found",

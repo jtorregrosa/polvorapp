@@ -31,12 +31,18 @@
       "create": "Crear comparsa",
       "save": "Guardar cambios",
       "created": "Comparsa creada.",
-      "saved": "Cambios guardados."
+      "saved": "Cambios guardados.",
+      "section": "Datos de la comparsa",
+      "cancel": "Cancelar"
     },
     "detail": {
       "back": "Volver a comparsas",
       "summary": "Datos",
-      "inactiveNotice": "Esta comparsa está inactiva: conserva su historial, pero no admite nuevos jefes de disparo."
+      "inactiveNotice": "Esta comparsa está inactiva: conserva su historial, pero no admite nuevos jefes de disparo.",
+      "data": {
+        "edit": "Editar datos de la comparsa",
+        "name": "datos de la comparsa"
+      }
     },
     "actions": {
       "title": "Acciones",
@@ -51,8 +57,11 @@
       "deleteDescription_one": "No se puede deshacer. {{count}} jefe de disparo perderá el acceso a ella.",
       "deleteDescription_other": "No se puede deshacer. {{count}} jefes de disparo perderán el acceso a ella.",
       "deleteDescriptionNone": "No se puede deshacer.",
-      "deleted": "Comparsa eliminada."
-    }
+      "deleted": "Comparsa eliminada.",
+      "deleteDescriptionUnknown": "No se puede deshacer. Sus jefes de disparo, si los tiene, perderán el acceso a ella."
+    },
+    "resultCount_one": "{{count}} comparsa",
+    "resultCount_other": "{{count}} comparsas"
   },
   "firingChiefs": {
     "title": "Jefes de disparo",
@@ -72,7 +81,8 @@
     "removeTitle": "¿Quitar a {{name}} de esta comparsa?",
     "removeDescription": "Dejará de ver esta comparsa a partir de su siguiente acción.",
     "added": "{{name}} ya es jefe de disparo de esta comparsa.",
-    "removed": "{{name}} ya no es jefe de disparo de esta comparsa."
+    "removed": "{{name}} ya no es jefe de disparo de esta comparsa.",
+    "caption": "Jefes de disparo de {{name}}"
   },
   "userComparsas": {
     "title": "Comparsas",
@@ -87,7 +97,8 @@
     "removeDescription": "El jefe de disparo dejará de verla a partir de su siguiente acción.",
     "added": "Comparsa {{name}} asignada.",
     "removed": "Comparsa {{name}} quitada.",
-    "adminNoEffect": "Este usuario es administrador y ve todas las comparsas. Estas asignaciones no tienen efecto salvo que vuelva a ser jefe de disparo."
+    "adminNoEffect": "Este usuario es administrador y ve todas las comparsas. Estas asignaciones no tienen efecto salvo que vuelva a ser jefe de disparo.",
+    "caption": "Comparsas de {{name}}"
   },
   "weaponModels": {
     "title": "Modelos de arma",
@@ -131,11 +142,18 @@
       "create": "Crear modelo",
       "save": "Guardar cambios",
       "created": "Modelo de arma creado.",
-      "saved": "Cambios guardados."
+      "saved": "Cambios guardados.",
+      "section": "Modelo de arma",
+      "cancel": "Cancelar",
+      "attributesShown": "Bando, mano y tamaño, a continuación."
     },
     "detail": {
       "back": "Volver a modelos de arma",
-      "inactiveNotice": "Este modelo está inactivo: se conserva para el historial, pero no se ofrece para nuevos registros."
+      "inactiveNotice": "Este modelo está inactivo: se conserva para el historial, pero no se ofrece para nuevos registros.",
+      "data": {
+        "edit": "Editar modelo de arma",
+        "name": "modelo de arma"
+      }
     },
     "actions": {
       "title": "Acciones",
@@ -149,7 +167,11 @@
       "deleteTitle": "¿Eliminar {{label}}?",
       "deleteDescription": "No se puede deshacer.",
       "deleted": "Modelo de arma eliminado."
-    }
+    },
+    "resultCount_one": "{{count}} modelo",
+    "resultCount_other": "{{count}} modelos",
+    "rentable": "Se alquila",
+    "notRentable": "No se alquila"
   },
   "side": {
     "MOORISH": "Moro",

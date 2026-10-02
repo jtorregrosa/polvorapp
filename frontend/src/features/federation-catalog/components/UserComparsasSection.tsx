@@ -12,14 +12,14 @@ import { StatusBadge } from '@/components/app/StatusBadge';
 import { AssignmentList, type AssignmentCandidate, type AssignmentListText } from './AssignmentList';
 import { useRefreshAssignments } from './useRefreshAssignments';
 
+const comparsaId = (comparsa: ComparsaResponse): string => comparsa.id;
+const comparsaName = (comparsa: ComparsaResponse): string => comparsa.name;
+
 /**
  * The comparsas of a user, on the identity user page (Admins only; design D8). Shown for every
  * FiringChief, and for an Admin who still has assignments, saying they have no effect. Candidates
  * are active comparsas not yet assigned (the comparsa list shows only active ones by default).
  */
-const comparsaId = (comparsa: ComparsaResponse): string => comparsa.id;
-const comparsaName = (comparsa: ComparsaResponse): string => comparsa.name;
-
 export function UserComparsasSection({ user }: { user: UserResponse }) {
   const { t } = useTranslation('catalog');
   const { mutateAsync: assign } = useAssignFiringChief();
@@ -61,6 +61,7 @@ export function UserComparsasSection({ user }: { user: UserResponse }) {
   const text = useMemo<AssignmentListText>(
     () => ({
       title: t('userComparsas.title'),
+      caption: t('userComparsas.caption', { name: user.name }),
       description: t('userComparsas.description'),
       emptyText: t('userComparsas.empty'),
       addLabel: t('userComparsas.addLabel'),
@@ -74,7 +75,7 @@ export function UserComparsasSection({ user }: { user: UserResponse }) {
       removeTitle: (name) => t('userComparsas.removeTitle', { name }),
       removeDescription: t('userComparsas.removeDescription'),
     }),
-    [addBlocked, t],
+    [addBlocked, t, user.name],
   );
 
   const onAdd = useCallback(
@@ -92,20 +93,27 @@ export function UserComparsasSection({ user }: { user: UserResponse }) {
   }
 
   return (
-    <div className="max-w-3xl min-w-0">
-      <AssignmentList
-        text={text}
-        rows={rows}
-        columns={columns}
-        getRowId={comparsaId}
-        getRowName={comparsaName}
-        isLoading={assigned.isPending || active.isPending}
-        error={assigned.error ?? active.error ?? undefined}
-        candidates={candidates}
-        onAdd={onAdd}
-        onRemove={onRemove}
-        onChanged={refresh}
-      />
-    </div>
+    <AssignmentList
+      text={text}
+      rows={rows}
+      columns={columns}
+      getRowId={comparsaId}
+      getRowName={comparsaName}
+      describeRow={(comparsa) => (
+        <>
+          <span className="font-semibold text-foreground">{comparsa.name}</span>
+          <span className="flex flex-wrap items-center gap-2 text-help text-muted-foreground">
+            {t(`side.${comparsa.side}`)}
+            <StatusBadge kind="catalog" value={comparsa.active ? 'ACTIVE' : 'INACTIVE'} />
+          </span>
+        </>
+      )}
+      isLoading={assigned.isPending || active.isPending}
+      error={assigned.error ?? active.error ?? undefined}
+      candidates={candidates}
+      onAdd={onAdd}
+      onRemove={onRemove}
+      onChanged={refresh}
+    />
   );
 }

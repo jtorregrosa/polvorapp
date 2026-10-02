@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { Control } from 'react-hook-form';
 import { FormField } from '@/components/app/FormField';
+import { RadioCards } from '@/components/app/RadioCards';
 import { SelectInput } from '@/components/app/SelectInput';
 import { TextInput } from '@/components/app/TextInput';
 import { SUPPORTED_LANGUAGES } from '@/i18n/config';
@@ -22,21 +23,22 @@ export function UserFields<TValues extends UserFieldValues>({
 
   return (
     <>
-      <FormField control={control} name="name" label={t('users.fields.name')} required>
+      <FormField control={control} name="name" label={t('users.fields.name')} width="name">
         {(field) => <TextInput autoComplete="off" maxLength={MAX_NAME_LENGTH} {...field} />}
       </FormField>
-      <FormField control={control} name="role" label={t('users.fields.role')} required>
+      <FormField control={control} name="role" label={t('users.fields.role')}>
         {(field) => (
-          <SelectInput
+          <RadioCards
             {...field}
             options={[
-              { value: 'FIRING_CHIEF', label: t('roles.FIRING_CHIEF') },
-              { value: 'ADMIN', label: t('roles.ADMIN') },
+              { value: 'FIRING_CHIEF', label: t('roles.FIRING_CHIEF'), hint: t('roles.hints.FIRING_CHIEF') },
+              { value: 'ADMIN', label: t('roles.ADMIN'), hint: t('roles.hints.ADMIN') },
             ]}
           />
         )}
       </FormField>
-      <FormField control={control} name="locale" label={t('users.fields.locale')} required>
+      {/* A select, not radio cards: each language is named in itself, with its own lang (WCAG 3.1.2). */}
+      <FormField control={control} name="locale" label={t('users.fields.locale')} width="name">
         {(field) => (
           <SelectInput
             {...field}
