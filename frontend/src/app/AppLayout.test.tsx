@@ -102,7 +102,7 @@ describe('AppLayout (platform: Application shell)', () => {
     const main = screen.getByRole('main');
     expect(main).toHaveAttribute('id', 'main');
     expect(main).toHaveAttribute('tabindex', '-1');
-    expect(within(main).getByRole('heading', { level: 1, name: 'Bienvenida' })).toBeInTheDocument();
+    expect(within(main).getByRole('heading', { level: 1, name: 'Inicio' })).toBeInTheDocument();
   });
 
   it('opens the navigation in a drawer on small screens and closes it after choosing', async () => {
@@ -118,7 +118,7 @@ describe('AppLayout (platform: Application shell)', () => {
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
-    expect(await screen.findByRole('heading', { level: 1, name: 'Bienvenida' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Inicio' })).toBeInTheDocument();
     expect(screen.getByRole('main')).toHaveFocus();
   });
 
@@ -161,11 +161,11 @@ describe('AppLayout (platform: Application shell)', () => {
 
   it('keeps the document title in the active language', async () => {
     const { i18n } = await renderAt('/');
-    expect(document.title).toBe('Bienvenida · PolvorApp');
+    expect(document.title).toBe('Inicio · PolvorApp');
 
     await act(() => i18n.changeLanguage('en'));
 
-    expect(document.title).toBe('Welcome · PolvorApp');
+    expect(document.title).toBe('Home · PolvorApp');
   });
 
   it.each([false, true])('has no accessibility violations (dark=%s)', async (dark) => {

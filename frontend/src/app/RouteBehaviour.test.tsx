@@ -59,7 +59,7 @@ describe('route behaviour', () => {
 
     await user.click(screen.getByRole('link', { name: 'Volver al inicio' }));
 
-    await screen.findByRole('heading', { level: 1, name: 'Bienvenida' });
+    await screen.findByRole('heading', { level: 1, name: 'Inicio' });
     expect(screen.getByRole('main')).toHaveFocus();
   });
 

@@ -4,8 +4,8 @@ test.describe('application shell', () => {
   test('shows the shell with the API version', async ({ page }) => {
     await page.goto('/');
 
-    await expect(page.getByRole('heading', { level: 1, name: 'Bienvenida' })).toBeVisible();
-    await expect(page).toHaveTitle('Bienvenida · PolvorApp');
+    await expect(page.getByRole('heading', { level: 1, name: 'Inicio' })).toBeVisible();
+    await expect(page).toHaveTitle('Inicio · PolvorApp');
     const navigation = await openNavigation(page);
     await expect(navigation.getByRole('link', { name: 'PolvorApp' })).toBeVisible();
     await expect(navigation.getByRole('link', { name: 'Inicio' })).toHaveAttribute('aria-current', 'page');
@@ -20,7 +20,7 @@ test.describe('application shell', () => {
 
     await page.getByRole('link', { name: 'Volver al inicio' }).click();
 
-    await expect(page.getByRole('heading', { level: 1, name: 'Bienvenida' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Inicio' })).toBeVisible();
     await expect(page.getByRole('main')).toBeFocused();
   });
 
@@ -43,7 +43,7 @@ test.describe('application shell', () => {
 
     await page.goto('/');
 
-    await expect(page.getByRole('heading', { level: 1, name: 'Bienvenida' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Inicio' })).toBeVisible();
     await expect(await openNavigation(page)).toContainText('Versión no disponible');
   });
 

@@ -26,7 +26,7 @@ function comparsas(all: ComparsaResponse[]) {
 describe('FiringChief comparsa cards in the sidebar (platform spec: Application shell)', () => {
   it("shows a FiringChief's active comparsas in the server's order, with the logo or the placeholder", async () => {
     comparsas([NORTE_WITH_LOGO, SUR]);
-    await renderApp('/', { session: SYNTHETIC_FIRING_CHIEF });
+    await renderApp('/account', { session: SYNTHETIC_FIRING_CHIEF });
 
     const cards = await screen.findByRole('navigation', { name: 'Mis comparsas' });
     const links = within(cards).getAllByRole('link');
@@ -44,7 +44,7 @@ describe('FiringChief comparsa cards in the sidebar (platform spec: Application 
 
   it('leaves out an inactive comparsa', async () => {
     const queries = comparsas([NORTE, OESTE]);
-    await renderApp('/', { session: SYNTHETIC_FIRING_CHIEF });
+    await renderApp('/account', { session: SYNTHETIC_FIRING_CHIEF });
 
     const cards = await screen.findByRole('navigation', { name: 'Mis comparsas' });
 
@@ -58,7 +58,7 @@ describe('FiringChief comparsa cards in the sidebar (platform spec: Application 
 
   it('shows no cards to an Admin and does not ask for them', async () => {
     const queries = comparsas([NORTE, SUR]);
-    await renderApp('/', { session: SYNTHETIC_ADMIN });
+    await renderApp('/account', { session: SYNTHETIC_ADMIN });
 
     expect(await screen.findByRole('navigation', { name: 'Navegación principal' })).toBeInTheDocument();
     expect(screen.queryByRole('navigation', { name: 'Mis comparsas' })).not.toBeInTheDocument();
@@ -67,7 +67,7 @@ describe('FiringChief comparsa cards in the sidebar (platform spec: Application 
 
   it('keeps the mark and the navigation when the comparsas cannot be loaded', async () => {
     server.use(mock.get('/api/comparsas', () => new HttpResponse(null, { status: 503 })));
-    const app = await renderApp('/', { session: SYNTHETIC_FIRING_CHIEF });
+    const app = await renderApp('/account', { session: SYNTHETIC_FIRING_CHIEF });
 
     // Absence only means something once the request has failed.
     await waitFor(() => {
@@ -82,7 +82,7 @@ describe('FiringChief comparsa cards in the sidebar (platform spec: Application 
 
   it('shows no cards to a FiringChief without active comparsas', async () => {
     comparsas([OESTE]);
-    const app = await renderApp('/', { session: SYNTHETIC_FIRING_CHIEF });
+    const app = await renderApp('/account', { session: SYNTHETIC_FIRING_CHIEF });
 
     await waitFor(() => {
       expect(app.queryClient.getQueryCache().find({ queryKey: ['/api/comparsas'] })?.state.status).toBe(

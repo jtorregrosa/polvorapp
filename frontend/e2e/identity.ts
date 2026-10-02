@@ -185,7 +185,7 @@ export async function inviteFiringChief(
     page.getByRole('heading', { level: 1, name: 'Guarda tus códigos de recuperación' }),
   ).toBeVisible();
   await page.getByRole('button', { name: 'Ya los he guardado' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Bienvenida' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Inicio' })).toBeVisible();
   await context.close();
   return account;
 }

@@ -18,15 +18,8 @@
     }
   },
   "home": {
-    "title": "Bienvenida",
-    "description": "Portal de gestión de arcabuceros de la Federación.",
-    "sectionsTitle": "Qué puedes hacer",
-    "sections": {
-      "arquebusiers": "Altas, licencias, cursos, fotos y armas propias de los arcabuceros.",
-      "comparsas": "Las comparsas y sus jefes de disparo.",
-      "weapon-models": "El catálogo de modelos de arma.",
-      "users": "Usuarios, invitaciones y permisos."
-    }
+    "title": "Inicio",
+    "description": "Lo que necesita atención en los arcabuceros: avisos de cumplimiento y próximas caducidades."
   },
   "notFound": {
     "title": "Página no encontrada",
@@ -42,10 +35,13 @@
   "nav": {
     "home": "Inicio",
     "arquebusiers": "Arcabuceros",
+    "statistics": "Estadísticas",
     "comparsas": "Comparsas",
     "weaponModels": "Modelos de arma",
     "users": "Usuarios",
-    "account": "Mi cuenta"
+    "account": "Mi cuenta",
+    "warningCount_one": "{{count}} con aviso",
+    "warningCount_other": "{{count}} con avisos"
   },
   "forbidden": {
     "title": "Acceso no permitido",

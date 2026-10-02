@@ -9,13 +9,13 @@ test.describe('language switching (UC-27)', () => {
 
     await chooseLanguage(page, 'Valencià');
 
-    await expect(page.getByRole('heading', { level: 1, name: 'Benvinguda' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Inici' })).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('lang', 'ca-ES-valencia');
     expect(navigations).toEqual([]);
 
     await page.reload();
 
-    await expect(page.getByRole('heading', { level: 1, name: 'Benvinguda' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Inici' })).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('lang', 'ca-ES-valencia');
     await expect(await openNavigation(page)).toContainText(/Versió \d+\.\d+/);
   });
@@ -37,7 +37,7 @@ test.describe('language switching (UC-27)', () => {
     test('uses the browser language on the first visit', async ({ page }) => {
       await page.goto('/');
 
-      await expect(page.getByRole('heading', { level: 1, name: 'Welcome' })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: 'Home' })).toBeVisible();
       await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     });
   });
@@ -48,7 +48,7 @@ test.describe('language switching (UC-27)', () => {
     test('falls back to Spanish', async ({ page }) => {
       await page.goto('/');
 
-      await expect(page.getByRole('heading', { level: 1, name: 'Bienvenida' })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: 'Inicio' })).toBeVisible();
       await expect(page.locator('html')).toHaveAttribute('lang', 'es-ES');
     });
   });

@@ -39,7 +39,7 @@ test.describe('application layout', () => {
     const navigation = await openNavigation(page);
     await navigation.getByRole('link', { name: 'Inicio' }).click();
 
-    await expect(page.getByRole('heading', { level: 1, name: 'Bienvenida' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Inicio' })).toBeVisible();
     await expect(page.getByRole('dialog')).toHaveCount(0);
   });
 });

@@ -23,7 +23,8 @@ import { WeaponModelDetailPage } from '@/features/federation-catalog/pages/Weapo
 import { WeaponModelFormPage } from '@/features/federation-catalog/pages/WeaponModelFormPage';
 import { WeaponModelsPage } from '@/features/federation-catalog/pages/WeaponModelsPage';
 import { ErrorPage, RootErrorPage } from '@/features/platform/pages/ErrorPage';
-import { HomePage } from '@/features/platform/pages/HomePage';
+import { DashboardPage } from '@/features/compliance-insights/pages/DashboardPage';
+import { StatisticsPage } from '@/features/compliance-insights/pages/StatisticsPage';
 import { NotFoundPage } from '@/features/platform/pages/NotFoundPage';
 import { AppShell } from './shell/AppShell';
 import { PublicShell } from './shell/PublicShell';
@@ -63,7 +64,7 @@ export const appRoutes: RouteObject[] = [
           {
             ErrorBoundary: ErrorPage,
             children: [
-              { index: true, Component: HomePage },
+              { index: true, Component: DashboardPage },
               {
                 path: 'account',
                 Component: AccountPage,
@@ -93,6 +94,11 @@ export const appRoutes: RouteObject[] = [
                 path: 'arquebusiers/:id/weapons/:weaponId',
                 Component: OwnedWeaponFormPage,
                 handle: { breadcrumb: 'nav.arquebusiers' } satisfies RouteHandle,
+              },
+              {
+                path: 'statistics',
+                Component: StatisticsPage,
+                handle: { breadcrumb: 'nav.statistics' } satisfies RouteHandle,
               },
               {
                 path: 'comparsas',

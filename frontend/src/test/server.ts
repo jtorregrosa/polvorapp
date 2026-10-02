@@ -1,4 +1,19 @@
+import { http as mock, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
+import { ComplianceWarning, type ComplianceSummaryResponse } from '@/api/generated/model';
+
+/**
+ * The warning summary the shell asks for on every signed-in page (navigation count): nothing
+ * pending, unless a test registers its own. Initial handlers have the lowest priority.
+ */
+const NOTHING_PENDING: ComplianceSummaryResponse = {
+  active: 0,
+  reserve: 0,
+  withWarnings: 0,
+  warnings: Object.values(ComplianceWarning).map((code) => ({ code, count: 0 })),
+};
 
 /** Network mock for component tests; each test registers the handlers it needs with `server.use`. */
-export const server = setupServer();
+export const server = setupServer(
+  mock.get('/api/compliance/summary', () => HttpResponse.json(NOTHING_PENDING)),
+);

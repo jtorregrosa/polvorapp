@@ -2,8 +2,9 @@ import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet } from 'react-router';
 import { AlertBanner } from '@/components/app/AlertBanner';
-import { AppLayout } from '@/components/app/AppLayout';
+import { AppLayout, type NavigationItem } from '@/components/app/AppLayout';
 import { UserMenu } from '@/components/app/UserMenu';
+import { useWarningCount } from '@/features/compliance-insights/components/useWarningCount';
 import { useFiringChiefComparsaCards } from '@/features/federation-catalog/components/useFiringChiefComparsaCards';
 import { useSaveLanguage, useSession, useSignOut } from '@/features/identity-access/session';
 import { NAVIGATION } from '../navigation';
@@ -30,13 +31,19 @@ export function AppShell() {
   const latestAttempt = useRef(0);
   const role = session.account?.role;
   const comparsaCards = useFiringChiefComparsaCards();
+  const warningCount = useWarningCount();
 
   const navigation = useMemo(
     () =>
       NAVIGATION.filter((entry) => !entry.roles || (role !== undefined && entry.roles.includes(role))).map(
-        ({ to, labelKey, icon }) => ({ to, icon, label: t(labelKey) }),
+        ({ to, labelKey, icon, count }): NavigationItem => {
+          const item = { to, icon, label: t(labelKey) };
+          return count === 'warnings' && warningCount
+            ? { ...item, count: warningCount, countLabel: t('nav.warningCount', { count: warningCount }) }
+            : item;
+        },
       ),
-    [t, role],
+    [t, role, warningCount],
   );
 
   /** Runs a shell action and shows its problem, if any, above the page; only the latest counts. */
