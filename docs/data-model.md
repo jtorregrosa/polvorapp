@@ -157,7 +157,7 @@ accountability and dispute resolution).
 | BR-01 | `nationalId` must be a valid DNI or NIE (check letter). Look-alike non-Latin characters are rejected. | Block |
 | BR-02 | `nationalId` and `federationId` are unique across the whole Federation. | Block |
 | BR-03 | License `expiresOn` defaults to `issuedOn + 5 years` (AE) or `+ 1 year` (A-PROF). | Default, editable |
-| BR-04 | An ACTIVE entry should have: valid license at festival dates, course done, legal age. | **Warning** — the FiringChief is accountable and attests on submission |
+| BR-04 | An ACTIVE entry should have: valid license at festival dates, course done, legal age (18). In the registry the same rules are evaluated today, in Europe/Madrid, for `ACTIVE` and `RESERVE` arquebusiers, as compliance warnings (`add-compliance-insights`); edition entries are evaluated on the festival dates in #10. | **Warning** — the FiringChief is accountable and attests on submission |
 | BR-05 | `powderKg` ∈ {0, 1, 2} per edition. RESERVE arquebusiers have 0 kg and no rentals. | Block |
 | BR-06 | A PickupProxy must have an entry (ACTIVE or RESERVE) in the same edition; per the current form, in the same comparsa. | Block |
 | BR-07 | A rental model must be available in the edition. Pistols are never rentable. | Block |
@@ -196,3 +196,20 @@ Derived document — nothing new is stored. Current badge (reference photo in `s
 
 Age, next birthday, license expiry in months, license status, statistics (age brackets, gender,
 course, owned weapons, first year), "first year" flag (= no entry in previous editions).
+
+**Compliance warnings** (`ComplianceWarning`, BR-04, `add-compliance-insights`), derived on a reference
+date (today in Europe/Madrid for the registry) and returned in this order:
+
+| Code | Condition |
+|---|---|
+| `LICENSE_MISSING` | No license |
+| `LICENSE_PENDING` | The license is pending |
+| `LICENSE_EXPIRED` | The license expired before the reference date |
+| `LICENSE_EXPIRING` | The license is valid but `expiresOn` is earlier than the reference date + 12 months ("expiring soon") |
+| `COURSE_MISSING` | No `trainingCompletedOn` |
+| `UNDER_AGE` | Younger than 18 (legal age, Q-54) |
+| `ID_PHOTO_MISSING` | No `idPhoto` |
+| `LICENSE_PHOTOS_MISSING` | The license is issued and lacks its `frontPhoto`, its `backPhoto` or both |
+
+At most one license warning applies. Statistics age brackets: under 25, 25–34, 35–44, 45 or older.
+The "first year" statistic arrives with edition entries (#10).

@@ -88,3 +88,4 @@ their date.
 | ID | Topic | Answer (summary) | Status |
 |---|---|---|---|
 | Q-52 | Link between a FiringChief's `User` and their own `Arquebusier` record (a FiringChief may also fire) | No link: two separate records. A FiringChief who fires is registered like any other arquebusier of their comparsa (`add-arquebusier-registry`). | ✅ |
+| Q-54 | Under-18 arquebusiers | Arquebusiers must be of legal age (18); there is no special authorisation for minors. PolvorApp shows the `UNDER_AGE` warning; like every BR-04 check it never blocks (confirmed by the maintainer, 2026-10-02; `add-compliance-insights`). | ✅ |

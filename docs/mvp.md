@@ -42,10 +42,10 @@ from arquebusier registry to validated orders, billing summary, exports and dist
 | 6 | `add-arquebusier-photos` | arquebusier-registry | ID + license photos, crop, EXIF strip, private storage — **done**, archived 2026-10-01 |
 | 6a | `redesign-design-system` | design-system | "Pólvora" identity (ADR-0013: own fonts, night sidebar, ember accent), tokens beyond colour (type, spacing, elevation, widths, motion), WCAG 2.2 AA (NFR-07) with the focus and contrast fixes, page templates (list, read-mode detail with section editing, form with error summary), form rules (optional labels, field widths, radio cards), arquebusier list counters, every page moved to the templates — **done**, archived 2026-10-02 |
 | 6b | `add-comparsa-logos` | federation-catalog | Comparsa logo (Admin uploads; reuses the #6 image pipeline and private storage; PNG with transparency): shown in the comparsa list and detail, in the FiringChief's sidebar cards, and available to later PDFs through the catalogue contract — **done**, archived 2026-10-02 |
-| 7 | `add-compliance-insights` | compliance-insights | Warnings, alerts dashboard, statistics |
+| 7 | `add-compliance-insights` | compliance-insights | Compliance warnings (BR-04) derived on the server for ACTIVE and RESERVE arquebusiers (license missing, pending, expired or expiring within 12 months; no course; under 18; missing ID or license photos), shown in the registry list and detail; the start page as the alerts dashboard; the warning count in the navigation; statistics and equality report on screen (no download) — **implemented**, in review |
 | 8 | `add-registry-import` | arquebusier-registry | Spreadsheet import with validation report |
 | 9 | `add-festival-editions` | festival-editions | Editions, windows, prices, availability, locking |
-| 10 | `add-comparsa-orders` | comparsa-orders | Entries with pre-fill, loans, submit/attest, review/return |
+| 10 | `add-comparsa-orders` | comparsa-orders | Entries with pre-fill, loans, submit/attest, review/return; the compliance warnings evaluated on the festival dates; the "first year" statistic and flag (deferred from #7, it needs previous entries) |
 | 11 | `add-billing-summary` | billing | Amount owed per comparsa |
 | 12 | `add-exports` | exports | Export definitions (placeholders until templates arrive, Q-44) |
 | 13 | `add-distribution-planning` | distribution | Days, slots, proxies + PDF, printable lists |
