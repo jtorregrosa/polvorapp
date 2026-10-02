@@ -92,10 +92,14 @@ public sealed class OwnedWeaponRaceTests(PostgresFixture postgres, MailpitFixtur
         var unthrottled = registry.Services.GetRequiredService<EndpointDataSource>().Endpoints.OfType<RouteEndpoint>()
             .Where(e => e.RoutePattern.RawText?.Contains("arquebusiers", StringComparison.Ordinal) == true)
             .Where(e => e.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods.Any(m => m != "GET") == true)
-            .Where(e => e.Metadata.GetMetadata<EnableRateLimitingAttribute>()?.PolicyName != RateLimitPolicies.PersonalDataWrites)
+            .Where(e => e.Metadata.GetMetadata<EnableRateLimitingAttribute>()?.PolicyName != ExpectedPolicy(e.RoutePattern.RawText!))
             .Select(e => e.DisplayName)
             .ToList();
 
         Assert.Empty(unthrottled);
     }
+
+    /// <summary>Spreadsheet uploads have their own, stricter budget (add-registry-import D9); Admins only.</summary>
+    private static string ExpectedPolicy(string route) =>
+        route.Contains("arquebusiers/import", StringComparison.Ordinal) ? RateLimitPolicies.SpreadsheetImports : RateLimitPolicies.PersonalDataWrites;
 }

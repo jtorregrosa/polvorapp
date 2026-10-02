@@ -104,6 +104,15 @@ reference fails even before any of its types is used.
   `multipart/form-data` body, read in memory, with the endpoint's request size limit set to
   `ImageUploads.MaxRequestBytes`. Uploads that decode an image use a per-user rate limit
   (`RateLimitPolicies.ImageUploads` for logos).
+- **Spreadsheet uploads** (`add-registry-import`) are read with `SharedKernel.Http.SpreadsheetUploads`:
+  the `file` part and short text fields, in memory, never stored, with the request size limit set
+  to `SpreadsheetUploads.MaxRequestBytes`. The registry checks the package before ClosedXML loads
+  it (`Import/WorkbookPackage`): real decompressed bytes, XML depth, document types and the number
+  of rows, cells and texts, because a hostile workbook can otherwise exhaust memory or overflow the
+  stack. At most two workbooks are read at a time (`ImportSlots`), and the endpoints use the
+  per-user `RateLimitPolicies.SpreadsheetImports`. Cell values are personal data: log counts and
+  reasons only. Imports run one at a time under a transaction-scoped advisory lock
+  (`RegistryLocks.LockImportsAsync`, key "Polvor" + 'I'), bounded by the 5 s lock timeout.
 - **Write order**: put the new object, then commit the record that references it, then delete the
   object it replaced. **Delete order**: commit the removal of the reference, then delete the
   object. Every failure then leaves an unreferenced object, never a reference without an object.

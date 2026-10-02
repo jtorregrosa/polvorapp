@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using PolvorApp.ArquebusierRegistry.Arquebusiers;
 using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ArquebusierRegistry.Endpoints;
+using PolvorApp.ArquebusierRegistry.Import;
 using PolvorApp.ArquebusierRegistry.Insights;
 using PolvorApp.ArquebusierRegistry.OwnedWeapons;
 using PolvorApp.ArquebusierRegistry.Persistence;
@@ -19,8 +20,9 @@ using PolvorApp.SharedKernel.Storage;
 namespace PolvorApp.ArquebusierRegistry;
 
 /// <summary>
-/// Capability arquebusier-registry (UC-01..05, UC-29; BR-01..03, BR-12..14): arquebusiers, their
-/// current license and training course, owned weapons, photos, transfers and deletion.
+/// Capability arquebusier-registry (UC-01..05, UC-09, UC-29; BR-01..03, BR-12..14): arquebusiers,
+/// their current license and training course, owned weapons, photos, transfers, deletion and the
+/// spreadsheet import.
 /// </summary>
 public sealed class ArquebusierRegistryModule : IModule
 {
@@ -46,6 +48,8 @@ public sealed class ArquebusierRegistryModule : IModule
         services.AddScoped<IDataSeeder, RegistrySeeder>();
         services.AddScoped<ArquebusierViews>();
         services.AddScoped<ArquebusierQueries>();
+        services.AddScoped<ArquebusierImporter>();
+        services.AddSingleton<ImportSlots>();
 
         // Read contract for the compliance insights (design D3).
         services.AddScoped<IArquebusierFacts, RegistryArquebusierFacts>();
@@ -56,5 +60,6 @@ public sealed class ArquebusierRegistryModule : IModule
         endpoints.MapArquebusierEndpoints();
         endpoints.MapOwnedWeaponEndpoints();
         endpoints.MapPhotoEndpoints();
+        endpoints.MapImportEndpoints();
     }
 }
