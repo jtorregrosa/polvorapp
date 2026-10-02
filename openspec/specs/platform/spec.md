@@ -156,7 +156,12 @@ from files outside the repository's synthetic-data sources.
 The UI SHALL render a shell on every signed-in route consisting of:
 - a sidebar with the dark "night" surface in both themes, holding the PolvorApp mark and name, the
   primary navigation (icons and optional counters, showing only the destinations allowed for the
-  user's role) and the API version obtained from the system information endpoint;
+  user's role) and the API version obtained from the system information endpoint. For a
+  FiringChief, the sidebar SHALL also show, between the mark and the navigation, one card for each
+  active comparsa assigned to them, sorted by name. Each card SHALL show the comparsa's logo, or
+  the placeholder when it has none, and its name, and SHALL link to the comparsa's detail page.
+  Admins and FiringChiefs without active assignments SHALL see no card. When the cards cannot be
+  loaded, the sidebar SHALL still show the mark and the navigation;
 - a top bar with the breadcrumbs and a user menu. The user menu SHALL hold the user's name and role,
   the language switcher, the theme switcher, a link to the account page and a sign-out action;
 - a main content area that uses the width beside the sidebar up to 1680 px. The top bar's
@@ -189,6 +194,22 @@ weight and an indicator bar, not by colour alone. They SHALL have no automatical
 #### Scenario: Navigation follows the role
 - **WHEN** a FiringChief is signed in
 - **THEN** the navigation does not show the users entry, which an Admin sees
+
+#### Scenario: FiringChief's comparsas in the sidebar
+- **WHEN** a FiringChief assigned to two active comparsas, one with a logo and one without, is signed in
+- **THEN** the sidebar shows two cards sorted by name, one with the logo and one with the placeholder, each with the comparsa name and a link to its detail page
+
+#### Scenario: Inactive comparsa not in the sidebar
+- **WHEN** a FiringChief assigned to one active and one inactive comparsa is signed in
+- **THEN** the sidebar shows a card only for the active comparsa
+
+#### Scenario: No comparsa cards for Admins
+- **WHEN** an Admin is signed in
+- **THEN** the sidebar shows no comparsa card
+
+#### Scenario: Comparsa cards on a small screen
+- **WHEN** a FiringChief on a 360 px wide screen opens the navigation drawer
+- **THEN** the drawer shows their comparsa cards above the navigation, and choosing a card opens the comparsa and closes the drawer
 
 #### Scenario: API unavailable
 - **WHEN** the system information endpoint fails
