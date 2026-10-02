@@ -16,6 +16,9 @@ export const CATALOG_PROBLEM_CODES = [
   'weaponModels.labelTaken',
   'weaponModels.combinationTaken',
   'weaponModels.inUse',
+  'logos.notFound',
+  'storage.unavailable',
+  'catalog.busy',
 ] as const;
 
 type CatalogProblemCode = (typeof CATALOG_PROBLEM_CODES)[number];
@@ -39,6 +42,36 @@ export function problemMessage(t: TFunction<'catalog'>, error: unknown): string 
     return t(`errors.${code}`);
   }
   return code === 'validation' ? t('errors.validation') : t('errors.generic');
+}
+
+/** Reasons the API gives for a refused logo file (spec: Logo validation and processing). */
+const LOGO_FILE_REASONS = ['required', 'tooLarge', 'unsupportedFormat', 'tooSmall', 'aspectRatio'] as const;
+
+type LogoFileReason = (typeof LOGO_FILE_REASONS)[number];
+
+const isLogoFileReason = (reason: string): reason is LogoFileReason =>
+  (LOGO_FILE_REASONS as readonly string[]).includes(reason);
+
+/**
+ * A translated message for a failed logo upload or removal: the file's reason when there is one,
+ * the image-upload rate limit (`429`, add-comparsa-logos D6), or the catalogue's problem text. A
+ * `validation` problem without a known file reason is generic: the crop dialog has no fields.
+ */
+export function logoProblemMessage(t: TFunction<'catalog'>, error: unknown): string {
+  if (!(error instanceof ApiProblemError)) {
+    return t('errors.generic');
+  }
+  if (error.status === 429) {
+    return t('errors.tooManyRequests');
+  }
+  if (problemCode(error) === 'validation') {
+    const errors = error.problem?.errors;
+    const reason = errors && !Array.isArray(errors) ? errors.file : undefined;
+    return reason !== undefined && isLogoFileReason(reason)
+      ? t(`validation.file.${reason}`)
+      : t('errors.generic');
+  }
+  return problemMessage(t, error);
 }
 
 /**

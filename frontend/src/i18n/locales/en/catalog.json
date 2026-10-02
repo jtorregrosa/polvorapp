@@ -61,7 +61,19 @@
       "deleteDescriptionUnknown": "This cannot be undone. Its firing chiefs, if any, will lose access to it."
     },
     "resultCount_one": "{{count}} comparsa",
-    "resultCount_other": "{{count}} comparsas"
+    "resultCount_other": "{{count}} comparsas",
+    "logo": {
+      "section": "Logo",
+      "help": "A PNG with a transparent background is recommended. The long side must be at least 256 px and no more than 3 times the short side. It is stored as a PNG of at most 1024 px.",
+      "label": "comparsa logo",
+      "alt": "Logo of {{name}}",
+      "empty": "No logo",
+      "removeTitle": "Remove the logo of {{name}}?",
+      "removeDescription": "The image will be erased. The comparsa will show the generic symbol until you upload another one.",
+      "removeConfirm": "Remove logo",
+      "uploaded": "Logo saved",
+      "removed": "Logo removed"
+    }
   },
   "firingChiefs": {
     "title": "Firing chiefs",
@@ -195,7 +207,14 @@
     "invalid": "This value is not valid.",
     "tooLong": "100 characters at most.",
     "pistolNotRentable": "Pistols are never rented.",
-    "choice": "Choose an option."
+    "choice": "Choose an option.",
+    "file": {
+      "required": "No image was received. Choose it again.",
+      "tooLarge": "The logo is too large: at most 10 MB and 40 megapixels.",
+      "unsupportedFormat": "The file is not a JPEG, PNG or WebP image. SVG is not accepted.",
+      "tooSmall": "The logo is too small: it needs at least 256 px on the long side.",
+      "aspectRatio": "The logo is too elongated: the long side cannot be more than 3 times the short one."
+    }
   },
   "errors": {
     "comparsas": {
@@ -215,6 +234,16 @@
       "combinationTaken": "A model with that type, side, handedness and size already exists.",
       "inUse": "Other records use this model, so it cannot be deleted. Deactivate it instead."
     },
+    "logos": {
+      "notFound": "This comparsa no longer has a logo."
+    },
+    "storage": {
+      "unavailable": "The image storage is not responding right now. Try again in a few minutes."
+    },
+    "catalog": {
+      "busy": "The server is processing other images. Try again in a few seconds."
+    },
+    "tooManyRequests": "You have uploaded too many times in a row. Wait a minute and try again.",
     "validation": "Check the highlighted fields.",
     "generic": "Something went wrong. Try again."
   }

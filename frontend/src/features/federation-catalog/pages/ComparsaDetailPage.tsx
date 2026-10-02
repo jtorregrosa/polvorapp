@@ -18,6 +18,7 @@ import {
 import type { ComparsaResponse, FiringChiefResponse } from '@/api/generated/model';
 import { ApiProblemError } from '@/api/http';
 import { AlertBanner, NoticeBanner } from '@/components/app/AlertBanner';
+import { ComparsaLogo } from '@/components/app/ComparsaLogo';
 import { DescriptionList } from '@/components/app/DescriptionList';
 import { EditSheet, type EditResult } from '@/components/app/EditSheet';
 import { PageHeader } from '@/components/app/PageHeader';
@@ -31,8 +32,10 @@ import { NotFoundPage } from '@/features/platform/pages/NotFoundPage';
 import { useNotice, type Announce } from '@/lib/notices';
 import { useInvalidate } from '@/lib/use-invalidate';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
+import { ComparsaLogoSection } from '../components/ComparsaLogoSection';
 import { FiringChiefsSection } from '../components/FiringChiefsSection';
 import { useLifecycleActions } from '../components/useLifecycleActions';
+import { logoUrl } from '../logos';
 import { applyFieldErrors, problemCode, problemMessage } from '../problems';
 import { ComparsaFields } from './ComparsaFields';
 import {
@@ -181,6 +184,7 @@ function AdminDetail({
     error: firingChiefs.error ?? undefined,
   };
   const actions = useComparsaActions(comparsa, chiefs.rows?.length, announce);
+  const refreshAfterChange = useRefreshAfterChange(comparsa.id);
   return (
     <DetailLayout
       comparsa={comparsa}
@@ -189,6 +193,7 @@ function AdminDetail({
       moreActionsRef={actions.moreActions}
     >
       <DataSection comparsa={comparsa} isAdmin />
+      <ComparsaLogoSection comparsa={comparsa} onChanged={refreshAfterChange} />
       <FiringChiefs comparsa={comparsa} chiefs={chiefs} />
       {actions.dialogs}
     </DetailLayout>
@@ -213,6 +218,8 @@ function DetailLayout({
   return (
     <>
       <RecordHeader
+        // Decorative: the name is the heading right beside it (spec: Logo display).
+        media={<ComparsaLogo src={logoUrl(comparsa.id, comparsa.logo)} size="lg" />}
         back={{ to: '/comparsas', label: t('comparsas.detail.back') }}
         context={t(`side.${comparsa.side}`)}
         name={comparsa.name}

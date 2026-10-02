@@ -1,5 +1,12 @@
 import { expect, test as setup } from '@playwright/test';
-import { ADMIN_STATE, FIRING_CHIEF_STATE, SEEDED, signIn, type Account } from './identity';
+import {
+  ADMIN_STATE,
+  FIRING_CHIEF_STATE,
+  FIRING_CHIEF_UNO_STATE,
+  SEEDED,
+  signIn,
+  type Account,
+} from './identity';
 
 /**
  * Signs the seeded users in once per run and saves their sessions, so specs start signed in
@@ -33,4 +40,8 @@ setup('sign in the seeded Admin', async ({ page }) => {
 
 setup('sign in a seeded FiringChief', async ({ page }) => {
   await saveSession(page, SEEDED.firingChief, FIRING_CHIEF_STATE);
+});
+
+setup('sign in the seeded FiringChief of two comparsas', async ({ page }) => {
+  await saveSession(page, SEEDED.firingChiefUno, FIRING_CHIEF_UNO_STATE);
 });
