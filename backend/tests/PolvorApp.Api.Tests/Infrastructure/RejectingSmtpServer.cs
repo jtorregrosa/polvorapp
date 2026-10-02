@@ -22,15 +22,11 @@ public sealed class RejectingSmtpServer : IAsyncDisposable
 
     public int Port => ((IPEndPoint)_listener.LocalEndpoint).Port;
 
-    /// <summary>A loopback port with nothing listening on it.</summary>
-    public static int ClosedPort()
-    {
-        var probe = new TcpListener(IPAddress.Loopback, 0);
-        probe.Start();
-        var port = ((IPEndPoint)probe.LocalEndpoint).Port;
-        probe.Stop();
-        return port;
-    }
+    /// <summary>
+    /// A loopback port with nothing listening on it: port 1 (tcpmux) is never served. A port freed
+    /// after a probe could be taken by another test class running in parallel.
+    /// </summary>
+    public static int ClosedPort() => 1;
 
     public async ValueTask DisposeAsync()
     {

@@ -7,7 +7,11 @@ using DotNet.Testcontainers.Containers;
 
 namespace PolvorApp.Api.Tests.Infrastructure;
 
-/// <summary>A Mailpit container (the local mail catcher) shared by the test assembly.</summary>
+/// <summary>
+/// A Mailpit container (the local mail catcher) shared by the test assembly. Messages are found by
+/// recipient and test classes run in parallel: an address whose mail a test reads or counts must
+/// not receive mail from any other test class.
+/// </summary>
 public sealed class MailpitFixture : IAsyncLifetime
 {
     private const int SmtpPort = 1025;

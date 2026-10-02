@@ -14,7 +14,6 @@ namespace PolvorApp.Api.Tests.Registry;
 /// Design D3: the database backs up every blocking registry rule, so a race past the API checks
 /// still cannot store invalid data. Each case names the constraint the services map to a problem code.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class RegistryDatabaseTests(PostgresFixture postgres) : IAsyncLifetime
 {
     private readonly Comparsa _comparsa = RegistryData.NewComparsa("Comparsa Sintética Registro");
@@ -26,7 +25,7 @@ public sealed class RegistryDatabaseTests(PostgresFixture postgres) : IAsyncLife
 
     public async ValueTask InitializeAsync()
     {
-        _connectionString = await postgres.CreateDatabaseAsync();
+        _connectionString = await postgres.CreateMigratedDatabaseAsync();
         _factory = new ApiFactory(_connectionString);
         Assert.Equal(0, await MigrateCommand.RunAsync(Services, TestContext.Current.CancellationToken));
         await Services.SaveCatalogAsync(_comparsa, _model);

@@ -9,7 +9,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Catalog;
 
 /// <summary>Spec "FiringChief assignments" and the assignment part of "Catalogue changes are audited".</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class AssignmentTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;

@@ -15,7 +15,6 @@ namespace PolvorApp.Api.Tests.Registry;
 /// Design D10 and D11 (group 4 reviews): owned-weapon writes racing each other, the owner's deletion
 /// and the catalog end in a clear answer, never a 500; and every registry write is throttled.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class OwnedWeaponRaceTests(PostgresFixture postgres, MailpitFixture mailpit)
 {
     [Fact]

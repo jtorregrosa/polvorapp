@@ -8,7 +8,6 @@ using PolvorApp.SharedKernel.Persistence;
 namespace PolvorApp.Api.Tests;
 
 /// <summary>Spec platform: "Local environment with one command" — migrations run by an explicit command.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class MigrateCommandTests(PostgresFixture postgres)
 {
     [Fact]

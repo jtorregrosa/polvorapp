@@ -11,7 +11,6 @@ namespace PolvorApp.Api.Tests.Registry;
 /// Spec "Arquebusier visibility (BR-12)" and "Current license" (derived status): scoped lists and
 /// details, filters, Spanish order and the detail shape.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ArquebusierVisibilityTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private RegistryTestHost _registry = null!;

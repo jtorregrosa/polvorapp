@@ -11,7 +11,6 @@ using PolvorApp.SharedKernel.Seeding;
 
 namespace PolvorApp.Api.Tests;
 
-[Collection(PostgresGroup.Name)]
 public sealed class SeedCommandTests(PostgresFixture postgres)
 {
     private sealed class RecordingSeeder(int order, List<int> calls) : IDataSeeder
@@ -154,22 +153,16 @@ public sealed class SeedCommandTests(PostgresFixture postgres)
     [Fact]
     public async Task Seeding_two_empty_databases_produces_identical_data()
     {
-        var first = await SeedFreshDatabaseAsync($"seed_{Guid.NewGuid():N}");
-        var second = await SeedFreshDatabaseAsync($"seed_{Guid.NewGuid():N}");
+        var first = await SeedFreshDatabaseAsync();
+        var second = await SeedFreshDatabaseAsync();
 
         Assert.Equal(20, first.Count);
         Assert.Equal(first, second);
     }
 
-    private async Task<List<(int Id, int Value)>> SeedFreshDatabaseAsync(string database)
+    private async Task<List<(int Id, int Value)>> SeedFreshDatabaseAsync()
     {
-        await using (var admin = NpgsqlDataSource.Create(postgres.ConnectionString))
-        await using (var create = admin.CreateCommand($"CREATE DATABASE {database}"))
-        {
-            await create.ExecuteNonQueryAsync(TestContext.Current.CancellationToken);
-        }
-
-        var connectionString = new NpgsqlConnectionStringBuilder(postgres.ConnectionString) { Database = database }.ConnectionString;
+        var connectionString = await postgres.CreateDatabaseAsync();
         await using var dataSource = NpgsqlDataSource.Create(connectionString);
         await using var services = Services(new CapturingLoggerProvider(), s => s.AddSingleton<IDataSeeder>(new SyntheticRowsSeeder(dataSource)));
 

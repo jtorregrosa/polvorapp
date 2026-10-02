@@ -17,7 +17,6 @@ namespace PolvorApp.Api.Tests.Compliance;
 /// Cross-cutting rules of the insights: the registry list and the summary agree (design D3), viewing
 /// records nothing (spec "Insights are read-only"), and every compliance route is scoped (BR-12).
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ComplianceGuardTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private RegistryTestHost _registry = null!;

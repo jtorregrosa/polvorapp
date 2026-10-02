@@ -9,7 +9,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Identity;
 
 /// <summary>Specs "Sign-in with two-factor authentication" and "Remembered devices".</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class SignInTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;

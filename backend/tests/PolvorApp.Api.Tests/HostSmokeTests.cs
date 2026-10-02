@@ -2,7 +2,6 @@ using PolvorApp.Api.Tests.Infrastructure;
 
 namespace PolvorApp.Api.Tests;
 
-[Collection(PostgresGroup.Name)]
 public sealed class HostSmokeTests(PostgresFixture postgres)
 {
     [Fact]

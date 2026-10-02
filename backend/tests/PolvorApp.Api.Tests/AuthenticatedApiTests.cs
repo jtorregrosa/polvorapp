@@ -5,7 +5,6 @@ using PolvorApp.Api.Tests.Infrastructure;
 namespace PolvorApp.Api.Tests;
 
 /// <summary>Spec platform "Authenticated API by default" and identity-access "Sessions" (anti-forgery).</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class AuthenticatedApiTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;

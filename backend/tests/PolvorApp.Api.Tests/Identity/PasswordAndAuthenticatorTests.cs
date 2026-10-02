@@ -7,7 +7,6 @@ using PolvorApp.IdentityAccess.Users;
 namespace PolvorApp.Api.Tests.Identity;
 
 /// <summary>Specs "Password policy" and "Sign-in with two-factor authentication" (replay-safe codes).</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class PasswordAndAuthenticatorTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;

@@ -19,7 +19,6 @@ namespace PolvorApp.Api.Tests.Catalog;
 /// comparsa (403 or 404, never 2xx), while the comparsa's own FiringChief reaches every route that
 /// is not Admin-only, which proves the refusal comes from the scope and not from missing data.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed partial class ComparsaScopeGuardTests(PostgresFixture postgres, MailpitFixture mailpit)
 {
     [Fact]

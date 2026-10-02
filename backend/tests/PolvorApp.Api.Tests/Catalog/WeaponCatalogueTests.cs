@@ -13,7 +13,6 @@ namespace PolvorApp.Api.Tests.Catalog;
 /// Specs "Weapon catalogue access" (reads for everyone, writes for Admins) and the model part of
 /// "Deleting comparsas and weapon models".
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class WeaponCatalogueTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private readonly FakeCatalogUsage _usage = new();

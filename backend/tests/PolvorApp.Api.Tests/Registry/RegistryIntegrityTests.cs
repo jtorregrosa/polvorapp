@@ -14,7 +14,6 @@ namespace PolvorApp.Api.Tests.Registry;
 /// Spec "Registry changes are audited" (in the same transaction, field names only) and design D10
 /// (concurrent writes and lock timeouts) across every registry write.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class RegistryIntegrityTests(PostgresFixture postgres, MailpitFixture mailpit)
 {
     private static readonly string[] TwoPhones = ["+34 600 000 031", "+34 600 000 032"];

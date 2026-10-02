@@ -6,7 +6,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Catalog;
 
 /// <summary>Spec "Catalogue changes are audited" (logo writes; design D7).</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ComparsaLogoAuditTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private RegistryTestHost _host = null!;

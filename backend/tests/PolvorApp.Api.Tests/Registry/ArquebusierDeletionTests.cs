@@ -12,7 +12,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Registry;
 
 /// <summary>Spec "Deleting an arquebusier (UC-05, BR-14)" and its audit entry.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ArquebusierDeletionTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private readonly WeaponModel _model = RegistryData.NewWeaponModel("ARCABUZ SINTÉTICO BORRABLE");

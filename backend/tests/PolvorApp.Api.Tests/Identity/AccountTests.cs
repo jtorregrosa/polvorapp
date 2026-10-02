@@ -7,7 +7,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Identity;
 
 /// <summary>Spec "Account self-service" and platform "Switch UI language" (saved locale).</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class AccountTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private const string NewPassword = "cambiada-sintetica-2026"; // gitleaks:allow (synthetic test value)

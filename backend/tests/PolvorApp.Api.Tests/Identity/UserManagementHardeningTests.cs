@@ -13,7 +13,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Identity;
 
 /// <summary>Findings of the group 6 and 7 reviews: step-up lockout, last-Admin counting, bootstrap and seeding guards.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class UserManagementHardeningTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;

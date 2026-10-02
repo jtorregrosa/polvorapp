@@ -12,7 +12,6 @@ namespace PolvorApp.Api.Tests.Registry;
 /// Specs "Private photo access (SEC-02)", "Arquebusier photos" (removal), "Current license" (license
 /// photos) and "Deleting an arquebusier" (photos); design D5, D7.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class PhotoAccessTests(PostgresFixture postgres, MailpitFixture mailpit, MinioFixture minio) : IAsyncLifetime
 {
     private RegistryTestHost _registry = null!;

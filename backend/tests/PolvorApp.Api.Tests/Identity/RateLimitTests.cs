@@ -12,7 +12,6 @@ using PolvorApp.SharedKernel.Security;
 namespace PolvorApp.Api.Tests.Identity;
 
 /// <summary>Spec "Sign-in with two-factor authentication": sign-in endpoints are rate limited per client address.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class RateLimitTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private const int Limit = 3;

@@ -55,7 +55,7 @@ public sealed class IdentityTestHost : IAsyncDisposable
         }
 
         var factory = new ApiFactory(
-            await postgres.CreateDatabaseAsync(),
+            await postgres.CreateMigratedDatabaseAsync(),
             environment,
             settings: all,
             configureServices: services =>
@@ -63,6 +63,9 @@ public sealed class IdentityTestHost : IAsyncDisposable
                 services.AddSingleton<TimeProvider>(time);
                 configureServices?.Invoke(services);
             });
+
+        // The database is a copy of the migrated template: this runs the API's real migrate step (a
+        // no-op on the schema) and ensures the bucket, as compose does before the API starts.
         var exitCode = await MigrateCommand.RunAsync(factory.Services, TestContext.Current.CancellationToken);
         if (exitCode != 0)
         {

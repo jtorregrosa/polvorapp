@@ -15,14 +15,13 @@ namespace PolvorApp.Api.Tests.Catalog;
 /// Design D3: the database backs up every blocking catalogue rule, so a race past the API checks
 /// still cannot store invalid data. Each case names the constraint the services map to a problem code.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class CatalogDatabaseTests(PostgresFixture postgres) : IAsyncLifetime
 {
     private ApiFactory? _factory;
 
     public async ValueTask InitializeAsync()
     {
-        _factory = new ApiFactory(await postgres.CreateDatabaseAsync());
+        _factory = new ApiFactory(await postgres.CreateMigratedDatabaseAsync());
         Assert.Equal(0, await MigrateCommand.RunAsync(_factory.Services, TestContext.Current.CancellationToken));
     }
 

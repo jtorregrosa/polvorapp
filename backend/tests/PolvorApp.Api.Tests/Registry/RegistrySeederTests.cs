@@ -29,7 +29,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Registry;
 
 /// <summary>Spec "Synthetic registry data" (SEC-11, design D9): fictional, deterministic, safe to run again.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class RegistrySeederTests(PostgresFixture postgres, MailpitFixture mailpit, MinioFixture minio)
 {
     private const string SeedPassword = "semilla-sintetica-local";

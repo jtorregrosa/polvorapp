@@ -11,7 +11,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Registry;
 
 /// <summary>Edge cases of the photo routes from the group 4 reviews (design D5, D6).</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class PhotoEdgeTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private RegistryTestHost _registry = null!;
@@ -123,7 +122,6 @@ public sealed class PhotoEdgeTests(PostgresFixture postgres, MailpitFixture mail
 /// Spec "Stored photo cleanup": when erasing a replaced or removed image fails, the change still
 /// succeeds and the image is left to the sweep; and a busy image processor answers a retryable 503.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class PhotoCleanupFailureTests(PostgresFixture postgres, MailpitFixture mailpit, MinioFixture minio) : IAsyncLifetime
 {
     private RegistryTestHost _registry = null!;
@@ -221,7 +219,6 @@ public sealed class PhotoCleanupFailureTests(PostgresFixture postgres, MailpitFi
 }
 
 /// <summary>Design D3: a busy image processor answers a retryable 503 and stores nothing.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class PhotoBusyTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private RegistryTestHost _registry = null!;

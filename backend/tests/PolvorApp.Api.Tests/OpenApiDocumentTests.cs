@@ -4,7 +4,6 @@ using PolvorApp.Api.Tests.Infrastructure;
 
 namespace PolvorApp.Api.Tests;
 
-[Collection(PostgresGroup.Name)]
 public sealed class OpenApiDocumentTests(PostgresFixture postgres)
 {
     private static readonly Uri DocumentUri = new("/api/openapi/v1.json", UriKind.Relative);

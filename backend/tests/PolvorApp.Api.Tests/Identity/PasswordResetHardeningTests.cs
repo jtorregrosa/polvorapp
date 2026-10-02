@@ -12,7 +12,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Identity;
 
 /// <summary>Findings of the group 5 reviews on password reset, pending steps and email texts.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed partial class PasswordResetHardeningTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;

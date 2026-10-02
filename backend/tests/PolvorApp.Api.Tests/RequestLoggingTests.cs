@@ -5,7 +5,6 @@ using PolvorApp.Api.Tests.Infrastructure;
 
 namespace PolvorApp.Api.Tests;
 
-[Collection(PostgresGroup.Name)]
 public sealed class RequestLoggingTests(PostgresFixture postgres)
 {
     private const string RequestLogCategory = "PolvorApp.Api.Platform.Diagnostics.RequestLoggingMiddleware";

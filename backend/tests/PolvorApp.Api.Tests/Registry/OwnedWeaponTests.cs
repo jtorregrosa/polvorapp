@@ -9,7 +9,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Registry;
 
 /// <summary>Spec "Owned weapons (UC-04)" and "Registry changes are audited" (owned weapons).</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class OwnedWeaponTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private readonly WeaponModel _arcabuz = RegistryData.NewWeaponModel("ARCABUZ MORO DIESTRO");

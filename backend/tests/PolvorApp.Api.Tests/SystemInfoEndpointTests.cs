@@ -5,7 +5,6 @@ using PolvorApp.Api.Tests.Infrastructure;
 
 namespace PolvorApp.Api.Tests;
 
-[Collection(PostgresGroup.Name)]
 public sealed class SystemInfoEndpointTests(PostgresFixture postgres)
 {
     [Fact]

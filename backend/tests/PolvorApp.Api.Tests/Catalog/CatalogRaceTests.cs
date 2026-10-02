@@ -14,7 +14,6 @@ namespace PolvorApp.Api.Tests.Catalog;
 /// uniqueness check together (design D3). A barrier in the audit trail holds both requests after
 /// their check and before they save, so the race is lost by exactly one of them every time.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class CatalogRaceTests(PostgresFixture postgres, MailpitFixture mailpit)
 {
     [Fact]

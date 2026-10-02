@@ -17,7 +17,6 @@ namespace PolvorApp.Api.Tests.Registry;
 /// Design D6, D7 (add-arquebusier-photos): photo writes against concurrent edits and deletions, and
 /// a storage outage. Each test uses its own bucket, so it can assert exactly which images exist.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class PhotoRaceTests(PostgresFixture postgres, MailpitFixture mailpit, MinioFixture minio) : IAsyncLifetime
 {
     private RegistryTestHost _registry = null!;
@@ -194,7 +193,6 @@ public sealed class PhotoRaceTests(PostgresFixture postgres, MailpitFixture mail
 }
 
 /// <summary>Spec "Private photo access": a storage outage blocks photo operations only.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class PhotoOutageTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private RegistryTestHost _registry = null!;

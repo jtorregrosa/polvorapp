@@ -12,7 +12,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Catalog;
 
 /// <summary>Spec "Deleting comparsas and weapon models" (comparsa part) and design D10.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ComparsaDeletionTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private readonly FakeCatalogUsage _usage = new();

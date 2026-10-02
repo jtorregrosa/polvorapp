@@ -12,7 +12,6 @@ namespace PolvorApp.Api.Tests.Registry;
 /// The registry list and detail carry the compliance warnings (specs "Arquebusier visibility (BR-12)",
 /// "Registry screens" and "Compliance warnings (BR-04)"). Dates are relative to the API's today.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ArquebusierWarningsTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private RegistryTestHost _registry = null!;

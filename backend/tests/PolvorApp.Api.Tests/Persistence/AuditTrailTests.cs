@@ -207,7 +207,6 @@ public sealed class AuditTrailRecordTests
 /// Spec audit-privacy: an entry is stored in the same transaction as its change, and the trail is
 /// append-only.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class AuditTrailStorageTests(PostgresFixture postgres) : IAsyncLifetime
 {
     private readonly AuditTrail _trail = new(new HttpContextAccessor(), TimeProvider.System, NullLogger<AuditTrail>.Instance);

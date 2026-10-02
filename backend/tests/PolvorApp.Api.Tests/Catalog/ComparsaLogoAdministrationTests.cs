@@ -16,7 +16,6 @@ namespace PolvorApp.Api.Tests.Catalog;
 /// image, erased at once when the reference was surely not committed. Each test has its own bucket,
 /// so it can assert exactly which images exist.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ComparsaLogoAdministrationTests(PostgresFixture postgres, MailpitFixture mailpit, MinioFixture minio) : IAsyncLifetime
 {
     private static CancellationToken Token => TestContext.Current.CancellationToken;

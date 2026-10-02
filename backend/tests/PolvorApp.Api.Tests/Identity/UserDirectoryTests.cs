@@ -8,7 +8,6 @@ namespace PolvorApp.Api.Tests.Identity;
 /// The read contract other modules use to look up users (change add-federation-catalog, design D2):
 /// name, email, role and derived status, never credentials.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class UserDirectoryTests(PostgresFixture postgres, MailpitFixture mailpit)
 {
     [Fact]

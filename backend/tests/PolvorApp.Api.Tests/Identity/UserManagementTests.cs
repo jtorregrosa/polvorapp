@@ -9,7 +9,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Identity;
 
 /// <summary>Spec "User management by Admins".</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class UserManagementTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;

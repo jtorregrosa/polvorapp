@@ -8,7 +8,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Compliance;
 
 /// <summary>Spec "Warning summary": counts within the caller's scope (BR-12), every warning present.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ComplianceSummaryTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private static readonly string[] Codes =

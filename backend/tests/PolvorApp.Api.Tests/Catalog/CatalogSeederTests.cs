@@ -24,7 +24,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Catalog;
 
 /// <summary>Spec "Synthetic catalogue data" (SEC-11): fictional, deterministic, safe to run again.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class CatalogSeederTests(PostgresFixture postgres, MailpitFixture mailpit, MinioFixture minio)
 {
     private const string SeedPassword = "semilla-sintetica-local";

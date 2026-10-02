@@ -15,7 +15,6 @@ namespace PolvorApp.Api.Tests.Registry;
 /// Spec "Comparsas and weapon models in use" (design D3): the registry vetoes deleting what it
 /// references, through the catalog's usage contract and, as a backstop, the cross-schema foreign keys.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class RegistryCatalogUsageTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;
@@ -105,7 +104,6 @@ public sealed class RegistryCatalogUsageTests(PostgresFixture postgres, MailpitF
 /// Design D3: with no usage check registered at all, the cross-schema foreign keys alone still
 /// keep a referenced comparsa or weapon model from being deleted.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class RegistryForeignKeyBackstopTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;

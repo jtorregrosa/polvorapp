@@ -9,7 +9,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Identity;
 
 /// <summary>Spec "Sessions": every state-changing request needs the anti-forgery token of its session.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class AntiforgeryTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;

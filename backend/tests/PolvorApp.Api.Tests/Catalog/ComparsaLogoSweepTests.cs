@@ -16,7 +16,6 @@ namespace PolvorApp.Api.Tests.Catalog;
 /// Spec "Comparsa logos" (cleanup) with the platform's "Stored file cleanup": the real sweeper, the
 /// catalogue as owner of <c>catalog/logos/</c>, Postgres and MinIO (design D5). Each test has its own bucket.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ComparsaLogoSweepTests(PostgresFixture postgres, MailpitFixture mailpit, MinioFixture minio) : IAsyncLifetime
 {
     private RegistryTestHost _host = null!;

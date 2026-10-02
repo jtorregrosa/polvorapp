@@ -12,7 +12,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Identity;
 
 /// <summary>Spec "First Admin bootstrap".</summary>
-[Collection(PostgresGroup.Name)]
 public sealed partial class CreateAdminCommandTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;

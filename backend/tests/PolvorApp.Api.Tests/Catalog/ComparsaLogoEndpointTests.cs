@@ -16,7 +16,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Catalog;
 
 /// <summary>Specs "Comparsa logos", "Logo validation and processing" and "Logo access (BR-12)" (design D6).</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ComparsaLogoEndpointTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private RegistryTestHost _host = null!;
@@ -251,7 +250,6 @@ public sealed class ComparsaLogoEndpointTests(PostgresFixture postgres, MailpitF
 }
 
 /// <summary>Design D6: uploads are throttled per user by the <c>ImageUploads</c> policy.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ComparsaLogoRateLimitTests(PostgresFixture postgres, MailpitFixture mailpit)
 {
     [Fact]
@@ -276,7 +274,6 @@ public sealed class ComparsaLogoRateLimitTests(PostgresFixture postgres, Mailpit
 }
 
 /// <summary>Design D4: a busy image processor answers a retryable 503 and stores nothing.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ComparsaLogoBusyTests(PostgresFixture postgres, MailpitFixture mailpit)
 {
     [Fact]
@@ -297,7 +294,6 @@ public sealed class ComparsaLogoBusyTests(PostgresFixture postgres, MailpitFixtu
 }
 
 /// <summary>Spec "Logo access (BR-12)": during a storage outage logo uploads and reads answer 503, the rest keeps working.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ComparsaLogoOutageTests(PostgresFixture postgres, MailpitFixture mailpit)
 {
     [Fact]
