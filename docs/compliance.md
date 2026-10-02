@@ -26,9 +26,9 @@ Implications for the product:
 |---|---|---|
 | Name, surnames | Identification in lists | Normal |
 | DNI/NIE | Required by suppliers and the Arms Authority | **High** (identity document) |
-| Birth date | Legal-age check | Normal |
+| Birth date | Legal-age check (the `UNDER_AGE` warning) and age brackets of the statistics | Normal (the age is derived, never stored; the registry list never returns the birth date) |
 | Email, phone | Contact by the FiringChief | Normal |
-| Gender | Equality reports | Normal (aggregate use only) |
+| Gender | Equality reports | Normal (aggregate use only: the statistics return counts and comparsa names only, never a person; `add-compliance-insights`) |
 | ID photo | Required by the Federation for the arquebusier file | **High** (image; not biometric processing) |
 | License photos (front/back) | Proof of a valid license | **High** (official document) |
 | License type and dates, course date | Compliance warnings | Normal |
@@ -65,7 +65,7 @@ should appoint or confirm its **DPO** (unknown today).
 | SEC-02 | Photos stored in private storage, encrypted at rest, served only after an authorisation check. *Implemented (`add-arquebusier-photos`)*: private S3-compatible bucket under random object names; the browser never reaches the storage — the API streams each photo after the same comparsa-scope check as the arquebusier (BR-12), with `Cache-Control: no-store`. **Go-live checks**: encryption at rest on the bucket, no public policy or ACL, versioning off (or non-current versions expired within a day, otherwise deleted photos survive), one bucket per environment, a key limited to the bucket. |
 | SEC-03 | Least privilege: FiringChiefs only access their own comparsa (BR-12). |
 | SEC-04 | Email + password with **mandatory 2FA (TOTP) for every user**. Invitation-only accounts. |
-| SEC-05 | Audit log of every change and every export (who, when, what). |
+| SEC-05 | Audit log of every change and every export (who, when, what). Viewing the dashboard, the warnings or the statistics writes and exports nothing, so it is not audited (`add-compliance-insights`); downloadable statistics, when #12 adds them, are exports and must be audited and suppress small cells. |
 | SEC-06 | Exports contain only the columns required by each recipient (data minimisation). |
 | SEC-07 | Encrypted daily backups with tested restore. |
 | SEC-08 | Retention: arquebusiers who stop firing stay as RESERVE at the comparsa's discretion; when they leave the Federation they are **deleted** (BR-14). Old license photos are deleted when new ones are uploaded and when the license is removed; a renewal without new photos keeps the previous ones until they are replaced (accepted, maintainer decision: they stay part of the current license record and the UI reminds the user to replace them). Replaced, removed and deleted images are erased right after the change; if that fails, an hourly sweep erases images no record references (worst case about 2 h). Optional: warn FiringChiefs about arquebusiers in RESERVE for more than N years. |
