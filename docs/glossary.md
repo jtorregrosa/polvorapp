@@ -59,12 +59,16 @@ equivalent are kept as-is (e.g. `Comparsa`).
 
 | Spanish | Code term | Definition |
 |---|---|---|
-| Fiestas {año} | `FestivalEdition` | One yearly edition. Orders, rentals, loans and distributions are scoped to an edition. Can be locked by an Admin. |
+| Fiestas {año} | `FestivalEdition` | One yearly edition. Orders, rentals, loans and distributions are scoped to an edition. An Admin opens and closes its orders. |
+| Estado de edición | `EditionStatus` (`DRAFT`, `IN_PROGRESS`, `CLOSED`) | Lifecycle of an edition. `DRAFT`: in preparation, hidden from FiringChiefs. `IN_PROGRESS`: the current edition, FiringChiefs can see it. `CLOSED`: finished. Admins move it one step at a time, forward or one step back. |
+| Pedidos abiertos / cerrados | `ordersOpen` | Flag on the current edition. When true, FiringChiefs may edit orders. When false, they are read-only. Admins toggle it manually; reopening is the corrections window. |
+| Edición actual | `currentEdition` | The edition `IN_PROGRESS`. At most one at a time. FiringChiefs edit orders only while its orders are open. |
 | Acto | `FestivalAct` | Act where firing happens: Diana Mora, Diana Cristiana, Embajada Mora, Embajada Cristiana, Salvas al Patrón. |
 | Diana | `Diana` | Morning act where the shooting contest is held. |
 | Salvas al Patrón | `PatronSalute` | Minor firing act in honour of the patron saint. |
 | Concurso de disparo | `ShootingContest` | **Out of scope** for now. |
 | Evento de calendario | `CalendarMilestone` | Administrative dates of an edition (license renewal call, course, deadlines…). Can trigger notifications. |
+| Bloqueo del registro | `RegistryLock` | An independent lock on the registry (not tied to editions). When on, FiringChiefs cannot register, edit, change status, manage weapons or photos; Admins always write. Toggled by Admins and audited. |
 
 ## Weapons
 

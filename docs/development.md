@@ -134,7 +134,7 @@ backend changes run `docker compose --profile seed build api-seed` first.
 
 Seeding runs only in `Development`, `Staging` and `Testing` and never uses real data (SEC-11).
 Outside `Development` and `Testing` each seeder first refuses a database that holds anything it
-would not have created (users, comparsas, weapon models or assignments), so staging never mixes
+would not have created (users, comparsas, weapon models, assignments, arquebusiers or editions), so staging never mixes
 synthetic and real data (NFR-13).
 Each module registers its own `IDataSeeder`; randomness derives from `SyntheticData.RandomSeed`,
 so every run produces the same data. Seeding is not transactional: after a failed run, reset the
@@ -161,6 +161,23 @@ reserve, AE and A-PROF licenses that are valid, expired or pending, no license, 
 done. Five owned weapons (guides `SINT-0001` … `SINT-0005`) cover a trabuco, arcabuces, a pistol and
 one weapon of the inactive model. Their phones (`+34 600 000 0NN`) are in the Spanish mobile range,
 which has no reserved fictional numbers: PolvorApp never calls or messages them.
+
+The edition seed (`add-festival-editions`) adds three festival editions. Their dates are relative
+to the seed date:
+
+| Edition | Status | Orders | Dates |
+|---|---|---|---|
+| Last year's | Closed | closed | festival 22–25 April, orders 10 January – 10 February |
+| Current (the festival's year) | In progress | open | orders from 14 days before the seed date to 30 days after; festival 60 to 63 days after |
+| Next year's | Draft | closed | festival 22–25 April, no order window yet |
+
+All three have the same invented prices (48.00 € per kg of powder, 3.75 € a caps box, 25.00 € a
+weapon rental, 5.00 € a flask rental). They also offer the seeded trabucos and active arcabuces
+for rental. The current edition has four synthetic milestones and the closed one has one.
+
+The registry is seeded unlocked. Seeded dates are never refreshed: on a database seeded weeks ago,
+the current edition's order window may already have passed. Reset the database
+(`docker compose down -v`) and seed again for fresh dates.
 
 ### Signing in locally
 
