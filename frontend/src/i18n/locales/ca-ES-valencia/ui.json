@@ -198,5 +198,13 @@
   "breakdown": {
     "share": "% del total",
     "total": "Total"
+  },
+  "fileField": {
+    "choose": "Tria un fitxer",
+    "change": "Canvia el fitxer",
+    "remove": "Lleva el fitxer {{name}}",
+    "none": "Cap fitxer triat",
+    "chosenStatus": "Fitxer triat: {{name}}, {{size}}",
+    "removedStatus": "Fitxer llevat: {{name}}"
   }
 }

@@ -38,6 +38,11 @@ export interface DataTableColumn<TRow extends RowData> {
   align?: 'start' | 'end';
   /** Keeps the header for screen readers only, e.g. "Actions" above a column of row buttons. */
   hideHeader?: boolean;
+  /**
+   * The column that names the row (e.g. the name), rendered as a row header so screen readers
+   * announce it with each cell of the row. At most one column.
+   */
+  rowHeader?: boolean;
 }
 
 export interface DataTableProps<TRow extends RowData> {
@@ -346,11 +351,25 @@ export function DataTable<TRow extends RowData>({
                     }
                     className={cn('h-row', href !== undefined && 'cursor-pointer')}
                   >
-                    {row.getAllCells().map((cell) => (
-                      <TableCell key={cell.id} className={alignment(cell.column.id)}>
-                        <table.FlexRender cell={cell} />
-                      </TableCell>
-                    ))}
+                    {row.getAllCells().map((cell) =>
+                      byId.get(cell.column.id)?.rowHeader ? (
+                        <th
+                          key={cell.id}
+                          scope="row"
+                          data-slot="table-cell"
+                          className={cn(
+                            'p-2 align-middle font-normal whitespace-nowrap',
+                            alignment(cell.column.id),
+                          )}
+                        >
+                          <table.FlexRender cell={cell} />
+                        </th>
+                      ) : (
+                        <TableCell key={cell.id} className={alignment(cell.column.id)}>
+                          <table.FlexRender cell={cell} />
+                        </TableCell>
+                      ),
+                    )}
                   </TableRow>
                 );
               })}

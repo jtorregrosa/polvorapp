@@ -52,6 +52,23 @@ describe('DataTable', () => {
     expect(screen.getByRole('button', { name: 'Anterior' })).toBeDisabled();
   });
 
+  it('names each row by its row-header column', async () => {
+    await renderWithProviders(
+      <DataTable
+        caption="Arcabuceros"
+        data={people.slice(0, 2)}
+        columns={columns.map((column) => (column.id === 'surname' ? { ...column, rowHeader: true } : column))}
+        getRowId={(r) => r.id}
+        paginated={false}
+      />,
+    );
+
+    const first = bodyRows()[0];
+    if (!first) throw new Error('No row');
+    expect(within(first).getByRole('rowheader', { name: people[0]?.surname })).toBeInTheDocument();
+    expect(within(first).getAllByRole('cell')).toHaveLength(1);
+  });
+
   it('moves between pages', async () => {
     const user = userEvent.setup();
     await renderWithProviders(
