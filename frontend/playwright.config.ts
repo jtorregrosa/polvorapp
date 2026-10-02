@@ -79,7 +79,14 @@ export default defineConfig({
       testMatch: SERIAL_STATE,
       fullyParallel: false,
       use: { ...devices['Desktop Chrome'], storageState: ADMIN_STATE },
-      dependencies: ['desktop-chromium', 'mobile-360', 'dates-firefox', 'dates-webkit', 'photos-firefox', 'photos-webkit'],
+      dependencies: [
+        'desktop-chromium',
+        'mobile-360',
+        'dates-firefox',
+        'dates-webkit',
+        'photos-firefox',
+        'photos-webkit',
+      ],
     },
   ],
 });
