@@ -76,6 +76,8 @@ services:
       RateLimits__PersonalDataWrites__PermitLimit: ${RATE_LIMIT_PERSONAL_DATA_WRITES_PER_MINUTE:-60}
       # Image uploads that the server decodes (comparsa logos) per user and minute.
       RateLimits__ImageUploads__PermitLimit: ${RATE_LIMIT_IMAGE_UPLOADS_PER_MINUTE:-20}
+      # Spreadsheet imports that the server reads (arquebusier import) per user and minute.
+      RateLimits__SpreadsheetImports__PermitLimit: ${RATE_LIMIT_SPREADSHEET_IMPORTS_PER_MINUTE:-10}
       # Private photo bucket (ADR-0005). Locally the API uses the MinIO root credentials; real
       # environments use a key limited to this bucket (docs/development.md).
       Storage__ServiceUrl: http://storage:9000

@@ -48,6 +48,7 @@ public sealed class IdentityTestHost : IAsyncDisposable
             ["RateLimits:AuthEmail:PermitLimit"] = "1000",
             ["RateLimits:PersonalDataWrites:PermitLimit"] = "1000",
             ["RateLimits:ImageUploads:PermitLimit"] = "1000",
+            ["RateLimits:SpreadsheetImports:PermitLimit"] = "1000",
         };
         foreach (var (key, value) in settings ?? new Dictionary<string, string?>())
         {

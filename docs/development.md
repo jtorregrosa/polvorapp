@@ -309,7 +309,7 @@ Playwright runs against the compose stack with the synthetic users seeded. The s
 times from one address, so raise the per-address sign-in limits for the run (CI does the same):
 
 ```bash
-RATE_LIMIT_AUTH_PER_MINUTE=300 RATE_LIMIT_AUTH_EMAIL_PER_15_MINUTES=100 RATE_LIMIT_PERSONAL_DATA_WRITES_PER_MINUTE=600 RATE_LIMIT_IMAGE_UPLOADS_PER_MINUTE=200 docker compose up -d --build --wait
+RATE_LIMIT_AUTH_PER_MINUTE=300 RATE_LIMIT_AUTH_EMAIL_PER_15_MINUTES=100 RATE_LIMIT_PERSONAL_DATA_WRITES_PER_MINUTE=600 RATE_LIMIT_IMAGE_UPLOADS_PER_MINUTE=200 RATE_LIMIT_SPREADSHEET_IMPORTS_PER_MINUTE=100 docker compose up -d --build --wait
 docker compose run --rm api-seed
 cd frontend && npx playwright install --with-deps chromium firefox webkit   # once
 npm run e2e
