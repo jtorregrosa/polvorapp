@@ -24,7 +24,7 @@ This is a **small system**: simplicity, low cost and ease of maintenance matter 
 | NFR-04 | Availability | Best effort (~99%). Maintenance outside order windows. No 24/7 support. |
 | NFR-05 | Performance | Pages < 2 s on 4G; exports of the whole Federation < 30 s. |
 | NFR-06 | Security | See `compliance.md` (SEC-01..12). |
-| NFR-07 | Accessibility | WCAG 2.1 AA as a target. |
+| NFR-07 | Accessibility | WCAG 2.2 AA as a target (raised from 2.1 AA by `redesign-design-system`). |
 | NFR-08 | Cost / hosting | Minimal cost. Local development with Docker; deployment as containers. The Federation's existing hosting is to be assessed later (it must be able to run containers). |
 | NFR-09 | Maintainability | Maintained by one developer (the author), skilled in .NET, Angular, React, Node. Few moving parts, automated tests, CI. |
 | NFR-10 | Portability | Data exportable (Excel/CSV) so the Federation is never locked in. |

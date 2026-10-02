@@ -4,7 +4,7 @@
 
 Gives every PolvorApp screen one coherent, accessible and themeable look through closed design
 tokens, a layer of PolvorApp composites, shared status semantics, a component catalogue and the
-guardrails that stop feature code from bypassing them (ADR-0009, ADR-0012).
+guardrails that stop feature code from bypassing them (ADR-0009, ADR-0013).
 
 ## Requirements
 

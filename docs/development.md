@@ -278,12 +278,15 @@ npm run docs:design     # regenerate docs/design/tokens.md and status.md from th
 
 ### Design system
 
-- **Tokens**: colours live only in `src/styles/tokens.css` (light `:root` and `.dark`); Tailwind
-  utilities are generated from them. `src/styles/contrast.test.ts` checks every declared pair
-  against WCAG 2.1 AA in both themes. After changing tokens or `src/components/app/status.ts`, run
+- **Tokens**: colours, type, spacing, sizes, elevation, widths and motion live only in
+  `src/styles/tokens.css` (light `:root` and `.dark`); Tailwind utilities are generated from them.
+  `src/styles/contrast.test.ts` checks every declared pair, the hover states and the night sidebar
+  against WCAG 2.2 AA in both themes. After changing tokens or `src/components/app/status.ts`, run
   `npm run docs:design`; the tests fail while the generated guide pages are out of date.
 - **Primitives and composites**: shadcn/ui primitives are in `src/components/ui/` (added with the
   shadcn CLI, `components.json`; keep local edits minimal and listed in the design guide).
+  `src/components/ui/primitives-guard.test.ts` rejects translucent focus rings and hover colours
+  in them, because ESLint exempts that folder.
   Features and the shell use only the composites in `src/components/app/`.
 - **Guardrails** (ESLint, `eslint.config.js`): no raw palette colours, arbitrary values or opacity
   on semantic tones outside `src/components/ui/`; no `@/components/ui` imports and no `style`
