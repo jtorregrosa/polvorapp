@@ -252,6 +252,16 @@ meter[data-slot='meter']::-moz-meter-bar {
 }
 
 /*
+ * Transparent pixels (PhotoUpload in PNG mode, add-comparsa-logos D8): a checkerboard in the card
+ * and muted surfaces, so the user sees what stays transparent in the logo.
+ */
+@utility bg-checkerboard {
+  background-color: var(--card);
+  background-image: conic-gradient(var(--muted) 25%, transparent 0 50%, var(--muted) 0 75%, transparent 0);
+  background-size: 1rem 1rem;
+}
+
+/*
  * Photo crop (react-image-crop, PhotoUpload): design tokens for the handles, targets big enough to
  * hit (24 px, 44 px on touch), a two-tone focus ring that stays visible on any photo, and no
  * endless "marching ants" animation (WCAG 2.2.2).

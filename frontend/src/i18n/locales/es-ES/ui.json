@@ -8,6 +8,7 @@
   },
   "nav": {
     "label": "Navegación principal",
+    "comparsas": "Mis comparsas",
     "toggle": "Mostrar u ocultar la navegación",
     "mobileTitle": "Navegación",
     "mobileDescription": "Menú de navegación de la aplicación",
@@ -162,6 +163,21 @@
       "right": "Mover el recorte a la derecha",
       "smaller": "Hacer el recorte más pequeño",
       "larger": "Hacer el recorte más grande"
+    },
+    "removed": "Quitada: {{label}}",
+    "logo": {
+      "use": "Usar logo",
+      "cropImage": "Logo elegido",
+      "preview": "Vista previa del logo recortado",
+      "uploading": "Subiendo el logo…",
+      "loadFailed": "No se ha podido cargar el logo",
+      "errors": {
+        "tooLarge": "El archivo es demasiado grande. Elige una imagen de menos de 25 MB.",
+        "unsupportedFormat": "Este archivo no es una imagen que se pueda abrir. Usa una imagen JPEG, PNG o WebP; los SVG no se admiten.",
+        "tooSmall": "El logo es demasiado pequeño: el lado largo debe medir al menos 256 px. Elige una imagen con más resolución o amplía la selección.",
+        "aspectRatio": "El logo es demasiado alargado. Recórtalo para que el lado largo no mida más de 3 veces el corto.",
+        "generic": "No se ha podido guardar el logo. Inténtalo de nuevo."
+      }
     }
   },
   "filters": {

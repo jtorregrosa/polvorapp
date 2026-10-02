@@ -8,6 +8,7 @@
   },
   "nav": {
     "label": "Navegació principal",
+    "comparsas": "Les meues comparses",
     "toggle": "Mostra o amaga la navegació",
     "mobileTitle": "Navegació",
     "mobileDescription": "Menú de navegació de l'aplicació",
@@ -162,6 +163,21 @@
       "right": "Mou el retall a la dreta",
       "smaller": "Fes el retall més menut",
       "larger": "Fes el retall més gran"
+    },
+    "removed": "Llevada: {{label}}",
+    "logo": {
+      "use": "Usa el logo",
+      "cropImage": "Logo triat",
+      "preview": "Vista prèvia del logo retallat",
+      "uploading": "S'està pujant el logo…",
+      "loadFailed": "No s'ha pogut carregar el logo",
+      "errors": {
+        "tooLarge": "El fitxer és massa gran. Tria una imatge de menys de 25 MB.",
+        "unsupportedFormat": "Aquest fitxer no és una imatge que es puga obrir. Usa una imatge JPEG, PNG o WebP; els SVG no s'admeten.",
+        "tooSmall": "El logo és massa xicotet: el costat llarg ha de mesurar almenys 256 px. Tria una imatge amb més resolució o amplia la selecció.",
+        "aspectRatio": "El logo és massa allargat. Retalla'l perquè el costat llarg no mesure més de 3 vegades el curt.",
+        "generic": "No s'ha pogut guardar el logo. Torna-ho a provar."
+      }
     }
   },
   "filters": {

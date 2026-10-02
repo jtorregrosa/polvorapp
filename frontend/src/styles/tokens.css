@@ -68,6 +68,10 @@
   --sidebar-border: #2e2842;
   --sidebar-ring: #ff8a4a;
 
+  /* Comparsa logos sit on a light tile in both themes, so dark emblems stay visible (add-comparsa-logos). */
+  --logo-tile: #f7f6fa;
+  --logo-tile-foreground: #5e5970;
+
   --elevation-1: 0 1px 2px rgb(22 19 31 / 0.05), 0 1px 1px rgb(22 19 31 / 0.03);
   --elevation-2: 0 12px 32px -10px rgb(22 19 31 / 0.28), 0 2px 6px rgb(22 19 31 / 0.06);
 }
@@ -128,6 +132,10 @@
   --sidebar-accent-foreground: #ebe8f3;
   --sidebar-border: #221d30;
   --sidebar-ring: #ff8a4a;
+
+  /* Light in the dark theme too: a black logo on transparency must not vanish. */
+  --logo-tile: #f7f6fa;
+  --logo-tile-foreground: #5e5970;
 
   /* Dark surfaces separate by a hairline instead of a shadow. */
   --elevation-1: 0 0 0 1px #2a2636;
@@ -293,4 +301,6 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-logo-tile: var(--logo-tile);
+  --color-logo-tile-foreground: var(--logo-tile-foreground);
 }

@@ -59,6 +59,9 @@ const TOKEN_ROLES: Readonly<Record<string, string>> = {
   'sidebar-accent-foreground': 'Text on `sidebar-accent`.',
   'sidebar-border': 'Sidebar separators.',
   'sidebar-ring': 'Focus indicator inside the sidebar.',
+  'logo-tile':
+    'Light tile behind comparsa logos, in both themes, so dark logos stay visible (`ComparsaLogo`).',
+  'logo-tile-foreground': 'Placeholder icon on `logo-tile` when a comparsa has no logo.',
 };
 
 /** What each theme token beyond colour is for. Every one in tokens.css must be described here. */

@@ -69,6 +69,33 @@ export const UnreadableFile: Story = {
   },
 };
 
+/** A synthetic emblem on a transparent background: flat shapes, never a real comparsa's logo (ADR-0012). */
+const SYNTHETIC_LOGO =
+  'data:image/svg+xml,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">' +
+      '<circle cx="256" cy="256" r="220" fill="#2f6b4f"/>' +
+      '<rect x="36" y="220" width="440" height="72" fill="#d9a441"/>' +
+      '</svg>',
+  );
+
+/** Logo mode (add-comparsa-logos): free shape, transparency kept, PNG uploaded. */
+export const TransparentLogo: Story = {
+  args: {
+    label: 'logo de la comparsa',
+    photoUrl: SYNTHETIC_LOGO,
+    photoAlt: 'Logo de Comparsa Sintética Este',
+    aspect: undefined,
+    minWidth: undefined,
+    minHeight: undefined,
+    maxSideRatio: 3,
+    minLongSide: 256,
+    maxWidth: 1024,
+    maxHeight: 1024,
+    output: 'png',
+  },
+};
+
 export const LongValencian: Story = {
   args: {
     label: "revers de la llicència d'armes",

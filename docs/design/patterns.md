@@ -32,6 +32,23 @@ declare their breadcrumb with a `handle: { breadcrumb: '<common key>' } satisfie
   error summary and the current values to review.
 - Empty values read "Not given". Identifiers use `mono` (Geist Mono).
 
+### Comparsa logos
+
+- Wherever a comparsa is named, `ComparsaLogo` can go before the name: `sm` in list rows (desktop
+  and `mobileRow`), `lg` as the `RecordHeader` media, `md` in the sidebar cards. A comparsa without
+  a logo shows the placeholder, so names stay aligned. Next to the name the logo is decorative
+  (empty `alt`); give it an `alt` only where it stands alone.
+- The image URL is `/api/comparsas/{id}/logo?v={logo.version}`: the version changes with the logo,
+  so the browser reloads it. Build it only when `logo` is not null.
+- The tile is light in both themes and on the night sidebar, so a black emblem on transparency
+  stays visible. Never place a logo directly on a dark surface.
+- Admins manage the logo in a "Logo" `SectionCard` with `PhotoUpload` in PNG mode (`output="png"`,
+  free crop starting with the whole image, `maxSideRatio` 3, `minLongSide` 256, at most 1024 px).
+  FiringChiefs see the logo without that section.
+- `AppLayout`'s `sidebarCards` show a FiringChief's active comparsas above the navigation (logo
+  and name, linking to the comparsa, the open one marked as current). Names wrap, never clipped.
+  Admins get no cards.
+
 ## Actions
 
 - At most **one primary action** per page, at its natural width (never stretched across a form).
