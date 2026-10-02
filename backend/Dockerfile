@@ -15,6 +15,8 @@ COPY src/Modules/FederationCatalog/PolvorApp.FederationCatalog/PolvorApp.Federat
 COPY src/Modules/FederationCatalog/PolvorApp.FederationCatalog.Contracts/PolvorApp.FederationCatalog.Contracts.csproj src/Modules/FederationCatalog/PolvorApp.FederationCatalog.Contracts/
 COPY src/Modules/ArquebusierRegistry/PolvorApp.ArquebusierRegistry/PolvorApp.ArquebusierRegistry.csproj src/Modules/ArquebusierRegistry/PolvorApp.ArquebusierRegistry/
 COPY src/Modules/ArquebusierRegistry/PolvorApp.ArquebusierRegistry.Contracts/PolvorApp.ArquebusierRegistry.Contracts.csproj src/Modules/ArquebusierRegistry/PolvorApp.ArquebusierRegistry.Contracts/
+COPY src/Modules/ComplianceInsights/PolvorApp.ComplianceInsights/PolvorApp.ComplianceInsights.csproj src/Modules/ComplianceInsights/PolvorApp.ComplianceInsights/
+COPY src/Modules/ComplianceInsights/PolvorApp.ComplianceInsights.Contracts/PolvorApp.ComplianceInsights.Contracts.csproj src/Modules/ComplianceInsights/PolvorApp.ComplianceInsights.Contracts/
 RUN dotnet restore src/PolvorApp.Api/PolvorApp.Api.csproj
 
 COPY src/ src/

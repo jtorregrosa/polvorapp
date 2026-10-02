@@ -3,7 +3,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PolvorApp.ArquebusierRegistry.Arquebusiers;
+using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ArquebusierRegistry.Endpoints;
+using PolvorApp.ArquebusierRegistry.Insights;
 using PolvorApp.ArquebusierRegistry.OwnedWeapons;
 using PolvorApp.ArquebusierRegistry.Persistence;
 using PolvorApp.ArquebusierRegistry.Photos;
@@ -44,6 +46,9 @@ public sealed class ArquebusierRegistryModule : IModule
         services.AddScoped<IDataSeeder, RegistrySeeder>();
         services.AddScoped<ArquebusierViews>();
         services.AddScoped<ArquebusierQueries>();
+
+        // Read contract for the compliance insights (design D3).
+        services.AddScoped<IArquebusierFacts, RegistryArquebusierFacts>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder endpoints)

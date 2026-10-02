@@ -118,3 +118,18 @@ reference fails even before any of its types is used.
 - **Outages**: `StorageUnavailableException` becomes `503` with the `storage.unavailable` code.
   Operations that do not need a file must not call the storage before their commit, so they keep
   working while it is down.
+
+## Conventions shared by modules (from `add-compliance-insights`)
+
+- **A module without data**: `ComplianceInsights` owns rules, not tables. It has no DbContext, no
+  schema and no migrations. It reads the registry through `ArquebusierRegistry.Contracts.IArquebusierFacts`
+  and the catalogue through `ICatalogDirectory`.
+- **Contracts in both directions**: the registry calls
+  `ComplianceInsights.Contracts.IComplianceRules` to attach warnings to its list and detail, while
+  the compliance module reads the registry through its read contract. Both are contract references,
+  never implementation references, so the dependency rules hold. The same pattern exists between
+  identity and the catalogue (`IFiringChiefAssignmentSource`).
+- **Derived values with a reference date**: rules that depend on "today" take the date as a
+  parameter. Callers pass `FederationCalendar.Today(TimeProvider)`, and later modules can pass the
+  festival dates instead. Never store a derived value such as the age, the license status or a
+  warning.
