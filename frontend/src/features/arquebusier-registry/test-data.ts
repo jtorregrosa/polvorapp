@@ -21,6 +21,7 @@ export const ROW_UNO: ArquebusierRowResponse = {
   licenseStatus: 'VALID',
   licenseExpiresOn: '2030-03-10',
   hasIdPhoto: true,
+  warnings: [],
 };
 
 export const ROW_DOS: ArquebusierRowResponse = {
@@ -35,6 +36,7 @@ export const ROW_DOS: ArquebusierRowResponse = {
   licenseStatus: null,
   licenseExpiresOn: null,
   hasIdPhoto: false,
+  warnings: ['LICENSE_MISSING', 'COURSE_MISSING', 'ID_PHOTO_MISSING'],
 };
 
 export const ROW_TRES: ArquebusierRowResponse = {
@@ -49,6 +51,23 @@ export const ROW_TRES: ArquebusierRowResponse = {
   licenseStatus: 'EXPIRED',
   licenseExpiresOn: '2025-01-01',
   hasIdPhoto: true,
+  warnings: ['LICENSE_EXPIRED'],
+};
+
+/** Under 18, without the course, with a valid license that expires within 12 months. */
+export const ROW_CUATRO: ArquebusierRowResponse = {
+  id: '00000000-0000-4000-8000-000000000304',
+  firstName: 'Arcabucera',
+  lastName: 'Sánchez Sintética',
+  nationalId: '00000004G',
+  federationId: 100004,
+  comparsaId: SUR.id,
+  comparsaName: SUR.name,
+  status: 'ACTIVE',
+  licenseStatus: 'VALID',
+  licenseExpiresOn: '2026-12-31',
+  hasIdPhoto: true,
+  warnings: ['LICENSE_EXPIRING', 'COURSE_MISSING', 'UNDER_AGE'],
 };
 
 export const ARCABUZ: WeaponModelSummary = {
@@ -120,4 +139,6 @@ export const DETAIL_UNO: ArquebusierResponse = {
   ],
   photos: { id: null, licenseFront: null, licenseBack: null },
   version: 7,
+  age: 36,
+  warnings: ['ID_PHOTO_MISSING', 'LICENSE_PHOTOS_MISSING'],
 };

@@ -14,6 +14,7 @@
       "comparsa": "Comparsa",
       "status": "Estado",
       "license": "Licencia",
+      "warnings": "Avisos",
       "noIdPhoto": "Sin foto de carnet",
       "expiresOn": "Caduca el {{date}}"
     },
@@ -21,7 +22,12 @@
       "comparsa": "Comparsa",
       "status": "Estado",
       "all": "Todas",
-      "allStatuses": "Todos"
+      "allStatuses": "Todos",
+      "warning": {
+        "label": "Aviso",
+        "any": "Cualquier aviso",
+        "all": "Con o sin avisos"
+      }
     },
     "noLicense": "Sin licencia",
     "empty": {
@@ -39,11 +45,18 @@
       "label": "Resumen de arcabuceros",
       "active": "En activo",
       "reserve": "En reserva",
+      "expiring": "Licencia caduca pronto",
+      "expiringHint": "En menos de 12 meses",
       "expired": "Licencia caducada",
       "pending": "Licencia en trámite",
       "none": "Sin licencia"
     },
-    "resultCount_zero": "Ningún arcabucero coincide con la búsqueda o los filtros."
+    "resultCount_zero": "Ningún arcabucero coincide con la búsqueda o los filtros.",
+    "warningCount_one": "{{count}} aviso",
+    "warningCount_other": "{{count}} avisos",
+    "warningSummary_one": "{{count}} aviso: {{names}}",
+    "warningSummary_other": "{{count}} avisos: {{names}}",
+    "noWarnings": "Sin avisos"
   },
   "form": {
     "newTitle": "Registrar arcabucero",
@@ -108,12 +121,6 @@
       "course": "Curso",
       "noCourse": "Sin curso",
       "weapons": "Armas propias"
-    },
-    "warnings": {
-      "title": "Avisos de cumplimiento",
-      "license": "La licencia no está vigente.",
-      "course": "No consta el curso de arcabucería.",
-      "hint": "Son avisos, no errores: se puede guardar igualmente."
     },
     "sections": {
       "personal": {

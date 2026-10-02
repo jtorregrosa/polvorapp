@@ -19,7 +19,7 @@ import { useNotice } from '@/lib/notices';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { LoadFailure } from '../components/LoadFailure';
 import { useArquebusierColumns } from '../components/useArquebusierColumns';
-import { filterRows, useArquebusierFilters } from '../components/useArquebusierFilters';
+import { filterRows, useArquebusierFilters, WARNING_FILTERS } from '../components/useArquebusierFilters';
 
 /** Pause after the last keystroke before the count is shown and announced, so it is not read per letter. */
 const ANNOUNCE_DELAY_MS = 400;
@@ -48,12 +48,12 @@ interface ListProps {
 
 /** The counters, the filter bar and the table (or "nothing matches") of the list template. */
 function ArquebusierList({ rows, loaded, loading, comparsas, filters }: ListProps) {
-  const { t } = useTranslation('registry');
+  const { t } = useTranslation(['registry', 'ui']);
   const { columns, mobileRow } = useArquebusierColumns();
-  const { status, license, searchTerm } = filters;
+  const { status, license, warning, searchTerm } = filters;
   const shown = useMemo(
-    () => filterRows(rows, { status, license, searchTerm }),
-    [rows, status, license, searchTerm],
+    () => filterRows(rows, { status, license, warning, searchTerm }),
+    [rows, status, license, warning, searchTerm],
   );
   const resultText = useSettled(
     loaded && filters.filtered ? t('arquebusiers.resultCount', { count: shown.length }) : '',
@@ -64,19 +64,36 @@ function ArquebusierList({ rows, loaded, loading, comparsas, filters }: ListProp
       {loaded && <StatFilter label={t('arquebusiers.counters.label')} items={filters.counters(rows)} />}
       <FilterBar
         filters={
-          comparsas.length > 1 && (
+          <>
+            {comparsas.length > 1 && (
+              <FilterSelect
+                label={t('arquebusiers.filters.comparsa')}
+                value={filters.comparsaId}
+                onChange={(value) => {
+                  filters.setFilter('comparsaId', value);
+                }}
+                options={[
+                  { value: '', label: t('arquebusiers.filters.all') },
+                  ...comparsas.map((comparsa) => ({ value: comparsa.id, label: comparsa.name })),
+                ]}
+              />
+            )}
             <FilterSelect
-              label={t('arquebusiers.filters.comparsa')}
-              value={filters.comparsaId}
+              label={t('arquebusiers.filters.warning.label')}
+              value={warning}
               onChange={(value) => {
-                filters.setFilter('comparsaId', value);
+                filters.setFilter('warning', value);
               }}
               options={[
-                { value: '', label: t('arquebusiers.filters.all') },
-                ...comparsas.map((comparsa) => ({ value: comparsa.id, label: comparsa.name })),
+                { value: '', label: t('arquebusiers.filters.warning.all') },
+                ...WARNING_FILTERS.map((code) => ({
+                  value: code,
+                  label:
+                    code === 'ANY' ? t('arquebusiers.filters.warning.any') : t(`ui:status.warning.${code}`),
+                })),
               ]}
             />
-          )
+          </>
         }
         search={
           <SearchField
@@ -108,8 +125,8 @@ function ArquebusierList({ rows, loaded, loading, comparsas, filters }: ListProp
 
 /**
  * Specs "Arquebusier visibility (BR-12)" and "Registry screens": the arquebusiers of the caller's
- * comparsas (every one for an Admin), filtered by comparsa through the API, and by status and
- * license state with the counters above the list, which count the rows in scope (design D10). The
+ * comparsas (every one for an Admin), filtered by comparsa through the API, by compliance warning,
+ * and by status and license state with the counters above the list, which count the rows in scope (design D10). The
  * search looks at the loaded rows by name, DNI/NIE or federation id and stays out of the address,
  * because it may be a DNI.
  */

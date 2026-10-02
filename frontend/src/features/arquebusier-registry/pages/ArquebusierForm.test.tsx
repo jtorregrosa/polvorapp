@@ -2,6 +2,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { http as mock, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
+import { ComplianceWarning } from '@/api/generated/model';
 import type { ComparsaResponse } from '@/api/generated/model';
 import { problem, recordBodies, renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
@@ -372,5 +373,42 @@ describe('Registering an arquebusier (spec: Registering and editing, Registry sc
     await screen.findByRole('combobox', { name: 'Comparsa' });
 
     expect(await axeViolations(container)).toEqual([]);
+  });
+});
+
+/** The warning summary behind the navigation count, answering `withWarnings()` at each request. */
+function warningSummary(withWarnings: () => number) {
+  server.use(
+    mock.get('/api/compliance/summary', () =>
+      HttpResponse.json({
+        active: 1,
+        reserve: 0,
+        withWarnings: withWarnings(),
+        warnings: Object.values(ComplianceWarning).map((code) => ({ code, count: 0 })),
+      }),
+    ),
+  );
+}
+
+describe('Insights follow a registration (spec: Warning count in the navigation)', () => {
+  it('updates the navigation count after registering', async () => {
+    const user = userEvent.setup();
+    let registered = false;
+    comparsas([NORTE]);
+    warningSummary(() => (registered ? 2 : 1));
+    server.use(
+      mock.post('/api/arquebusiers', () => {
+        registered = true;
+        return HttpResponse.json(DETAIL_UNO, { status: 201 });
+      }),
+      mock.get(`/api/arquebusiers/${DETAIL_UNO.id}`, () => HttpResponse.json(DETAIL_UNO)),
+    );
+    await renderApp('/arquebusiers/new', { session: SYNTHETIC_FIRING_CHIEF });
+    await screen.findByRole('link', { name: 'Arcabuceros, 1 con aviso' });
+
+    await fillRequired(user);
+    await user.click(screen.getByRole('button', { name: 'Registrar arcabucero' }));
+
+    expect(await screen.findByRole('link', { name: 'Arcabuceros, 2 con avisos' })).toBeInTheDocument();
   });
 });

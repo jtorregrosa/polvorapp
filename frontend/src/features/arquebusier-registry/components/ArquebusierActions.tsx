@@ -15,6 +15,7 @@ import { ConfirmDialog } from '@/components/app/ConfirmDialog';
 import { ConfirmFailure } from '@/components/app/confirm-failure';
 import { FilterSelect } from '@/components/app/FilterSelect';
 import { noticeState, type Announce } from '@/lib/notices';
+import { invalidateInsights } from '@/features/compliance-insights/queries';
 import { problemCode, problemMessage } from '../problems';
 
 const fullName = (arquebusier: ArquebusierResponse): string =>
@@ -155,6 +156,7 @@ export function DeleteDialog({ arquebusier, open, onOpenChange, returnFocus }: A
       }}
       onConfirmed={() => {
         void queryClient.invalidateQueries({ queryKey: getListArquebusiersQueryKey() });
+        void invalidateInsights(queryClient);
         // Leave the page first, then drop the deleted person's data: nothing refetches it into a 404.
         void Promise.resolve(
           navigate('/arquebusiers', { state: noticeState(t('delete.deleted', { name })) }),

@@ -14,6 +14,7 @@
       "comparsa": "Comparsa",
       "status": "Estat",
       "license": "Llicència",
+      "warnings": "Avisos",
       "noIdPhoto": "Sense foto de carnet",
       "expiresOn": "Caduca el {{date}}"
     },
@@ -21,7 +22,12 @@
       "comparsa": "Comparsa",
       "status": "Estat",
       "all": "Totes",
-      "allStatuses": "Tots"
+      "allStatuses": "Tots",
+      "warning": {
+        "label": "Avís",
+        "any": "Qualsevol avís",
+        "all": "Amb o sense avisos"
+      }
     },
     "noLicense": "Sense llicència",
     "empty": {
@@ -39,11 +45,18 @@
       "label": "Resum d’arcabussers",
       "active": "En actiu",
       "reserve": "En reserva",
+      "expiring": "Llicència caduca prompte",
+      "expiringHint": "En menys de 12 mesos",
       "expired": "Llicència caducada",
       "pending": "Llicència en tràmit",
       "none": "Sense llicència"
     },
-    "resultCount_zero": "Cap arcabusser no coincideix amb la cerca o els filtres."
+    "resultCount_zero": "Cap arcabusser no coincideix amb la cerca o els filtres.",
+    "warningCount_one": "{{count}} avís",
+    "warningCount_other": "{{count}} avisos",
+    "warningSummary_one": "{{count}} avís: {{names}}",
+    "warningSummary_other": "{{count}} avisos: {{names}}",
+    "noWarnings": "Sense avisos"
   },
   "form": {
     "newTitle": "Registra un arcabusser",
@@ -108,12 +121,6 @@
       "course": "Curs",
       "noCourse": "Sense curs",
       "weapons": "Armes pròpies"
-    },
-    "warnings": {
-      "title": "Avisos de compliment",
-      "license": "La llicència no està vigent.",
-      "course": "No consta el curs d’arcabusseria.",
-      "hint": "Són avisos, no errors: es pot desar igualment."
     },
     "sections": {
       "personal": {

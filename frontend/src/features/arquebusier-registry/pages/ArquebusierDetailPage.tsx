@@ -13,6 +13,7 @@ import { RecordHeader, type MoreAction } from '@/components/app/RecordHeader';
 import { useSaveNotice } from '@/components/app/save-notice';
 import { StatusBadge } from '@/components/app/StatusBadge';
 import { useSession } from '@/features/identity-access/session';
+import { ComplianceWarnings } from '@/features/compliance-insights/components/ComplianceWarnings';
 import { NotFoundPage } from '@/features/platform/pages/NotFoundPage';
 import { useNotice, type Announce, type Notice } from '@/lib/notices';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
@@ -20,9 +21,10 @@ import { requestFields, valuesOf } from '../arquebusierSchema';
 import { DeleteDialog, TransferDialog } from '../components/ArquebusierActions';
 import { IdPhoto } from '../components/ArquebusierPhotos';
 import { ArquebusierSections } from '../components/ArquebusierSections';
-import { ComplianceWarnings, RecordFacts } from '../components/ArquebusierSummary';
+import { RecordFacts } from '../components/ArquebusierSummary';
 import { LoadFailure } from '../components/LoadFailure';
 import { useRefreshArquebusier } from '../hooks';
+import { licenseBadgeValue } from '../license-badge';
 import { problemCode, problemMessage } from '../problems';
 
 /**
@@ -117,7 +119,14 @@ function ArquebusierRecord({ details, notice, announce, reload, staleError, onRe
           <>
             <StatusBadge kind="arquebusier" value={details.status} />
             {details.license ? (
-              <StatusBadge kind="license" value={details.license.status} />
+              <>
+                {/* The header has no field labels: the badge is named "License: …". */}
+                <span className="sr-only">{t('form.license')}: </span>
+                <StatusBadge
+                  kind="license"
+                  value={licenseBadgeValue(details.license.status, details.warnings)}
+                />
+              </>
             ) : (
               <span className="text-help text-muted-foreground">{t('form.noLicense')}</span>
             )}
@@ -153,7 +162,11 @@ function ArquebusierRecord({ details, notice, announce, reload, staleError, onRe
           {t('detail.inactiveComparsa', { name: details.comparsaName })}
         </AlertBanner>
       )}
-      <ComplianceWarnings arquebusier={details} />
+      <ComplianceWarnings
+        warnings={details.warnings}
+        licenseExpiresOn={details.license?.expiresOn ?? null}
+        age={details.age}
+      />
       <RecordFacts arquebusier={details} />
       <ArquebusierSections arquebusier={details} reload={reload} announce={announce} />
       {isAdmin && (

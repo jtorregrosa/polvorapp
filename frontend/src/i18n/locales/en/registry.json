@@ -14,6 +14,7 @@
       "comparsa": "Comparsa",
       "status": "Status",
       "license": "License",
+      "warnings": "Warnings",
       "noIdPhoto": "No ID photo",
       "expiresOn": "Expires on {{date}}"
     },
@@ -21,7 +22,12 @@
       "comparsa": "Comparsa",
       "status": "Status",
       "all": "All",
-      "allStatuses": "All"
+      "allStatuses": "All",
+      "warning": {
+        "label": "Warning",
+        "any": "Any warning",
+        "all": "With or without warnings"
+      }
     },
     "noLicense": "No license",
     "empty": {
@@ -39,11 +45,18 @@
       "label": "Arquebusiers at a glance",
       "active": "Active",
       "reserve": "In reserve",
+      "expiring": "License expiring soon",
+      "expiringHint": "Within 12 months",
       "expired": "Expired license",
       "pending": "License pending",
       "none": "No license"
     },
-    "resultCount_zero": "No arquebusier matches the search or the filters."
+    "resultCount_zero": "No arquebusier matches the search or the filters.",
+    "warningCount_one": "{{count}} warning",
+    "warningCount_other": "{{count}} warnings",
+    "warningSummary_one": "{{count}} warning: {{names}}",
+    "warningSummary_other": "{{count}} warnings: {{names}}",
+    "noWarnings": "No warnings"
   },
   "form": {
     "newTitle": "Register arquebusier",
@@ -108,12 +121,6 @@
       "course": "Course",
       "noCourse": "Not done",
       "weapons": "Owned weapons"
-    },
-    "warnings": {
-      "title": "Compliance warnings",
-      "license": "The license is not valid.",
-      "course": "No arquebusier course is recorded.",
-      "hint": "These are warnings, not errors: you can still save."
     },
     "sections": {
       "personal": {

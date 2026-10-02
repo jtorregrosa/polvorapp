@@ -1,0 +1,117 @@
+{
+  "dashboard": {
+    "figuresTitle": "Arcabussers",
+    "active": "En actiu",
+    "reserve": "En reserva",
+    "withWarnings": "Amb avisos",
+    "attention_one": "{{count, number}} arcabusser necessita atenció.",
+    "attention_other": "{{count, number}} arcabussers necessiten atenció.",
+    "upToDate": "Tots els arcabussers estan al dia: cap no té avisos.",
+    "warningsTitle": "Avisos",
+    "expiries": {
+      "title": "Pròximes caducitats",
+      "caption": "Arcabussers amb la llicència que caduca abans",
+      "seeAll": "Vore totes les llicències que caduquen prompte",
+      "empty": "Cap llicència no caduca en els pròxims 12 mesos.",
+      "expiresOn": "caduca el {{date}}",
+      "columns": {
+        "name": "Nom",
+        "comparsa": "Comparsa",
+        "expiresOn": "Caduca el"
+      }
+    }
+  },
+  "statistics": {
+    "title": "Estadístiques",
+    "description": "Xifres dels arcabussers i informe d'igualtat, sense descàrrega.",
+    "filters": {
+      "comparsa": "Comparsa",
+      "allComparsas": "Totes",
+      "status": "Estat de l'arcabusser",
+      "allStatuses": "Tots",
+      "ACTIVE": "En actiu",
+      "RESERVE": "En reserva"
+    },
+    "figures": {
+      "total": "Arcabussers",
+      "active": "En actiu",
+      "reserve": "En reserva"
+    },
+    "gender": {
+      "title": "Gènere",
+      "table": "Arcabussers per gènere",
+      "category": "Gènere",
+      "female": "Dones",
+      "male": "Hòmens",
+      "unspecified": "Sense definir"
+    },
+    "ageBrackets": {
+      "title": "Edat",
+      "table": "Trams d'edat per gènere",
+      "category": "Tram d'edat",
+      "UNDER_25": "Menys de 25",
+      "FROM_25_TO_34": "De 25 a 34",
+      "FROM_35_TO_44": "De 35 a 44",
+      "FROM_45": "45 o més"
+    },
+    "course": {
+      "title": "Curs d'arcabusseria",
+      "table": "Curs per gènere",
+      "category": "Curs",
+      "done": "Fet",
+      "notDone": "Sense fer"
+    },
+    "licenses": {
+      "title": "Llicències",
+      "table": "Arcabussers per estat de la llicència",
+      "category": "Estat de la llicència",
+      "valid": "Vigent",
+      "expiring": "Caduca prompte",
+      "expired": "Caducada",
+      "pending": "En tràmit",
+      "none": "Sense llicència"
+    },
+    "ownedWeapons": {
+      "title": "Armes pròpies",
+      "table": "Arcabussers amb arma pròpia per gènere",
+      "category": "Arma pròpia",
+      "withWeapon": "Amb arma pròpia",
+      "withoutWeapon": "Sense arma pròpia",
+      "byKindTable": "Armes pròpies per tipus",
+      "kindCategory": "Tipus",
+      "weapons": "Armes",
+      "shareOfWeapons": "% de les armes"
+    },
+    "comparsas": {
+      "title": "Per comparsa",
+      "caption": "Xifres per comparsa",
+      "summary": "{{total}} arcabussers: {{active}} en actiu, {{reserve}} en reserva, {{withWarnings}} amb avisos",
+      "columns": {
+        "name": "Comparsa",
+        "total": "Arcabussers",
+        "active": "En actiu",
+        "reserve": "En reserva",
+        "female": "Dones",
+        "male": "Hòmens",
+        "unspecified": "Sense definir",
+        "withWarnings": "Amb avisos"
+      },
+      "genderSummary": "Dones {{female}}, hòmens {{male}}, sense definir {{unspecified}}"
+    },
+    "noMatches": "Cap arcabusser no coincidix amb els filtres.",
+    "resultCount_one": "Es mostra {{count, number}} arcabusser",
+    "resultCount_other": "Es mostren {{count, number}} arcabussers"
+  },
+  "warnings": {
+    "title": "Avisos de compliment",
+    "hint": "Són avisos, no errors: es pot guardar igualment. El cap de disparada respon que es complisquen els requisits.",
+    "LICENSE_MISSING": "No té llicència.",
+    "LICENSE_PENDING": "La llicència està en tràmit.",
+    "LICENSE_EXPIRED": "La llicència va caducar el {{date}}.",
+    "LICENSE_EXPIRING": "La llicència caduca el {{date}}, en menys de 12 mesos.",
+    "COURSE_MISSING": "No consta el curs d'arcabusseria.",
+    "UNDER_AGE": "És menor d'edat: té {{age}} anys.",
+    "ID_PHOTO_MISSING": "Falta la foto de carnet, necessària per al carnet d'arcabusser.",
+    "LICENSE_PHOTOS_MISSING": "Falten fotos de la llicència (anvers o revers)."
+  }
+}

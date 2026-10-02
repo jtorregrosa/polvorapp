@@ -24,6 +24,7 @@ import { PhotoUpload } from '@/components/app/PhotoUpload';
 import { useSession } from '@/features/identity-access/session';
 import { noticeState } from '@/lib/notices';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
+import { invalidateInsights } from '@/features/compliance-insights/queries';
 import {
   ARQUEBUSIER_FIELDS,
   EMPTY_ARQUEBUSIER,
@@ -104,6 +105,7 @@ export function ArquebusierFormPage() {
       created = responseData(response);
     } catch {
       void queryClient.invalidateQueries({ queryKey: getListArquebusiersQueryKey() });
+      void invalidateInsights(queryClient);
       // Registered, but the answer had no body: show the list, where the new arquebusier is. A chosen
       // photo could not be uploaded without the new id, so say so.
       await navigate('/arquebusiers', {
@@ -115,7 +117,10 @@ export function ArquebusierFormPage() {
     }
     const name = `${created.firstName} ${created.lastName}`;
     // After the photo upload, so the list never caches the new row without its photo.
-    const refreshList = () => void queryClient.invalidateQueries({ queryKey: getListArquebusiersQueryKey() });
+    const refreshList = () => {
+      void queryClient.invalidateQueries({ queryKey: getListArquebusiersQueryKey() });
+      void invalidateInsights(queryClient);
+    };
     if (idPhoto) {
       try {
         await uploadArquebusierPhoto(created.id, 'id', { file: idPhoto.blob });
