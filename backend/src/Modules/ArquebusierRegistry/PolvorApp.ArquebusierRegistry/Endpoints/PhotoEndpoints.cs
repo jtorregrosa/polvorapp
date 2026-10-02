@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
@@ -8,9 +7,7 @@ using Microsoft.Extensions.Logging;
 using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ArquebusierRegistry.Photos;
 using PolvorApp.SharedKernel.Http;
-using PolvorApp.SharedKernel.Images;
 using PolvorApp.SharedKernel.Security;
-using PolvorApp.SharedKernel.Validation;
 
 namespace PolvorApp.ArquebusierRegistry.Endpoints;
 
@@ -19,23 +16,10 @@ namespace PolvorApp.ArquebusierRegistry.Endpoints;
 /// (design D5): photos are a sub-resource of an arquebusier in the caller's scope. The API streams
 /// them after the scope check; the storage is never reachable from the browser (SEC-02).
 /// </summary>
-internal static partial class PhotoEndpoints
+internal static class PhotoEndpoints
 {
     /// <summary>The file plus the multipart framing around it.</summary>
-    public const long MaxRequestBytes = PhotoStorage.MaxUploadBytes + (64 * 1024);
-
-    private const string FileField = "file";
-
-    /// <summary>
-    /// One file, all in memory: the default would spill parts over 64 KB to a temporary file, and a
-    /// photo of a person must never be written to the server's disk unencrypted.
-    /// </summary>
-    private static readonly FormOptions Form = new()
-    {
-        MultipartBodyLengthLimit = PhotoStorage.MaxUploadBytes,
-        MemoryBufferThreshold = (int)MaxRequestBytes,
-        ValueCountLimit = 4,
-    };
+    public const long MaxRequestBytes = PhotoStorage.MaxUploadBytes + ImageUploads.FramingBytes;
 
     /// <summary>A fixed name: the client's file name may contain personal data and is never used.</summary>
     private const string InlineDisposition = "inline; filename=\"photo.jpg\"";
@@ -67,10 +51,8 @@ internal static partial class PhotoEndpoints
 
     /// <summary>
     /// The scope is checked before the body is read, so out-of-scope and unknown ids cost no upload
-    /// (spec: Arquebusier photos). The form is then read here rather than bound, entirely in memory (a
-    /// personal photo never touches the server's disk), and an oversized or malformed body becomes the
-    /// same field error as any other invalid file. The platform middleware has already checked the
-    /// anti-forgery header, before the body is read.
+    /// (spec: Arquebusier photos). The form is then read in memory by <see cref="ImageUploads"/>: a
+    /// personal photo never touches the server's disk.
     /// </summary>
     private static async Task<Results<Ok<ArquebusierPhotoResponse>, ProblemHttpResult>> UploadAsync(
         Guid id, string kind, HttpRequest request, ArquebusierPhotoAdministration administration, ILoggerFactory loggers, CancellationToken cancellationToken)
@@ -85,47 +67,21 @@ internal static partial class PhotoEndpoints
             return RegistryProblems.From(RegistryOutcome.ArquebusierNotFound);
         }
 
-        var (file, problem) = await ReadFileAsync(request, loggers.CreateLogger(typeof(PhotoEndpoints)), cancellationToken);
+        var (file, problem) = await ImageUploads.ReadFileAsync(
+            request, PhotoStorage.MaxUploadBytes, loggers.CreateLogger(typeof(PhotoEndpoints)), cancellationToken);
         if (file is null)
         {
-            return Invalid(problem!);
+            return ImageUploads.Invalid(problem!);
         }
 
         await using var content = file.OpenReadStream();
         var upload = await administration.UploadAsync(id, photoKind, content, cancellationToken);
         return upload switch
         {
-            { Rejection: { } rejection } => Invalid(Reason(rejection)),
+            { Rejection: { } rejection } => ImageUploads.Invalid(ImageUploads.Reason(rejection)),
             { Outcome: RegistryOutcome.Done, Photo: { } photo } => TypedResults.Ok(ArquebusierPhotoResponse.From(photo)),
             _ => RegistryProblems.From(upload.Outcome),
         };
-    }
-
-    /// <summary>The <c>file</c> part of a <c>multipart/form-data</c> body, or the field reason why there is none.</summary>
-    private static async Task<(IFormFile? File, string? Problem)> ReadFileAsync(HttpRequest request, ILogger logger, CancellationToken cancellationToken)
-    {
-        if (!(request.ContentType ?? string.Empty).StartsWith("multipart/form-data", StringComparison.OrdinalIgnoreCase))
-        {
-            return (null, InputFields.Required);
-        }
-
-        try
-        {
-            var form = await request.ReadFormAsync(Form, cancellationToken);
-            return form.Files.GetFile(FileField) is { } file ? (file, null) : (null, InputFields.Required);
-        }
-        catch (BadHttpRequestException exception) when (exception.StatusCode == StatusCodes.Status413PayloadTooLarge)
-        {
-            return (null, Reason(ImageRejection.TooLarge));
-        }
-        catch (Exception exception) when (exception is InvalidDataException or BadHttpRequestException)
-        {
-            // A part over the limit, or a malformed body: no readable file either way.
-            var tooLarge = request.ContentLength > PhotoStorage.MaxUploadBytes || exception.Message.Contains("length limit", StringComparison.OrdinalIgnoreCase);
-            var failure = exception.GetType().Name;
-            LogUnreadableForm(logger, tooLarge, failure);
-            return (null, tooLarge ? Reason(ImageRejection.TooLarge) : InputFields.Required);
-        }
     }
 
     private static async Task<IResult> GetAsync(
@@ -159,22 +115,6 @@ internal static partial class PhotoEndpoints
         var outcome = await administration.RemoveAsync(id, photoKind, cancellationToken);
         return outcome == RegistryOutcome.Done ? TypedResults.NoContent() : RegistryProblems.From(outcome);
     }
-
-    private static ProblemHttpResult Invalid(string reason) =>
-        ProblemResults.Invalid(new Dictionary<string, string> { [FileField] = reason });
-
-    [LoggerMessage(Level = LogLevel.Information, Message = "Photo upload body could not be read (too large: {TooLarge}, {Failure})")]
-    private static partial void LogUnreadableForm(ILogger logger, bool tooLarge, string failure);
-
-    /// <summary>Field reasons the UI translates as <c>registry:validation.file.&lt;reason&gt;</c>.</summary>
-    private static string Reason(ImageRejection rejection) => rejection switch
-    {
-        ImageRejection.TooLarge => "tooLarge",
-        ImageRejection.UnsupportedFormat => "unsupportedFormat",
-        ImageRejection.TooSmall => "tooSmall",
-        ImageRejection.AspectRatio => "aspectRatio",
-        _ => throw new ArgumentOutOfRangeException(nameof(rejection), rejection, "Unknown image rejection."),
-    };
 }
 
 /// <summary>A photo upload: one JPEG, PNG or WebP image of at most 10 MB.</summary>
