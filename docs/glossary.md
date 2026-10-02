@@ -12,6 +12,7 @@ equivalent are kept as-is (e.g. `Comparsa`).
 |---|---|---|
 | Unión / Federación Unión de Comparsas Ber-Largas | `Federation` | Umbrella body that coordinates all comparsas, aggregates orders, organises training courses and deals with suppliers and authorities. Owner and host of PolvorApp and GDPR data controller. |
 | Comparsa | `Comparsa` | A festival troupe/association. There are ~20. Each belongs to one `Side`. Example: Contrabandistas. |
+| Logo / escudo de la comparsa | `logo` (of a `Comparsa`) | The comparsa's emblem, an optional PNG uploaded by an Admin. Shown next to its name; never a Federation or real emblem in the repository. |
 | Bando (Moro / Cristiano) | `Side` (`MOORISH`, `CHRISTIAN`) | The side a comparsa belongs to. Usually goes with a weapon kind (Moorish → arcabuz, Christian → trabuco), but PolvorApp does not enforce it: Federation labels such as "ARCABUZ CRISTIANO" exist (Q-53). |
 | Comparsista / Socio | `Member` | Person registered in a comparsa. Managed in the Federation's external app, **not** in PolvorApp. |
 | ID Unión | `federationId` | ID of the person's record in the Federation's external app. Mandatory cross-reference. |

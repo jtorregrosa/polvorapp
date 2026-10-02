@@ -41,7 +41,7 @@ from arquebusier registry to validated orders, billing summary, exports and dist
 | 5 | `add-arquebusier-registry` | arquebusier-registry | CRUD, DNI/NIE validation, Active/Reserve, owned weapons — **done**, archived 2026-10-01 |
 | 6 | `add-arquebusier-photos` | arquebusier-registry | ID + license photos, crop, EXIF strip, private storage — **done**, archived 2026-10-01 |
 | 6a | `redesign-design-system` | design-system | "Pólvora" identity (ADR-0013: own fonts, night sidebar, ember accent), tokens beyond colour (type, spacing, elevation, widths, motion), WCAG 2.2 AA (NFR-07) with the focus and contrast fixes, page templates (list, read-mode detail with section editing, form with error summary), form rules (optional labels, field widths, radio cards), arquebusier list counters, every page moved to the templates — **done**, archived 2026-10-02 |
-| 6b | `add-comparsa-logos` | federation-catalog | Comparsa logo (Admin uploads; reuses the #6 image pipeline and private storage): shown in the comparsa list and detail, in the FiringChief's header, and available to later PDFs |
+| 6b | `add-comparsa-logos` | federation-catalog | Comparsa logo (Admin uploads; reuses the #6 image pipeline and private storage; PNG with transparency): shown in the comparsa list and detail, in the FiringChief's sidebar cards, and available to later PDFs through the catalogue contract |
 | 7 | `add-compliance-insights` | compliance-insights | Warnings, alerts dashboard, statistics |
 | 8 | `add-registry-import` | arquebusier-registry | Spreadsheet import with validation report |
 | 9 | `add-festival-editions` | festival-editions | Editions, windows, prices, availability, locking |
