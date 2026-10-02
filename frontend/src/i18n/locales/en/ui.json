@@ -198,5 +198,13 @@
   "breakdown": {
     "share": "% of total",
     "total": "Total"
+  },
+  "fileField": {
+    "choose": "Choose file",
+    "change": "Change file",
+    "remove": "Remove the file {{name}}",
+    "none": "No file chosen",
+    "chosenStatus": "File chosen: {{name}}, {{size}}",
+    "removedStatus": "File removed: {{name}}"
   }
 }

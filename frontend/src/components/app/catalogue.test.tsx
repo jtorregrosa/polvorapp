@@ -22,6 +22,7 @@ const NOT_COMPOSITES = new Set([
   'navigation-match.ts',
   'confirm-failure.ts',
   'photo-image.ts',
+  'file-rules.ts',
   'use-app-form.ts',
   'save-notice.ts',
 ]);
