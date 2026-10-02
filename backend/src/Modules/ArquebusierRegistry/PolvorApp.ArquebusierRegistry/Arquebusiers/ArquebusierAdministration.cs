@@ -26,6 +26,9 @@ internal sealed class ArquebusierAdministration(
 {
     public const string EntityType = "Arquebusier";
 
+    /// <summary>The audit action of a registration, by hand or by an import.</summary>
+    public const string RegisteredAction = "ArquebusierRegistered";
+
     public Task<(RegistryOutcome Outcome, Arquebusier? Arquebusier)> RegisterAsync(
         Guid comparsaId, ArquebusierInput input, CancellationToken cancellationToken) =>
         guard.RunAsync<Arquebusier>(nameof(RegisterAsync), null, null, async () =>
@@ -52,22 +55,9 @@ internal sealed class ArquebusierAdministration(
                 return (duplicate, null);
             }
 
-            var now = time.GetUtcNow();
-            var arquebusier = new Arquebusier
-            {
-                Id = Guid.CreateVersion7(now),
-                ComparsaId = comparsaId,
-                FederationId = input.FederationId,
-                NationalId = input.NationalId,
-                FirstName = input.FirstName,
-                LastName = input.LastName,
-                BirthDate = input.BirthDate,
-                Gender = input.Gender,
-                CreatedAt = now,
-            };
-            Apply(arquebusier, input);
+            var arquebusier = New(comparsaId, input, time.GetUtcNow());
             db.Arquebusiers.Add(arquebusier);
-            Record("ArquebusierRegistered", arquebusier);
+            Record(RegisteredAction, arquebusier);
 
             await using var transaction = await db.BeginWriteAsync(cancellationToken);
             var outcome = await SaveAsync(arquebusier.Id, versioned: false, cancellationToken);
@@ -239,6 +229,25 @@ internal sealed class ArquebusierAdministration(
             ("license", current.CurrentLicense() != input.License),
         };
         return [.. changes.Where(c => c.Changed).Select(c => c.Field)];
+    }
+
+    /// <summary>A new arquebusier of <paramref name="comparsaId"/>, registered by hand or by an import.</summary>
+    internal static Arquebusier New(Guid comparsaId, ArquebusierInput input, DateTimeOffset now)
+    {
+        var arquebusier = new Arquebusier
+        {
+            Id = Guid.CreateVersion7(now),
+            ComparsaId = comparsaId,
+            FederationId = input.FederationId,
+            NationalId = input.NationalId,
+            FirstName = input.FirstName,
+            LastName = input.LastName,
+            BirthDate = input.BirthDate,
+            Gender = input.Gender,
+            CreatedAt = now,
+        };
+        Apply(arquebusier, input);
+        return arquebusier;
     }
 
     /// <summary>Copies the editable fields; the comparsa only changes through a transfer.</summary>

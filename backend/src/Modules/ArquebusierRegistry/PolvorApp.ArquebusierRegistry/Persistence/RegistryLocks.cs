@@ -15,6 +15,9 @@ namespace PolvorApp.ArquebusierRegistry.Persistence;
 /// </summary>
 internal static class RegistryLocks
 {
+    /// <summary>Advisory lock key serialising imports, after the identity module's Admin key ("Polvor" + 'A').</summary>
+    public const long ImportLockKey = 0x506F6C766F72_49; // "Polvor" + 'I'
+
     /// <summary>Starts the transaction every registry write runs in.</summary>
     public static async Task<IDbContextTransaction> BeginWriteAsync(this ArquebusierRegistryDbContext db, CancellationToken cancellationToken)
     {
@@ -29,6 +32,22 @@ internal static class RegistryLocks
             await transaction.DisposeAsync();
             throw;
         }
+    }
+
+    /// <summary>
+    /// For an import (add-registry-import): imports run one at a time, so the second of two imports
+    /// of the same people sees the first one's rows and reports them as taken. Without it, both would
+    /// insert hundreds of rows in key order, which differs between requests, and could deadlock. The
+    /// lock ends with the transaction; waiting for it is bounded by the 5 s lock timeout (503).
+    /// </summary>
+    public static async Task LockImportsAsync(this ArquebusierRegistryDbContext db, CancellationToken cancellationToken)
+    {
+        if (db.Database.CurrentTransaction is null)
+        {
+            throw new InvalidOperationException("The import lock needs an explicit transaction.");
+        }
+
+        await db.Database.ExecuteSqlAsync($"SELECT pg_advisory_xact_lock({ImportLockKey})", cancellationToken);
     }
 
     /// <summary>
@@ -68,10 +87,22 @@ internal static class RegistryLocks
     /// <summary>
     /// Whether <paramref name="exception"/> is PostgreSQL giving up on a lock after the timeout, or
     /// aborting one side of a deadlock (two edits swapping unique values): both are worth a retry.
+    /// The database error can sit several levels deep: a save wraps it in a
+    /// <see cref="Microsoft.EntityFrameworkCore.DbUpdateException"/>, which the execution strategy
+    /// wraps again when it deems the error transient.
     /// </summary>
-    public static bool IsRetryable(Exception exception) =>
-        (exception as PostgresException ?? exception.InnerException as PostgresException)?.SqlState
-            is PostgresErrorCodes.LockNotAvailable or PostgresErrorCodes.DeadlockDetected;
+    public static bool IsRetryable(Exception exception)
+    {
+        for (var current = exception; current is not null; current = current.InnerException)
+        {
+            if (current is PostgresException postgres)
+            {
+                return postgres.SqlState is PostgresErrorCodes.LockNotAvailable or PostgresErrorCodes.DeadlockDetected;
+            }
+        }
+
+        return false;
+    }
 
     private static async Task<bool> LockAsync(
         ArquebusierRegistryDbContext db, Guid id, ComparsaAccess access, RowLock mode, CancellationToken cancellationToken)

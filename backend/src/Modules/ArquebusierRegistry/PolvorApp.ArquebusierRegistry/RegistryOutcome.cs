@@ -42,6 +42,12 @@ internal enum RegistryOutcome
 
     /// <summary>The uploaded image broke a photo rule: a field error the endpoint builds (400 file: reason).</summary>
     ImageRejected,
+
+    /// <summary>An import file with rows in error: the endpoint answers 400 with the report.</summary>
+    ImportRowErrors,
+
+    /// <summary>An import that lost a race on a unique value at commit (409, check the file again).</summary>
+    ImportConflict,
 }
 
 /// <summary>Problem codes of the registry, translated by the UI as <c>registry:errors.&lt;code&gt;</c>.</summary>
@@ -64,6 +70,12 @@ internal static class RegistryProblems
     public const string PhotoModified = "photos.modified";
     public const string StorageUnavailable = "storage.unavailable";
 
+    /// <summary>An import whose file has rows with errors: the problem carries the report (add-registry-import D2).</summary>
+    public const string ImportRowErrors = "arquebusierImport.rowErrors";
+
+    /// <summary>An import that lost a race on a unique value at commit: check the file again.</summary>
+    public const string ImportConflict = "arquebusierImport.conflict";
+
     public static ProblemHttpResult From(RegistryOutcome outcome) => outcome switch
     {
         RegistryOutcome.ArquebusierNotFound => ProblemResults.NotFound(ArquebusierNotFound),
@@ -83,6 +95,7 @@ internal static class RegistryProblems
         RegistryOutcome.PhotoNeedsLicense => ProblemResults.Conflict(PhotoNeedsLicense),
         RegistryOutcome.PhotoModified => ProblemResults.Conflict(PhotoModified),
         RegistryOutcome.StorageUnavailable => ProblemResults.Problem(StatusCodes.Status503ServiceUnavailable, StorageUnavailable),
+        RegistryOutcome.ImportConflict => ProblemResults.Conflict(ImportConflict),
         _ => throw new ArgumentOutOfRangeException(nameof(outcome), outcome, "Not a problem outcome."),
     };
 

@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using PolvorApp.Api.Tests.Infrastructure;
 using PolvorApp.ArquebusierRegistry.Endpoints;
+using PolvorApp.ArquebusierRegistry.Import;
 using PolvorApp.ArquebusierRegistry.Persistence;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.FederationCatalog.Persistence;
@@ -162,10 +163,15 @@ public sealed class RegistryHardeningTests(PostgresFixture postgres, MailpitFixt
         Assert.NotEmpty(routes);
         Assert.All(routes, e =>
         {
-            // The photo upload takes a 10 MB image plus its multipart framing (add-arquebusier-photos, D5).
-            var upload = e.RoutePattern.RawText!.Contains("/photos/", StringComparison.Ordinal)
-                && e.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods.Contains("PUT") == true;
-            Assert.Equal(upload ? PhotoEndpoints.MaxRequestBytes : 64 * 1024, e.Metadata.GetMetadata<IRequestSizeLimitMetadata>()?.MaxRequestBodySize);
+            // The photo upload takes a 10 MB image plus its multipart framing (add-arquebusier-photos, D5),
+            // and the import a 2 MB workbook plus its framing (add-registry-import, D3).
+            var methods = e.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods ?? [];
+            var photo = e.RoutePattern.RawText!.Contains("/photos/", StringComparison.Ordinal) && methods.Contains("PUT");
+            var import = e.RoutePattern.RawText!.Contains("/import", StringComparison.Ordinal) && methods.Contains("POST");
+            var expected = photo ? PhotoEndpoints.MaxRequestBytes
+                : import ? ImportWorkbookReader.MaxFileBytes + (64 * 1024)
+                : 64 * 1024;
+            Assert.Equal(expected, e.Metadata.GetMetadata<IRequestSizeLimitMetadata>()?.MaxRequestBodySize);
         });
     }
 

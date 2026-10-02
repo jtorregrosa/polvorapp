@@ -82,6 +82,9 @@ public sealed partial class RegistryScopeGuardTests(PostgresFixture postgres, Ma
         [
             "GET /api/arquebusiers/",   // scoped list: filtered by the caller's comparsas
             "POST /api/arquebusiers/",  // registration: the comparsa must be in the caller's scope
+            "GET /api/arquebusiers/import/template/",  // Admin only (403 for FiringChiefs); holds no data
+            "POST /api/arquebusiers/import/preview/",  // Admin only (403 for FiringChiefs); stores nothing
+            "POST /api/arquebusiers/import/",  // Admin only (403 for FiringChiefs); comparsa checked like a registration
         ];
 
         var unclassified = registry.Services.GetRequiredService<EndpointDataSource>().Endpoints.OfType<RouteEndpoint>()
