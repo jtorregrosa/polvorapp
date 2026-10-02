@@ -1,7 +1,9 @@
 import {
+  Archive,
   CircleAlert,
   CircleCheck,
   CircleDashed,
+  CirclePlay,
   CircleX,
   Clock,
   Lock,
@@ -10,7 +12,7 @@ import {
   Undo2,
   type LucideIcon,
 } from 'lucide-react';
-import type { ComplianceWarning } from '@/api/generated/model';
+import type { ComplianceWarning, EditionStatus } from '@/api/generated/model';
 
 /** Semantic tone of a status (design D1/D6); each maps to verified token pairs. */
 export type StatusTone = 'success' | 'warning' | 'destructive' | 'info' | 'muted';
@@ -42,12 +44,16 @@ export const STATUS_MAP = {
     RETURNED: { tone: 'warning', icon: Undo2 },
     VALIDATED: { tone: 'success', icon: CircleCheck },
   },
+  /** Festival editions (`EditionStatus`, add-festival-editions): the lifecycle only. */
   edition: {
     DRAFT: { tone: 'muted', icon: CircleDashed },
-    ORDERS_OPEN: { tone: 'success', icon: CircleCheck },
-    CORRECTIONS_OPEN: { tone: 'warning', icon: TriangleAlert },
-    LOCKED: { tone: 'info', icon: Lock },
-    CLOSED: { tone: 'muted', icon: CircleDashed },
+    IN_PROGRESS: { tone: 'success', icon: CirclePlay },
+    CLOSED: { tone: 'muted', icon: Archive },
+  },
+  /** Whether FiringChiefs may edit the orders of the edition in progress (BR-10). */
+  orders: {
+    OPEN: { tone: 'success', icon: CircleCheck },
+    CLOSED: { tone: 'info', icon: Lock },
   },
   user: {
     INVITED: { tone: 'info', icon: Send },
@@ -71,8 +77,9 @@ export const STATUS_MAP = {
     LICENSE_PHOTOS_MISSING: { tone: 'warning', icon: TriangleAlert },
   },
 } as const satisfies Record<string, Record<string, StatusStyle>> & {
-  // Exactly the API's compliance warnings: a new or removed code fails the type check here.
+  // Exactly the API's codes: a new or removed code fails the type check here.
   warning: Record<ComplianceWarning, StatusStyle>;
+  edition: Record<EditionStatus, StatusStyle>;
 };
 
 export type StatusKind = keyof typeof STATUS_MAP;

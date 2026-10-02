@@ -1,5 +1,5 @@
-import { Pencil } from 'lucide-react';
-import { useRef, useState, type ReactNode } from 'react';
+import { Pencil, type LucideIcon } from 'lucide-react';
+import { useRef, useState, type ReactNode, type Ref } from 'react';
 import { useFormState, type FieldValues, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Button as ButtonPrimitive } from '@/components/ui/button';
@@ -46,6 +46,18 @@ export interface EditSheetProps<TValues extends FieldValues, TOutput extends Fie
   children: ReactNode;
   /** Already translated; "Changes saved" by default. */
   savedText?: string;
+  /**
+   * The trigger's own visible label and icon, e.g. "Add milestone" for a panel that creates a row;
+   * "Edit" and `sectionName` otherwise.
+   */
+  trigger?: { label: string; icon?: LucideIcon };
+  /** The trigger button, e.g. to move focus to it after a row it added is removed. */
+  triggerRef?: Ref<HTMLButtonElement>;
+  /**
+   * Hides the trigger without closing an open panel, e.g. when the section stops being editable
+   * while it is open: the panel then still shows why its save was refused.
+   */
+  hideTrigger?: boolean;
 }
 
 /**
@@ -64,6 +76,9 @@ export function EditSheet<TValues extends FieldValues, TOutput extends FieldValu
   onSave,
   children,
   savedText,
+  trigger,
+  triggerRef,
+  hideTrigger = false,
 }: EditSheetProps<TValues, TOutput>) {
   const { t } = useTranslation('ui');
   const [open, setOpen] = useState(false);
@@ -96,12 +111,23 @@ export function EditSheet<TValues extends FieldValues, TOutput extends FieldValu
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetTrigger asChild>
-        <ButtonPrimitive variant="outline" size="sm" className="gap-1.5">
-          <Pencil aria-hidden="true" />
-          {t('detail.edit')} <span className="sr-only">{sectionName}</span>
-        </ButtonPrimitive>
-      </SheetTrigger>
+      {!hideTrigger && (
+        <SheetTrigger asChild>
+          <ButtonPrimitive ref={triggerRef} variant="outline" size="sm" className="gap-1.5">
+            {trigger ? (
+              <>
+                {trigger.icon && <trigger.icon aria-hidden="true" />}
+                {trigger.label}
+              </>
+            ) : (
+              <>
+                <Pencil aria-hidden="true" />
+                {t('detail.edit')} <span className="sr-only">{sectionName}</span>
+              </>
+            )}
+          </ButtonPrimitive>
+        </SheetTrigger>
+      )}
       <SheetContent
         side={side}
         data-side={side}

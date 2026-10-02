@@ -44,10 +44,18 @@ export interface RecordHeaderProps {
 function MoreActionItem({ action }: { action: MoreAction }) {
   const Icon = action.icon;
   return (
+    // A disabled action stays focusable, so its label (which says why) is still read (WCAG 2.1.1).
     <DropdownMenuItem
       variant={action.destructive ? 'destructive' : 'default'}
-      disabled={action.disabled}
-      onSelect={action.onSelect}
+      aria-disabled={action.disabled ? true : undefined}
+      className={action.disabled ? 'text-muted-foreground' : undefined}
+      onSelect={(event) => {
+        if (action.disabled) {
+          event.preventDefault();
+          return;
+        }
+        action.onSelect();
+      }}
     >
       {Icon && <Icon aria-hidden="true" />}
       {action.label}

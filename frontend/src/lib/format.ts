@@ -37,6 +37,8 @@ export function formatList(items: readonly string[], language: string): string {
 export interface Formatters {
   date: (date: Date, options?: Intl.DateTimeFormatOptions) => string;
   number: (value: number, options?: Intl.NumberFormatOptions) => string;
+  /** An amount in euros with two decimals, e.g. "55,00 €" in Spanish (spec: Edition prices). */
+  currency: (value: number) => string;
   list: (items: readonly string[]) => string;
 }
 
@@ -48,6 +50,7 @@ export function useFormatters(): Formatters {
     () => ({
       date: (date, options) => formatDate(date, language, options),
       number: (value, options) => formatNumber(value, language, options),
+      currency: (value) => formatNumber(value, language, { style: 'currency', currency: 'EUR' }),
       list: (items) => formatList(items, language),
     }),
     [language],
