@@ -125,10 +125,14 @@ not exist (`404 Not Found`) by every operation on it, including its photos. This
 blocking and SHALL be enforced on the server.
 
 The list SHALL be sorted by last name and then first name, in the Spanish alphabetical order. It
-SHALL be filterable by comparsa and by status. In the UI it SHALL be searchable by name, nationalId
-or federationId, ignoring letter case and accents. Each row SHALL show the name, the nationalId, the
-federationId, the comparsa, the status, the license status and whether the arquebusier has an ID
-photo.
+SHALL be filterable by comparsa, by status and by license state: expired, pending or no license.
+In the UI it SHALL be searchable by name, nationalId or federationId, ignoring letter case and
+accents. Above the list, the UI SHALL show counters for active, reserve, expired-license,
+pending-license and no-license arquebusiers within the user's scope. Each counter SHALL also be a
+filter that the user can switch on and off, and its pressed state SHALL be exposed to assistive
+technology. The UI SHALL announce the number of listed arquebusiers whenever a filter or the search
+changes it. Each row SHALL show the name, the comparsa, the nationalId, the federationId, the status,
+the license status with its expiry date and whether the arquebusier has an ID photo.
 
 #### Scenario: FiringChief lists arquebusiers
 - **WHEN** a FiringChief assigned to two comparsas opens the arquebusiers page
@@ -148,11 +152,23 @@ photo.
 
 #### Scenario: FiringChief without assignments
 - **WHEN** a FiringChief with no comparsa assigned opens the arquebusiers page
-- **THEN** an empty state explains that no comparsa is assigned to them yet and no register action is offered
+- **THEN** an empty state explains that no comparsa is assigned to them yet, and no register action and no counters are offered
 
 #### Scenario: Rows say whether there is an ID photo
 - **WHEN** an Admin lists arquebusiers, one with an ID photo and one without
 - **THEN** each row says whether the arquebusier has an ID photo, and the list response contains no image
+
+#### Scenario: Counters follow the scope
+- **WHEN** the seeded FiringChief "Jefa Sintética Dos" opens the arquebusiers page
+- **THEN** the counters count only the arquebusiers of "Comparsa Sintética Norte"
+
+#### Scenario: Counter as a filter
+- **WHEN** a user presses the expired-license counter
+- **THEN** only arquebusiers whose license status is `EXPIRED` are listed, the counter shows as pressed, the new number of results is announced, and pressing it again lists everyone
+
+#### Scenario: Filter with no results
+- **WHEN** a user combines the expired-license counter with a comparsa that has no expired license
+- **THEN** a translated "no arquebusier matches" message is shown with an action that clears the filters
 
 ### Requirement: Current license (UC-02, BR-03)
 An arquebusier SHALL have at most one license, the current one. The license has no number and no
@@ -399,26 +415,56 @@ stored photo names. An operation that changes nothing SHALL NOT record an entry.
 - **THEN** no audit entry is recorded
 
 ### Requirement: Registry screens
-The UI SHALL offer, to every signed-in user, an Arquebusiers page in the main navigation, a page to
-register an arquebusier and a detail page to edit one. The detail page SHALL group personal data,
-license, training course and owned weapons, and SHALL offer the delete action, and for Admins the
-transfer action. The comparsa SHALL be chosen among the active comparsas in the user's scope, and
-pre-selected when there is only one. The forms SHALL validate the same blocking rules as the
-server before submitting and SHALL show a rejected change's translated reason. Dates SHALL be shown
-in the user's language. The pages SHALL work on a phone (NFR-01). Every text SHALL be available in
-es-ES, ca-ES-valencia and en.
+The UI SHALL offer, to every signed-in user:
+- an Arquebusiers page in the main navigation;
+- a page to register an arquebusier;
+- a detail page for each arquebusier.
+
+The detail page SHALL be read-only, following the "Detail pages in read mode" template. Its header
+SHALL show the ID photo, the comparsa and its side, the full name, the status, the license state and
+the course state. Its key facts SHALL show the license expiry with how much of the license's validity
+has passed, the federationId and nationalId, the course date and the number of owned weapons. A
+compliance warning (license not valid, no course) SHALL be shown as a warning that never blocks
+saving (BR-04).
+
+The detail SHALL group personal data, license, training course and owned weapons. Each group SHALL
+have its own edit action, opened in a side panel (a bottom sheet on phones), and owned weapons SHALL
+keep their add, edit and remove actions. The status change and the delete action SHALL be in a "More
+actions" menu. The transfer action SHALL be offered to Admins only.
+
+The comparsa SHALL be chosen among the active comparsas in the user's scope, and pre-selected when
+there is only one. The forms and edit panels SHALL validate the same blocking rules as the server
+before submitting and SHALL show a rejected change's translated reason. Dates SHALL be shown in the
+user's language. The pages SHALL work on a phone (NFR-01). Every text SHALL be available in es-ES,
+ca-ES-valencia and en.
 
 #### Scenario: Single comparsa pre-selected
 - **WHEN** a FiringChief assigned to one active comparsa opens the register page
 - **THEN** that comparsa is pre-selected
 
 #### Scenario: Client-side validation
-- **WHEN** a user types the nationalId "12345678A" and leaves the field
-- **THEN** the form shows that the check letter is wrong, without calling the server
+- **WHEN** a user types the nationalId "12345678A" in the register form and submits it
+- **THEN** the form shows that the check letter is wrong, in the error summary and at the field, without calling the server
 
 #### Scenario: Transfer only for Admins
 - **WHEN** a FiringChief opens an arquebusier's detail page
-- **THEN** no transfer action is shown
+- **THEN** no transfer action is shown, neither in the header nor in "More actions"
+
+#### Scenario: Read-only detail
+- **WHEN** a user opens an arquebusier's detail page
+- **THEN** the data is shown read-only in sections, with no editable field until the user chooses a section's edit action
+
+#### Scenario: Edit the license in a panel
+- **WHEN** a user opens the license section's edit action, chooses `AE` with an issue date and saves
+- **THEN** the panel closes, the license section shows the type, the dates and the computed expiry, and the header shows the license as valid
+
+#### Scenario: Compliance warning does not block
+- **WHEN** a user opens the detail page of an active arquebusier whose license has expired
+- **THEN** the page shows a warning that the license is not valid, the license state uses the destructive colour, and every edit can still be saved
+
+#### Scenario: Delete from More actions
+- **WHEN** a FiringChief chooses "Delete from the registry" in "More actions" on an arquebusier of their comparsa and confirms
+- **THEN** the arquebusier is deleted, the list opens and announces the deletion
 
 ### Requirement: Synthetic registry data
 The synthetic seed SHALL create fictional arquebusiers in the seeded comparsas, with valid
@@ -567,7 +613,7 @@ whether the arquebusier has an ID photo, without returning any image.
 The register page SHALL let the user add an ID photo. When the arquebusier is registered but the
 photo upload fails, the UI SHALL open the new arquebusier's detail page and say that the photo was
 not saved and can be added again. On the detail page:
-- the ID photo SHALL be shown with the personal data;
+- the ID photo SHALL be shown in the record header;
 - the license photos SHALL be shown with the license, and SHALL be offered only while the
   arquebusier has a license.
 
@@ -581,7 +627,7 @@ be available in es-ES, ca-ES-valencia and en.
 
 #### Scenario: Register with an ID photo
 - **WHEN** a FiringChief fills in the register form, chooses an image, crops it and saves
-- **THEN** the arquebusier is registered with that ID photo and the detail page shows it
+- **THEN** the arquebusier is registered with that ID photo and the detail page shows it in the record header
 
 #### Scenario: Photo upload fails after registration
 - **WHEN** the arquebusier is registered but the photo upload is rejected
