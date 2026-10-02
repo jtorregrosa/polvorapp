@@ -125,14 +125,24 @@ not exist (`404 Not Found`) by every operation on it, including its photos. This
 blocking and SHALL be enforced on the server.
 
 The list SHALL be sorted by last name and then first name, in the Spanish alphabetical order. It
-SHALL be filterable by comparsa, by status and by license state: expired, pending or no license.
-In the UI it SHALL be searchable by name, nationalId or federationId, ignoring letter case and
-accents. Above the list, the UI SHALL show counters for active, reserve, expired-license,
-pending-license and no-license arquebusiers within the user's scope. Each counter SHALL also be a
-filter that the user can switch on and off, and its pressed state SHALL be exposed to assistive
-technology. The UI SHALL announce the number of listed arquebusiers whenever a filter or the search
-changes it. Each row SHALL show the name, the comparsa, the nationalId, the federationId, the status,
-the license status with its expiry date and whether the arquebusier has an ID photo.
+SHALL be filterable by comparsa, by status, by license state (expiring soon, expired, pending or no
+license) and by compliance warning: any warning, or one chosen warning (see the compliance insights
+capability). The comparsa, status, license state and warning filters SHALL be kept in the page
+address, so a link can open the list already filtered. In the UI the list SHALL be searchable by
+name, nationalId or federationId, ignoring letter case and accents. Above the list, the UI SHALL
+show counters for active, reserve, expiring-license, expired-license, pending-license and
+no-license arquebusiers within the user's scope. Each counter SHALL also be a filter that the user
+can switch on and off, and its pressed state SHALL be exposed to assistive technology. The UI SHALL
+announce the number of listed arquebusiers whenever a filter or the search changes it. Each row
+SHALL show:
+- the name, the comparsa, the nationalId, the federationId and the status;
+- the license status with its expiry date. A `VALID` license with the warning `LICENSE_EXPIRING`
+  SHALL be shown as "Expiring soon";
+- whether the arquebusier has an ID photo;
+- the number of the arquebusier's compliance warnings and their names.
+
+The list response SHALL carry each arquebusier's compliance warnings. It SHALL carry neither the
+birth date nor any image.
 
 #### Scenario: FiringChief lists arquebusiers
 - **WHEN** a FiringChief assigned to two comparsas opens the arquebusiers page
@@ -165,6 +175,22 @@ the license status with its expiry date and whether the arquebusier has an ID ph
 #### Scenario: Counter as a filter
 - **WHEN** a user presses the expired-license counter
 - **THEN** only arquebusiers whose license status is `EXPIRED` are listed, the counter shows as pressed, the new number of results is announced, and pressing it again lists everyone
+
+#### Scenario: Expiring-license counter
+- **WHEN** a user presses the expiring-license counter
+- **THEN** only arquebusiers with the warning `LICENSE_EXPIRING` are listed, and their rows show the license as "Expiring soon" with its expiry date
+
+#### Scenario: Filter by warning
+- **WHEN** a user chooses the warning `UNDER_AGE` in the warning filter
+- **THEN** only arquebusiers with that warning are listed, and the page address keeps the filter
+
+#### Scenario: Any warning
+- **WHEN** a user opens the list from a link filtered by any warning
+- **THEN** only arquebusiers with at least one compliance warning are listed
+
+#### Scenario: Rows show their warnings
+- **WHEN** a user lists an arquebusier with the warnings `COURSE_MISSING` and `ID_PHOTO_MISSING`
+- **THEN** the row shows two warnings with their translated names, and the list response contains the warnings but not the birth date
 
 #### Scenario: Filter with no results
 - **WHEN** a user combines the expired-license counter with a comparsa that has no expired license
@@ -422,10 +448,16 @@ The UI SHALL offer, to every signed-in user:
 
 The detail page SHALL be read-only, following the "Detail pages in read mode" template. Its header
 SHALL show the ID photo, the comparsa and its side, the full name, the status, the license state and
-the course state. Its key facts SHALL show the license expiry with how much of the license's validity
-has passed, the federationId and nationalId, the course date and the number of owned weapons. A
-compliance warning (license not valid, no course) SHALL be shown as a warning that never blocks
-saving (BR-04).
+the course state. A `VALID` license with the warning `LICENSE_EXPIRING` SHALL be shown as "Expiring
+soon". Its key facts SHALL show the license expiry with how much of the license's validity has
+passed, the federationId and nationalId, the course date and the number of owned weapons.
+
+The detail response SHALL carry the arquebusier's compliance warnings, as derived by the compliance
+insights capability. When there is at least one, the page SHALL show them in one warning message.
+The message SHALL list each warning in words, with the license expiry date for the expired and
+expiring warnings and the age for `UNDER_AGE`. It SHALL say that the warnings never block saving
+(BR-04). The page SHALL NOT derive warnings of its own. After an edit, the warnings SHALL be shown
+as the server derives them for the saved data.
 
 The detail SHALL group personal data, license, training course and owned weapons. Each group SHALL
 have its own edit action, opened in a side panel (a bottom sheet on phones), and owned weapons SHALL
@@ -460,7 +492,15 @@ ca-ES-valencia and en.
 
 #### Scenario: Compliance warning does not block
 - **WHEN** a user opens the detail page of an active arquebusier whose license has expired
-- **THEN** the page shows a warning that the license is not valid, the license state uses the destructive colour, and every edit can still be saved
+- **THEN** the page shows a warning that the license expired on its expiry date, the license state uses the destructive colour, and every edit can still be saved
+
+#### Scenario: Every warning is listed
+- **WHEN** a user opens the detail page of a 16-year-old arquebusier without the course, without an ID photo and with a license that expires in three months
+- **THEN** the warning message lists the license expiring on its date, the missing course, the age of 16 and the missing ID photo, and the header shows the license as "Expiring soon"
+
+#### Scenario: Warnings follow an edit
+- **WHEN** a user records the course date of an arquebusier whose only warning is `COURSE_MISSING`
+- **THEN** the warning message disappears after the save
 
 #### Scenario: Delete from More actions
 - **WHEN** a FiringChief chooses "Delete from the registry" in "More actions" on an arquebusier of their comparsa and confirms
@@ -468,12 +508,21 @@ ca-ES-valencia and en.
 
 ### Requirement: Synthetic registry data
 The synthetic seed SHALL create fictional arquebusiers in the seeded comparsas, with valid
-synthetic DNI and NIE values, covering `ACTIVE` and `RESERVE`, every license status, no license,
-course done and not done, and owned weapons including a pistol. It SHALL give some of them an ID
-photo and license photos, and leave others without photos. The photos SHALL be generated
-placeholder images made of flat shapes, with no faces, text of real documents or real photos. It
-SHALL use fixed identifiers and SHALL be safe to run again. It SHALL NOT contain real names,
-national IDs, contact data, ownership guides or images.
+synthetic DNI and NIE values. They SHALL cover:
+- `ACTIVE` and `RESERVE`;
+- every license status, a valid license that expires within 12 months, and no license;
+- course done and not done;
+- an arquebusier under 18;
+- owned weapons, including a pistol.
+
+The seed SHALL give some arquebusiers an ID photo and license photos, and leave others without
+photos. It SHALL include an issued license with only one of its two photos. Together, the seeded
+arquebusiers SHALL show every compliance warning. The photos SHALL be generated placeholder images
+made of flat shapes, with no faces, text of real documents or real photos. Dates SHALL be relative
+to the day the seed first runs, so a freshly seeded environment shows every warning whatever the
+date. The seed SHALL use fixed
+identifiers and SHALL be safe to run again. It SHALL NOT contain real names, national IDs, contact
+data, ownership guides or images.
 
 #### Scenario: Seeding twice
 - **WHEN** the seed command runs twice on the same database and storage
@@ -486,6 +535,10 @@ national IDs, contact data, ownership guides or images.
 #### Scenario: Seeded photos
 - **WHEN** an Admin opens the detail page of a seeded arquebusier that has photos
 - **THEN** the synthetic ID photo and license photos are shown, and some other seeded arquebusiers show "No ID photo"
+
+#### Scenario: Every warning is seeded
+- **WHEN** an Admin opens the start page of a freshly seeded environment
+- **THEN** every warning figure counts at least one arquebusier
 
 ### Requirement: Arquebusier photos (UC-01, UC-02)
 An arquebusier SHALL have up to three photos, one of each kind:
