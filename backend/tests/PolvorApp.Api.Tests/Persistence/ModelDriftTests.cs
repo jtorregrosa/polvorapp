@@ -4,6 +4,7 @@ using PolvorApp.Api.Tests.Infrastructure;
 using PolvorApp.ArquebusierRegistry.Persistence;
 using PolvorApp.AuditPrivacy.Persistence;
 using PolvorApp.FederationCatalog.Persistence;
+using PolvorApp.FestivalEditions.Persistence;
 using PolvorApp.IdentityAccess.Persistence;
 
 namespace PolvorApp.Api.Tests.Persistence;
@@ -21,5 +22,6 @@ public sealed class ModelDriftTests
         Assert.False(scope.ServiceProvider.GetRequiredService<IdentityAccessDbContext>().Database.HasPendingModelChanges(), nameof(IdentityAccessDbContext));
         Assert.False(scope.ServiceProvider.GetRequiredService<FederationCatalogDbContext>().Database.HasPendingModelChanges(), nameof(FederationCatalogDbContext));
         Assert.False(scope.ServiceProvider.GetRequiredService<ArquebusierRegistryDbContext>().Database.HasPendingModelChanges(), nameof(ArquebusierRegistryDbContext));
+        Assert.False(scope.ServiceProvider.GetRequiredService<FestivalEditionsDbContext>().Database.HasPendingModelChanges(), nameof(FestivalEditionsDbContext));
     }
 }

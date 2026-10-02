@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using PolvorApp.ArquebusierRegistry.Arquebusiers;
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.ArquebusierRegistry.Lock;
 using PolvorApp.ArquebusierRegistry.OwnedWeapons;
 using PolvorApp.ArquebusierRegistry.Photos;
 using PolvorApp.SharedKernel.Auditing;
@@ -46,6 +47,8 @@ internal sealed class ArquebusierRegistryDbContext(DbContextOptions<ArquebusierR
 
     public DbSet<ArquebusierPhoto> Photos => Set<ArquebusierPhoto>();
 
+    public DbSet<RegistrySettings> Settings => Set<RegistrySettings>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schema);
@@ -53,7 +56,22 @@ internal sealed class ArquebusierRegistryDbContext(DbContextOptions<ArquebusierR
         MapArquebusiers(modelBuilder);
         MapOwnedWeapons(modelBuilder);
         MapPhotos(modelBuilder);
+        MapSettings(modelBuilder);
     }
+
+    /// <summary>
+    /// One row, inserted unlocked by the AddRegistryLock migration (add-festival-editions, design D8).
+    /// Deliberately not <c>HasData</c>: its values change at run time, and a later migration would
+    /// otherwise emit an <c>UpdateData</c> that silently unlocks a locked registry.
+    /// </summary>
+    private static void MapSettings(ModelBuilder modelBuilder) =>
+        modelBuilder.Entity<RegistrySettings>(settings =>
+        {
+            settings.ToTable("registry_settings", table =>
+                table.HasCheckConstraint("ck_registry_settings_singleton", "id = " + RegistrySettings.SingletonId));
+            settings.HasKey(s => s.Id);
+            settings.Property(s => s.Id).ValueGeneratedNever();
+        });
 
     private static void MapArquebusiers(ModelBuilder modelBuilder) =>
         modelBuilder.Entity<Arquebusier>(arquebusier =>

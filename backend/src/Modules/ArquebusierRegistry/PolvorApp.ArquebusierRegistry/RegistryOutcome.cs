@@ -48,6 +48,9 @@ internal enum RegistryOutcome
 
     /// <summary>An import that lost a race on a unique value at commit (409, check the file again).</summary>
     ImportConflict,
+
+    /// <summary>A FiringChief write while the registry is locked (BR-10; add-festival-editions, 409).</summary>
+    RegistryLocked,
 }
 
 /// <summary>Problem codes of the registry, translated by the UI as <c>registry:errors.&lt;code&gt;</c>.</summary>
@@ -76,6 +79,9 @@ internal static class RegistryProblems
     /// <summary>An import that lost a race on a unique value at commit: check the file again.</summary>
     public const string ImportConflict = "arquebusierImport.conflict";
 
+    /// <summary>The registry is locked: FiringChiefs read but cannot change it (BR-10).</summary>
+    public const string RegistryLocked = "registry.locked";
+
     public static ProblemHttpResult From(RegistryOutcome outcome) => outcome switch
     {
         RegistryOutcome.ArquebusierNotFound => ProblemResults.NotFound(ArquebusierNotFound),
@@ -96,6 +102,7 @@ internal static class RegistryProblems
         RegistryOutcome.PhotoModified => ProblemResults.Conflict(PhotoModified),
         RegistryOutcome.StorageUnavailable => ProblemResults.Problem(StatusCodes.Status503ServiceUnavailable, StorageUnavailable),
         RegistryOutcome.ImportConflict => ProblemResults.Conflict(ImportConflict),
+        RegistryOutcome.RegistryLocked => ProblemResults.Conflict(RegistryLocked),
         _ => throw new ArgumentOutOfRangeException(nameof(outcome), outcome, "Not a problem outcome."),
     };
 

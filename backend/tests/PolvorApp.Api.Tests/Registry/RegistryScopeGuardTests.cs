@@ -102,7 +102,7 @@ public sealed partial class RegistryScopeGuardTests(PostgresFixture postgres, Ma
     /// Every parameterised route, deletions last (the arquebusier's own one at the very end) so the
     /// positive control of one route does not remove what the next one needs.
     /// </summary>
-    private static List<GuardedRoute> ArquebusierRoutes(EndpointDataSource source) =>
+    internal static List<GuardedRoute> ArquebusierRoutes(EndpointDataSource source) =>
         [.. source.Endpoints.OfType<RouteEndpoint>()
             .Where(e => ArquebusierChild().IsMatch(e.RoutePattern.RawText ?? string.Empty))
             .SelectMany(e => (e.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods ?? ["GET"]).Select(method => new GuardedRoute(
@@ -114,6 +114,13 @@ public sealed partial class RegistryScopeGuardTests(PostgresFixture postgres, Ma
             .ThenByDescending(r => r.Template.Length)];
 
     private static async Task<HttpStatusCode> StatusAsync(HttpClient client, RegistryTestHost registry, GuardedRoute route, Dictionary<string, Guid> ids)
+    {
+        using var response = await SendAsync(client, registry, route, ids);
+        return response.StatusCode;
+    }
+
+    /// <summary>Calls <paramref name="route"/> as <paramref name="client"/> with a body the route accepts.</summary>
+    internal static async Task<HttpResponseMessage> SendAsync(HttpClient client, RegistryTestHost registry, GuardedRoute route, Dictionary<string, Guid> ids)
     {
         using var request = new HttpRequestMessage(new HttpMethod(route.Method), PathOf(route, ids));
         if (route.Method == "PUT" && route.Template.Contains("/photos/", StringComparison.Ordinal))
@@ -128,12 +135,11 @@ public sealed partial class RegistryScopeGuardTests(PostgresFixture postgres, Ma
             request.Content = JsonContent.Create(await ValidBodyAsync(registry, route, ids));
         }
 
-        using var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
-        return response.StatusCode;
+        return await client.SendAsync(request, TestContext.Current.CancellationToken);
     }
 
     /// <summary>A body the route accepts from the arquebusier's own FiringChief, built from current data.</summary>
-    private static async Task<object> ValidBodyAsync(RegistryTestHost registry, GuardedRoute route, Dictionary<string, Guid> ids)
+    internal static async Task<object> ValidBodyAsync(RegistryTestHost registry, GuardedRoute route, Dictionary<string, Guid> ids)
     {
         var current = await ReadAsync<JsonElement>(await registry.Admin.GetAsync($"/api/arquebusiers/{ids["id"]}", TestContext.Current.CancellationToken));
         var key = $"{route.Method} {route.Template}";
@@ -161,7 +167,7 @@ public sealed partial class RegistryScopeGuardTests(PostgresFixture postgres, Ma
         }
     }
 
-    private static string PathOf(GuardedRoute route, Dictionary<string, Guid> ids) =>
+    internal static string PathOf(GuardedRoute route, Dictionary<string, Guid> ids) =>
         RouteParameter().Replace(route.Template, match => match.Groups["name"].Value switch
         {
             // The photo kind slug: the ID photo, which the guard uploads first.
@@ -177,5 +183,5 @@ public sealed partial class RegistryScopeGuardTests(PostgresFixture postgres, Ma
     [GeneratedRegex(@"\{(?<name>\w+)(:[^}]*)?\}")]
     private static partial Regex RouteParameter();
 
-    private sealed record GuardedRoute(string Method, string Template, bool AdminOnly);
+    internal sealed record GuardedRoute(string Method, string Template, bool AdminOnly);
 }

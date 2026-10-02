@@ -47,7 +47,7 @@ public sealed class RegistryModelTests : IAsyncLifetime
             .Select(e => $"{e.GetSchema()}.{e.GetTableName()}")
             .Order(StringComparer.Ordinal);
 
-        Assert.Equal(["registry.arquebusier_photos", "registry.arquebusiers", "registry.owned_weapons"], tables);
+        Assert.Equal(["registry.arquebusier_photos", "registry.arquebusiers", "registry.owned_weapons", "registry.registry_settings"], tables);
     }
 
     [Fact]

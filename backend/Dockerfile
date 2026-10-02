@@ -17,6 +17,8 @@ COPY src/Modules/ArquebusierRegistry/PolvorApp.ArquebusierRegistry/PolvorApp.Arq
 COPY src/Modules/ArquebusierRegistry/PolvorApp.ArquebusierRegistry.Contracts/PolvorApp.ArquebusierRegistry.Contracts.csproj src/Modules/ArquebusierRegistry/PolvorApp.ArquebusierRegistry.Contracts/
 COPY src/Modules/ComplianceInsights/PolvorApp.ComplianceInsights/PolvorApp.ComplianceInsights.csproj src/Modules/ComplianceInsights/PolvorApp.ComplianceInsights/
 COPY src/Modules/ComplianceInsights/PolvorApp.ComplianceInsights.Contracts/PolvorApp.ComplianceInsights.Contracts.csproj src/Modules/ComplianceInsights/PolvorApp.ComplianceInsights.Contracts/
+COPY src/Modules/FestivalEditions/PolvorApp.FestivalEditions/PolvorApp.FestivalEditions.csproj src/Modules/FestivalEditions/PolvorApp.FestivalEditions/
+COPY src/Modules/FestivalEditions/PolvorApp.FestivalEditions.Contracts/PolvorApp.FestivalEditions.Contracts.csproj src/Modules/FestivalEditions/PolvorApp.FestivalEditions.Contracts/
 RUN dotnet restore src/PolvorApp.Api/PolvorApp.Api.csproj
 
 COPY src/ src/

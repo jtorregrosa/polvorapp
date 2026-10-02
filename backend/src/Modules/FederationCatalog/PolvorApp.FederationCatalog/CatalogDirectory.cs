@@ -31,7 +31,7 @@ internal sealed class CatalogDirectory(FederationCatalogDbContext db, LogoReader
     public Task<WeaponModelSummary?> FindWeaponModelAsync(Guid weaponModelId, CancellationToken cancellationToken) =>
         db.WeaponModels.AsNoTracking()
             .Where(m => m.Id == weaponModelId)
-            .Select(m => new WeaponModelSummary(m.Id, m.Kind, m.Side, m.Handedness, m.Size, m.Label, m.Active))
+            .Select(m => new WeaponModelSummary(m.Id, m.Kind, m.Side, m.Handedness, m.Size, m.Label, m.Active, m.Rentable))
             .FirstOrDefaultAsync(cancellationToken);
 
     public async Task<IReadOnlyList<WeaponModelSummary>> FindWeaponModelsAsync(IReadOnlyCollection<Guid> weaponModelIds, CancellationToken cancellationToken)
@@ -44,7 +44,7 @@ internal sealed class CatalogDirectory(FederationCatalogDbContext db, LogoReader
 
         return await db.WeaponModels.AsNoTracking()
             .Where(m => weaponModelIds.Contains(m.Id))
-            .Select(m => new WeaponModelSummary(m.Id, m.Kind, m.Side, m.Handedness, m.Size, m.Label, m.Active))
+            .Select(m => new WeaponModelSummary(m.Id, m.Kind, m.Side, m.Handedness, m.Size, m.Label, m.Active, m.Rentable))
             .ToListAsync(cancellationToken);
     }
 

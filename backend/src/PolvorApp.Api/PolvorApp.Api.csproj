@@ -28,6 +28,7 @@
     <ProjectReference Include="..\Modules\AuditPrivacy\PolvorApp.AuditPrivacy\PolvorApp.AuditPrivacy.csproj" />
     <ProjectReference Include="..\Modules\ComplianceInsights\PolvorApp.ComplianceInsights\PolvorApp.ComplianceInsights.csproj" />
     <ProjectReference Include="..\Modules\FederationCatalog\PolvorApp.FederationCatalog\PolvorApp.FederationCatalog.csproj" />
+    <ProjectReference Include="..\Modules\FestivalEditions\PolvorApp.FestivalEditions\PolvorApp.FestivalEditions.csproj" />
     <ProjectReference Include="..\Modules\IdentityAccess\PolvorApp.IdentityAccess\PolvorApp.IdentityAccess.csproj" />
     <ProjectReference Include="..\PolvorApp.SharedKernel\PolvorApp.SharedKernel.csproj" />
   </ItemGroup>

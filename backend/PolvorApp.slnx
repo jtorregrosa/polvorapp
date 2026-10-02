@@ -24,6 +24,10 @@
     <Project Path="src/Modules/FederationCatalog/PolvorApp.FederationCatalog.Contracts/PolvorApp.FederationCatalog.Contracts.csproj" />
     <Project Path="src/Modules/FederationCatalog/PolvorApp.FederationCatalog/PolvorApp.FederationCatalog.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/FestivalEditions/">
+    <Project Path="src/Modules/FestivalEditions/PolvorApp.FestivalEditions.Contracts/PolvorApp.FestivalEditions.Contracts.csproj" />
+    <Project Path="src/Modules/FestivalEditions/PolvorApp.FestivalEditions/PolvorApp.FestivalEditions.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PolvorApp.Api.Tests/PolvorApp.Api.Tests.csproj" />
     <Project Path="tests/PolvorApp.ArchitectureTests/PolvorApp.ArchitectureTests.csproj" />

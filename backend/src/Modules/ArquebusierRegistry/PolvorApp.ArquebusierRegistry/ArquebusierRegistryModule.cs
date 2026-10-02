@@ -7,6 +7,7 @@ using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ArquebusierRegistry.Endpoints;
 using PolvorApp.ArquebusierRegistry.Import;
 using PolvorApp.ArquebusierRegistry.Insights;
+using PolvorApp.ArquebusierRegistry.Lock;
 using PolvorApp.ArquebusierRegistry.OwnedWeapons;
 using PolvorApp.ArquebusierRegistry.Persistence;
 using PolvorApp.ArquebusierRegistry.Photos;
@@ -49,6 +50,7 @@ public sealed class ArquebusierRegistryModule : IModule
         services.AddScoped<ArquebusierViews>();
         services.AddScoped<ArquebusierQueries>();
         services.AddScoped<ArquebusierImporter>();
+        services.AddScoped<RegistryLockAdministration>();
         services.AddSingleton<ImportSlots>();
 
         // Read contract for the compliance insights (design D3).
@@ -61,5 +63,6 @@ public sealed class ArquebusierRegistryModule : IModule
         endpoints.MapOwnedWeaponEndpoints();
         endpoints.MapPhotoEndpoints();
         endpoints.MapImportEndpoints();
+        endpoints.MapRegistryLockEndpoints();
     }
 }

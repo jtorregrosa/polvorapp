@@ -52,6 +52,14 @@ internal sealed partial class ArquebusierPhotoAdministration(
     public async Task<PhotoUpload> UploadAsync(Guid arquebusierId, ArquebusierPhotoKind kind, Stream file, CancellationToken cancellationToken)
     {
         var access = await scope.GetAccessAsync(cancellationToken);
+
+        // A locked registry refuses a FiringChief's upload before any image work (design D8);
+        // the check inside the save transaction stays the authority.
+        if (await guard.IsLockedForCallerAsync(cancellationToken))
+        {
+            return Rejected(new PhotoUpload(RegistryOutcome.RegistryLocked, null), arquebusierId, kind);
+        }
+
         ImageNormalization normalized;
         try
         {
@@ -99,6 +107,14 @@ internal sealed partial class ArquebusierPhotoAdministration(
                 var result = await SaveUploadAsync(save, access, cancellationToken);
                 return (result, result == RegistryOutcome.Done ? photo : null);
             });
+
+            if (outcome != RegistryOutcome.Done && save.CommitAttempted)
+            {
+                // A retryable failure during or after the commit: it may have succeeded, so the
+                // image is left to the sweep rather than erased under a reference (design D2).
+                LogLeftForSweep(logger, arquebusierId, photo.Id);
+                return new PhotoUpload(outcome, null);
+            }
 
             // After the commit the replaced image is unreferenced; after a rejection, the new one.
             await objects.DeleteAsync(outcome == RegistryOutcome.Done ? save.ReplacedKey : photo.ObjectKey);
@@ -171,7 +187,7 @@ internal sealed partial class ArquebusierPhotoAdministration(
         string? removedKey = null;
         var (outcome, _) = await guard.RunAsync<ArquebusierPhoto>(nameof(RemoveAsync), arquebusierId, null, async () =>
         {
-            await using var transaction = await db.BeginWriteAsync(cancellationToken);
+            await using var transaction = await guard.BeginWriteAsync(cancellationToken);
             if (!await db.LockArquebusierForShareAsync(arquebusierId, access, cancellationToken))
             {
                 return (RegistryOutcome.ArquebusierNotFound, null);
@@ -202,7 +218,7 @@ internal sealed partial class ArquebusierPhotoAdministration(
     private async Task<RegistryOutcome> SaveUploadAsync(UploadSave save, ComparsaAccess access, CancellationToken cancellationToken)
     {
         var photo = save.Photo;
-        await using var transaction = await db.BeginWriteAsync(cancellationToken);
+        await using var transaction = await guard.BeginWriteAsync(cancellationToken);
         if (!await db.LockArquebusierForShareAsync(photo.ArquebusierId, access, cancellationToken))
         {
             return RegistryOutcome.ArquebusierNotFound;
