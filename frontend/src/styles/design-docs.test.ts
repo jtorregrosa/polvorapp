@@ -33,6 +33,15 @@ describe('design guide', () => {
     expect(() => renderTokensDoc(css)).toThrow('Token "mystery" has no role');
   });
 
+  it('fails on a scale token without a documented role', () => {
+    const css = [
+      ':root {\n}\n.dark {\n}\n:root {\n  --duration-fast: 100ms;\n}\n',
+      '@theme inline {\n  --spacing-mystery: 1rem;\n}\n',
+    ].join('');
+
+    expect(() => renderTokensDoc(css)).toThrow('Token "spacing-mystery" has no role');
+  });
+
   it('lists every domain status with tone, icon and labels in the three languages', async () => {
     const i18n = await createI18n();
     const labels = Object.fromEntries(

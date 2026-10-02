@@ -48,12 +48,8 @@ export function RecoveryCodesPage() {
     <>
       <PageHeader title={t('recoveryCodes.title')} description={t('recoveryCodes.description')} />
       <RecoveryCodeList codes={codes} />
-      {error !== undefined && (
-        <AlertBanner severity="error" className="mt-4">
-          {problemMessage(t, error)}
-        </AlertBanner>
-      )}
-      <Button type="button" className="mt-4" pending={pending} onClick={() => void onContinue()}>
+      {error !== undefined && <AlertBanner severity="error">{problemMessage(t, error)}</AlertBanner>}
+      <Button type="button" pending={pending} onClick={() => void onContinue()}>
         {t('recoveryCodes.saved')}
       </Button>
     </>

@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http as mock, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
@@ -122,6 +122,18 @@ describe('RecoveryCodesPage', () => {
       await screen.findByText('No se ha podido completar la acción. Vuelve a intentarlo.'),
     ).toBeInTheDocument();
     expect(screen.getByText(CODES[0] ?? '')).toBeInTheDocument();
+  });
+
+  it('does not show the codes again after leaving the page and coming back', async () => {
+    const { app } = await showCodes();
+
+    await act(() => app.router.navigate('/password/forgot'));
+    await act(() => app.router.navigate('/recovery-codes'));
+
+    await waitFor(() => {
+      expect(app.location()).not.toBe('/recovery-codes');
+    });
+    expect(screen.queryByText(CODES[0] ?? '')).not.toBeInTheDocument();
   });
 
   it('does not show codes again when opened directly', async () => {

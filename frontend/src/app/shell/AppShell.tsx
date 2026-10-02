@@ -58,24 +58,15 @@ export function AppShell() {
       onSignOut={() => {
         attempt(signOut, 'signOutFailed');
       }}
+      onLanguageChange={(language) => {
+        attempt(() => saveLanguage(language), 'languageNotSaved');
+      }}
     />
   );
 
   return (
-    <AppLayout
-      navigation={navigation}
-      sidebarFooter={<VersionFooter />}
-      userMenu={userMenu}
-      onLanguageChange={(language) => {
-        attempt(() => saveLanguage(language), 'languageNotSaved');
-      }}
-      mainRef={main}
-    >
-      {problem && (
-        <AlertBanner severity="error" className="mb-6">
-          {t(`session.${problem}`)}
-        </AlertBanner>
-      )}
+    <AppLayout navigation={navigation} sidebarFooter={<VersionFooter />} userMenu={userMenu} mainRef={main}>
+      {problem && <AlertBanner severity="error">{t(`session.${problem}`)}</AlertBanner>}
       <Outlet />
     </AppLayout>
   );

@@ -31,12 +31,18 @@
       "create": "Create comparsa",
       "save": "Save changes",
       "created": "Comparsa created.",
-      "saved": "Changes saved."
+      "saved": "Changes saved.",
+      "section": "Comparsa details",
+      "cancel": "Cancel"
     },
     "detail": {
       "back": "Back to comparsas",
       "summary": "Details",
-      "inactiveNotice": "This comparsa is inactive: it keeps its history but gets no new firing chiefs."
+      "inactiveNotice": "This comparsa is inactive: it keeps its history but gets no new firing chiefs.",
+      "data": {
+        "edit": "Edit comparsa details",
+        "name": "comparsa details"
+      }
     },
     "actions": {
       "title": "Actions",
@@ -51,8 +57,11 @@
       "deleteDescription_one": "This cannot be undone. {{count}} firing chief will lose access to it.",
       "deleteDescription_other": "This cannot be undone. {{count}} firing chiefs will lose access to it.",
       "deleteDescriptionNone": "This cannot be undone.",
-      "deleted": "Comparsa deleted."
-    }
+      "deleted": "Comparsa deleted.",
+      "deleteDescriptionUnknown": "This cannot be undone. Its firing chiefs, if any, will lose access to it."
+    },
+    "resultCount_one": "{{count}} comparsa",
+    "resultCount_other": "{{count}} comparsas"
   },
   "firingChiefs": {
     "title": "Firing chiefs",
@@ -72,7 +81,8 @@
     "removeTitle": "Remove {{name}} from this comparsa?",
     "removeDescription": "They will no longer see this comparsa from their next action.",
     "added": "{{name}} is now a firing chief of this comparsa.",
-    "removed": "{{name}} is no longer a firing chief of this comparsa."
+    "removed": "{{name}} is no longer a firing chief of this comparsa.",
+    "caption": "Firing chiefs of {{name}}"
   },
   "userComparsas": {
     "title": "Comparsas",
@@ -87,7 +97,8 @@
     "removeDescription": "The firing chief will no longer see it from their next action.",
     "added": "Comparsa {{name}} assigned.",
     "removed": "Comparsa {{name}} removed.",
-    "adminNoEffect": "This user is an administrator and sees every comparsa. These assignments have no effect unless they become a firing chief again."
+    "adminNoEffect": "This user is an administrator and sees every comparsa. These assignments have no effect unless they become a firing chief again.",
+    "caption": "Comparsas of {{name}}"
   },
   "weaponModels": {
     "title": "Weapon models",
@@ -131,11 +142,18 @@
       "create": "Create model",
       "save": "Save changes",
       "created": "Weapon model created.",
-      "saved": "Changes saved."
+      "saved": "Changes saved.",
+      "section": "Weapon model",
+      "cancel": "Cancel",
+      "attributesShown": "Side, hand and size follow."
     },
     "detail": {
       "back": "Back to weapon models",
-      "inactiveNotice": "This model is inactive: it is kept for history but not offered for new records."
+      "inactiveNotice": "This model is inactive: it is kept for history but not offered for new records.",
+      "data": {
+        "edit": "Edit weapon model",
+        "name": "weapon model"
+      }
     },
     "actions": {
       "title": "Actions",
@@ -149,7 +167,11 @@
       "deleteTitle": "Delete {{label}}?",
       "deleteDescription": "This cannot be undone.",
       "deleted": "Weapon model deleted."
-    }
+    },
+    "resultCount_one": "{{count}} model",
+    "resultCount_other": "{{count}} models",
+    "rentable": "Rentable",
+    "notRentable": "Not rentable"
   },
   "side": {
     "MOORISH": "Moorish",

@@ -41,8 +41,13 @@
   "form": {
     "required": "Obligatori",
     "optional": "Opcional",
-    "requiredNote": "Els camps marcats amb * són obligatoris.",
-    "clearDate": "Esborra la data"
+    "requiredNote": "Tots els camps són obligatoris excepte els marcats com a opcionals.",
+    "clearDate": "Esborra la data",
+    "optionalSuffix": "(opcional)",
+    "errorSummaryTitle": "Hi ha un problema",
+    "index": "En aquest formulari",
+    "help": "Ajuda",
+    "unexpectedError": "No s’ha pogut desar. Torna-ho a provar."
   },
   "confirm": {
     "cancel": "Cancel·la",
@@ -121,7 +126,7 @@
     "empty": "Sense {{label}}",
     "loadFailed": "No s'ha pogut carregar la foto",
     "cropTitle": "Retalla {{label}}",
-    "cropHelp": "Prem Tab per a arribar a la selecció i als seus cantons; amb les fletxes la mous o en canvies la mida (Majúscules: més ràpid). També la pots arrossegar. A la dreta es veu com quedarà.",
+    "cropHelp": "Mou o canvia la mida de la selecció amb els botons, amb les fletxes del teclat (Tab per a arribar a la selecció i a les cantonades; Maj: més ràpid) o arrossegant-la. A la dreta es veu com quedarà.",
     "cropImage": "Foto triada",
     "cropArea": "Selecció del retall: utilitza les fletxes per a moure-la",
     "handles": {
@@ -148,6 +153,25 @@
       "generic": "No s'ha pogut guardar la foto. Torna-ho a provar."
     },
     "preview": "Vista prèvia de la foto retallada",
-    "previewCaption": "Així quedarà"
+    "previewCaption": "Així quedarà",
+    "cropTools": {
+      "label": "Ajusta el retall",
+      "up": "Mou el retall cap amunt",
+      "down": "Mou el retall cap avall",
+      "left": "Mou el retall a l’esquerra",
+      "right": "Mou el retall a la dreta",
+      "smaller": "Fes el retall més menut",
+      "larger": "Fes el retall més gran"
+    }
+  },
+  "filters": {
+    "clear": "Lleva els filtres"
+  },
+  "detail": {
+    "moreActions": "Més accions",
+    "notGiven": "No consta",
+    "edit": "Edita",
+    "saved": "Canvis desats",
+    "saveChanges": "Desa els canvis"
   }
 }

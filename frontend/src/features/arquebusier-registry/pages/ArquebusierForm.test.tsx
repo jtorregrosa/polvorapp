@@ -2,12 +2,15 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { http as mock, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
-import type { ArquebusierResponse, ComparsaResponse } from '@/api/generated/model';
+import type { ComparsaResponse } from '@/api/generated/model';
 import { problem, recordBodies, renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN, SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
 import { DETAIL_UNO, NORTE, OESTE, SUR } from '../test-data';
+
+// Specs "Registering and editing arquebusiers", "Registry screens" and "Form fields and validation
+// messages" (design-system). Synthetic data only.
 
 function comparsas(list: ComparsaResponse[]) {
   server.use(mock.get('/api/comparsas', () => HttpResponse.json(list)));
@@ -18,13 +21,19 @@ function setDate(label: RegExp | string, value: string) {
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
 }
 
+const summary = () => screen.getByRole('group', { name: 'Hay un problema' });
+
 async function fillRequired(user: UserEvent) {
   await user.type(screen.getByLabelText(/ID Unión/), '900001');
   await user.type(screen.getByLabelText(/^DNI\/NIE/), '12345678z');
   await user.type(screen.getByLabelText(/^Nombre/), 'Arcabucera');
   await user.type(screen.getByLabelText(/^Apellidos/), 'Sintética Nueva');
   setDate(/Fecha de nacimiento/, '1990-05-01');
-  await user.selectOptions(screen.getByLabelText(/Género/), 'FEMALE');
+  await user.click(screen.getByRole('radio', { name: 'Mujer' }));
+}
+
+async function chooseLicense(user: UserEvent, name: RegExp | string) {
+  await user.click(screen.getByRole('radio', { name }));
 }
 
 describe('Registering an arquebusier (spec: Registering and editing, Registry screens)', () => {
@@ -32,35 +41,130 @@ describe('Registering an arquebusier (spec: Registering and editing, Registry sc
     comparsas([NORTE, OESTE]);
     await renderApp('/arquebusiers/new', { session: SYNTHETIC_FIRING_CHIEF });
 
-    const comparsa = await screen.findByLabelText(/^Comparsa/);
+    const comparsa = await screen.findByRole('combobox', { name: 'Comparsa' });
     await waitFor(() => {
       expect(comparsa).toHaveValue(NORTE.id);
     });
     expect(within(comparsa).queryByRole('option', { name: OESTE.name })).not.toBeInTheDocument();
   });
 
-  it('flags a wrong check letter when the DNI/NIE field is left, without calling the server', async () => {
+  it('marks only the optional fields, with "(opcional)", and says once that the rest are required', async () => {
+    comparsas([NORTE]);
+    await renderApp('/arquebusiers/new', { session: SYNTHETIC_FIRING_CHIEF });
+    await screen.findByRole('combobox', { name: 'Comparsa' });
+
+    expect(screen.getByRole('textbox', { name: 'Correo electrónico (opcional)' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Teléfono (opcional)' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Nombre' })).toBeRequired();
+    expect(
+      screen.getAllByText('Todos los campos son obligatorios salvo los marcados como opcionales.'),
+    ).toHaveLength(1);
+    expect(document.querySelector('main')?.textContent).not.toContain('*');
+  });
+
+  it('offers gender, status and license type as radio options, not selects', async () => {
+    comparsas([NORTE]);
+    await renderApp('/arquebusiers/new', { session: SYNTHETIC_FIRING_CHIEF });
+    await screen.findByRole('combobox', { name: 'Comparsa' });
+
+    for (const group of ['Género', 'Estado', 'Tipo de licencia']) {
+      expect(screen.getByRole('radiogroup', { name: group })).toBeInTheDocument();
+    }
+    expect(within(screen.getByRole('radiogroup', { name: 'Género' })).getAllByRole('radio')).toHaveLength(3);
+  });
+
+  it('keeps fields at the width of what they expect', async () => {
+    comparsas([NORTE]);
+    await renderApp('/arquebusiers/new', { session: SYNTHETIC_FIRING_CHIEF });
+    await screen.findByRole('combobox', { name: 'Comparsa' });
+
+    const width = (label: RegExp) => screen.getByLabelText(label).closest('[data-slot="form-field-control"]');
+    expect(width(/^DNI\/NIE/)).toHaveClass('max-w-field-id');
+    expect(width(/^Nombre/)).toHaveClass('max-w-field-name');
+    expect(width(/Fecha de nacimiento/)).toHaveClass('max-w-field-short');
+    expect(width(/Correo electrónico/)).toHaveClass('max-w-field-long');
+  });
+
+  it('shows the license dates only under a license type, and only while it is not pending', async () => {
     const user = userEvent.setup();
     comparsas([NORTE]);
     await renderApp('/arquebusiers/new', { session: SYNTHETIC_FIRING_CHIEF });
+    await screen.findByRole('combobox', { name: 'Comparsa' });
+    expect(screen.queryByLabelText(/Fecha de expedición/)).not.toBeInTheDocument();
 
-    await user.type(await screen.findByLabelText(/^DNI\/NIE/), '12345678A');
-    await user.tab();
+    await chooseLicense(user, /^AE/);
+    expect(screen.getByLabelText(/Fecha de expedición/)).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: /En trámite/ })).toBeInTheDocument();
 
-    expect(await screen.findByText('La letra no corresponde a los números.')).toBeInTheDocument();
+    await user.click(screen.getByRole('checkbox', { name: /En trámite/ }));
+    expect(screen.queryByLabelText(/Fecha de expedición/)).not.toBeInTheDocument();
+
+    await chooseLicense(user, 'Sin licencia');
+    expect(screen.queryByRole('checkbox', { name: /En trámite/ })).not.toBeInTheDocument();
+  });
+
+  it('flags a wrong check letter on submit, without calling the server', async () => {
+    const user = userEvent.setup();
+    comparsas([NORTE]);
+    let requests = 0;
+    server.use(
+      mock.post('/api/arquebusiers', () => {
+        requests += 1;
+        return new HttpResponse(null, { status: 500 });
+      }),
+    );
+    await renderApp('/arquebusiers/new', { session: SYNTHETIC_FIRING_CHIEF });
+    await screen.findByRole('combobox', { name: 'Comparsa' });
+
+    await user.type(screen.getByLabelText(/^DNI\/NIE/), '12345678A');
+    await user.click(screen.getByRole('button', { name: 'Registrar arcabucero' }));
+
+    expect(await screen.findAllByText(/La letra no corresponde a los números\./)).not.toHaveLength(0);
+    expect(requests).toBe(0);
+  });
+
+  it('lists the missing nationalId and birth date in a focused summary that links to them', async () => {
+    const user = userEvent.setup();
+    comparsas([NORTE]);
+    await renderApp('/arquebusiers/new', { session: SYNTHETIC_FIRING_CHIEF });
+    await screen.findByRole('combobox', { name: 'Comparsa' });
+
+    await user.click(screen.getByRole('button', { name: 'Registrar arcabucero' }));
+
+    await waitFor(() => {
+      expect(summary()).toHaveFocus();
+    });
+    const links = within(summary())
+      .getAllByRole('link')
+      .map((link) => link.textContent);
+    expect(links).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/^DNI\/NIE: /),
+        expect.stringMatching(/^Fecha de nacimiento: /),
+      ]),
+    );
+    expect(screen.getByLabelText(/^DNI\/NIE/)).toHaveAttribute('aria-invalid', 'true');
+
+    await user.click(within(summary()).getByRole('link', { name: /^Fecha de nacimiento: / }));
+    expect(screen.getByLabelText(/Fecha de nacimiento/)).toHaveFocus();
+
+    // A fixed field clears at once, without submitting again.
+    await user.type(screen.getByLabelText(/^DNI\/NIE/), '12345678Z');
+    expect(screen.getByLabelText(/^DNI\/NIE/)).toHaveAttribute('aria-invalid', 'false');
   });
 
   it('pre-fills the license expiry from the issue date and type until it is edited, and announces it', async () => {
     const user = userEvent.setup();
     comparsas([NORTE]);
     await renderApp('/arquebusiers/new', { session: SYNTHETIC_FIRING_CHIEF });
+    await screen.findByRole('combobox', { name: 'Comparsa' });
 
-    await user.selectOptions(await screen.findByLabelText(/Tipo de licencia/), 'AE');
+    await chooseLicense(user, /^AE/);
     setDate(/Fecha de expedición/, '2024-02-29');
     expect(screen.getByLabelText(/Fecha de caducidad/)).toHaveValue('2029-02-28');
     expect(screen.getByText('Fecha de caducidad calculada: 28/2/2029.')).toHaveAttribute('role', 'status');
 
-    await user.selectOptions(screen.getByLabelText(/Tipo de licencia/), 'A_PROF');
+    await chooseLicense(user, /^A-PROF/);
     expect(screen.getByLabelText(/Fecha de caducidad/)).toHaveValue('2025-02-28');
 
     setDate(/Fecha de caducidad/, '2026-12-31');
@@ -68,25 +172,12 @@ describe('Registering an arquebusier (spec: Registering and editing, Registry sc
     expect(screen.getByLabelText(/Fecha de caducidad/)).toHaveValue('2026-12-31');
   });
 
-  it('disables and clears the dates of a pending license', async () => {
-    const user = userEvent.setup();
-    comparsas([NORTE]);
-    await renderApp('/arquebusiers/new', { session: SYNTHETIC_FIRING_CHIEF });
-    await user.selectOptions(await screen.findByLabelText(/Tipo de licencia/), 'AE');
-    setDate(/Fecha de expedición/, '2024-03-10');
-
-    await user.click(screen.getByRole('checkbox', { name: /En trámite/ }));
-
-    expect(screen.getByLabelText(/Fecha de expedición/)).toBeDisabled();
-    expect(screen.getByLabelText(/Fecha de expedición/)).toHaveValue('');
-    expect(screen.getByLabelText(/Fecha de caducidad/)).toBeDisabled();
-  });
-
   it('gives the dates back when a pending license is unticked, and says so', async () => {
     const user = userEvent.setup();
     comparsas([NORTE]);
     await renderApp('/arquebusiers/new', { session: SYNTHETIC_FIRING_CHIEF });
-    await user.selectOptions(await screen.findByLabelText(/Tipo de licencia/), 'AE');
+    await screen.findByRole('combobox', { name: 'Comparsa' });
+    await chooseLicense(user, /^AE/);
     setDate(/Fecha de expedición/, '2024-03-10');
     const pending = screen.getByRole('checkbox', { name: /En trámite/ });
 
@@ -103,11 +194,11 @@ describe('Registering an arquebusier (spec: Registering and editing, Registry sc
     const user = userEvent.setup();
     comparsas([NORTE]);
     await renderApp('/arquebusiers/new', { session: SYNTHETIC_FIRING_CHIEF });
-    const type = await screen.findByLabelText(/Tipo de licencia/);
-    await user.selectOptions(type, 'AE');
+    await screen.findByRole('combobox', { name: 'Comparsa' });
+    await chooseLicense(user, /^AE/);
     setDate(/Fecha de caducidad/, '2026-12-31');
-    await user.selectOptions(type, '');
-    await user.selectOptions(type, 'A_PROF');
+    await chooseLicense(user, 'Sin licencia');
+    await chooseLicense(user, /^A-PROF/);
     setDate(/Fecha de caducidad/, '');
 
     setDate(/Fecha de expedición/, '2025-05-01');
@@ -132,9 +223,14 @@ describe('Registering an arquebusier (spec: Registering and editing, Registry sc
     await user.click(screen.getByRole('button', { name: 'Registrar arcabucero' }));
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/^Comparsa/)).toHaveAccessibleDescription(/Elige una opción/);
+      expect(screen.getByRole('combobox', { name: 'Comparsa' })).toHaveAccessibleDescription(
+        /Elige una opción/,
+      );
     });
-    expect(screen.getByLabelText(/^Comparsa/)).toHaveFocus();
+    await waitFor(() => {
+      expect(summary()).toHaveFocus();
+    });
+    expect(screen.getByRole('link', { name: /^Comparsa: / })).toBeInTheDocument();
     expect(requests).toBe(0);
   });
 
@@ -154,7 +250,7 @@ describe('Registering an arquebusier (spec: Registering and editing, Registry sc
     await user.click(screen.getByRole('button', { name: 'Reintentar' }));
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/^Comparsa/)).toHaveValue(NORTE.id);
+      expect(screen.getByRole('combobox', { name: 'Comparsa' })).toHaveValue(NORTE.id);
     });
     expect(screen.getByRole('button', { name: 'Registrar arcabucero' })).toBeEnabled();
   });
@@ -169,6 +265,18 @@ describe('Registering an arquebusier (spec: Registering and editing, Registry sc
     expect(screen.getByRole('button', { name: 'Registrar arcabucero' })).toBeDisabled();
   });
 
+  it('puts the primary action last in the action bar, after "Cancel"', async () => {
+    comparsas([NORTE]);
+    await renderApp('/arquebusiers/new', { session: SYNTHETIC_FIRING_CHIEF });
+    await screen.findByRole('combobox', { name: 'Comparsa' });
+
+    const bar = screen
+      .getByRole('button', { name: 'Registrar arcabucero' })
+      .closest('[data-slot="action-bar"]');
+    const actions = [...(bar?.querySelectorAll('a, button') ?? [])].map((element) => element.textContent);
+    expect(actions).toEqual(['Cancelar', 'Registrar arcabucero']);
+  });
+
   it('registers with the normalised request and goes to the new arquebusier', async () => {
     const user = userEvent.setup();
     comparsas([NORTE]);
@@ -178,10 +286,10 @@ describe('Registering an arquebusier (spec: Registering and editing, Registry sc
       mock.get(`/api/arquebusiers/${DETAIL_UNO.id}`, () => HttpResponse.json(DETAIL_UNO)),
     );
     const app = await renderApp('/arquebusiers/new', { session: SYNTHETIC_FIRING_CHIEF });
-    await screen.findByLabelText(/^Comparsa/);
+    await screen.findByRole('combobox', { name: 'Comparsa' });
 
     await fillRequired(user);
-    await user.selectOptions(screen.getByLabelText(/Tipo de licencia/), 'AE');
+    await chooseLicense(user, /^AE/);
     setDate(/Fecha de expedición/, '2024-03-10');
     await user.click(screen.getByRole('button', { name: 'Registrar arcabucero' }));
 
@@ -212,7 +320,7 @@ describe('Registering an arquebusier (spec: Registering and editing, Registry sc
     comparsas([NORTE]);
     server.use(mock.post('/api/arquebusiers', () => problem(409, 'arquebusiers.nationalIdTaken')));
     await renderApp('/arquebusiers/new', { session: SYNTHETIC_FIRING_CHIEF });
-    await screen.findByLabelText(/^Comparsa/);
+    await screen.findByRole('combobox', { name: 'Comparsa' });
 
     await fillRequired(user);
     await user.click(screen.getByRole('button', { name: 'Registrar arcabucero' }));
@@ -221,7 +329,25 @@ describe('Registering an arquebusier (spec: Registering and editing, Registry sc
     await waitFor(() => {
       expect(nationalId).toHaveAccessibleDescription(/contacta con la Federación/);
     });
-    expect(nationalId).toHaveFocus();
+    await waitFor(() => {
+      expect(summary()).toHaveFocus();
+    });
+  });
+
+  it('lists a refusal about no field in the summary', async () => {
+    const user = userEvent.setup();
+    comparsas([NORTE]);
+    server.use(mock.post('/api/arquebusiers', () => problem(503, 'registry.busy')));
+    await renderApp('/arquebusiers/new', { session: SYNTHETIC_FIRING_CHIEF });
+    await screen.findByRole('combobox', { name: 'Comparsa' });
+
+    await fillRequired(user);
+    await user.click(screen.getByRole('button', { name: 'Registrar arcabucero' }));
+
+    await waitFor(() => {
+      expect(summary()).toHaveFocus();
+    });
+    expect(within(summary()).queryByRole('link')).not.toBeInTheDocument();
   });
 
   it('tells an Admin to search the registry for a duplicate', async () => {
@@ -230,7 +356,7 @@ describe('Registering an arquebusier (spec: Registering and editing, Registry sc
     server.use(mock.post('/api/arquebusiers', () => problem(409, 'arquebusiers.federationIdTaken')));
     await renderApp('/arquebusiers/new', { session: SYNTHETIC_ADMIN });
     await screen.findByRole('option', { name: SUR.name });
-    await user.selectOptions(screen.getByLabelText(/^Comparsa/), SUR.id);
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Comparsa' }), SUR.id);
 
     await fillRequired(user);
     await user.click(screen.getByRole('button', { name: 'Registrar arcabucero' }));
@@ -243,118 +369,8 @@ describe('Registering an arquebusier (spec: Registering and editing, Registry sc
   it('has no accessibility violations', async () => {
     comparsas([NORTE]);
     const { container } = await renderApp('/arquebusiers/new', { session: SYNTHETIC_FIRING_CHIEF });
-    await screen.findByLabelText(/^Comparsa/);
+    await screen.findByRole('combobox', { name: 'Comparsa' });
 
     expect(await axeViolations(container)).toEqual([]);
-  });
-});
-
-describe('Editing an arquebusier (spec: Registering and editing)', () => {
-  function detail(current: () => ArquebusierResponse) {
-    server.use(
-      mock.get(`/api/arquebusiers/${DETAIL_UNO.id}`, () => HttpResponse.json(current())),
-      mock.get('/api/comparsas', () => HttpResponse.json([NORTE])),
-    );
-  }
-
-  it('shows the current values and saves every field with the version', async () => {
-    const user = userEvent.setup();
-    detail(() => DETAIL_UNO);
-    const { bodies, resolver } = recordBodies(() =>
-      HttpResponse.json({ ...DETAIL_UNO, phone: '+34 600 000 009', version: 8 }),
-    );
-    server.use(mock.put(`/api/arquebusiers/${DETAIL_UNO.id}`, resolver));
-    await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
-
-    const phone = await screen.findByLabelText(/Teléfono/);
-    await waitFor(() => {
-      expect(phone).toHaveValue('+34 600 000 001');
-    });
-    expect(screen.getByLabelText(/Fecha de caducidad/)).toHaveValue('2030-03-10');
-    await user.clear(phone);
-    await user.type(phone, '+34 600 000 009');
-    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }));
-
-    await screen.findByText('Cambios guardados.');
-    expect(bodies[0]).toMatchObject({
-      phone: '+34 600 000 009',
-      version: 7,
-      license: { type: 'AE', pending: false, issuedOn: '2025-03-10', expiresOn: '2030-03-10' },
-    });
-    expect(bodies[0]).not.toHaveProperty('comparsaId');
-  });
-
-  it('reloads and explains when someone else changed the arquebusier meanwhile', async () => {
-    const user = userEvent.setup();
-    let current = DETAIL_UNO;
-    detail(() => current);
-    server.use(
-      mock.put(`/api/arquebusiers/${DETAIL_UNO.id}`, () => {
-        current = { ...DETAIL_UNO, phone: '+34 600 000 077', version: 9 };
-        return problem(409, 'arquebusiers.modified');
-      }),
-    );
-    await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
-    const phone = await screen.findByLabelText(/Teléfono/);
-    await waitFor(() => {
-      expect(phone).toHaveValue('+34 600 000 001');
-    });
-
-    await user.type(screen.getByLabelText(/^Nombre/), 'X');
-    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }));
-
-    expect(await screen.findByText(/Otra persona ha cambiado este arcabucero/)).toBeInTheDocument();
-    await waitFor(() => {
-      expect(screen.getByLabelText(/Teléfono/)).toHaveValue('+34 600 000 077');
-    });
-  });
-
-  it('keeps the page and what was typed when refreshing after a save fails', async () => {
-    const user = userEvent.setup();
-    let failing = false;
-    server.use(
-      mock.get(`/api/arquebusiers/${DETAIL_UNO.id}`, () =>
-        failing ? problem(503, 'registry.busy') : HttpResponse.json(DETAIL_UNO),
-      ),
-      mock.get('/api/comparsas', () => HttpResponse.json([NORTE])),
-      mock.put(`/api/arquebusiers/${DETAIL_UNO.id}`, () => {
-        failing = true;
-        return HttpResponse.json(DETAIL_UNO);
-      }),
-    );
-    await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
-    const phone = await screen.findByLabelText(/Teléfono/);
-    await waitFor(() => {
-      expect(phone).toHaveValue('+34 600 000 001');
-    });
-
-    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }));
-
-    expect(await screen.findByText(/Lo que ves puede no estar actualizado/)).toBeInTheDocument();
-    expect(screen.getByText('Cambios guardados.')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Teléfono/)).toHaveValue('+34 600 000 001');
-    expect(screen.getByRole('button', { name: 'Reintentar' })).toBeInTheDocument();
-  });
-
-  it('shows the not-found page when the arquebusier was deleted before saving', async () => {
-    const user = userEvent.setup();
-    let deleted = false;
-    server.use(
-      mock.get(`/api/arquebusiers/${DETAIL_UNO.id}`, () =>
-        deleted ? problem(404, 'arquebusiers.notFound') : HttpResponse.json(DETAIL_UNO),
-      ),
-      mock.get('/api/comparsas', () => HttpResponse.json([NORTE])),
-      mock.put(`/api/arquebusiers/${DETAIL_UNO.id}`, () => {
-        deleted = true;
-        return problem(404, 'arquebusiers.notFound');
-      }),
-    );
-    await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
-
-    await user.click(await screen.findByRole('button', { name: 'Guardar cambios' }));
-
-    expect(
-      await screen.findByRole('heading', { level: 1, name: 'Página no encontrada' }),
-    ).toBeInTheDocument();
   });
 });

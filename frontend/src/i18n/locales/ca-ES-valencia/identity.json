@@ -15,7 +15,8 @@
     "rememberDevice": "Recordar este dispositiu durant 30 dies",
     "rememberDeviceHelp": "No ho marques en ordinadors compartits.",
     "submit": "Verifica",
-    "useRecoveryCode": "No tinc el mòbil: usa un codi de recuperació"
+    "useRecoveryCode": "No tinc el mòbil: usa un codi de recuperació",
+    "lostEverything": "Has perdut el mòbil i els codis de recuperació? Demana a un administrador que restablisca la teua verificació en dos passos."
   },
   "recovery": {
     "title": "Codi de recuperació",
@@ -148,11 +149,24 @@
     "resetTwoFactor": "Restablix la verificació en dos passos",
     "resetTwoFactorTitle": "Vols restablir la verificació en dos passos de {{name}}?",
     "resetTwoFactorDescription": "S'esborraran la seua aplicació d'autenticació i els seus codis de recuperació, es tancaran les seues sessions i haurà de configurar-la de nou en entrar.",
-    "twoFactorReset": "Verificació en dos passos restablida."
+    "twoFactorReset": "Verificació en dos passos restablida.",
+    "resultCount_one": "{{count}} usuari",
+    "resultCount_other": "{{count}} usuaris",
+    "sections": {
+      "account": "Dades del compte",
+      "edit": "Edita les dades del compte",
+      "editName": "dades del compte"
+    },
+    "cancel": "Cancel·la",
+    "twoFactorState": "Verificació en dos passos: {{state}}"
   },
   "roles": {
     "ADMIN": "Administrador",
-    "FIRING_CHIEF": "Cap de disparada"
+    "FIRING_CHIEF": "Cap de disparada",
+    "hints": {
+      "FIRING_CHIEF": "Gestiona els arcabussers de les comparses que tinga assignades.",
+      "ADMIN": "Gestiona tot: el catàleg, els usuaris i totes les comparses."
+    }
   },
   "errors": {
     "auth": {
@@ -186,5 +200,17 @@
     "PasswordTooLong": "Ha de tindre com a màxim 128 caràcters.",
     "PasswordIsEmail": "No pot ser el teu correu electrònic.",
     "PasswordTooCommon": "És una contrasenya massa comuna. Prova amb una frase."
+  },
+  "comparsas": {
+    "actions": {
+      "deleteDescriptionUnknown": "No es pot desfer. Els seus caps de disparada, si en té, perdran l'accés."
+    }
+  },
+  "weaponModels": {
+    "form": {
+      "attributesShown": "Bàndol, mà i grandària, a continuació."
+    },
+    "rentable": "Es lloga",
+    "notRentable": "No es lloga"
   }
 }

@@ -1,19 +1,21 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { z } from 'zod';
 import { getListUsersQueryKey, useInviteUser } from '@/api/generated/users/users';
 import type { UserResponse } from '@/api/generated/model';
-import { AlertBanner } from '@/components/app/AlertBanner';
+import { ApiProblemError, responseData } from '@/api/http';
+import { ActionBar } from '@/components/app/ActionBar';
 import { Button } from '@/components/app/Button';
 import { Form, FormField } from '@/components/app/FormField';
+import { FormLayout } from '@/components/app/FormLayout';
 import { PageHeader } from '@/components/app/PageHeader';
 import { TextInput } from '@/components/app/TextInput';
+import { useAppForm } from '@/components/app/use-app-form';
 import { DEFAULT_LANGUAGE, matchLanguage } from '@/i18n/config';
+import { noticeState } from '@/lib/notices';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
-import { ApiProblemError, responseData } from '@/api/http';
 import { emailField, problemCode, problemMessage } from '../../problems';
 import { UserFields } from './UserFields';
 import { userFieldsSchema } from './userFieldsSchema';
@@ -27,14 +29,14 @@ function createdUserId(error: unknown): string | undefined {
 }
 type Values = z.infer<typeof schema>;
 
-/** Spec "Invitation-only accounts": an Admin invites a user by email. */
+/** Spec "Invitation-only accounts": an Admin invites a user by email (form template). */
 export function InviteUserPage() {
   const { t, i18n } = useTranslation('identity');
   useDocumentTitle(t('users.inviteTitle'));
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const invite = useInviteUser();
-  const form = useForm<Values>({
+  const form = useAppForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: {
       email: '',
@@ -53,15 +55,30 @@ export function InviteUserPage() {
       const userId = createdUserId(error);
       if (userId) {
         // The user was created: continue on their page, where the invitation can be resent.
-        await navigate(`/users/${userId}`, { state: { error: t('errors.email.sendFailed') } });
+        await navigate(`/users/${userId}`, { state: noticeState(t('errors.email.sendFailed'), 'error') });
+        return;
       }
+      // A taken email is shown on its field; anything else in the error summary.
+      const field = problemCode(error) === 'users.emailTaken' ? 'email' : 'root.server';
+      form.setError(field, { type: 'server', message: problemMessage(t, error) });
       return;
     }
     await queryClient.invalidateQueries({ queryKey: getListUsersQueryKey() });
     await navigate(`/users/${created.id}`, {
-      state: { notice: t('users.invited', { email: values.email }) },
+      state: noticeState(t('users.invited', { email: values.email })),
     });
   };
+
+  const fields = (
+    <>
+      <FormField control={form.control} name="email" label={t('users.fields.email')} width="long">
+        {(field) => (
+          <TextInput type="email" autoComplete="off" inputMode="email" spellCheck={false} {...field} />
+        )}
+      </FormField>
+      <UserFields control={form.control} />
+    </>
+  );
 
   return (
     <>
@@ -70,17 +87,24 @@ export function InviteUserPage() {
         description={t('users.inviteDescription')}
         back={{ to: '/users', label: t('users.detailBack') }}
       />
-      <Form form={form} onSubmit={onSubmit} className="max-w-xl">
-        <FormField control={form.control} name="email" label={t('users.fields.email')} required>
-          {(field) => <TextInput type="email" autoComplete="off" inputMode="email" {...field} />}
-        </FormField>
-        <UserFields control={form.control} />
-        {invite.isError && !createdUserId(invite.error) && (
-          <AlertBanner severity="error">{problemMessage(t, invite.error)}</AlertBanner>
-        )}
-        <Button type="submit" pending={invite.isPending}>
-          {t('users.sendInvitation')}
-        </Button>
+      <Form form={form} onSubmit={onSubmit}>
+        <FormLayout
+          sections={[{ id: 'account', title: t('users.sections.account'), content: fields }]}
+          actions={
+            <ActionBar
+              secondary={
+                <Button asChild variant="secondary">
+                  <Link to="/users">{t('users.cancel')}</Link>
+                </Button>
+              }
+              primary={
+                <Button type="submit" pending={invite.isPending || form.formState.isSubmitting}>
+                  {t('users.sendInvitation')}
+                </Button>
+              }
+            />
+          }
+        />
       </Form>
     </>
   );

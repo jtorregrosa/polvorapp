@@ -117,7 +117,7 @@ export function LicensePhotos({ arquebusier, onChanged }: PhotoProps) {
     },
   ] as const;
   return (
-    <div className="grid gap-6 sm:grid-cols-2">
+    <div className="grid gap-group *:min-w-0 sm:grid-cols-2">
       {sides.map(({ slug, titleId, title, label, removeTitle, photo }) => (
         <div key={slug} role="group" aria-labelledby={titleId} className="flex flex-col gap-2">
           <p id={titleId} className="text-sm font-medium">

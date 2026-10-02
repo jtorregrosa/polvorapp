@@ -46,13 +46,9 @@ describe('applyFieldErrors', () => {
 
     expect(placed).toBe(true);
     expect(setError.mock.calls).toEqual([
-      ['nationalId', { type: 'server', message: 'registry:validation.checkLetter' }, { shouldFocus: true }],
-      ['issuedOn', { type: 'server', message: 'registry:validation.future' }, { shouldFocus: false }],
-      [
-        'weaponModelId',
-        { type: 'server', message: 'registry:validation.modelNotFound' },
-        { shouldFocus: false },
-      ],
+      ['nationalId', { type: 'server', message: 'registry:validation.checkLetter' }],
+      ['issuedOn', { type: 'server', message: 'registry:validation.future' }],
+      ['weaponModelId', { type: 'server', message: 'registry:validation.modelNotFound' }],
     ]);
   });
 
@@ -101,11 +97,10 @@ describe('applyFieldErrors', () => {
       conflicts: { 'arquebusiers.federationIdTaken': 'federationId' },
     });
 
-    expect(setError).toHaveBeenCalledWith(
-      'federationId',
-      { type: 'server', message: 'registry:errors.arquebusiers.federationIdTakenAdmin' },
-      { shouldFocus: true },
-    );
+    expect(setError).toHaveBeenCalledWith('federationId', {
+      type: 'server',
+      message: 'registry:errors.arquebusiers.federationIdTakenAdmin',
+    });
   });
 
   it('places nothing for a problem that is not about fields', () => {

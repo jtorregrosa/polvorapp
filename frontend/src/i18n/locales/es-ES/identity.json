@@ -15,7 +15,8 @@
     "rememberDevice": "Recordar este dispositivo durante 30 días",
     "rememberDeviceHelp": "No lo marques en ordenadores compartidos.",
     "submit": "Verificar",
-    "useRecoveryCode": "No tengo el móvil: usar un código de recuperación"
+    "useRecoveryCode": "No tengo el móvil: usar un código de recuperación",
+    "lostEverything": "¿Has perdido el móvil y los códigos de recuperación? Pide a un administrador que restablezca tu verificación en dos pasos."
   },
   "recovery": {
     "title": "Código de recuperación",
@@ -148,11 +149,24 @@
     "resetTwoFactor": "Restablecer la verificación en dos pasos",
     "resetTwoFactorTitle": "¿Restablecer la verificación en dos pasos de {{name}}?",
     "resetTwoFactorDescription": "Se borrarán su aplicación de autenticación y sus códigos de recuperación, se cerrarán sus sesiones y tendrá que configurarla de nuevo al entrar.",
-    "twoFactorReset": "Verificación en dos pasos restablecida."
+    "twoFactorReset": "Verificación en dos pasos restablecida.",
+    "resultCount_one": "{{count}} usuario",
+    "resultCount_other": "{{count}} usuarios",
+    "sections": {
+      "account": "Datos de la cuenta",
+      "edit": "Editar datos de la cuenta",
+      "editName": "datos de la cuenta"
+    },
+    "cancel": "Cancelar",
+    "twoFactorState": "Verificación en dos pasos: {{state}}"
   },
   "roles": {
     "ADMIN": "Administrador",
-    "FIRING_CHIEF": "Jefe de disparo"
+    "FIRING_CHIEF": "Jefe de disparo",
+    "hints": {
+      "FIRING_CHIEF": "Gestiona los arcabuceros de las comparsas que tenga asignadas.",
+      "ADMIN": "Gestiona todo: el catálogo, los usuarios y todas las comparsas."
+    }
   },
   "errors": {
     "auth": {
@@ -186,5 +200,17 @@
     "PasswordTooLong": "Debe tener como mucho 128 caracteres.",
     "PasswordIsEmail": "No puede ser tu correo electrónico.",
     "PasswordTooCommon": "Es una contraseña demasiado común. Prueba con una frase."
+  },
+  "comparsas": {
+    "actions": {
+      "deleteDescriptionUnknown": "No se puede deshacer. Sus jefes de disparo, si los tiene, perderán el acceso a ella."
+    }
+  },
+  "weaponModels": {
+    "form": {
+      "attributesShown": "Bando, mano y tamaño, a continuación."
+    },
+    "rentable": "Se alquila",
+    "notRentable": "No se alquila"
   }
 }

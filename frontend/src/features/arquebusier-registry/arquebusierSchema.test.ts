@@ -8,6 +8,8 @@ import {
   arquebusierSchema,
   EMPTY_ARQUEBUSIER,
   registerSchema,
+  SECTION_FIELDS,
+  SECTION_SCHEMAS,
   type ArquebusierValues,
 } from './arquebusierSchema';
 import { ownedWeaponSchema } from './ownedWeaponSchema';
@@ -136,5 +138,53 @@ describe('REGISTRY_PROBLEM_CODES', () => {
 
     expect(apiCodes.length).toBeGreaterThan(0);
     expect([...REGISTRY_PROBLEM_CODES].sort()).toEqual(apiCodes.sort());
+  });
+});
+
+describe('sections of the record (design D9)', () => {
+  const ALL = Object.keys(EMPTY_ARQUEBUSIER).sort();
+
+  it('puts every field in exactly one section', () => {
+    const fields: string[] = Object.values(SECTION_FIELDS).flat();
+
+    expect([...fields].sort()).toEqual(ALL);
+    expect(new Set(fields).size).toBe(fields.length);
+  });
+
+  it.each(['personal', 'license', 'course'] as const)(
+    'checks only the fields of the %s section, so other stored values never block saving it',
+    (section) => {
+      // Every rule broken at once: each section reports only its own fields.
+      const broken = {
+        ...EMPTY_ARQUEBUSIER,
+        status: 'UNKNOWN',
+        licenseType: 'AE',
+        issuedOn: '2999-01-01',
+        trainingCompletedOn: 'incomplete',
+        email: 'no-at-sign',
+      };
+      const result = SECTION_SCHEMAS[section].safeParse(broken);
+
+      expect(result.success).toBe(false);
+      const paths = new Set(result.error?.issues.map((issue) => String(issue.path[0])));
+      const own: readonly string[] = SECTION_FIELDS[section];
+      expect([...paths].filter((path) => !own.includes(path))).toEqual([]);
+    },
+  );
+
+  it('keeps every rule in the whole schema', () => {
+    const result = arquebusierSchema.safeParse({ ...EMPTY_ARQUEBUSIER, status: 'UNKNOWN' });
+
+    expect(result.error?.issues.map((issue) => String(issue.path[0]))).toEqual(
+      expect.arrayContaining([
+        'federationId',
+        'nationalId',
+        'firstName',
+        'lastName',
+        'birthDate',
+        'gender',
+        'status',
+      ]),
+    );
   });
 });

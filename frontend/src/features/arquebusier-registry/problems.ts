@@ -155,7 +155,7 @@ export function applyFieldErrors<TValues extends FieldValues>(
       BY_ROLE.has(code as RegistryProblemCode) && isAdmin
         ? `registry:errors.${code}Admin`
         : `registry:errors.${code}`;
-    setError(conflictField, { type: 'server', message: key }, { shouldFocus: true });
+    setError(conflictField, { type: 'server', message: key });
     return true;
   }
 
@@ -172,11 +172,8 @@ export function applyFieldErrors<TValues extends FieldValues>(
     if (!field) {
       missed = true;
     } else {
-      setError(
-        field,
-        { type: 'server', message: reasonMessage(apiField, reason) },
-        { shouldFocus: !applied },
-      );
+      // The form's error summary receives focus and links to each field (design D8).
+      setError(field, { type: 'server', message: reasonMessage(apiField, reason) });
       applied = true;
     }
   }

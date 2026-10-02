@@ -41,8 +41,13 @@
   "form": {
     "required": "Required",
     "optional": "Optional",
-    "requiredNote": "Fields marked with * are required.",
-    "clearDate": "Clear date"
+    "requiredNote": "All fields are required unless marked as optional.",
+    "clearDate": "Clear date",
+    "optionalSuffix": "(optional)",
+    "errorSummaryTitle": "There is a problem",
+    "index": "On this form",
+    "help": "Help",
+    "unexpectedError": "It could not be saved. Please try again."
   },
   "confirm": {
     "cancel": "Cancel",
@@ -121,7 +126,7 @@
     "empty": "No {{label}}",
     "loadFailed": "The photo could not be loaded",
     "cropTitle": "Crop {{label}}",
-    "cropHelp": "Press Tab to reach the selection and its corners; the arrow keys move it or change its size (Shift: faster). You can also drag it. The result is shown beside it.",
+    "cropHelp": "Move or resize the selection with the buttons, the arrow keys (Tab reaches the selection and its corners; Shift: faster) or by dragging it. The result is shown on the right.",
     "cropImage": "Chosen photo",
     "cropArea": "Crop selection: use the arrow keys to move it",
     "handles": {
@@ -148,6 +153,25 @@
       "generic": "The photo could not be saved. Try again."
     },
     "preview": "Preview of the cropped photo",
-    "previewCaption": "Result"
+    "previewCaption": "Result",
+    "cropTools": {
+      "label": "Adjust the crop",
+      "up": "Move the crop up",
+      "down": "Move the crop down",
+      "left": "Move the crop left",
+      "right": "Move the crop right",
+      "smaller": "Make the crop smaller",
+      "larger": "Make the crop larger"
+    }
+  },
+  "filters": {
+    "clear": "Clear filters"
+  },
+  "detail": {
+    "moreActions": "More actions",
+    "notGiven": "Not given",
+    "edit": "Edit",
+    "saved": "Changes saved",
+    "saveChanges": "Save changes"
   }
 }

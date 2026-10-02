@@ -1,9 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQueryClient } from '@tanstack/react-query';
-import { useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import { useMemo, type ReactNode, type Ref } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import {
   getGetComparsaQueryKey,
   getListComparsasQueryKey,
@@ -19,20 +17,23 @@ import {
 } from '@/api/generated/firing-chief-assignments/firing-chief-assignments';
 import type { ComparsaResponse, FiringChiefResponse } from '@/api/generated/model';
 import { ApiProblemError } from '@/api/http';
-import { AlertBanner } from '@/components/app/AlertBanner';
-import { Button } from '@/components/app/Button';
-import { ConfirmDialog } from '@/components/app/ConfirmDialog';
-import { ConfirmFailure } from '@/components/app/confirm-failure';
-import { Form } from '@/components/app/FormField';
-import { FormSection } from '@/components/app/FormSection';
+import { AlertBanner, NoticeBanner } from '@/components/app/AlertBanner';
+import { DescriptionList } from '@/components/app/DescriptionList';
+import { EditSheet, type EditResult } from '@/components/app/EditSheet';
 import { PageHeader } from '@/components/app/PageHeader';
+import { RecordHeader, type MoreAction } from '@/components/app/RecordHeader';
+import { SectionCard } from '@/components/app/SectionCard';
+import { SectionGrid } from '@/components/app/SectionGrid';
 import { StatusBadge } from '@/components/app/StatusBadge';
+import { useAppForm } from '@/components/app/use-app-form';
 import { useSession } from '@/features/identity-access/session';
 import { NotFoundPage } from '@/features/platform/pages/NotFoundPage';
+import { useNotice, type Announce } from '@/lib/notices';
+import { useInvalidate } from '@/lib/use-invalidate';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { FiringChiefsSection } from '../components/FiringChiefsSection';
-import { noticeState, useNotice, type Announce } from '@/lib/notices';
-import { applyFieldErrors, problemMessage } from '../problems';
+import { useLifecycleActions } from '../components/useLifecycleActions';
+import { applyFieldErrors, problemCode, problemMessage } from '../problems';
 import { ComparsaFields } from './ComparsaFields';
 import {
   COMPARSA_CONFLICTS,
@@ -42,18 +43,15 @@ import {
   type ComparsaValues,
 } from './comparsaSchema';
 
+const NO_CHIEFS: FiringChiefResponse[] = [];
+
 /** Refreshes what a change to the comparsa affects: its page and the lists. */
 function useRefreshAfterChange(id: string): () => Promise<void> {
-  const queryClient = useQueryClient();
-  return async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: getGetComparsaQueryKey(id) }),
-      queryClient.invalidateQueries({ queryKey: getListComparsasQueryKey() }),
-    ]);
-  };
+  return useInvalidate([getGetComparsaQueryKey(id), getListComparsasQueryKey()]);
 }
 
-function EditForm({ comparsa, announce }: { comparsa: ComparsaResponse; announce: Announce }) {
+/** Name and side, read-only, with their edit panel for an Admin (spec: Detail pages in read mode). */
+function DataSection({ comparsa, isAdmin }: { comparsa: ComparsaResponse; isAdmin: boolean }) {
   const { t } = useTranslation('catalog');
   const update = useUpdateComparsa();
   const refresh = useRefreshAfterChange(comparsa.id);
@@ -61,155 +59,174 @@ function EditForm({ comparsa, announce }: { comparsa: ComparsaResponse; announce
     () => ({ name: comparsa.name, side: comparsa.side }),
     [comparsa.name, comparsa.side],
   );
-  // Follows the server's values, but a refresh never discards what the Admin is typing.
-  const form = useForm<ComparsaValues, unknown, ComparsaInput>({
+  const form = useAppForm<ComparsaValues, unknown, ComparsaInput>({
     resolver: zodResolver(comparsaSchema),
-    values,
-    resetOptions: { keepDirtyValues: true },
+    defaultValues: values,
   });
 
-  const onSubmit = async (submitted: ComparsaInput): Promise<void> => {
+  // The comparsa API has no version: the last save wins (design D9).
+  const save = async (submitted: ComparsaInput): Promise<EditResult> => {
     try {
       await update.mutateAsync({ id: comparsa.id, data: submitted });
     } catch (error) {
-      if (!applyFieldErrors(error, COMPARSA_FIELDS, form.setError, COMPARSA_CONFLICTS)) {
-        announce('error', problemMessage(t, error));
+      if (problemCode(error) === 'comparsas.notFound') {
+        await refresh();
+        return { status: 'rejected', reason: problemMessage(t, error) };
       }
-      return;
+      return applyFieldErrors(error, COMPARSA_FIELDS, form.setError, COMPARSA_CONFLICTS)
+        ? { status: 'kept' }
+        : { status: 'rejected', reason: problemMessage(t, error) };
     }
-    form.reset(submitted);
-    announce('success', t('comparsas.form.saved'));
     await refresh();
+    return { status: 'saved' };
   };
 
   return (
-    <Form form={form} onSubmit={onSubmit} className="max-w-xl">
-      <ComparsaFields control={form.control} />
-      <Button type="submit" pending={update.isPending}>
-        {t('comparsas.form.save')}
-      </Button>
-    </Form>
+    <SectionCard
+      title={t('comparsas.form.section')}
+      action={
+        isAdmin && (
+          <EditSheet
+            title={t('comparsas.detail.data.edit')}
+            sectionName={t('comparsas.detail.data.name')}
+            form={form}
+            values={values}
+            onSave={save}
+          >
+            <ComparsaFields control={form.control} />
+          </EditSheet>
+        )
+      }
+    >
+      <DescriptionList
+        items={[
+          { term: t('comparsas.form.name'), value: comparsa.name },
+          { term: t('comparsas.form.side'), value: t(`side.${comparsa.side}`) },
+        ]}
+      />
+    </SectionCard>
   );
 }
 
-function Actions({
+/** The FiringChiefs of the comparsa (Admins only: never mounted for a FiringChief, design D8). */
+function FiringChiefs({ comparsa, chiefs }: { comparsa: ComparsaResponse; chiefs: ChiefsQuery }) {
+  return (
+    <FiringChiefsSection
+      comparsa={comparsa}
+      chiefs={chiefs.rows ?? NO_CHIEFS}
+      isLoading={chiefs.isPending}
+      error={chiefs.error}
+    />
+  );
+}
+
+interface ChiefsQuery {
+  rows: FiringChiefResponse[] | undefined;
+  isPending: boolean;
+  error: unknown;
+}
+
+/** Deactivate, reactivate and delete, from "More actions" (spec: Action hierarchy). */
+function useComparsaActions(comparsa: ComparsaResponse, chiefs: number | undefined, announce: Announce) {
+  const { t } = useTranslation('catalog');
+  const { mutateAsync: deactivate } = useDeactivateComparsa();
+  const { mutateAsync: reactivate } = useReactivateComparsa();
+  const { mutateAsync: remove } = useDeleteComparsa();
+  const id = comparsa.id;
+  return useLifecycleActions({
+    active: comparsa.active,
+    texts: {
+      deactivate: t('comparsas.actions.deactivate'),
+      deactivateTitle: t('comparsas.actions.deactivateTitle', { name: comparsa.name }),
+      deactivateDescription: t('comparsas.actions.deactivateDescription'),
+      deactivated: t('comparsas.actions.deactivated'),
+      reactivate: t('comparsas.actions.reactivate'),
+      reactivated: t('comparsas.actions.reactivated'),
+      delete: t('comparsas.actions.delete'),
+      deleteTitle: t('comparsas.actions.deleteTitle', { name: comparsa.name }),
+      // Not yet known (loading or failed): never claim that nobody loses access (WCAG 3.3.4).
+      deleteDescription:
+        chiefs === undefined
+          ? t('comparsas.actions.deleteDescriptionUnknown')
+          : chiefs === 0
+            ? t('comparsas.actions.deleteDescriptionNone')
+            : t('comparsas.actions.deleteDescription', { count: chiefs }),
+      deleted: t('comparsas.actions.deleted'),
+    },
+    deactivate: () => deactivate({ id }),
+    reactivate: () => reactivate({ id }),
+    remove: () => remove({ id }),
+    refresh: useRefreshAfterChange(id),
+    announce,
+    explain: (error) => problemMessage(t, error),
+    listPath: '/comparsas',
+    listKey: getListComparsasQueryKey(),
+    recordKeys: [getGetComparsaQueryKey(id), getListFiringChiefsQueryKey(id)],
+  });
+}
+
+function AdminDetail({
   comparsa,
-  firingChiefs,
   announce,
+  notice,
 }: {
   comparsa: ComparsaResponse;
-  /** How many lose access, for the delete confirmation; undefined when unknown (not counted then). */
-  firingChiefs: number | undefined;
   announce: Announce;
+  notice: ReactNode;
 }) {
-  const { t } = useTranslation('catalog');
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const deactivate = useDeactivateComparsa();
-  const reactivate = useReactivateComparsa();
-  const remove = useDeleteComparsa();
-  const refresh = useRefreshAfterChange(comparsa.id);
-
-  const reactivateNow = async (): Promise<void> => {
-    try {
-      await reactivate.mutateAsync({ id: comparsa.id });
-    } catch (error) {
-      announce('error', problemMessage(t, error));
-      return;
-    }
-    announce('success', t('comparsas.actions.reactivated'));
-    await refresh();
+  const firingChiefs = useListFiringChiefs(comparsa.id);
+  const chiefs: ChiefsQuery = {
+    rows: firingChiefs.data?.data as FiringChiefResponse[] | undefined,
+    isPending: firingChiefs.isPending,
+    error: firingChiefs.error ?? undefined,
   };
-
-  /** A confirmed action: a failure stays in the dialog with its reason; the outcome follows once it closes. */
-  const confirmed = async (action: () => Promise<unknown>): Promise<void> => {
-    try {
-      await action();
-    } catch (error) {
-      throw new ConfirmFailure(problemMessage(t, error));
-    }
-  };
-
-  const afterDeactivate = (): void => {
-    announce('success', t('comparsas.actions.deactivated'));
-    void refresh();
-  };
-
-  const afterDelete = (): void => {
-    // Leave the page first, then drop the comparsa's queries: nothing refetches them into a 404.
-    void Promise.resolve(navigate('/comparsas', { state: noticeState(t('comparsas.actions.deleted')) })).then(
-      () => {
-        queryClient.removeQueries({ queryKey: getGetComparsaQueryKey(comparsa.id) });
-        queryClient.removeQueries({ queryKey: getListFiringChiefsQueryKey(comparsa.id) });
-      },
-    );
-    void queryClient.invalidateQueries({ queryKey: getListComparsasQueryKey() });
-  };
-
-  const deleteDescription =
-    firingChiefs === undefined || firingChiefs === 0
-      ? t('comparsas.actions.deleteDescriptionNone')
-      : t('comparsas.actions.deleteDescription', { count: firingChiefs });
-
+  const actions = useComparsaActions(comparsa, chiefs.rows?.length, announce);
   return (
-    <FormSection title={t('comparsas.actions.title')}>
-      <div className="flex flex-wrap gap-3">
-        {comparsa.active ? (
-          <ConfirmDialog
-            title={t('comparsas.actions.deactivateTitle', { name: comparsa.name })}
-            description={t('comparsas.actions.deactivateDescription')}
-            confirmLabel={t('comparsas.actions.deactivate')}
-            onConfirm={() => confirmed(() => deactivate.mutateAsync({ id: comparsa.id }))}
-            onConfirmed={afterDeactivate}
-            trigger={
-              <Button type="button" variant="secondary">
-                {t('comparsas.actions.deactivate')}
-              </Button>
-            }
-          />
-        ) : (
-          <Button
-            type="button"
-            variant="secondary"
-            pending={reactivate.isPending}
-            onClick={() => void reactivateNow()}
-          >
-            {t('comparsas.actions.reactivate')}
-          </Button>
-        )}
-        <ConfirmDialog
-          title={t('comparsas.actions.deleteTitle', { name: comparsa.name })}
-          description={deleteDescription}
-          confirmLabel={t('comparsas.actions.delete')}
-          onConfirm={() => confirmed(() => remove.mutateAsync({ id: comparsa.id }))}
-          onConfirmed={afterDelete}
-          trigger={
-            <Button type="button" variant="destructive">
-              {t('comparsas.actions.delete')}
-            </Button>
-          }
-        />
-      </div>
-    </FormSection>
+    <DetailLayout
+      comparsa={comparsa}
+      notice={notice}
+      moreActions={actions.items}
+      moreActionsRef={actions.moreActions}
+    >
+      <DataSection comparsa={comparsa} isAdmin />
+      <FiringChiefs comparsa={comparsa} chiefs={chiefs} />
+      {actions.dialogs}
+    </DetailLayout>
   );
 }
 
-/** Everything only an Admin may see or do; never mounted for a FiringChief (no Admin-only calls). */
-function AdminPanel({ comparsa, announce }: { comparsa: ComparsaResponse; announce: Announce }) {
-  const firingChiefs = useListFiringChiefs(comparsa.id);
-  const chiefs = firingChiefs.data?.data as FiringChiefResponse[] | undefined;
+function DetailLayout({
+  comparsa,
+  notice,
+  moreActions,
+  moreActionsRef,
+  children,
+}: {
+  comparsa: ComparsaResponse;
+  /** The outcome of an action, under the header. */
+  notice: ReactNode;
+  moreActions?: MoreAction[];
+  moreActionsRef?: Ref<HTMLButtonElement>;
+  children: ReactNode;
+}) {
+  const { t } = useTranslation('catalog');
   return (
     <>
-      <EditForm comparsa={comparsa} announce={announce} />
-      <div className="max-w-3xl min-w-0">
-        <FiringChiefsSection
-          comparsa={comparsa}
-          chiefs={chiefs ?? []}
-          isLoading={firingChiefs.isPending}
-          error={firingChiefs.error ?? undefined}
-        />
-      </div>
-      <Actions comparsa={comparsa} firingChiefs={chiefs?.length} announce={announce} />
+      <RecordHeader
+        back={{ to: '/comparsas', label: t('comparsas.detail.back') }}
+        context={t(`side.${comparsa.side}`)}
+        name={comparsa.name}
+        statuses={<StatusBadge kind="catalog" value={comparsa.active ? 'ACTIVE' : 'INACTIVE'} />}
+        moreActions={moreActions}
+        moreActionsRef={moreActionsRef}
+      />
+      {notice}
+      {!comparsa.active && (
+        <AlertBanner severity="info" className="max-w-form" live={false}>
+          {t('comparsas.detail.inactiveNotice')}
+        </AlertBanner>
+      )}
+      <SectionGrid>{children}</SectionGrid>
     </>
   );
 }
@@ -227,7 +244,7 @@ function ComparsaDetail({ id }: { id: string }) {
     // Unknown and out of scope look the same (BR-12).
     return <NotFoundPage />;
   }
-  if (comparsa.isError) {
+  if (comparsa.isError && !details) {
     return (
       <>
         <PageHeader title={t('comparsas.title')} back={back} />
@@ -239,32 +256,17 @@ function ComparsaDetail({ id }: { id: string }) {
     return <PageHeader title={t('comparsas.title')} back={back} />;
   }
 
-  return (
-    <>
-      <PageHeader
-        title={details.name}
-        description={t(`side.${details.side}`)}
-        back={back}
-        actions={<StatusBadge kind="catalog" value={details.active ? 'ACTIVE' : 'INACTIVE'} />}
-      />
-      <div className="grid gap-10">
-        {notice && (
-          <AlertBanner key={notice.id} severity={notice.severity} className="max-w-xl" focusOnMount>
-            {notice.text}
-          </AlertBanner>
-        )}
-        {!details.active && (
-          <AlertBanner severity="info" className="max-w-xl">
-            {t('comparsas.detail.inactiveNotice')}
-          </AlertBanner>
-        )}
-        {session.account?.role === 'ADMIN' && <AdminPanel comparsa={details} announce={announce} />}
-      </div>
-    </>
+  const banner = <NoticeBanner notice={notice} />;
+  return session.account?.role === 'ADMIN' ? (
+    <AdminDetail comparsa={details} announce={announce} notice={banner} />
+  ) : (
+    <DetailLayout comparsa={details} notice={banner}>
+      <DataSection comparsa={details} isAdmin={false} />
+    </DetailLayout>
   );
 }
 
-/** Specs "Comparsa management by Admins" and "Comparsa visibility": one comparsa. */
+/** Specs "Comparsa management by Admins" and "Comparsa visibility": one comparsa, in read mode. */
 export function ComparsaDetailPage() {
   const { id = '' } = useParams();
   return <ComparsaDetail key={id} id={id} />;

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useAppForm } from '@/components/app/use-app-form';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { z } from 'zod';
@@ -45,14 +45,10 @@ function CodesLeft({ codesLeft, returnTo }: { codesLeft: number; returnTo: strin
   return (
     <>
       <PageHeader title={t('recovery.title')} focusOnMount />
-      <AlertBanner severity={codesLeft <= FEW_CODES_LEFT ? 'warning' : 'success'} className="mb-6">
+      <AlertBanner severity={codesLeft <= FEW_CODES_LEFT ? 'warning' : 'success'}>
         {t('recovery.left', { count: codesLeft })}
       </AlertBanner>
-      {error !== undefined && (
-        <AlertBanner severity="error" className="mb-6">
-          {problemMessage(t, error)}
-        </AlertBanner>
-      )}
+      {error !== undefined && <AlertBanner severity="error">{problemMessage(t, error)}</AlertBanner>}
       <Button type="button" pending={pending} onClick={() => void onContinue()}>
         {t('signIn.submit')}
       </Button>
@@ -70,7 +66,7 @@ export function RecoveryCodePage() {
   const recovery = useLoginRecoveryCode();
   const [codesLeft, setCodesLeft] = useState<number>();
   const [error, setError] = useState<unknown>();
-  const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { code: '' } });
+  const form = useAppForm<Values>({ resolver: zodResolver(schema), defaultValues: { code: '' } });
 
   const onSubmit = async ({ code }: Values): Promise<void> => {
     setError(undefined);
@@ -96,7 +92,7 @@ export function RecoveryCodePage() {
     <>
       <PageHeader title={t('recovery.title')} description={t('recovery.description')} />
       <Form form={form} onSubmit={onSubmit} requiredNote={false}>
-        <FormField control={form.control} name="code" label={t('recovery.code')} required>
+        <FormField control={form.control} name="code" label={t('recovery.code')}>
           {(field) => (
             <TextInput
               autoComplete="one-time-code"
@@ -111,14 +107,15 @@ export function RecoveryCodePage() {
           {t('recovery.submit')}
         </Button>
       </Form>
-      <p className="mt-6 text-sm">
+      <p className="text-body">
         <Link
           to={`/login/second-factor?returnTo=${encodeURIComponent(returnTo)}`}
-          className="font-medium text-primary underline-offset-4 hover:underline"
+          className="font-medium text-primary underline underline-offset-4 hover:no-underline"
         >
           {t('recovery.useAuthenticator')}
         </Link>
       </p>
+      <p className="text-help text-muted-foreground">{t('secondFactor.lostEverything')}</p>
     </>
   );
 }

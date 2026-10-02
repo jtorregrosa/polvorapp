@@ -1,5 +1,5 @@
 import { screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { http as mock, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import type { WeaponModelResponse } from '@/api/generated/model';
@@ -109,6 +109,23 @@ describe('WeaponModelsPage (specs: Weapon models, Weapon catalogue access)', () 
   });
 });
 
+async function moreAction(user: UserEvent, name: string): Promise<void> {
+  await user.click(await screen.findByRole('button', { name: 'Más acciones' }));
+  await user.click(await screen.findByRole('menuitem', { name }));
+}
+
+async function editModel(user: UserEvent) {
+  await user.click(await screen.findByRole('button', { name: 'Editar modelo de arma' }));
+  return screen.findByRole('dialog', { name: 'Editar modelo de arma' });
+}
+
+/** A saved change is announced politely, without moving focus (spec: Detail pages in read mode). */
+async function expectSaved(text: string): Promise<void> {
+  await waitFor(() => {
+    expect(screen.getByText(text, { selector: '[role=status]' })).toBeInTheDocument();
+  });
+}
+
 describe('WeaponModelFormPage (spec: Weapon models)', () => {
   it('creates a trabuco with every attribute and continues on its page', async () => {
     const user = userEvent.setup();
@@ -118,10 +135,14 @@ describe('WeaponModelFormPage (spec: Weapon models)', () => {
     const app = await asAdmin('/weapon-models/new');
 
     await user.type(await screen.findByRole('textbox', { name: /Nombre/ }), TRABUCO.label);
-    await user.selectOptions(screen.getByRole('combobox', { name: /Tipo/ }), 'TRABUCO');
-    await user.selectOptions(screen.getByRole('combobox', { name: /Bando/ }), 'CHRISTIAN');
-    await user.selectOptions(screen.getByRole('combobox', { name: /Mano/ }), 'LEFT');
-    await user.selectOptions(screen.getByRole('combobox', { name: /Tamaño/ }), 'SMALL');
+    // The attributes appear under the chosen kind.
+    expect(screen.queryByRole('radiogroup', { name: 'Bando' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('radio', { name: 'Trabuco' }));
+    await user.click(
+      within(screen.getByRole('radiogroup', { name: 'Bando' })).getByRole('radio', { name: 'Cristiano' }),
+    );
+    await user.click(screen.getByRole('radio', { name: 'Zurdo' }));
+    await user.click(screen.getByRole('radio', { name: 'Pequeño' }));
     await user.click(screen.getByRole('checkbox', { name: 'Se puede alquilar' }));
     await user.click(screen.getByRole('button', { name: 'Crear modelo' }));
 
@@ -139,23 +160,23 @@ describe('WeaponModelFormPage (spec: Weapon models)', () => {
     expect(app.location()).toBe(`/weapon-models/${TRABUCO.id}`);
   });
 
-  it('creates a pistol: never rentable, attributes optional', async () => {
+  it('creates a pistol: never rentable, attributes optional and "not set" by default', async () => {
     const user = userEvent.setup();
     modelDetails(PISTOLA);
     const { bodies, resolver } = recordBodies(() => HttpResponse.json(PISTOLA, { status: 201 }));
     server.use(mock.post('/api/weapon-models', resolver));
     await asAdmin('/weapon-models/new');
 
-    await user.selectOptions(await screen.findByRole('combobox', { name: /Tipo/ }), 'TRABUCO');
+    await user.click(await screen.findByRole('radio', { name: 'Trabuco' }));
     await user.click(screen.getByRole('checkbox', { name: 'Se puede alquilar' }));
-    await user.selectOptions(screen.getByRole('combobox', { name: /Tipo/ }), 'PISTOL');
-    const rentable = screen.getByRole('checkbox', { name: 'Se puede alquilar' });
-    expect(rentable).toBeDisabled();
-    expect(rentable).not.toBeChecked();
+    await user.click(screen.getByRole('radio', { name: 'Pistola' }));
+
+    expect(screen.queryByRole('checkbox', { name: 'Se puede alquilar' })).not.toBeInTheDocument();
     const hint = 'Las pistolas nunca se alquilan; bando, mano y tamaño son opcionales.';
-    expect(rentable).toHaveAccessibleDescription(hint);
     // Announced too, since choosing a pistol changed other fields.
     expect(screen.getAllByRole('status').some((status) => status.textContent === hint)).toBe(true);
+    const side = screen.getByRole('radiogroup', { name: 'Bando (opcional)' });
+    expect(within(side).getByRole('radio', { name: 'Sin indicar' })).toHaveAttribute('aria-checked', 'true');
     await user.type(screen.getByRole('textbox', { name: /Nombre/ }), 'PISTOLA');
     await user.click(screen.getByRole('button', { name: 'Crear modelo' }));
 
@@ -176,7 +197,7 @@ describe('WeaponModelFormPage (spec: Weapon models)', () => {
     );
     await asAdmin('/weapon-models/new');
 
-    await user.selectOptions(await screen.findByRole('combobox', { name: /Tipo/ }), 'TRABUCO');
+    await user.click(await screen.findByRole('radio', { name: 'Trabuco' }));
     await user.click(screen.getByRole('button', { name: 'Crear modelo' }));
 
     // All at once: the three missing attributes and the missing name.
@@ -197,14 +218,34 @@ describe('WeaponModelFormPage (spec: Weapon models)', () => {
     server.use(mock.post('/api/weapon-models', () => problem(409, code)));
     await asAdmin('/weapon-models/new');
 
-    await user.selectOptions(await screen.findByRole('combobox', { name: /Tipo/ }), 'PISTOL');
+    await user.click(await screen.findByRole('radio', { name: 'Pistola' }));
     await user.type(screen.getByRole('textbox', { name: /Nombre/ }), 'PISTOLA');
     await user.click(screen.getByRole('button', { name: 'Crear modelo' }));
 
-    expect(await screen.findByText(text)).toBeInTheDocument();
+    expect(await screen.findByRole('group', { name: 'Hay un problema' })).toHaveTextContent(text);
   });
 
-  it('edits a model and keeps its state', async () => {
+  it('offers to cancel back to the list', async () => {
+    await asAdmin('/weapon-models/new');
+
+    expect(await screen.findByRole('link', { name: 'Cancelar' })).toHaveAttribute('href', '/weapon-models');
+  });
+});
+
+describe('WeaponModelDetailPage (specs: Weapon models, Detail pages in read mode)', () => {
+  it('shows the model read-only, with "not set" for a pistol attribute', async () => {
+    modelDetails(PISTOLA);
+    await asAdmin(`/weapon-models/${PISTOLA.id}`);
+
+    const heading = await screen.findByRole('heading', { level: 1, name: PISTOLA.label });
+    expect(heading.closest('header')).toHaveTextContent('Pistola');
+    const data = screen.getByRole('region', { name: 'Modelo de arma' });
+    expect(data).toHaveTextContent('Sin indicar');
+    expect(data).toHaveTextContent('No');
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+  });
+
+  it('edits a model in a panel and keeps its state', async () => {
     const user = userEvent.setup();
     const details = modelDetails(TRABUCO);
     const { bodies, resolver } = recordBodies(() => {
@@ -214,17 +255,16 @@ describe('WeaponModelFormPage (spec: Weapon models)', () => {
     server.use(mock.put(`/api/weapon-models/${TRABUCO.id}`, resolver));
     await asAdmin(`/weapon-models/${TRABUCO.id}`);
 
-    const label = await screen.findByRole('textbox', { name: /Nombre/ });
-    await waitFor(() => {
-      expect(label).toHaveValue(TRABUCO.label);
-    });
-    expect(screen.getByRole('checkbox', { name: 'Se puede alquilar' })).toBeChecked();
+    const panel = await editModel(user);
+    const label = within(panel).getByRole('textbox', { name: 'Nombre' });
+    expect(label).toHaveValue(TRABUCO.label);
+    expect(within(panel).getByRole('checkbox', { name: 'Se puede alquilar' })).toBeChecked();
     await user.clear(label);
     await user.type(label, 'TRABUCO CRISTIANO ZURDO');
-    await user.selectOptions(screen.getByRole('combobox', { name: /Tamaño/ }), 'NORMAL');
-    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+    await user.click(within(panel).getByRole('radio', { name: 'Normal' }));
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
 
-    await expectFocusedNotice('Cambios guardados.');
+    await expectSaved('Cambios guardados');
     expect(bodies).toEqual([
       {
         kind: 'TRABUCO',
@@ -235,35 +275,86 @@ describe('WeaponModelFormPage (spec: Weapon models)', () => {
         label: 'TRABUCO CRISTIANO ZURDO',
       },
     ]);
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'TRABUCO CRISTIANO ZURDO' }),
+    ).toBeInTheDocument();
   });
 
-  it('shows a duplicate label on the label field and a duplicate combination on the page when an edit is rejected', async () => {
+  it('shows a duplicate label on the label field and a duplicate combination in the panel summary', async () => {
     const user = userEvent.setup();
     modelDetails(TRABUCO);
     let conflict = 'weaponModels.labelTaken';
     server.use(mock.put(`/api/weapon-models/${TRABUCO.id}`, () => problem(409, conflict)));
     await asAdmin(`/weapon-models/${TRABUCO.id}`);
-    const label = await screen.findByRole('textbox', { name: /Nombre/ });
-    await waitFor(() => {
-      expect(label).toHaveValue(TRABUCO.label);
-    });
 
-    await user.type(label, ' BIS');
-    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+    const panel = await editModel(user);
+    await user.type(within(panel).getByRole('textbox', { name: 'Nombre' }), ' BIS');
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
 
-    expect(await screen.findByText('Ya existe un modelo con ese nombre.')).toHaveAttribute(
-      'data-slot',
-      'form-message',
-    );
+    expect(
+      await within(panel).findByText(/Ya existe un modelo con ese nombre\./, {
+        selector: '[data-slot="form-message"]',
+      }),
+    ).toBeInTheDocument();
+    const summary = within(panel).getByRole('group', { name: 'Hay un problema' });
     await waitFor(() => {
-      expect(label).toHaveFocus();
+      expect(summary).toHaveFocus();
     });
 
     conflict = 'weaponModels.combinationTaken';
-    await user.selectOptions(screen.getByRole('combobox', { name: /Tamaño/ }), 'NORMAL');
-    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+    await user.click(within(panel).getByRole('radio', { name: 'Normal' }));
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
 
-    await expectFocusedNotice('Ya existe un modelo con ese tipo, bando, mano y tamaño.');
+    await waitFor(() => {
+      expect(within(panel).getByRole('group', { name: 'Hay un problema' })).toHaveTextContent(
+        'Ya existe un modelo con ese tipo, bando, mano y tamaño.',
+      );
+    });
+  });
+
+  it('clears a pistol attribute with "not set", sent as null', async () => {
+    const user = userEvent.setup();
+    const sided = { ...PISTOLA, side: 'MOORISH' as const };
+    modelDetails(sided);
+    const { bodies, resolver } = recordBodies(() => HttpResponse.json(PISTOLA));
+    server.use(mock.put(`/api/weapon-models/${PISTOLA.id}`, resolver));
+    await asAdmin(`/weapon-models/${PISTOLA.id}`);
+
+    const panel = await editModel(user);
+    const side = within(panel).getByRole('radiogroup', { name: 'Bando (opcional)' });
+    expect(within(side).getByRole('radio', { name: 'Moro' })).toHaveAttribute('aria-checked', 'true');
+    await user.click(within(side).getByRole('radio', { name: 'Sin indicar' }));
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
+
+    await expectSaved('Cambios guardados');
+    expect(bodies).toEqual([
+      { kind: 'PISTOL', side: null, handedness: null, size: null, rentable: false, label: 'PISTOLA' },
+    ]);
+  });
+
+  it('asks for the attributes again when a pistol becomes a trabuco, which may be rented', async () => {
+    const user = userEvent.setup();
+    modelDetails(PISTOLA);
+    let called = false;
+    server.use(
+      mock.put(`/api/weapon-models/${PISTOLA.id}`, () => {
+        called = true;
+        return HttpResponse.json(PISTOLA);
+      }),
+    );
+    await asAdmin(`/weapon-models/${PISTOLA.id}`);
+
+    const panel = await editModel(user);
+    expect(within(panel).queryByRole('checkbox', { name: 'Se puede alquilar' })).not.toBeInTheDocument();
+    await user.click(within(panel).getByRole('radio', { name: 'Trabuco' }));
+    expect(within(panel).getByRole('checkbox', { name: 'Se puede alquilar' })).not.toBeChecked();
+    expect(within(panel).queryByRole('radio', { name: 'Sin indicar' })).not.toBeInTheDocument();
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
+
+    expect(
+      await within(panel).findAllByText('Elige una opción.', { selector: '[data-slot="form-message"]' }),
+    ).toHaveLength(3);
+    expect(called).toBe(false);
   });
 
   it('keeps a failed deactivation in the dialog', async () => {
@@ -274,14 +365,14 @@ describe('WeaponModelFormPage (spec: Weapon models)', () => {
     );
     await asAdmin(`/weapon-models/${TRABUCO.id}`);
 
-    await user.click(await screen.findByRole('button', { name: 'Desactivar modelo' }));
+    await moreAction(user, 'Desactivar modelo');
     const dialog = await screen.findByRole('alertdialog');
     await user.click(within(dialog).getByRole('button', { name: 'Desactivar modelo' }));
 
     expect(await within(dialog).findByText('Este modelo de arma no existe.')).toBeInTheDocument();
   });
 
-  it('deactivates after confirmation, then reactivates', async () => {
+  it('deactivates from "More actions" after confirmation, then reactivates', async () => {
     const user = userEvent.setup();
     const details = modelDetails(TRABUCO);
     server.use(
@@ -296,15 +387,37 @@ describe('WeaponModelFormPage (spec: Weapon models)', () => {
     );
     await asAdmin(`/weapon-models/${TRABUCO.id}`);
 
-    await user.click(await screen.findByRole('button', { name: 'Desactivar modelo' }));
+    await moreAction(user, 'Desactivar modelo');
     await user.click(
       within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Desactivar modelo' }),
     );
 
-    await expectFocusedNotice('Modelo de arma desactivado.');
+    await expectSaved('Modelo de arma desactivado.');
     expect(await screen.findByText(/Este modelo está inactivo/)).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Reactivar modelo' }));
-    await expectFocusedNotice('Modelo de arma reactivado.');
+    expect(screen.getByRole('button', { name: 'Más acciones' })).toHaveFocus();
+    await moreAction(user, 'Reactivar modelo');
+    await expectSaved('Modelo de arma reactivado.');
+  });
+
+  it('sets the destructive action apart in "More actions", and Escape returns focus to it', async () => {
+    const user = userEvent.setup();
+    modelDetails(TRABUCO);
+    await asAdmin(`/weapon-models/${TRABUCO.id}`);
+
+    await user.click(await screen.findByRole('button', { name: 'Más acciones' }));
+    const menu = await screen.findByRole('menu');
+    expect(within(menu).getByRole('separator')).toBeInTheDocument();
+    expect(within(menu).getByRole('menuitem', { name: 'Eliminar modelo' })).toHaveAttribute(
+      'data-variant',
+      'destructive',
+    );
+    await user.click(within(menu).getByRole('menuitem', { name: 'Eliminar modelo' }));
+    await screen.findByRole('alertdialog');
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Más acciones' })).toHaveFocus();
+    });
   });
 
   it('deletes after confirmation and returns to the list', async () => {
@@ -315,7 +428,7 @@ describe('WeaponModelFormPage (spec: Weapon models)', () => {
     );
     const app = await asAdmin(`/weapon-models/${TRABUCO.id}`);
 
-    await user.click(await screen.findByRole('button', { name: 'Eliminar modelo' }));
+    await moreAction(user, 'Eliminar modelo');
     const dialog = await screen.findByRole('alertdialog', { name: `¿Eliminar ${TRABUCO.label}?` });
     await user.click(within(dialog).getByRole('button', { name: 'Eliminar modelo' }));
 
@@ -329,7 +442,7 @@ describe('WeaponModelFormPage (spec: Weapon models)', () => {
     server.use(mock.delete(`/api/weapon-models/${TRABUCO.id}`, () => problem(409, 'weaponModels.inUse')));
     await asAdmin(`/weapon-models/${TRABUCO.id}`);
 
-    await user.click(await screen.findByRole('button', { name: 'Eliminar modelo' }));
+    await moreAction(user, 'Eliminar modelo');
     const dialog = await screen.findByRole('alertdialog');
     await user.click(within(dialog).getByRole('button', { name: 'Eliminar modelo' }));
 
@@ -349,13 +462,18 @@ describe('WeaponModelFormPage (spec: Weapon models)', () => {
     ).toBeInTheDocument();
   });
 
-  it('has no accessibility violations', async () => {
+  it('has no accessibility violations, read-only and with the panel open', async () => {
+    const user = userEvent.setup();
     modelDetails(PISTOLA);
     const { container } = await asAdmin(`/weapon-models/${PISTOLA.id}`);
-    await screen.findByRole('button', { name: 'Eliminar modelo' });
+    await screen.findByRole('button', { name: 'Más acciones' });
 
     await waitFor(async () => {
       expect(await axeViolations(container)).toEqual([]);
+    });
+    const panel = await editModel(user);
+    await waitFor(async () => {
+      expect(await axeViolations(panel)).toEqual([]);
     });
   });
 });

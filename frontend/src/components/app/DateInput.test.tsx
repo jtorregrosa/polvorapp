@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useForm } from 'react-hook-form';
+
 import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { isIsoDate } from '@/lib/dates';
@@ -10,6 +10,7 @@ import { renderWithProviders } from '@/test/render';
 import { Button } from './Button';
 import { DateInput, INCOMPLETE_DATE } from './DateInput';
 import { Form, FormField } from './FormField';
+import { useAppForm } from './use-app-form';
 
 const schema = z.object({
   issuedOn: z
@@ -28,7 +29,7 @@ function DatesForm({
   onSubmit: (values: Values) => void;
   disabled?: boolean;
 }) {
-  const form = useForm({ resolver: zodResolver(schema), defaultValues: { issuedOn: '', courseOn: '' } });
+  const form = useAppForm({ resolver: zodResolver(schema), defaultValues: { issuedOn: '', courseOn: '' } });
   return (
     <Form form={form} onSubmit={onSubmit}>
       <FormField
@@ -36,11 +37,10 @@ function DatesForm({
         name="issuedOn"
         label="Fecha de expedición"
         description="La que figura en la licencia."
-        required
       >
         {(field) => <DateInput {...field} min="1900-01-01" max="2026-10-01" disabled={disabled} />}
       </FormField>
-      <FormField control={form.control} name="courseOn" label="Fecha del curso">
+      <FormField control={form.control} name="courseOn" label="Fecha del curso" optional>
         {(field) => <DateInput {...field} clearable />}
       </FormField>
       <Button
@@ -85,7 +85,9 @@ describe('DateInput', () => {
     await user.click(screen.getByRole('button', { name: 'Guardar' }));
     const input = screen.getByLabelText(/Fecha de expedición/);
     expect(input).toHaveAttribute('aria-invalid', 'true');
-    expect(input).toHaveFocus();
+    await waitFor(() => {
+      expect(screen.getByRole('group', { name: 'Hay un problema' })).toHaveFocus();
+    });
     expect(input).toHaveAccessibleDescription(/obligatorio/i);
 
     typeDate(input, '2024-03-10');
@@ -137,7 +139,7 @@ describe('DateInput', () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
     await renderWithProviders(<DatesForm onSubmit={onSubmit} />);
-    const course = screen.getByLabelText('Fecha del curso');
+    const course = screen.getByLabelText('Fecha del curso (opcional)');
     expect(screen.queryByRole('button', { name: 'Borrar fecha' })).not.toBeInTheDocument();
 
     typeDate(course, '2025-11-15');
@@ -156,7 +158,7 @@ describe('DateInput', () => {
 
   it('has no detectable accessibility violations', async () => {
     const { container } = await renderWithProviders(<DatesForm onSubmit={vi.fn()} />);
-    typeDate(screen.getByLabelText('Fecha del curso'), '2025-11-15');
+    typeDate(screen.getByLabelText('Fecha del curso (opcional)'), '2025-11-15');
 
     expect(await axeViolations(container)).toEqual([]);
   });

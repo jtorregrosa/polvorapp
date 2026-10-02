@@ -14,7 +14,8 @@
       "comparsa": "Comparsa",
       "status": "Estat",
       "license": "Llicència",
-      "noIdPhoto": "Sense foto de carnet"
+      "noIdPhoto": "Sense foto de carnet",
+      "expiresOn": "Caduca el {{date}}"
     },
     "filters": {
       "comparsa": "Comparsa",
@@ -33,7 +34,16 @@
       "description": "Un administrador de la Federació t'ha d'assignar a la teua comparsa perquè veges els seus arcabussers."
     },
     "resultCount_one": "{{count}} arcabusser",
-    "resultCount_other": "{{count}} arcabussers"
+    "resultCount_other": "{{count}} arcabussers",
+    "counters": {
+      "label": "Resum d’arcabussers",
+      "active": "En actiu",
+      "reserve": "En reserva",
+      "expired": "Llicència caducada",
+      "pending": "Llicència en tràmit",
+      "none": "Sense llicència"
+    },
+    "resultCount_zero": "Cap arcabusser no coincideix amb la cerca o els filtres."
   },
   "form": {
     "newTitle": "Registra un arcabusser",
@@ -79,12 +89,60 @@
     "datesRestored": "Dates de la llicència recuperades.",
     "noActiveComparsa": "No hi ha cap comparsa activa en què pugues registrar arcabussers.",
     "savedReplacePhotos": "Dades guardades. Si has renovat la llicència, substitueix també les seues fotos.",
-    "registeredUnnamedPhotoNotSaved": "Arcabusser registrat, però la foto de carnet no s'ha guardat. Obri'l en la llista per a afegir-la."
+    "registeredUnnamedPhotoNotSaved": "Arcabusser registrat, però la foto de carnet no s'ha guardat. Obri'l en la llista per a afegir-la.",
+    "membership": "Comparsa i estat",
+    "membershipDescription": "La comparsa on es registra i si dispara enguany.",
+    "help": "Tin a mà el document d’identitat i, si en té, la llicència d’armes. La foto de carnet la pots afegir ara o més tard des de la seua fitxa.",
+    "cancel": "Cancel·la"
   },
   "detail": {
     "back": "Torna als arcabussers",
     "loading": "Carregant l'arcabusser…",
-    "inactiveComparsa": "La comparsa {{name}} està inactiva: no admet nous arcabussers, però pots continuar editant este."
+    "inactiveComparsa": "La comparsa {{name}} està inactiva: no admet nous arcabussers, però pots continuar editant este.",
+    "keyFacts": {
+      "label": "Dades clau",
+      "licenseExpires": "La llicència caduca",
+      "licenseElapsed": "Ha passat el {{percent}} % de la vigència de la llicència",
+      "noLicense": "Sense llicència",
+      "pending": "En tràmit",
+      "course": "Curs",
+      "noCourse": "Sense curs",
+      "weapons": "Armes pròpies"
+    },
+    "warnings": {
+      "title": "Avisos de compliment",
+      "license": "La llicència no està vigent.",
+      "course": "No consta el curs d’arcabusseria.",
+      "hint": "Són avisos, no errors: es pot desar igualment."
+    },
+    "sections": {
+      "personal": {
+        "edit": "Edita les dades personals",
+        "name": "dades personals"
+      },
+      "license": {
+        "edit": "Edita la llicència",
+        "name": "llicència"
+      },
+      "course": {
+        "edit": "Edita el curs",
+        "name": "curs"
+      }
+    },
+    "values": {
+      "pending": "En tràmit, encara sense dates",
+      "courseDone": "Fet el {{date}}",
+      "courseNotDone": "No consta"
+    },
+    "status": {
+      "toReserve": "Passa a reserva",
+      "toActive": "Passa a actiu",
+      "changed": "{{name}} està ara en {{status}}."
+    },
+    "courseState": {
+      "done": "Curs fet",
+      "missing": "Sense curs"
+    }
   },
   "ownedWeapons": {
     "title": "Armes pròpies",
@@ -122,7 +180,8 @@
       "added": "Arma afegida.",
       "saved": "Canvis guardats.",
       "back": "Torna a l'arcabusser",
-      "cancel": "Cancel·la"
+      "cancel": "Cancel·la",
+      "section": "Arma"
     }
   },
   "transfer": {

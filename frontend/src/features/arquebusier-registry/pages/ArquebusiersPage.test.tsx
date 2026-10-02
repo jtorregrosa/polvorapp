@@ -7,7 +7,7 @@ import { renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN, SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
-import { NORTE, OESTE, ROW_DOS, ROW_TRES, ROW_UNO, SUR } from '../test-data';
+import { DETAIL_UNO, NORTE, OESTE, ROW_DOS, ROW_TRES, ROW_UNO, SUR } from '../test-data';
 
 function registry(
   rows: (query: URLSearchParams) => ArquebusierRowResponse[],
@@ -87,18 +87,20 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
     expect(screen.getByText('Ningún arcabucero coincide con la búsqueda o los filtros.')).toBeInTheDocument();
   });
 
-  it('filters by comparsa and status through the API, keeping the filters in the address', async () => {
+  it('filters by comparsa through the API and by status with its counter, keeping both in the address', async () => {
     const user = userEvent.setup();
-    const queries = registry((query) => (query.get('status') === 'RESERVE' ? [ROW_DOS] : [ROW_UNO, ROW_DOS]));
+    const queries = registry((query) =>
+      query.get('comparsaId') === SUR.id ? [ROW_DOS] : [ROW_UNO, ROW_DOS, ROW_TRES],
+    );
     const app = await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
     await screen.findByRole('link', { name: 'García Sintético, Arcabucero' });
 
     await user.selectOptions(screen.getByRole('combobox', { name: 'Comparsa' }), SUR.id);
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Estado' }), 'RESERVE');
+    await user.click(screen.getByRole('button', { name: /En reserva/ }));
 
     await screen.findByRole('link', { name: 'Ñúñez Sintética, Arcabucera' });
     expect(screen.queryByRole('link', { name: 'García Sintético, Arcabucero' })).not.toBeInTheDocument();
-    expect(queries).toContain(`?comparsaId=${SUR.id}&status=RESERVE`);
+    expect(queries).toContain(`?comparsaId=${SUR.id}`);
     expect(app.location()).toBe(`/arquebusiers?comparsaId=${SUR.id}&status=RESERVE`);
   });
 
@@ -138,7 +140,7 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
     await screen.findByRole('link', { name: 'García Sintético, Arcabucero' });
 
     await user.type(search, 'sintético');
-    expect(await screen.findByText('2 arcabuceros')).toHaveAttribute('role', 'status');
+    expect(await screen.findByText('2 arcabuceros', { selector: '[role=status]' })).toBeInTheDocument();
     await user.type(search, 'zzz');
     expect(
       await screen.findByText('Ningún arcabucero coincide con la búsqueda o los filtros.', {
@@ -216,5 +218,132 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
     await screen.findByRole('link', { name: 'García Sintético, Arcabucero' });
 
     expect(await axeViolations(container)).toEqual([]);
+  });
+
+  describe('counters (spec: Arquebusier visibility, counter as a filter)', () => {
+    const counters = () => screen.getByRole('group', { name: 'Resumen de arcabuceros' });
+    const counter = (name: RegExp) => within(counters()).getByRole('button', { name });
+
+    it('counts the arquebusiers in scope by status and license state', async () => {
+      registry(() => [ROW_UNO, ROW_DOS, ROW_TRES]);
+      await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
+      await screen.findByRole('link', { name: 'García Sintético, Arcabucero' });
+
+      expect(
+        within(counters())
+          .getAllByRole('button')
+          .map((button) => button.getAttribute('aria-labelledby') && button.textContent),
+      ).toHaveLength(5);
+      expect(counter(/En activo/)).toHaveAccessibleName('2 En activo');
+      expect(counter(/En reserva/)).toHaveAccessibleName('1 En reserva');
+      expect(counter(/Licencia caducada/)).toHaveAccessibleName('1 Licencia caducada');
+      expect(counter(/Licencia en trámite/)).toHaveAccessibleName('0 Licencia en trámite');
+      expect(counter(/Sin licencia/)).toHaveAccessibleName('1 Sin licencia');
+    });
+
+    it('filters with a counter, announces the count, and lists everyone again when pressed again', async () => {
+      const user = userEvent.setup();
+      registry(() => [ROW_UNO, ROW_DOS, ROW_TRES]);
+      const app = await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
+      const table = await screen.findByRole('table', { name: 'Arcabuceros' });
+      await within(table).findByRole('link', { name: 'García Sintético, Arcabucero' });
+
+      await user.click(counter(/Licencia caducada/));
+
+      expect(counter(/Licencia caducada/)).toHaveAttribute('aria-pressed', 'true');
+      expect(
+        within(table)
+          .getAllByRole('link')
+          .map((link) => link.textContent),
+      ).toEqual(['Pérez Sintético, Arcabucero']);
+      expect(await screen.findByText('1 arcabucero', { selector: '[role=status]' })).toBeInTheDocument();
+      expect(app.location()).toBe('/arquebusiers?license=EXPIRED');
+
+      await user.click(counter(/Licencia caducada/));
+
+      expect(counter(/Licencia caducada/)).toHaveAttribute('aria-pressed', 'false');
+      expect(within(table).getAllByRole('link')).toHaveLength(3);
+    });
+
+    it('combines a status and a license counter with the search', async () => {
+      const user = userEvent.setup();
+      registry(() => [ROW_UNO, ROW_DOS, ROW_TRES]);
+      await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
+      const table = await screen.findByRole('table', { name: 'Arcabuceros' });
+      await within(table).findByRole('link', { name: 'García Sintético, Arcabucero' });
+
+      await user.click(counter(/En activo/));
+      await user.click(counter(/Licencia caducada/));
+      await user.type(screen.getByRole('searchbox', { name: 'Buscar arcabuceros' }), 'garcia');
+
+      expect(
+        screen.getByRole('heading', { name: 'Ningún arcabucero coincide con la búsqueda o los filtros.' }),
+      ).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'Quitar los filtros' }));
+
+      expect(within(screen.getByRole('table', { name: 'Arcabuceros' })).getAllByRole('link')).toHaveLength(3);
+      expect(counter(/En activo/)).toHaveAttribute('aria-pressed', 'false');
+      expect(screen.getByRole('searchbox', { name: 'Buscar arcabuceros' })).toHaveValue('');
+    });
+
+    it("counts only the arquebusiers of a FiringChief's comparsas", async () => {
+      registry(() => [ROW_UNO, ROW_TRES], [NORTE]);
+      await renderApp('/arquebusiers', { session: SYNTHETIC_FIRING_CHIEF });
+      await screen.findByRole('link', { name: 'García Sintético, Arcabucero' });
+
+      expect(counter(/En activo/)).toHaveAccessibleName('2 En activo');
+      expect(counter(/En reserva/)).toHaveAccessibleName('0 En reserva');
+    });
+
+    it('offers no counters to a FiringChief without comparsas', async () => {
+      registry(() => [], []);
+      await renderApp('/arquebusiers', { session: SYNTHETIC_FIRING_CHIEF });
+
+      await screen.findByText('Todavía no tienes ninguna comparsa asignada');
+      expect(screen.queryByRole('group', { name: 'Resumen de arcabuceros' })).not.toBeInTheDocument();
+    });
+  });
+
+  describe('rows', () => {
+    it('show the license expiry, the identifiers in a second line and a missing ID photo in words', async () => {
+      registry(() => [ROW_UNO, ROW_DOS]);
+      await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
+      await screen.findByRole('link', { name: 'García Sintético, Arcabucero' });
+
+      const uno = rowOf('00000001R');
+      expect(within(uno).getByText('Caduca el 10/03/2030')).toBeInTheDocument();
+      expect(within(rowOf('X0000002T')).getByText('Sin foto de carnet')).toBeInTheDocument();
+    });
+
+    it('open the record when any cell is clicked', async () => {
+      const user = userEvent.setup();
+      registry(() => [ROW_UNO]);
+      server.use(mock.get(`/api/arquebusiers/${ROW_UNO.id}`, () => HttpResponse.json(DETAIL_UNO)));
+      const app = await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
+      await screen.findByRole('link', { name: 'García Sintético, Arcabucero' });
+
+      await user.click(within(rowOf('00000001R')).getByText(NORTE.name));
+
+      expect(app.location()).toBe(`/arquebusiers/${ROW_UNO.id}`);
+    });
+
+    it('are stacked items on a phone, without a table', async () => {
+      Object.defineProperty(window, 'innerWidth', { configurable: true, value: 360 });
+      try {
+        registry(() => [ROW_UNO, ROW_DOS]);
+        await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
+
+        await screen.findByRole('link', { name: 'García Sintético, Arcabucero' });
+        const list = screen.getByRole('list', { name: 'Arcabuceros' });
+        expect(screen.queryByRole('table')).not.toBeInTheDocument();
+        const [uno] = within(list).getAllByRole('listitem');
+        expect(uno).toHaveTextContent('García Sintético, Arcabucero');
+        expect(uno).toHaveTextContent('00000001R');
+        expect(uno).toHaveTextContent(NORTE.name);
+        expect(uno).toHaveTextContent('Vigente');
+      } finally {
+        Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 });
+      }
+    });
   });
 });

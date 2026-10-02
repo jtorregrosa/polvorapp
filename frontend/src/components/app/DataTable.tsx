@@ -8,9 +8,9 @@ import {
   useTable,
   type RowData,
 } from '@tanstack/react-table';
-import { cn } from 'cn';
+import { cn } from '@/lib/cn';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
-import { useId, useMemo, useState, type ChangeEvent, type ReactNode } from 'react';
+import { useId, useMemo, useState, type ChangeEvent, type MouseEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
@@ -24,12 +24,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export interface DataTableColumn<TRow extends RowData> {
   id: string;
   /** Already translated column title. */
   header: string;
   cell: (row: TRow) => ReactNode;
+  /** A second, quieter line under the cell (e.g. the nationalId under the name). */
+  secondary?: (row: TRow) => ReactNode;
   /** Makes the column sortable by this value. */
   sortValue?: (row: TRow) => string | number;
   align?: 'start' | 'end';
@@ -51,6 +54,39 @@ export interface DataTableProps<TRow extends RowData> {
   paginated?: boolean;
   /** Already translated text for an empty list; the generic "No results" otherwise. */
   emptyText?: string;
+  /**
+   * The record a row leads to. Its cells must contain a link to it (usually the name), which stays
+   * the row's only tab stop; a click anywhere else on the row follows that link.
+   */
+  getRowHref?: (row: TRow) => string;
+  /** The row as a stacked item on phones (below 768 px), instead of the table. */
+  mobileRow?: (row: TRow) => ReactNode;
+}
+
+/** Elements whose own click must not open the row's record. */
+const INTERACTIVE =
+  'a, button, input, select, textarea, label, summary, [contenteditable], [tabindex], [role="button"], [role="menuitem"], [role="checkbox"], [role="switch"], [role="tab"]';
+
+/**
+ * Follows the row's link to its record (spec: Data tables, whole row opens the record), unless the
+ * click was on a control of the row, came from a dialog or menu opened from the row (portals
+ * bubble through React), used a modifier key or another button (the link itself handles those),
+ * or ended a text selection inside the row.
+ */
+function openRecord(event: MouseEvent<HTMLElement>, href: string): void {
+  const row = event.currentTarget;
+  const target = event.target as Node;
+  if (event.defaultPrevented || !row.contains(target)) return;
+  if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+  const control = target instanceof Element ? target.closest(INTERACTIVE) : null;
+  if (control && row.contains(control)) return;
+  const selection = window.getSelection();
+  if (selection && !selection.isCollapsed && selection.anchorNode && row.contains(selection.anchorNode))
+    return;
+  const link = [...row.querySelectorAll<HTMLAnchorElement>('a[href]')].find(
+    (candidate) => candidate.getAttribute('href') === href,
+  );
+  link?.click();
 }
 
 const PAGE_SIZES = [10, 20, 50] as const;
@@ -78,7 +114,10 @@ export function DataTable<TRow extends RowData>({
   pageSize = PAGE_SIZES[1],
   paginated = true,
   emptyText,
+  getRowHref,
+  mobileRow,
 }: DataTableProps<TRow>) {
+  const stacked = useIsMobile() && mobileRow !== undefined;
   const pageSizeId = useId();
   const captionId = useId();
 
@@ -102,7 +141,17 @@ export function DataTable<TRow extends RowData>({
               ? x - y
               : collator.compare(String(x), String(y));
           },
-          cell: (info) => column.cell(info.row.original),
+          cell: (info) => {
+            const secondary = column.secondary?.(info.row.original);
+            return secondary === undefined ? (
+              column.cell(info.row.original)
+            ) : (
+              <div className="flex flex-col gap-0.5">
+                <span>{column.cell(info.row.original)}</span>
+                <span className="text-help text-muted-foreground">{secondary}</span>
+              </div>
+            );
+          },
         }),
       ),
     );
@@ -149,100 +198,165 @@ export function DataTable<TRow extends RowData>({
     announcePage(0, size);
   };
 
+  const rows = table.getRowModel().rows;
+
   return (
     <div className="flex flex-col gap-3">
-      <Table
-        aria-busy={isLoading || undefined}
-        // The scroll container is the named region; a scrollable region must be keyboard-focusable
-        // (WCAG 2.1.1, axe scrollable-region-focusable).
-        container={{
-          role: 'region',
-          'aria-labelledby': captionId,
-          tabIndex: 0,
-          className: 'rounded-lg border bg-card',
-        }}
-      >
-        <TableCaption id={captionId} className="sr-only">
-          {caption}
-        </TableCaption>
-        <TableHeader>
-          {table.getHeaderGroups().map((group) => (
-            <TableRow key={group.id}>
-              {group.headers.map((header) => {
-                const sortable = header.column.getCanSort();
-                const sorted = header.column.getIsSorted();
-                const ariaSort: AriaSort | undefined = sortable
-                  ? sorted === 'asc'
-                    ? 'ascending'
-                    : sorted === 'desc'
-                      ? 'descending'
-                      : 'none'
-                  : undefined;
-                const SortIcon = sorted === 'asc' ? ArrowUp : sorted === 'desc' ? ArrowDown : ArrowUpDown;
-                const title = String(header.column.columnDef.header);
-                return (
-                  <TableHead key={header.id} aria-sort={ariaSort} className={alignment(header.column.id)}>
-                    {sortable ? (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="-mx-2"
-                        onClick={() => {
-                          const next = sorted === false ? 'asc' : sorted === 'asc' ? 'desc' : false;
-                          header.column.toggleSorting(next === 'desc', false);
-                          if (next === false) header.column.clearSorting();
-                          setAnnouncement(
-                            next === false
-                              ? t('table.announce.unsorted')
-                              : t('table.announce.sorted', { column: title, direction: sortLabel(next) }),
-                          );
-                        }}
-                      >
-                        {title}
-                        <span className="sr-only">{`, ${sortLabel(sorted)}`}</span>
-                        <SortIcon aria-hidden="true" className={cn(!sorted && 'text-muted-foreground')} />
-                      </Button>
-                    ) : byId.get(header.column.id)?.hideHeader ? (
-                      <span className="sr-only">{title}</span>
-                    ) : (
-                      title
-                    )}
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
+      {stacked && (
+        // role="list": Safari drops list semantics from lists without bullets.
+        // eslint-disable-next-line jsx-a11y/no-redundant-roles
+        <ul
+          role="list"
+          aria-label={caption}
+          aria-busy={isLoading || undefined}
+          className="flex flex-col gap-2"
+        >
           {isLoading &&
             Array.from({ length: LOADING_ROWS }, (_, index) => (
-              <TableRow key={index}>
-                {columns.map((column) => (
-                  <TableCell key={column.id}>
-                    <Skeleton className="h-4 w-full" />
-                  </TableCell>
-                ))}
-              </TableRow>
+              <li key={index} className="flex flex-col gap-2 rounded-lg border bg-card px-4 py-3">
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-3 w-3/4" />
+              </li>
             ))}
           {!isLoading && total === 0 && (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="py-10 text-center text-muted-foreground">
-                {emptyText ?? t('table.empty')}
-              </TableCell>
-            </TableRow>
+            <li className="rounded-lg border bg-card px-4 py-10 text-center text-muted-foreground">
+              {emptyText ?? t('table.empty')}
+            </li>
           )}
           {!isLoading &&
-            table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getAllCells().map((cell) => (
-                  <TableCell key={cell.id} className={alignment(cell.column.id)}>
-                    <table.FlexRender cell={cell} />
-                  </TableCell>
-                ))}
+            rows.map((row) => {
+              const href = getRowHref?.(row.original);
+              return (
+                // A pointer shortcut only: keyboard users reach the record through the row's link.
+                // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
+                <li
+                  key={row.id}
+                  onClick={
+                    href === undefined
+                      ? undefined
+                      : (event) => {
+                          openRecord(event, href);
+                        }
+                  }
+                  className={cn(
+                    'flex flex-col gap-1 rounded-lg border bg-card px-4 py-3 shadow-e1',
+                    href !== undefined && 'cursor-pointer hover:bg-surface-2',
+                  )}
+                >
+                  {mobileRow(row.original)}
+                </li>
+              );
+            })}
+        </ul>
+      )}
+      {!stacked && (
+        <Table
+          aria-busy={isLoading || undefined}
+          // The scroll container is the named region; a scrollable region must be keyboard-focusable
+          // (WCAG 2.1.1, axe scrollable-region-focusable).
+          container={{
+            role: 'region',
+            'aria-labelledby': captionId,
+            tabIndex: 0,
+            className: 'rounded-lg border bg-card',
+          }}
+        >
+          <TableCaption id={captionId} className="sr-only">
+            {caption}
+          </TableCaption>
+          <TableHeader>
+            {table.getHeaderGroups().map((group) => (
+              <TableRow key={group.id}>
+                {group.headers.map((header) => {
+                  const sortable = header.column.getCanSort();
+                  const sorted = header.column.getIsSorted();
+                  const ariaSort: AriaSort | undefined = sortable
+                    ? sorted === 'asc'
+                      ? 'ascending'
+                      : sorted === 'desc'
+                        ? 'descending'
+                        : 'none'
+                    : undefined;
+                  const SortIcon = sorted === 'asc' ? ArrowUp : sorted === 'desc' ? ArrowDown : ArrowUpDown;
+                  const title = String(header.column.columnDef.header);
+                  return (
+                    <TableHead key={header.id} aria-sort={ariaSort} className={alignment(header.column.id)}>
+                      {sortable ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="-mx-2"
+                          onClick={() => {
+                            const next = sorted === false ? 'asc' : sorted === 'asc' ? 'desc' : false;
+                            header.column.toggleSorting(next === 'desc', false);
+                            if (next === false) header.column.clearSorting();
+                            setAnnouncement(
+                              next === false
+                                ? t('table.announce.unsorted')
+                                : t('table.announce.sorted', { column: title, direction: sortLabel(next) }),
+                            );
+                          }}
+                        >
+                          {title}
+                          <span className="sr-only">{`, ${sortLabel(sorted)}`}</span>
+                          <SortIcon aria-hidden="true" className={cn(!sorted && 'text-muted-foreground')} />
+                        </Button>
+                      ) : byId.get(header.column.id)?.hideHeader ? (
+                        <span className="sr-only">{title}</span>
+                      ) : (
+                        title
+                      )}
+                    </TableHead>
+                  );
+                })}
               </TableRow>
             ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {isLoading &&
+              Array.from({ length: LOADING_ROWS }, (_, index) => (
+                <TableRow key={index}>
+                  {columns.map((column) => (
+                    <TableCell key={column.id}>
+                      <Skeleton className="h-4 w-full" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            {!isLoading && total === 0 && (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="py-10 text-center text-muted-foreground">
+                  {emptyText ?? t('table.empty')}
+                </TableCell>
+              </TableRow>
+            )}
+            {!isLoading &&
+              rows.map((row) => {
+                const href = getRowHref?.(row.original);
+                return (
+                  <TableRow
+                    key={row.id}
+                    // A pointer shortcut only: keyboard users reach the record through the row's link.
+                    onClick={
+                      href === undefined
+                        ? undefined
+                        : (event) => {
+                            openRecord(event, href);
+                          }
+                    }
+                    className={cn('h-row', href !== undefined && 'cursor-pointer')}
+                  >
+                    {row.getAllCells().map((cell) => (
+                      <TableCell key={cell.id} className={alignment(cell.column.id)}>
+                        <table.FlexRender cell={cell} />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })}
+          </TableBody>
+        </Table>
+      )}
 
       <p role="status" className="sr-only">
         {isLoading ? t('table.loading') : announcement}

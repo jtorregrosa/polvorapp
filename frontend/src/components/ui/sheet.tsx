@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { cn } from 'cn';
+import { cn } from '@/lib/cn';
 import { XIcon } from 'lucide-react';
 import { Dialog as SheetPrimitive } from 'radix-ui';
 import { useTranslation } from 'react-i18next';
@@ -52,7 +52,8 @@ function SheetContent({
       <SheetPrimitive.Content
         data-slot="sheet-content"
         className={cn(
-          'fixed z-50 flex flex-col gap-4 bg-background shadow-lg transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=open]:duration-500',
+          // Local edit (design D5): 250 ms in and 200 ms out with the drawer easing, instead of 500/300 ms.
+          'fixed z-50 flex flex-col gap-4 bg-popover text-popover-foreground shadow-e2 ease-drawer data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=open]:animate-in data-[state=open]:duration-250',
           side === 'right' &&
             'inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm',
           side === 'left' &&
@@ -60,14 +61,16 @@ function SheetContent({
           side === 'top' &&
             'inset-x-0 top-0 h-auto border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top',
           side === 'bottom' &&
-            'inset-x-0 bottom-0 h-auto border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
+            // Local edit (design D9): a bottom sheet keeps the page visible above it and scrolls inside.
+            'inset-x-0 bottom-0 h-auto max-h-[90svh] rounded-t-xl border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
           className,
         )}
         {...props}
       >
         {children}
+        {/* Local edit (design D3): a 36 px close target with a full-opacity focus outline. */}
         {showCloseButton && (
-          <SheetPrimitive.Close className="absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-secondary">
+          <SheetPrimitive.Close className="absolute top-3 right-3 inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors duration-100 hover:bg-secondary-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none pointer-coarse:size-11">
             <XIcon className="size-4" />
             <span className="sr-only">{t('primitives.close')}</span>
           </SheetPrimitive.Close>

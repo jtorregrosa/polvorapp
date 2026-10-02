@@ -56,7 +56,7 @@ export function applyFieldErrors<TValues extends FieldValues>(
   const code = problemCode(error);
   const conflictField = code && isKnownCode(code) ? conflicts[code] : undefined;
   if (conflictField) {
-    setError(conflictField, { type: 'server', message: `catalog:errors.${code}` }, { shouldFocus: true });
+    setError(conflictField, { type: 'server', message: `catalog:errors.${code}` });
     return true;
   }
 
@@ -73,7 +73,7 @@ export function applyFieldErrors<TValues extends FieldValues>(
       const known = (FIELD_REASONS as readonly string[]).includes(reason)
         ? (reason as FieldReason)
         : 'invalid';
-      setError(field, { type: 'server', message: messages[known] }, { shouldFocus: !applied });
+      setError(field, { type: 'server', message: messages[known] });
       applied = true;
     }
   }

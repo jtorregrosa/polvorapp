@@ -1,5 +1,5 @@
 import { cva } from 'class-variance-authority';
-import { cn } from 'cn';
+import { cn } from '@/lib/cn';
 import type { ParseKeys } from 'i18next';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';

@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useAppForm } from '@/components/app/use-app-form';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import {
   getGetArquebusierQueryKey,
   getListArquebusiersQueryKey,
@@ -14,9 +14,11 @@ import {
 import { useListComparsas } from '@/api/generated/comparsas/comparsas';
 import type { ArquebusierResponse, ComparsaResponse } from '@/api/generated/model';
 import { responseData } from '@/api/http';
+import { ActionBar } from '@/components/app/ActionBar';
 import { AlertBanner } from '@/components/app/AlertBanner';
 import { Button } from '@/components/app/Button';
 import { Form } from '@/components/app/FormField';
+import { FormLayout } from '@/components/app/FormLayout';
 import { PageHeader } from '@/components/app/PageHeader';
 import { PhotoUpload } from '@/components/app/PhotoUpload';
 import { useSession } from '@/features/identity-access/session';
@@ -32,7 +34,7 @@ import {
 import { LoadFailure } from '../components/LoadFailure';
 import { ID_PHOTO_RULES } from '../photos';
 import { applyFieldErrors, photoProblemMessage, problemMessage } from '../problems';
-import { ArquebusierFields } from './ArquebusierFields';
+import { CourseFields, LicenseFields, PersonalFields, RegisterFields } from './ArquebusierFields';
 
 /** Spec "Registering and editing arquebusiers": registers an arquebusier in an active comparsa in scope. */
 export function ArquebusierFormPage() {
@@ -43,7 +45,6 @@ export function ArquebusierFormPage() {
   const session = useSession();
   const isAdmin = session.account?.role === 'ADMIN';
   const register = useRegisterArquebusier();
-  const [failure, setFailure] = useState<unknown>();
   // Without includeInactive the API lists only active comparsas, within the caller's scope.
   const comparsas = useListComparsas(undefined, { query: { enabled: session.status === 'signedIn' } });
   const active = useMemo(
@@ -51,7 +52,7 @@ export function ArquebusierFormPage() {
     [comparsas.data],
   );
   const noComparsa = comparsas.isSuccess && active.length === 0;
-  const form = useForm<ArquebusierValues>({
+  const form = useAppForm<ArquebusierValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: EMPTY_ARQUEBUSIER,
   });
@@ -79,7 +80,6 @@ export function ArquebusierFormPage() {
 
   const onSubmit = async (values: ArquebusierValues): Promise<void> => {
     let response: registerArquebusierResponse;
-    setFailure(undefined);
     try {
       response = await register.mutateAsync({
         data: { comparsaId: values.comparsaId, ...requestFields(values) },
@@ -94,7 +94,9 @@ export function ArquebusierFormPage() {
           'arquebusiers.comparsaInactive': 'comparsaId',
         },
       });
-      if (!placed) setFailure(error);
+      // A refusal about no field is listed in the error summary, which takes focus.
+      if (!placed)
+        form.setError('root.server', { type: 'server', message: problemMessage(t, error, { isAdmin }) });
       return;
     }
     let created: ArquebusierResponse;
@@ -140,6 +142,24 @@ export function ArquebusierFormPage() {
     await navigate(`/arquebusiers/${created.id}`, { state: noticeState(t('form.registered', { name })) });
   };
 
+  const pending = register.isPending || form.formState.isSubmitting;
+  const idPhotoControl = (
+    <PhotoUpload
+      label={t('photos.idPhoto')}
+      photoUrl={idPhoto?.url ?? null}
+      photoAlt={t('photos.chosenIdPhotoAlt')}
+      emptyText={t('photos.noIdPhoto')}
+      uploadedText={t('photos.chosenForRegistration')}
+      // The registration sends the photo chosen when it started.
+      disabled={pending}
+      onUpload={(photo) => {
+        chooseIdPhoto(photo);
+        return Promise.resolve();
+      }}
+      {...ID_PHOTO_RULES}
+    />
+  );
+
   return (
     <>
       <PageHeader
@@ -149,49 +169,62 @@ export function ArquebusierFormPage() {
       />
       {comparsas.isError && (
         <LoadFailure
-          className="mb-4 max-w-xl"
+          className="max-w-form"
           error={comparsas.error}
           consequence={t('load.comparsas')}
           onRetry={() => comparsas.refetch()}
         />
       )}
       {noComparsa && (
-        <AlertBanner severity="info" className="mb-4 max-w-xl">
+        <AlertBanner severity="info" className="max-w-form">
           {t('form.noActiveComparsa')}
         </AlertBanner>
       )}
-      <Form form={form} onSubmit={onSubmit} className="max-w-xl">
-        <ArquebusierFields
-          form={form}
-          comparsas={active}
-          idPhoto={
-            <PhotoUpload
-              label={t('photos.idPhoto')}
-              photoUrl={idPhoto?.url ?? null}
-              photoAlt={t('photos.chosenIdPhotoAlt')}
-              emptyText={t('photos.noIdPhoto')}
-              uploadedText={t('photos.chosenForRegistration')}
-              // The registration sends the photo chosen when it started.
-              disabled={register.isPending || form.formState.isSubmitting}
-              onUpload={(photo) => {
-                chooseIdPhoto(photo);
-                return Promise.resolve();
-              }}
-              {...ID_PHOTO_RULES}
+      <Form form={form} onSubmit={onSubmit}>
+        <FormLayout
+          sections={[
+            {
+              id: 'comparsa',
+              title: t('form.membership'),
+              description: t('form.membershipDescription'),
+              content: <RegisterFields form={form} comparsas={active} />,
+            },
+            {
+              id: 'personal',
+              title: t('form.personal'),
+              description: t('form.personalDescription'),
+              content: <PersonalFields form={form} idPhoto={idPhotoControl} />,
+            },
+            {
+              id: 'license',
+              title: t('form.license'),
+              description: t('form.licenseDescription'),
+              content: <LicenseFields form={form} />,
+            },
+            {
+              id: 'training',
+              title: t('form.training'),
+              description: t('form.trainingDescription'),
+              content: <CourseFields form={form} />,
+            },
+          ]}
+          help={<p>{t('form.help')}</p>}
+          actions={
+            <ActionBar
+              secondary={
+                <Button asChild variant="secondary">
+                  <Link to="/arquebusiers">{t('form.cancel')}</Link>
+                </Button>
+              }
+              primary={
+                // Pending until the ID photo is uploaded too, not only while the arquebusier is created.
+                <Button type="submit" pending={pending} disabled={comparsas.isError || noComparsa}>
+                  {t('form.register')}
+                </Button>
+              }
             />
           }
         />
-        {failure !== undefined && (
-          <AlertBanner severity="error">{problemMessage(t, failure, { isAdmin })}</AlertBanner>
-        )}
-        {/* Pending until the ID photo is uploaded too, not only while the arquebusier is created. */}
-        <Button
-          type="submit"
-          pending={register.isPending || form.formState.isSubmitting}
-          disabled={comparsas.isError || noComparsa}
-        >
-          {t('form.register')}
-        </Button>
       </Form>
     </>
   );

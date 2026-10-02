@@ -1,13 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { useForm } from 'react-hook-form';
 import { fn } from 'storybook/test';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Form, FormField } from './FormField';
-import { FormSection } from './FormSection';
+import { SectionCard } from './SectionCard';
+import { useAppForm } from './use-app-form';
 
 // Zod messages are translation keys of the `ui` namespace (design D9).
 const schema = z.object({
@@ -31,14 +31,14 @@ interface ExampleFormProps {
 }
 
 function ExampleForm({ labels, onSubmit }: ExampleFormProps) {
-  const form = useForm<Values>({
+  const form = useAppForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: { firstName: '', nickname: '', course: false },
   });
   return (
     <Form form={form} onSubmit={onSubmit} className="max-w-xl">
-      <FormSection title={labels.section} description={labels.hint}>
-        <FormField control={form.control} name="firstName" label={labels.firstName} required>
+      <SectionCard title={labels.section} description={labels.hint}>
+        <FormField control={form.control} name="firstName" label={labels.firstName} width="name">
           {(field) => <Input {...field} />}
         </FormField>
         <FormField
@@ -46,10 +46,11 @@ function ExampleForm({ labels, onSubmit }: ExampleFormProps) {
           name="nickname"
           label={labels.nickname}
           description={labels.nicknameHint}
+          optional
         >
           {(field) => <Input {...field} />}
         </FormField>
-        <FormField control={form.control} name="course" label={labels.course} required>
+        <FormField control={form.control} name="course" label={labels.course} optional>
           {({ value, onChange, ref, onBlur, name }) => (
             <Checkbox
               ref={ref}
@@ -62,7 +63,7 @@ function ExampleForm({ labels, onSubmit }: ExampleFormProps) {
             />
           )}
         </FormField>
-      </FormSection>
+      </SectionCard>
       <Button type="submit" className="w-fit">
         {labels.save}
       </Button>
@@ -104,5 +105,12 @@ export const LongValencian: Story = {
       course: 'Ha fet el curs de manipulació d’artificis pirotècnics',
       save: 'Guarda els canvis',
     },
+  },
+};
+
+/** A failed submission: the error summary at the top, and the error repeated at its field. */
+export const WithErrors: Story = {
+  play: ({ canvasElement }) => {
+    canvasElement.querySelector<HTMLButtonElement>('button[type="submit"]')?.click();
   },
 };

@@ -1,126 +1,249 @@
 /*
- * PolvorApp design tokens (ADR-0009 §1, ADR-0012, design D1).
- * The only place where colour values live. Feature code uses the semantic utilities generated
- * from `@theme inline` below (`bg-primary`, `text-muted-foreground`, `bg-success-soft`…).
- * Contrast of the declared pairs is verified by `contrast.test.ts` (WCAG 2.1 AA).
+ * PolvorApp design tokens (ADR-0009 §1, ADR-0013, design D2 of redesign-design-system).
+ * The only place where colours, type, spacing, sizes, radii, elevations, widths and motion live.
+ * Feature code uses the utilities generated from `@theme inline` below (`bg-primary`,
+ * `text-page`, `gap-group`, `h-control`, `max-w-page`, `shadow-e1`, `ease-drawer`…).
+ * Contrast of the declared pairs is verified by `contrast.test.ts` (WCAG 2.2 AA).
  */
 
 :root {
   color-scheme: light;
-  --radius: 0.5rem;
+  --radius: 0.5625rem;
 
-  --background: #faf9f7;
-  --foreground: #1c1917;
+  /* Cool lavender greys (ADR-0013). */
+  --background: #f3f3f6;
+  --foreground: #16131f;
   --card: #ffffff;
-  --card-foreground: #1c1917;
+  --card-foreground: #16131f;
   --popover: #ffffff;
-  --popover-foreground: #1c1917;
+  --popover-foreground: #16131f;
+  --surface-2: #f7f6fa;
 
-  /* Accent: ember orange ("pólvora"). */
-  --primary: #c2410c;
+  /* The only accent: ember ("pólvora"). */
+  --primary: #b8430b;
   --primary-foreground: #ffffff;
-  --primary-soft: #ffedd5;
+  --primary-hover: #9e3909;
+  --primary-soft: #fff1e8;
   --primary-soft-foreground: #9a3412;
 
-  --secondary: #f5f5f4;
-  --secondary-foreground: #1c1917;
-  --muted: #f5f5f4;
-  --muted-foreground: #57534e;
+  --secondary: #ffffff;
+  --secondary-foreground: #16131f;
+  --secondary-hover: #efeef4;
+  --muted: #f4f3f7;
+  --muted-foreground: #5e5970;
   /* shadcn's "accent" is the neutral hover surface, not the brand accent. */
-  --accent: #f5f5f4;
-  --accent-foreground: #1c1917;
+  --accent: #efeef4;
+  --accent-foreground: #16131f;
 
-  --success: #15803d;
+  --success: #166534;
   --success-foreground: #ffffff;
-  --success-soft: #dcfce7;
+  --success-soft: #e7f7ee;
   --success-soft-foreground: #166534;
-  --warning: #a16207;
+  --warning: #854d0e;
   --warning-foreground: #ffffff;
-  --warning-soft: #fef9c3;
+  --warning-soft: #fdf3d6;
   --warning-soft-foreground: #854d0e;
-  --destructive: #b91c1c;
+  --destructive: #b42318;
   --destructive-foreground: #ffffff;
-  --destructive-soft: #fee2e2;
-  --destructive-soft-foreground: #991b1b;
-  --info: #1d4ed8;
+  --destructive-hover: #951c12;
+  --destructive-soft: #fdeceb;
+  --destructive-soft-foreground: #9b1c13;
+  --info: #1e40af;
   --info-foreground: #ffffff;
-  --info-soft: #dbeafe;
+  --info-soft: #eaf0fe;
   --info-soft-foreground: #1e40af;
 
-  --border: #e7e5e4;
-  --input: #8a827c;
-  --ring: #c2410c;
+  --border: #e4e2ea;
+  --input: #8b8799;
+  --ring: #b8430b;
 
-  --sidebar: #f5f5f4;
-  --sidebar-foreground: #1c1917;
-  --sidebar-primary: #c2410c;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e7e5e4;
-  --sidebar-accent-foreground: #1c1917;
-  --sidebar-border: #e7e5e4;
-  --sidebar-ring: #c2410c;
+  /* The night sidebar: dark in both themes (ADR-0013). */
+  --sidebar: #191524;
+  --sidebar-foreground: #ebe8f3;
+  --sidebar-muted-foreground: #a9a3bb;
+  --sidebar-primary: #ff8a4a;
+  --sidebar-primary-foreground: #1a0b03;
+  --sidebar-accent: #262038;
+  --sidebar-accent-foreground: #ebe8f3;
+  --sidebar-border: #2e2842;
+  --sidebar-ring: #ff8a4a;
+
+  --elevation-1: 0 1px 2px rgb(22 19 31 / 0.05), 0 1px 1px rgb(22 19 31 / 0.03);
+  --elevation-2: 0 12px 32px -10px rgb(22 19 31 / 0.28), 0 2px 6px rgb(22 19 31 / 0.06);
 }
 
 .dark {
   color-scheme: dark;
 
-  --background: #1c1917;
-  --foreground: #fafaf9;
-  --card: #292524;
-  --card-foreground: #fafaf9;
-  --popover: #292524;
-  --popover-foreground: #fafaf9;
+  --background: #0e0c13;
+  --foreground: #efedf5;
+  --card: #17141f;
+  --card-foreground: #efedf5;
+  --popover: #1f1b2a;
+  --popover-foreground: #efedf5;
+  --surface-2: #1f1b2a;
 
-  --primary: #fb923c;
-  --primary-foreground: #1c1917;
-  --primary-soft: #431407;
-  --primary-soft-foreground: #fdba74;
+  --primary: #ff8a4a;
+  --primary-foreground: #1a0b03;
+  --primary-hover: #ffa06c;
+  --primary-soft: #2d170b;
+  --primary-soft-foreground: #ffb48a;
 
-  --secondary: #292524;
-  --secondary-foreground: #fafaf9;
-  --muted: #292524;
-  --muted-foreground: #b8b2ad;
-  --accent: #44403c;
-  --accent-foreground: #fafaf9;
+  --secondary: #17141f;
+  --secondary-foreground: #efedf5;
+  --secondary-hover: #2a2636;
+  --muted: #221e2d;
+  --muted-foreground: #a7a1b8;
+  --accent: #2a2636;
+  --accent-foreground: #efedf5;
 
-  --success: #4ade80;
+  --success: #6ee7a0;
   --success-foreground: #052e16;
-  --success-soft: #052e16;
-  --success-soft-foreground: #86efac;
-  --warning: #facc15;
+  --success-soft: #0e2a1a;
+  --success-soft-foreground: #6ee7a0;
+  --warning: #fcd34d;
   --warning-foreground: #422006;
-  --warning-soft: #422006;
-  --warning-soft-foreground: #fde047;
-  --destructive: #f87171;
+  --warning-soft: #2d2208;
+  --warning-soft-foreground: #fcd34d;
+  --destructive: #fca5a5;
   --destructive-foreground: #450a0a;
-  --destructive-soft: #450a0a;
+  --destructive-hover: #fecaca;
+  --destructive-soft: #331213;
   --destructive-soft-foreground: #fca5a5;
-  --info: #60a5fa;
+  --info: #a5bffd;
   --info-foreground: #172554;
-  --info-soft: #172554;
-  --info-soft-foreground: #93c5fd;
+  --info-soft: #141f3d;
+  --info-soft-foreground: #a5bffd;
 
-  --border: #44403c;
-  --input: #8a827c;
-  --ring: #fb923c;
+  --border: #2a2636;
+  --input: #7a748c;
+  --ring: #ff8a4a;
 
-  --sidebar: #1c1917;
-  --sidebar-foreground: #fafaf9;
-  --sidebar-primary: #fb923c;
-  --sidebar-primary-foreground: #1c1917;
-  --sidebar-accent: #292524;
-  --sidebar-accent-foreground: #fafaf9;
-  --sidebar-border: #44403c;
-  --sidebar-ring: #fb923c;
+  --sidebar: #0a0910;
+  --sidebar-foreground: #ebe8f3;
+  --sidebar-muted-foreground: #a9a3bb;
+  --sidebar-primary: #ff8a4a;
+  --sidebar-primary-foreground: #1a0b03;
+  --sidebar-accent: #1d1928;
+  --sidebar-accent-foreground: #ebe8f3;
+  --sidebar-border: #221d30;
+  --sidebar-ring: #ff8a4a;
+
+  /* Dark surfaces separate by a hairline instead of a shadow. */
+  --elevation-1: 0 0 0 1px #2a2636;
+  --elevation-2: 0 0 0 1px #3a3449, 0 24px 48px rgb(0 0 0 / 0.6);
+}
+
+/* Theme-independent scales. Their values change with the screen, not with the theme. */
+:root {
+  /* Type roles (font size; line height and weight are in @theme below). */
+  --type-page: 1.75rem;
+  --type-record: 1.625rem;
+  --type-section: 1rem;
+  --type-figure: 1.75rem;
+  --type-body: 0.9375rem;
+  --type-label: 0.875rem;
+  --type-help: 0.8125rem;
+  --type-id: 0.8125rem;
+
+  /* Page side margins. */
+  --space-gutter: 1rem;
+
+  /* Control height: 40 px, 44 px on touch screens. */
+  --size-control: 2.5rem;
+
+  /* Motion durations, for hand-written CSS; utilities use duration-100/150/200/250. */
+  --duration-fast: 100ms;
+  --duration-base: 150ms;
+  --duration-moderate: 200ms;
+  --duration-slow: 250ms;
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --space-gutter: 1.75rem;
+  }
+}
+
+/* Wide screens (≥ 1700 px) step the type up. */
+@media (min-width: 106.25rem) {
+  :root {
+    --type-page: 2rem;
+    --type-record: 1.875rem;
+    --type-section: 1.0625rem;
+    --type-figure: 2rem;
+    --type-body: 1rem;
+    --type-label: 0.9375rem;
+    --type-help: 0.875rem;
+    --type-id: 0.875rem;
+  }
+}
+
+@media (pointer: coarse) {
+  :root {
+    --size-control: 2.75rem;
+  }
 }
 
 @theme inline {
-  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 
-  --radius-sm: calc(var(--radius) - 0.125rem);
+  --text-page: var(--type-page);
+  --text-page--line-height: 1.15;
+  --text-page--font-weight: 700;
+  --text-page--letter-spacing: -0.02em;
+  --text-record: var(--type-record);
+  --text-record--line-height: 1.15;
+  --text-record--font-weight: 700;
+  --text-record--letter-spacing: -0.02em;
+  --text-section: var(--type-section);
+  --text-section--line-height: 1.3;
+  --text-section--font-weight: 600;
+  --text-figure: var(--type-figure);
+  --text-figure--line-height: 1.1;
+  --text-figure--font-weight: 700;
+  --text-body: var(--type-body);
+  --text-body--line-height: 1.55;
+  --text-label: var(--type-label);
+  --text-label--line-height: 1.35;
+  --text-label--font-weight: 500;
+  --text-help: var(--type-help);
+  --text-help--line-height: 1.45;
+  --text-id: var(--type-id);
+  --text-id--line-height: 1.45;
+
+  --spacing-field: 0.375rem;
+  --spacing-group: 1.25rem;
+  --spacing-section: 1.5rem;
+  --spacing-region: 2rem;
+  --spacing-gutter: var(--space-gutter);
+  --spacing-control: var(--size-control);
+  --spacing-row: 3.25rem;
+  --spacing-topbar: 3.75rem;
+  --spacing-action-bar: 4.5rem;
+
+  --radius-sm: 0.375rem;
   --radius-md: var(--radius);
-  --radius-lg: calc(var(--radius) + 0.25rem);
-  --radius-xl: calc(var(--radius) + 0.5rem);
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.125rem;
+
+  --shadow-e1: var(--elevation-1);
+  --shadow-e2: var(--elevation-2);
+
+  --container-page: 105rem;
+  --container-form: 53.75rem;
+  --container-prose: 40rem;
+  --container-field-id: 12rem;
+  --container-field-short: 14rem;
+  --container-field-name: 22rem;
+  --container-field-long: 30rem;
+
+  --breakpoint-wide: 106.25rem;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -128,12 +251,15 @@
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+  --color-surface-2: var(--surface-2);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-soft: var(--primary-soft);
   --color-primary-soft-foreground: var(--primary-soft-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-hover: var(--secondary-hover);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
@@ -148,6 +274,7 @@
   --color-warning-soft-foreground: var(--warning-soft-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-hover: var(--destructive-hover);
   --color-destructive-soft: var(--destructive-soft);
   --color-destructive-soft-foreground: var(--destructive-soft-foreground);
   --color-info: var(--info);
@@ -159,6 +286,7 @@
   --color-ring: var(--ring);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted-foreground: var(--sidebar-muted-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-accent: var(--sidebar-accent);

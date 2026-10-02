@@ -8,7 +8,7 @@ import { Button } from '@/components/app/Button';
 import { ConfirmDialog } from '@/components/app/ConfirmDialog';
 import { ConfirmFailure } from '@/components/app/confirm-failure';
 import { DataTable, type DataTableColumn } from '@/components/app/DataTable';
-import { PageSection } from '@/components/app/PageSection';
+import { SectionCard } from '@/components/app/SectionCard';
 import type { Announce } from '@/lib/notices';
 import { useModelLabel } from '../hooks';
 import { problemCode, problemMessage } from '../problems';
@@ -31,13 +31,54 @@ export function OwnedWeaponsSection({
   const modelLabel = useModelLabel();
   const { mutateAsync: removeWeapon } = useRemoveOwnedWeapon();
 
-  const columns = useMemo<DataTableColumn<OwnedWeaponResponse>[]>(() => {
+  const { columns, renderActions } = useMemo(() => {
     // Two weapons may share a number, so row actions are named by model and number.
     const names = (weapon: OwnedWeaponResponse) => ({
       model: modelLabel(weapon.model),
       number: weapon.weaponNumber,
     });
-    return [
+    const renderActions = (weapon: OwnedWeaponResponse) => (
+      <div className="flex flex-wrap gap-2">
+        <Button asChild variant="quiet" size="sm">
+          <Link
+            to={`/arquebusiers/${arquebusier.id}/weapons/${weapon.id}`}
+            aria-label={t('ownedWeapons.editLabel', names(weapon))}
+          >
+            {t('ownedWeapons.edit')}
+          </Link>
+        </Button>
+        <ConfirmDialog
+          title={t('ownedWeapons.removeTitle', { number: weapon.weaponNumber })}
+          description={t('ownedWeapons.removeDescription')}
+          confirmLabel={t('ownedWeapons.remove')}
+          onConfirm={async () => {
+            try {
+              await removeWeapon({ id: arquebusier.id, weaponId: weapon.id });
+            } catch (error) {
+              // Already removed by someone else: the outcome the user asked for.
+              if (problemCode(error) !== 'ownedWeapons.notFound') {
+                throw new ConfirmFailure(problemMessage(t, error));
+              }
+            }
+          }}
+          onConfirmed={() => {
+            announce('success', t('ownedWeapons.removed', { number: weapon.weaponNumber }));
+            void onChanged();
+          }}
+          trigger={
+            <Button
+              type="button"
+              variant="quiet"
+              size="sm"
+              aria-label={t('ownedWeapons.removeLabel', names(weapon))}
+            >
+              {t('ownedWeapons.remove')}
+            </Button>
+          }
+        />
+      </div>
+    );
+    const columns: DataTableColumn<OwnedWeaponResponse>[] = [
       { id: 'model', header: t('ownedWeapons.columns.model'), cell: (weapon) => modelLabel(weapon.model) },
       {
         id: 'kind',
@@ -66,56 +107,18 @@ export function OwnedWeaponsSection({
         id: 'actions',
         header: t('ownedWeapons.columns.actions'),
         hideHeader: true,
-        cell: (weapon) => (
-          <div className="flex flex-wrap gap-2">
-            <Button asChild variant="quiet" size="sm">
-              <Link
-                to={`/arquebusiers/${arquebusier.id}/weapons/${weapon.id}`}
-                aria-label={t('ownedWeapons.editLabel', names(weapon))}
-              >
-                {t('ownedWeapons.edit')}
-              </Link>
-            </Button>
-            <ConfirmDialog
-              title={t('ownedWeapons.removeTitle', { number: weapon.weaponNumber })}
-              description={t('ownedWeapons.removeDescription')}
-              confirmLabel={t('ownedWeapons.remove')}
-              onConfirm={async () => {
-                try {
-                  await removeWeapon({ id: arquebusier.id, weaponId: weapon.id });
-                } catch (error) {
-                  // Already removed by someone else: the outcome the user asked for.
-                  if (problemCode(error) !== 'ownedWeapons.notFound') {
-                    throw new ConfirmFailure(problemMessage(t, error));
-                  }
-                }
-              }}
-              onConfirmed={() => {
-                announce('success', t('ownedWeapons.removed', { number: weapon.weaponNumber }));
-                void onChanged();
-              }}
-              trigger={
-                <Button
-                  type="button"
-                  variant="quiet"
-                  size="sm"
-                  aria-label={t('ownedWeapons.removeLabel', names(weapon))}
-                >
-                  {t('ownedWeapons.remove')}
-                </Button>
-              }
-            />
-          </div>
-        ),
+        cell: renderActions,
       },
     ];
+    return { columns, renderActions };
   }, [announce, arquebusier.id, catalog, modelLabel, onChanged, removeWeapon, t]);
 
   return (
-    <PageSection
+    <SectionCard
+      span="full"
       title={t('ownedWeapons.title')}
       description={t('ownedWeapons.description')}
-      actions={
+      action={
         <Button asChild variant="secondary">
           <Link to={`/arquebusiers/${arquebusier.id}/weapons/new`}>
             <Plus aria-hidden="true" />
@@ -129,9 +132,20 @@ export function OwnedWeaponsSection({
         data={arquebusier.ownedWeapons}
         columns={columns}
         getRowId={(weapon) => weapon.id}
+        mobileRow={(weapon) => (
+          <>
+            <span className="font-semibold text-foreground">{modelLabel(weapon.model)}</span>
+            <span className="text-help text-muted-foreground">
+              {catalog(`kind.${weapon.model.kind}`)} ·{' '}
+              <span className="font-mono">{weapon.weaponNumber}</span> ·{' '}
+              <span className="font-mono">{weapon.ownershipGuideNumber}</span>
+            </span>
+            {renderActions(weapon)}
+          </>
+        )}
         paginated={false}
         emptyText={t('ownedWeapons.empty')}
       />
-    </PageSection>
+    </SectionCard>
   );
 }

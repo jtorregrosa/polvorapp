@@ -1,4 +1,4 @@
-import { cn } from 'cn';
+import { cn } from '@/lib/cn';
 import { LoaderCircle, type LucideIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';

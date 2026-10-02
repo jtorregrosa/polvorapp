@@ -218,15 +218,15 @@ async function register(
   const identity = syntheticIdentity();
   await page.goto('/arquebusiers/new');
   await waitForShell(page);
-  await page.getByLabel(/^Comparsa/).selectOption({ label: 'Comparsa Sintética Norte' });
+  await page.getByRole('combobox', { name: 'Comparsa' }).selectOption({ label: 'Comparsa Sintética Norte' });
   await page.getByLabel(/ID Unión/).fill(identity.federationId);
   await page.getByLabel(/^DNI\/NIE/).fill(identity.nationalId);
   await page.getByLabel(/^Nombre/).fill('Arcabucera');
   await page.getByLabel(/^Apellidos/).fill(identity.lastName);
   await page.getByLabel(/Fecha de nacimiento/).fill('1990-05-01');
-  await page.getByLabel(/Género/).selectOption('FEMALE');
+  await page.getByRole('radio', { name: 'Mujer' }).click();
   if (license) {
-    await page.getByLabel(/Tipo de licencia/).selectOption('AE');
+    await page.getByRole('radio', { name: /^AE/ }).click();
     await page.getByLabel(/Fecha de expedición/).fill('2025-03-10');
   }
   const created = page.waitForResponse(
@@ -290,8 +290,13 @@ test.describe('arquebusier photos', () => {
     await page.goto('/arquebusiers');
     await waitForShell(page);
     await page.getByRole('searchbox').fill(lastName);
+    // A table row on wide screens, a stacked item on a phone.
     await expect(
-      page.getByRole('row').filter({ hasText: lastName }).getByText('Sin foto de carnet'),
+      page
+        .getByRole('row')
+        .or(page.getByRole('listitem'))
+        .filter({ hasText: lastName })
+        .getByText('Sin foto de carnet'),
     ).toBeVisible();
 
     await page.goto(`/arquebusiers/${id}`);
@@ -331,10 +336,9 @@ test.describe('arquebusier photos', () => {
     await page.goto('/arquebusiers');
     await waitForShell(page);
     await page.getByRole('searchbox').fill(lastName);
-    await expect(page.getByRole('row').filter({ hasText: lastName })).toBeVisible();
-    await expect(
-      page.getByRole('row').filter({ hasText: lastName }).getByText('Sin foto de carnet'),
-    ).toHaveCount(0);
+    const row = page.getByRole('row').or(page.getByRole('listitem')).filter({ hasText: lastName });
+    await expect(row).toBeVisible();
+    await expect(row.getByText('Sin foto de carnet')).toHaveCount(0);
   });
 
   test('rotates a license photo both ways, replaces it and removes it after a confirmation', async ({
@@ -416,6 +420,30 @@ test.describe('arquebusier photos', () => {
     expect(width).toBeGreaterThanOrEqual(600);
     expect(Math.abs(width * 4 - height * 3)).toBeLessThanOrEqual(4);
     await expect(page.getByRole('button', { name: 'Sustituir foto de carnet' })).toBeFocused();
+  });
+
+  test('crops with the buttons only, without dragging, keeping the 3:4 shape (SC 2.5.7)', async ({
+    page,
+    deleteAfter,
+  }) => {
+    const { id, lastName } = await register(page, deleteAfter);
+    const upright = await syntheticImage(page, { width: 900, height: 1200, circle: [0.5, 0.4] }, 'image/png');
+    const dialog = await chooseFile(page, 'Añadir foto de carnet', upright);
+    const tools = dialog.getByRole('group', { name: 'Ajustar el recorte' });
+
+    // From 90 % centred: two steps smaller, then up and left until the corner.
+    await tools.getByRole('button', { name: 'Hacer el recorte más pequeño' }).click();
+    await tools.getByRole('button', { name: 'Hacer el recorte más pequeño' }).click();
+    for (let step = 0; step < 3; step += 1) {
+      await tools.getByRole('button', { name: 'Mover el recorte hacia arriba' }).click();
+      await tools.getByRole('button', { name: 'Mover el recorte a la izquierda' }).click();
+    }
+    const url = await confirmAndWait(page, `Foto de carnet de Arcabucera ${lastName}`);
+
+    expect(url).toMatch(new RegExp(`^/api/arquebusiers/${id}/photos/id`));
+    const { width, height } = jpegInfo(await storedPhoto(page, url));
+    // 80 % of 900 × 1200 at the top left corner: 720 × 960, still 3:4.
+    expect({ width, height }).toEqual({ width: 720, height: 960 });
   });
 
   test('a FiringChief cannot read or change the photos of another comparsa', async ({ page, browser }) => {

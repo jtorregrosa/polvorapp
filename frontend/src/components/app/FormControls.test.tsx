@@ -219,3 +219,55 @@ describe('PublicLayout', () => {
     expect(await axeViolations(container)).toEqual([]);
   });
 });
+
+describe('SelectInput', () => {
+  // Spec: Styled select. A placeholder such as "Choose a comparsa" is shown but never offered.
+  it('shows a placeholder that cannot be chosen', async () => {
+    await renderWithProviders(
+      <SelectInput
+        aria-label="Comparsa"
+        placeholder="Elige una comparsa"
+        defaultValue=""
+        options={[{ value: 'c1', label: 'Comparsa Sintética' }]}
+      />,
+    );
+
+    const select = screen.getByRole('combobox', { name: 'Comparsa' });
+    const placeholder = select.querySelector('option[value=""]');
+    expect(select).toHaveDisplayValue('Elige una comparsa');
+    expect(placeholder).toBeDisabled();
+    expect(placeholder).toHaveAttribute('hidden');
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Comparsa Sintética']);
+  });
+
+  it('keeps an empty option that is a real choice, such as "All"', async () => {
+    await renderWithProviders(
+      <SelectInput
+        aria-label="Bando"
+        defaultValue=""
+        options={[
+          { value: '', label: 'Todos' },
+          { value: 'MOORISH', label: 'Moro' },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole('option', { name: 'Todos' })).toBeEnabled();
+  });
+});
+
+describe('SelectInput in a form field', () => {
+  it('shows the placeholder while the field has no value yet', async () => {
+    await renderWithProviders(
+      <SelectInput
+        aria-label="Comparsa"
+        placeholder="Elige una comparsa"
+        value={undefined}
+        onChange={vi.fn()}
+        options={[{ value: 'c1', label: 'Comparsa Sintética' }]}
+      />,
+    );
+
+    expect(screen.getByRole('combobox', { name: 'Comparsa' })).toHaveDisplayValue('Elige una comparsa');
+  });
+});

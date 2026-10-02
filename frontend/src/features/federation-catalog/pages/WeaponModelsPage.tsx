@@ -4,10 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
 import { WeaponKind, type ListWeaponModelsParams, type WeaponModelResponse } from '@/api/generated/model';
 import { useListWeaponModels } from '@/api/generated/weapon-models/weapon-models';
-import { AlertBanner } from '@/components/app/AlertBanner';
+import { AlertBanner, NoticeBanner } from '@/components/app/AlertBanner';
 import { Button } from '@/components/app/Button';
 import { CheckboxField } from '@/components/app/CheckboxField';
 import { DataTable, type DataTableColumn } from '@/components/app/DataTable';
+import { FilterBar } from '@/components/app/FilterBar';
 import { FilterSelect } from '@/components/app/FilterSelect';
 import { PageHeader } from '@/components/app/PageHeader';
 import { StatusBadge } from '@/components/app/StatusBadge';
@@ -47,10 +48,7 @@ export function WeaponModelsPage() {
         header: t('weaponModels.columns.label'),
         sortValue: (model) => model.label,
         cell: (model) => (
-          <Link
-            to={`/weapon-models/${model.id}`}
-            className="font-medium text-primary underline-offset-4 hover:underline"
-          >
+          <Link to={`/weapon-models/${model.id}`} className="font-semibold text-foreground hover:underline">
             {model.label}
           </Link>
         ),
@@ -102,33 +100,34 @@ export function WeaponModelsPage() {
           </Button>
         }
       />
-      {notice && (
-        <AlertBanner key={notice.id} severity={notice.severity} className="mb-4 max-w-xl" focusOnMount>
-          {notice.text}
-        </AlertBanner>
-      )}
-      <div className="mb-4 flex flex-wrap items-end gap-4">
-        <FilterSelect
-          label={t('weaponModels.filters.kind')}
-          value={kind}
-          onChange={(value) => {
-            setFilter('kind', value);
-          }}
-          options={[
-            { value: '', label: t('weaponModels.filters.all') },
-            ...KINDS.map((value) => ({ value, label: t(`kind.${value}`) })),
-          ]}
-        />
-        <div className="flex h-9 items-center">
-          <CheckboxField
-            label={t('weaponModels.filters.includeInactive')}
-            checked={includeInactive}
-            onCheckedChange={(checked) => {
-              setFilter('includeInactive', checked ? 'true' : '');
-            }}
-          />
-        </div>
-      </div>
+      <NoticeBanner notice={notice} />
+      <FilterBar
+        resultText={models.isSuccess ? t('weaponModels.resultCount', { count: rows.length }) : ''}
+        filters={
+          <>
+            <FilterSelect
+              label={t('weaponModels.filters.kind')}
+              value={kind}
+              onChange={(value) => {
+                setFilter('kind', value);
+              }}
+              options={[
+                { value: '', label: t('weaponModels.filters.all') },
+                ...KINDS.map((value) => ({ value, label: t(`kind.${value}`) })),
+              ]}
+            />
+            <div className="flex min-h-control items-center">
+              <CheckboxField
+                label={t('weaponModels.filters.includeInactive')}
+                checked={includeInactive}
+                onCheckedChange={(checked) => {
+                  setFilter('includeInactive', checked ? 'true' : '');
+                }}
+              />
+            </div>
+          </>
+        }
+      />
       {models.isError ? (
         <AlertBanner severity="error">{problemMessage(t, models.error)}</AlertBanner>
       ) : (
@@ -137,6 +136,29 @@ export function WeaponModelsPage() {
           data={rows}
           columns={columns}
           getRowId={(model) => model.id}
+          getRowHref={(model) => `/weapon-models/${model.id}`}
+          mobileRow={(model) => (
+            <>
+              <Link to={`/weapon-models/${model.id}`} className="font-semibold text-foreground">
+                {model.label}
+              </Link>
+              <span className="flex flex-wrap items-center gap-2 text-help text-muted-foreground">
+                {t(`kind.${model.kind}`)}
+                <StatusBadge kind="catalog" value={model.active ? 'ACTIVE' : 'INACTIVE'} />
+              </span>
+              {/* What the table's other columns say, so nothing is lost on a phone (WCAG 1.4.10). */}
+              <span className="text-help text-muted-foreground">
+                {[
+                  model.side && t(`side.${model.side}`),
+                  model.handedness && t(`handedness.${model.handedness}`),
+                  model.size && t(`size.${model.size}`),
+                  model.rentable ? t('weaponModels.rentable') : t('weaponModels.notRentable'),
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </span>
+            </>
+          )}
           isLoading={models.isPending}
           emptyText={t('weaponModels.empty.description')}
         />

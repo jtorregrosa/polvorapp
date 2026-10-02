@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http as mock, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
@@ -26,8 +26,11 @@ describe('AccountPage (spec: Account self-service)', () => {
     await openAccount();
 
     expect(screen.getByRole('heading', { level: 1, name: 'Mi cuenta' })).toBeInTheDocument();
-    expect(screen.getByText('jefe@polvorapp.example')).toBeInTheDocument();
-    expect(screen.getByText('Jefe de disparo', { selector: 'dd' })).toBeInTheDocument();
+    // Spec: the account page is in sections (profile, password, two-step verification, sessions).
+    const profile = screen.getByRole('region', { name: 'Datos' });
+    expect(profile).toHaveTextContent('jefe@polvorapp.example');
+    expect(profile).toHaveTextContent('Jefe de disparo');
+    expect(screen.getByRole('region', { name: 'Cambiar la contraseña' })).toBeInTheDocument();
     expect(screen.getByText('Te quedan 10 códigos sin usar.')).toBeInTheDocument();
   });
 
@@ -39,9 +42,14 @@ describe('AccountPage (spec: Account self-service)', () => {
 
     await changePassword(user);
 
-    expect(
-      await screen.findByText('Contraseña cambiada. Las demás sesiones se han cerrado.'),
-    ).toBeInTheDocument();
+    // Announced politely, without moving focus (SC 4.1.3).
+    await waitFor(() => {
+      expect(
+        screen.getByText('Contraseña cambiada. Las demás sesiones se han cerrado.', {
+          selector: '[role=status]',
+        }),
+      ).toBeInTheDocument();
+    });
     expect(change.bodies).toEqual([{ currentPassword: CURRENT, newPassword: NEXT }]);
     expect(screen.getByLabelText(/^Contraseña nueva/)).toHaveValue('');
   });

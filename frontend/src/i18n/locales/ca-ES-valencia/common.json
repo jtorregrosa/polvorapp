@@ -19,7 +19,14 @@
   },
   "home": {
     "title": "Benvinguda",
-    "description": "Portal de gestió d'arcabussers de la Federació."
+    "description": "Portal de gestió d'arcabussers de la Federació.",
+    "sectionsTitle": "Què pots fer",
+    "sections": {
+      "arquebusiers": "Altes, llicències, cursos, fotos i armes pròpies dels arcabussers.",
+      "comparsas": "Les comparses i els seus caps de disparada.",
+      "weapon-models": "El catàleg de models d’arma.",
+      "users": "Usuaris, invitacions i permisos."
+    }
   },
   "notFound": {
     "title": "No s'ha trobat la pàgina",

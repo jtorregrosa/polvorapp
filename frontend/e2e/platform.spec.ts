@@ -65,7 +65,7 @@ test.describe('platform', () => {
 
     expect(manifest.ok()).toBe(true);
     const body = (await manifest.json()) as { icons?: { src: string }[] };
-    expect(body).toMatchObject({ name: 'PolvorApp', display: 'standalone', theme_color: '#c2410c' });
+    expect(body).toMatchObject({ name: 'PolvorApp', display: 'standalone', theme_color: '#b8430b' });
     expect(body.icons?.length).toBeGreaterThan(0);
     for (const icon of body.icons ?? []) {
       expect((await request.get(`/${icon.src.replace(/^\//, '')}`)).ok(), icon.src).toBe(true);

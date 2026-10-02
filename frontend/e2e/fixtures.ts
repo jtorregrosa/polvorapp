@@ -6,8 +6,7 @@ const CSP_MARKER = 'CSP-VIOLATION';
 interface Fixtures {
   /** Fails the test on any Content-Security-Policy violation or uncaught page error. */
   pageProblems: string[];
-  /** WCAG 2.1 A/AA violations on the current page, or on `target` (NFR-07). */
-  /** WCAG 2.1 AA violations of the page, or only of `include` (a CSS selector, e.g. an open dialog). */
+  /** WCAG 2.2 A/AA violations of the page, or only of `include` (a CSS selector, e.g. an open dialog). */
   axeViolations: (target?: Page, include?: string) => Promise<string[]>;
 }
 
@@ -33,7 +32,13 @@ export const test = base.extend<Fixtures>({
   ],
   axeViolations: async ({ page }, use) => {
     await use(async (target = page, include) => {
-      const builder = new AxeBuilder({ page: target }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']);
+      const builder = new AxeBuilder({ page: target }).withTags([
+        'wcag2a',
+        'wcag2aa',
+        'wcag21a',
+        'wcag21aa',
+        'wcag22aa',
+      ]);
       const results = await (include ? builder.include(include) : builder).analyze();
       return results.violations.map(
         (v) => `${v.id}: ${v.help} (${v.nodes.map((node) => node.target.join(' ')).join(', ')})`,
@@ -48,6 +53,29 @@ export { expect };
 export async function waitForShell(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await page.waitForLoadState('networkidle');
+}
+
+/** Opens the signed-in user's menu in the top bar, which holds the language and theme switchers. */
+export async function openUserMenu(page: Page) {
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: /^(Menú de|Menu for) / })
+    .click();
+  const menu = page.getByRole('menu');
+  await expect(menu).toBeVisible();
+  return menu;
+}
+
+/** Chooses a UI language (by its own name, e.g. "Valencià") in the user menu. */
+export async function chooseLanguage(page: Page, name: string): Promise<void> {
+  const menu = await openUserMenu(page);
+  await menu.getByRole('menuitemradio', { name }).click();
+}
+
+/** Chooses a theme (by its label in the current language, e.g. "Oscuro") in the user menu. */
+export async function chooseTheme(page: Page, name: string): Promise<void> {
+  const menu = await openUserMenu(page);
+  await menu.getByRole('menuitemradio', { name }).click();
 }
 
 /**

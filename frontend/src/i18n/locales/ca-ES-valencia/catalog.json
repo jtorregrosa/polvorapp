@@ -31,12 +31,18 @@
       "create": "Crea la comparsa",
       "save": "Guarda els canvis",
       "created": "Comparsa creada.",
-      "saved": "Canvis guardats."
+      "saved": "Canvis guardats.",
+      "section": "Dades de la comparsa",
+      "cancel": "Cancel·la"
     },
     "detail": {
       "back": "Torna a les comparses",
       "summary": "Dades",
-      "inactiveNotice": "Esta comparsa està inactiva: conserva el seu historial, però no admet nous caps de disparada."
+      "inactiveNotice": "Esta comparsa està inactiva: conserva el seu historial, però no admet nous caps de disparada.",
+      "data": {
+        "edit": "Edita les dades de la comparsa",
+        "name": "dades de la comparsa"
+      }
     },
     "actions": {
       "title": "Accions",
@@ -51,8 +57,11 @@
       "deleteDescription_one": "No es pot desfer. {{count}} cap de disparada hi perdrà l'accés.",
       "deleteDescription_other": "No es pot desfer. {{count}} caps de disparada hi perdran l'accés.",
       "deleteDescriptionNone": "No es pot desfer.",
-      "deleted": "Comparsa esborrada."
-    }
+      "deleted": "Comparsa esborrada.",
+      "deleteDescriptionUnknown": "No es pot desfer. Els seus caps de disparada, si en té, perdran l'accés."
+    },
+    "resultCount_one": "{{count}} comparsa",
+    "resultCount_other": "{{count}} comparses"
   },
   "firingChiefs": {
     "title": "Caps de disparada",
@@ -72,7 +81,8 @@
     "removeTitle": "Vols llevar {{name}} d'esta comparsa?",
     "removeDescription": "Deixarà de veure esta comparsa a partir de la seua acció següent.",
     "added": "{{name}} ja és cap de disparada d'esta comparsa.",
-    "removed": "{{name}} ja no és cap de disparada d'esta comparsa."
+    "removed": "{{name}} ja no és cap de disparada d'esta comparsa.",
+    "caption": "Caps de disparada de {{name}}"
   },
   "userComparsas": {
     "title": "Comparses",
@@ -87,7 +97,8 @@
     "removeDescription": "El cap de disparada deixarà de veure-la a partir de la seua acció següent.",
     "added": "Comparsa {{name}} assignada.",
     "removed": "Comparsa {{name}} llevada.",
-    "adminNoEffect": "Este usuari és administrador i veu totes les comparses. Estes assignacions no tenen efecte si no torna a ser cap de disparada."
+    "adminNoEffect": "Este usuari és administrador i veu totes les comparses. Estes assignacions no tenen efecte si no torna a ser cap de disparada.",
+    "caption": "Comparses de {{name}}"
   },
   "weaponModels": {
     "title": "Models d'arma",
@@ -131,11 +142,18 @@
       "create": "Crea el model",
       "save": "Guarda els canvis",
       "created": "Model d'arma creat.",
-      "saved": "Canvis guardats."
+      "saved": "Canvis guardats.",
+      "section": "Model d'arma",
+      "cancel": "Cancel·la",
+      "attributesShown": "Bàndol, mà i grandària, a continuació."
     },
     "detail": {
       "back": "Torna als models d'arma",
-      "inactiveNotice": "Este model està inactiu: es conserva per a l'historial, però no s'ofereix per a nous registres."
+      "inactiveNotice": "Este model està inactiu: es conserva per a l'historial, però no s'ofereix per a nous registres.",
+      "data": {
+        "edit": "Edita el model d'arma",
+        "name": "model d'arma"
+      }
     },
     "actions": {
       "title": "Accions",
@@ -149,7 +167,11 @@
       "deleteTitle": "Vols esborrar {{label}}?",
       "deleteDescription": "No es pot desfer.",
       "deleted": "Model d'arma esborrat."
-    }
+    },
+    "resultCount_one": "{{count}} model",
+    "resultCount_other": "{{count}} models",
+    "rentable": "Es lloga",
+    "notRentable": "No es lloga"
   },
   "side": {
     "MOORISH": "Moro",

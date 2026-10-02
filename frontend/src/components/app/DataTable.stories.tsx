@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Link } from 'react-router';
 import { DataTable, type DataTableColumn } from './DataTable';
 import { StatusBadge } from './StatusBadge';
 
@@ -83,5 +84,42 @@ export const Wide: Story = {
         }),
       ),
     ],
+  },
+};
+
+const linkedColumns: DataTableColumn<Row>[] = [
+  {
+    id: 'surname',
+    header: 'Apellidos',
+    cell: (row) => (
+      <Link to={`/arquebusiers/${row.id}`} className="font-semibold text-foreground hover:underline">
+        {row.surname}
+      </Link>
+    ),
+    secondary: (row) => (
+      <span className="font-mono text-id">{`0000${row.id.slice(1).padStart(4, '0')}X`}</span>
+    ),
+    sortValue: (row) => row.surname,
+  },
+  ...columns.slice(1),
+];
+
+/**
+ * Rows that lead to a record: the name is the link and the only tab stop; a click anywhere on the
+ * row opens the record too. Below 768 px each row is a stacked item instead (`mobileRow`).
+ */
+export const RowsLeadToRecords: Story = {
+  args: {
+    columns: linkedColumns,
+    getRowHref: (row: Row) => `/arquebusiers/${row.id}`,
+    mobileRow: (row: Row) => (
+      <>
+        <Link to={`/arquebusiers/${row.id}`} className="font-semibold text-foreground">
+          {row.surname}
+        </Link>
+        <span className="text-help text-muted-foreground">{row.comparsa}</span>
+        <StatusBadge kind="license" value={row.license} />
+      </>
+    ),
   },
 };

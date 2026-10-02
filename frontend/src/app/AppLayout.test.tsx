@@ -48,15 +48,51 @@ describe('AppLayout (platform: Application shell)', () => {
     expect(await screen.findByText('Versión no disponible')).toBeInTheDocument();
   });
 
-  it('renders the top bar with breadcrumbs, language and theme switchers', async () => {
+  it('renders the top bar with the breadcrumbs and the user menu, holding the switchers', async () => {
+    const user = userEvent.setup();
     await renderAt('/does/not/exist');
 
     const banner = screen.getByRole('banner');
     const breadcrumbs = within(banner).getByRole('navigation', { name: 'Ruta de navegación' });
     expect(within(breadcrumbs).getByRole('link', { name: 'Inicio' })).toHaveAttribute('href', '/');
     expect(within(breadcrumbs).getByText('Página no encontrada')).toHaveAttribute('aria-current', 'page');
-    expect(within(banner).getByRole('combobox', { name: 'Idioma' })).toBeInTheDocument();
-    expect(within(banner).getByRole('button', { name: /^Tema/ })).toBeInTheDocument();
+    expect(within(banner).queryByRole('combobox', { name: 'Idioma' })).not.toBeInTheDocument();
+
+    await user.click(within(banner).getByRole('button', { name: 'Menú de Admin Sintética' }));
+    const menu = await screen.findByRole('menu');
+    expect(within(menu).getByRole('group', { name: 'Idioma' })).toBeInTheDocument();
+    expect(within(menu).getByRole('group', { name: 'Tema' })).toBeInTheDocument();
+  });
+
+  it('changes the theme at once from the user menu', async () => {
+    const user = userEvent.setup();
+    await renderAt('/');
+
+    await user.click(screen.getByRole('button', { name: 'Menú de Admin Sintética' }));
+    await user.click(await screen.findByRole('menuitemradio', { name: 'Oscuro' }));
+
+    expect(document.documentElement).toHaveClass('dark');
+  });
+
+  it('aligns the top bar with the content, up to 1680 px beside the sidebar', async () => {
+    await renderAt('/');
+
+    const bar = screen.getByRole('banner').firstElementChild;
+    const content = screen.getByRole('main').firstElementChild;
+    expect(bar).toHaveClass('max-w-page');
+    expect(content).toHaveClass('max-w-page');
+    expect(content).not.toHaveClass('mx-auto');
+  });
+
+  it('shows the navigation on the night surface', async () => {
+    await renderAt('/');
+
+    const sidebar = document.querySelector('[data-slot="sidebar-inner"]');
+    expect(sidebar).toHaveClass('bg-sidebar');
+    const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
+    expect(within(navigation).getByRole('link', { name: 'Inicio' })).toHaveClass(
+      'data-[active=true]:before:bg-sidebar-primary',
+    );
   });
 
   it('keeps the skip link first and the focusable main landmark', async () => {

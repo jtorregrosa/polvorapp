@@ -1,4 +1,4 @@
-import { expect, openNavigation, test, waitForShell } from './fixtures';
+import { chooseLanguage, expect, openNavigation, test, waitForShell } from './fixtures';
 
 test.describe('language switching (UC-27)', () => {
   test('switches to Valencian without reloading and remembers it after a reload', async ({ page }) => {
@@ -7,7 +7,7 @@ test.describe('language switching (UC-27)', () => {
     const navigations: string[] = [];
     page.on('framenavigated', (frame) => navigations.push(frame.url()));
 
-    await page.getByRole('combobox', { name: 'Idioma' }).selectOption('ca-ES-valencia');
+    await chooseLanguage(page, 'Valencià');
 
     await expect(page.getByRole('heading', { level: 1, name: 'Benvinguda' })).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('lang', 'ca-ES-valencia');
@@ -23,9 +23,10 @@ test.describe('language switching (UC-27)', () => {
   test('sends the active language to the API', async ({ page }) => {
     await page.goto('/');
     await waitForShell(page);
-    await page.getByRole('combobox', { name: 'Idioma' }).selectOption('en');
+    await chooseLanguage(page, 'English');
 
-    const [request] = await Promise.all([page.waitForRequest('**/api/system/info'), page.reload()]);
+    // The session is asked for on every load, on any screen size.
+    const [request] = await Promise.all([page.waitForRequest('**/api/account'), page.reload()]);
 
     expect(request.headers()['accept-language']).toBe('en');
   });

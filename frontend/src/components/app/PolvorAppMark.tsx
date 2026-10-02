@@ -1,7 +1,7 @@
-import { cn } from 'cn';
+import { cn } from '@/lib/cn';
 
 /**
- * The PolvorApp mark (ADR-0012): a rounded "P" whose counter ends in an ember spark. Decorative;
+ * The PolvorApp mark (ADR-0013): a rounded "P" whose counter ends in an ember spark. Decorative;
  * the product name is always next to it or in the accessible name of its link.
  */
 export function PolvorAppMark({ className }: { className?: string }) {

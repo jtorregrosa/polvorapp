@@ -18,6 +18,15 @@ if (typeof window.matchMedia !== 'function') {
   });
 }
 
+// jsdom has no layout, so no scrolling: links of the error summary scroll fields into view.
+if (typeof (Element.prototype as Partial<Element>).scrollIntoView !== 'function') {
+  Object.defineProperty(Element.prototype, 'scrollIntoView', {
+    configurable: true,
+    writable: true,
+    value: (): void => undefined,
+  });
+}
+
 // jsdom has no ResizeObserver; Radix primitives (e.g. Checkbox) only need it to exist.
 if (typeof globalThis.ResizeObserver !== 'function') {
   const noop = (): void => undefined;

@@ -36,16 +36,17 @@ export default defineConfig({
       },
       dependencies: ['setup'],
     },
-    // Native date fields differ per engine: the date checks also run in Firefox and WebKit.
+    // Native date fields and select lists differ per engine: those checks also run in Firefox and
+    // WebKit.
     {
       name: 'dates-firefox',
-      testMatch: /dates\.spec\.ts$/,
+      testMatch: /(dates|select)\.spec\.ts$/,
       use: { ...devices['Desktop Firefox'], storageState: ADMIN_STATE },
       dependencies: ['setup'],
     },
     {
       name: 'dates-webkit',
-      testMatch: /dates\.spec\.ts$/,
+      testMatch: /(dates|select)\.spec\.ts$/,
       use: { ...devices['Desktop Safari'], storageState: ADMIN_STATE },
       dependencies: ['setup'],
     },

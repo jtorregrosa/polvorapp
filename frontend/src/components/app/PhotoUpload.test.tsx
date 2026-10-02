@@ -207,6 +207,56 @@ describe('PhotoUpload', () => {
     expect(screen.getAllByRole('button', { name: /Esquina/ }).length).toBeGreaterThanOrEqual(4);
   });
 
+  it('moves and resizes the crop with buttons, without dragging, keeping its shape (SC 2.5.7)', async () => {
+    const user = userEvent.setup();
+    const { onUpload, view } = setup();
+    await view;
+
+    chooseFile();
+    await screen.findByRole('dialog');
+    const tools = screen.getByRole('group', { name: 'Ajustar el recorte' });
+    await user.click(within(tools).getByRole('button', { name: 'Mover el recorte a la izquierda' }));
+    await user.click(within(tools).getByRole('button', { name: 'Hacer el recorte más pequeño' }));
+    await user.click(screen.getByRole('button', { name: 'Usar foto' }));
+
+    await waitFor(() => {
+      expect(onUpload).toHaveBeenCalledWith(JPEG);
+    });
+    // From 90 % centred (x 5 %), moved 5 % left (x 0 %), then shrunk by 5 % around its centre:
+    // 85 % of 1200 × 1600 at 3:4 is 1020 × 1360, at x 2.5 %, y 7.5 %.
+    expect(cropToJpeg).toHaveBeenCalledWith(
+      expect.objectContaining({ url: 'blob:chosen' }),
+      { x: 30, y: 120, width: 1020, height: 1360 },
+      1020,
+      1360,
+    );
+  });
+
+  it('keeps the crop inside the image when moved or enlarged past its edges', async () => {
+    const user = userEvent.setup();
+    const { onUpload, view } = setup();
+    await view;
+
+    chooseFile();
+    await screen.findByRole('dialog');
+    const tools = screen.getByRole('group', { name: 'Ajustar el recorte' });
+    for (let step = 0; step < 4; step += 1) {
+      await user.click(within(tools).getByRole('button', { name: 'Mover el recorte hacia arriba' }));
+      await user.click(within(tools).getByRole('button', { name: 'Hacer el recorte más grande' }));
+    }
+    await user.click(screen.getByRole('button', { name: 'Usar foto' }));
+
+    await waitFor(() => {
+      expect(onUpload).toHaveBeenCalled();
+    });
+    expect(cropToJpeg).toHaveBeenCalledWith(
+      expect.anything(),
+      { x: 0, y: 0, width: 1200, height: 1600 },
+      1200,
+      1600,
+    );
+  });
+
   it('keeps the crop open with the translated reason when the upload fails', async () => {
     const { onUpload, view } = setup();
     await view;
