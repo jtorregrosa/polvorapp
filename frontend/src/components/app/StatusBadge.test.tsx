@@ -1,5 +1,7 @@
 import { screen } from '@testing-library/react';
+import { TriangleAlert } from 'lucide-react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { ComplianceWarning } from '@/api/generated/model';
 import caUi from '@/i18n/locales/ca-ES-valencia/ui.json';
 import enUi from '@/i18n/locales/en/ui.json';
 import esUi from '@/i18n/locales/es-ES/ui.json';
@@ -39,6 +41,21 @@ describe('StatusBadge', () => {
       const labels = resources.status[kind] as Record<string, string | undefined>;
       expect(labels[value], `${kind}.${value}`).toBeTruthy();
     }
+  });
+
+  it.each(Object.values(ComplianceWarning))(
+    'renders the compliance warning %s with the warning tone, never destructive',
+    async (code) => {
+      await renderWithProviders(<StatusBadge kind="warning" value={code} />);
+
+      const badge = screen.getByText((_, element) => element?.hasAttribute('data-status-badge') ?? false);
+      expect(badge).toHaveAttribute('data-tone', 'warning');
+      expect(STATUS_MAP.warning[code].icon).toBe(TriangleAlert);
+    },
+  );
+
+  it('maps exactly the compliance warnings of the API', () => {
+    expect(Object.keys(STATUS_MAP.warning).sort()).toEqual(Object.values(ComplianceWarning).sort());
   });
 
   it('shows an expired license in Valencian with the destructive tone', async () => {

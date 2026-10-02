@@ -119,3 +119,49 @@ describe('AppLayout sidebar cards (platform: Application shell)', () => {
     expect(await axeViolations(container)).toEqual([]);
   });
 });
+
+describe('AppLayout navigation counts (compliance-insights: Warning count in the navigation)', () => {
+  function renderWithCount(count: number) {
+    const router = createMemoryRouter(
+      [
+        {
+          path: '/',
+          element: (
+            <AppLayout
+              navigation={[
+                { to: '/', label: 'Inicio', icon: House },
+                {
+                  to: '/arquebusiers',
+                  label: 'Arcabuceros',
+                  icon: House,
+                  count,
+                  countLabel: `${count} con avisos`,
+                },
+              ]}
+            >
+              <h1>Bienvenida</h1>
+            </AppLayout>
+          ),
+        },
+      ],
+      { initialEntries: ['/'] },
+    );
+    return renderWithProviders(<RouterProvider router={router} />);
+  }
+
+  it('makes the count part of the link name and hides the badge from assistive technology', async () => {
+    await renderWithCount(5);
+
+    const link = await screen.findByRole('link', { name: 'Arcabuceros, 5 con avisos' });
+    expect(link).toBeInTheDocument();
+    const badge = screen.getByText('5', { selector: '[data-sidebar="menu-badge"]' });
+    expect(badge).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('shows no badge and no count in the name for zero', async () => {
+    await renderWithCount(0);
+
+    expect(await screen.findByRole('link', { name: 'Arcabuceros' })).toBeInTheDocument();
+    expect(document.querySelector('[data-sidebar="menu-badge"]')).toBeNull();
+  });
+});

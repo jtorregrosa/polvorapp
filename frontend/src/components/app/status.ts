@@ -10,6 +10,7 @@ import {
   Undo2,
   type LucideIcon,
 } from 'lucide-react';
+import type { ComplianceWarning } from '@/api/generated/model';
 
 /** Semantic tone of a status (design D1/D6); each maps to verified token pairs. */
 export type StatusTone = 'success' | 'warning' | 'destructive' | 'info' | 'muted';
@@ -58,12 +59,21 @@ export const STATUS_MAP = {
     ACTIVE: { tone: 'success', icon: CircleCheck },
     INACTIVE: { tone: 'muted', icon: CircleDashed },
   },
+  /** Compliance warnings (BR-04, `ComplianceWarning`), in rule order. */
   warning: {
-    LICENSE: { tone: 'warning', icon: TriangleAlert },
-    COURSE: { tone: 'warning', icon: TriangleAlert },
-    AGE: { tone: 'warning', icon: TriangleAlert },
+    LICENSE_MISSING: { tone: 'warning', icon: TriangleAlert },
+    LICENSE_PENDING: { tone: 'warning', icon: TriangleAlert },
+    LICENSE_EXPIRED: { tone: 'warning', icon: TriangleAlert },
+    LICENSE_EXPIRING: { tone: 'warning', icon: TriangleAlert },
+    COURSE_MISSING: { tone: 'warning', icon: TriangleAlert },
+    UNDER_AGE: { tone: 'warning', icon: TriangleAlert },
+    ID_PHOTO_MISSING: { tone: 'warning', icon: TriangleAlert },
+    LICENSE_PHOTOS_MISSING: { tone: 'warning', icon: TriangleAlert },
   },
-} as const satisfies Record<string, Record<string, StatusStyle>>;
+} as const satisfies Record<string, Record<string, StatusStyle>> & {
+  // Exactly the API's compliance warnings: a new or removed code fails the type check here.
+  warning: Record<ComplianceWarning, StatusStyle>;
+};
 
 export type StatusKind = keyof typeof STATUS_MAP;
 
