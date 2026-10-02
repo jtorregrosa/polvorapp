@@ -6,6 +6,7 @@ using PolvorApp.FederationCatalog.Assignments;
 using PolvorApp.FederationCatalog.Comparsas;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.FederationCatalog.Endpoints;
+using PolvorApp.FederationCatalog.Logos;
 using PolvorApp.FederationCatalog.Persistence;
 using PolvorApp.FederationCatalog.Seeding;
 using PolvorApp.FederationCatalog.WeaponModels;
@@ -13,6 +14,7 @@ using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.SharedKernel.Modules;
 using PolvorApp.SharedKernel.Persistence;
 using PolvorApp.SharedKernel.Seeding;
+using PolvorApp.SharedKernel.Storage;
 
 namespace PolvorApp.FederationCatalog;
 
@@ -33,6 +35,10 @@ public sealed class FederationCatalogModule : IModule
         services.AddScoped<ComparsaAdministration>();
         services.AddScoped<AssignmentAdministration>();
         services.AddScoped<WeaponModelAdministration>();
+        services.AddScoped<ComparsaLogoAdministration>();
+        services.AddScoped<LogoObjects>();
+        services.AddScoped<LogoReader>();
+        services.AddScoped<IStoredObjectOwner, CatalogLogoOwner>();
         services.AddScoped<IDataSeeder, CatalogSeeder>();
         services.AddScoped<ICatalogDirectory, CatalogDirectory>();
 
@@ -45,5 +51,6 @@ public sealed class FederationCatalogModule : IModule
         endpoints.MapComparsaEndpoints();
         endpoints.MapAssignmentEndpoints();
         endpoints.MapWeaponModelEndpoints();
+        endpoints.MapLogoEndpoints();
     }
 }

@@ -1,4 +1,5 @@
 using PolvorApp.FederationCatalog.Contracts;
+using PolvorApp.FederationCatalog.Logos;
 
 namespace PolvorApp.FederationCatalog.Comparsas;
 
@@ -16,4 +17,7 @@ internal sealed class Comparsa
     public bool Active { get; set; } = true;
 
     public required DateTimeOffset CreatedAt { get; init; }
+
+    /// <summary>The comparsa's logo, if an Admin uploaded one (spec: Comparsa logos).</summary>
+    public ComparsaLogo? Logo { get; set; }
 }

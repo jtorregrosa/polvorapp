@@ -21,6 +21,14 @@ internal enum CatalogOutcome
     LabelTaken,
     CombinationTaken,
     WeaponModelInUse,
+    LogoNotFound,
+
+    /// <summary>The image broke a logo rule; the endpoint names the rule (spec: Logo validation and processing).</summary>
+    ImageRejected,
+    StorageUnavailable,
+
+    /// <summary>The image processor stayed busy; retryable.</summary>
+    Busy,
 }
 
 /// <summary>Problem codes of the catalogue, translated by the UI as <c>catalog:errors.&lt;code&gt;</c>.</summary>
@@ -37,6 +45,9 @@ internal static class CatalogProblems
     public const string LabelTaken = "weaponModels.labelTaken";
     public const string CombinationTaken = "weaponModels.combinationTaken";
     public const string WeaponModelInUse = "weaponModels.inUse";
+    public const string LogoNotFound = "logos.notFound";
+    public const string StorageUnavailable = "storage.unavailable";
+    public const string Busy = "catalog.busy";
 
     public static ProblemHttpResult From(CatalogOutcome outcome) => outcome switch
     {
@@ -51,6 +62,9 @@ internal static class CatalogProblems
         CatalogOutcome.LabelTaken => ProblemResults.Conflict(LabelTaken),
         CatalogOutcome.CombinationTaken => ProblemResults.Conflict(CombinationTaken),
         CatalogOutcome.WeaponModelInUse => ProblemResults.Conflict(WeaponModelInUse),
+        CatalogOutcome.LogoNotFound => ProblemResults.NotFound(LogoNotFound),
+        CatalogOutcome.StorageUnavailable => ProblemResults.Problem(StatusCodes.Status503ServiceUnavailable, StorageUnavailable),
+        CatalogOutcome.Busy => ProblemResults.Problem(StatusCodes.Status503ServiceUnavailable, Busy),
         _ => throw new ArgumentOutOfRangeException(nameof(outcome), outcome, "Not a problem outcome."),
     };
 

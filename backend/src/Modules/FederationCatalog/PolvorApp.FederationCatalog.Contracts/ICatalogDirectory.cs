@@ -18,6 +18,12 @@ public sealed record ComparsaSummary(Guid Id, string Name, Side Side, bool Activ
 public sealed record WeaponModelSummary(
     Guid Id, WeaponKind Kind, Side? Side, Handedness? Handedness, WeaponSize? Size, string Label, bool Active);
 
+/// <summary>A comparsa's logo for other modules, e.g. to print it in a document (change add-comparsa-logos, design D6).</summary>
+/// <param name="Png">The whole image, PNG-encoded with its transparency.</param>
+/// <param name="Width">Width in pixels, at most 1024.</param>
+/// <param name="Height">Height in pixels, at most 1024.</param>
+public sealed record ComparsaLogoImage(ReadOnlyMemory<byte> Png, int Width, int Height);
+
 /// <summary>
 /// Read-only lookup of comparsas and weapon models for other modules, e.g. to validate and show
 /// arquebusiers and owned weapons (change add-arquebusier-registry, design D2). Inactive records are
@@ -37,4 +43,11 @@ public interface ICatalogDirectory
 
     /// <summary>The weapon models that exist among <paramref name="weaponModelIds"/>, each once and in no particular order.</summary>
     Task<IReadOnlyList<WeaponModelSummary>> FindWeaponModelsAsync(IReadOnlyCollection<Guid> weaponModelIds, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The comparsa's logo, or null when the comparsa or its logo does not exist. Throws
+    /// <c>StorageUnavailableException</c> when the storage cannot be reached; a document can then
+    /// fall back to a placeholder.
+    /// </summary>
+    Task<ComparsaLogoImage?> ReadComparsaLogoAsync(Guid comparsaId, CancellationToken cancellationToken);
 }

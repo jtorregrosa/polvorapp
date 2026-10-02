@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using PolvorApp.FederationCatalog.Comparsas;
 using PolvorApp.FederationCatalog.WeaponModels;
 
@@ -38,6 +39,14 @@ internal static class CatalogLocks
     /// <summary>For a deletion of a weapon model; see <see cref="LockComparsaForDeleteAsync"/>.</summary>
     public static Task<WeaponModel?> LockWeaponModelForDeleteAsync(this FederationCatalogDbContext db, Guid id, CancellationToken cancellationToken) =>
         LockAsync(db, db.WeaponModels.FromSql($"SELECT * FROM catalog.weapon_models WHERE id = {id} FOR UPDATE"), cancellationToken);
+
+    /// <summary>
+    /// Whether <paramref name="exception"/> is a lock wait that hit the 5 s timeout, or the database
+    /// aborting one side of a deadlock: both are retryable, answered as busy (add-comparsa-logos).
+    /// </summary>
+    public static bool IsRetryable(Exception exception) =>
+        (exception as PostgresException ?? exception.InnerException as PostgresException)?.SqlState
+            is PostgresErrorCodes.LockNotAvailable or PostgresErrorCodes.DeadlockDetected;
 
     /// <remarks>
     /// Tracked results come back fresh only if the context has not loaded the row before in this

@@ -125,11 +125,10 @@ public sealed class PhotoRaceTests(PostgresFixture postgres, MailpitFixture mail
         using var first = await PhotoRequests.UploadAsync(_registry.Admin, _arquebusier, "id", TestImages.Jpeg(600, 800));
         var key = $"registry/photos/{(await ReadAsync<JsonElement>(first)).GetProperty("version").GetGuid():N}.jpg";
         await using var scope = _registry.Services.CreateAsyncScope();
-        var owner = scope.ServiceProvider.GetServices<IStoredObjectOwner>().Single();
+        var owner = scope.ServiceProvider.GetServices<IStoredObjectOwner>().Single(o => o.Prefix == "registry/photos/");
 
         var referenced = await owner.FilterReferencedAsync([key, key.ToUpperInvariant(), "registry/photos/other.jpg"], Token);
 
-        Assert.Equal("registry/photos/", owner.Prefix);
         Assert.Equal([key], referenced);
     }
 

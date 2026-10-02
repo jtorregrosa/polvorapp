@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using PolvorApp.FederationCatalog.Contracts;
+using PolvorApp.FederationCatalog.Logos;
 using PolvorApp.FederationCatalog.Persistence;
 using PolvorApp.SharedKernel.Auditing;
 
@@ -25,6 +26,7 @@ internal sealed partial class ComparsaAdministration(
     IAuditTrail trail,
     TimeProvider time,
     IEnumerable<ICatalogUsage> usages,
+    LogoObjects logos,
     ILogger<ComparsaAdministration> logger)
 {
     public const string EntityType = "Comparsa";
@@ -100,8 +102,11 @@ internal sealed partial class ComparsaAdministration(
         }
 
         var unassignedUserIds = await db.Assignments.Where(a => a.ComparsaId == id).Select(a => a.UserId).ToListAsync(cancellationToken);
+
+        // The logo is a column of this row, never a usage: it goes with the comparsa (add-comparsa-logos D5).
+        var logoKey = comparsa.Logo?.ObjectKey;
         db.Comparsas.Remove(comparsa);
-        Record("ComparsaDeleted", comparsa, new { name = comparsa.Name, side = comparsa.Side, active = comparsa.Active, unassignedUserIds });
+        Record("ComparsaDeleted", comparsa, new { name = comparsa.Name, side = comparsa.Side, active = comparsa.Active, hadLogo = logoKey is not null, unassignedUserIds });
         try
         {
             await db.SaveChangesAsync(cancellationToken);
@@ -116,6 +121,10 @@ internal sealed partial class ComparsaAdministration(
         }
 
         await transaction.CommitAsync(cancellationToken);
+
+        // After the commit the image is unreferenced; a failed erasure is left to the orphan sweep.
+        // EF has released the connection at the commit, so the bounded erasure holds no database resource.
+        await logos.DeleteAsync(logoKey);
         return CatalogOutcome.Done;
     }
 
