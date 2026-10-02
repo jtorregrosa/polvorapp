@@ -71,7 +71,7 @@ Managed by Admins from both the comparsa and the user pages (maintainer decision
 | Field | Notes |
 |---|---|
 | `federationId` | Whole number 1–999 999 999, unique. ID in the Federation's external app. Required (always known at sign-up). |
-| `nationalId` | DNI (8 digits + letter) or NIE (X/Y/Z + 7 digits + letter), stored normalised (spaces, tabs and hyphens removed, uppercase, ASCII only), check letter validated (BR-01). Unique (BR-02). |
+| `nationalId` | DNI (8 digits + letter) or NIE (X/Y/Z + 7 digits + letter), stored normalised (spaces, tabs and hyphens removed, uppercase, ASCII only), check letter validated (BR-01). Unique (BR-02). The spreadsheet import pads a DNI that lost its leading zeros (the check letter does not change); the form does not. |
 | `firstName`, `lastName` | 1–100 characters, trimmed, no line breaks or invisible characters. |
 | `birthDate` | Not in the future, not before 1900-01-01. Age is derived, never stored. |
 | `email`, `phone` | Optional. Email: plain address, stored lower-case. Phone: digits and spaces with an optional leading `+`, at most 20 characters. |
@@ -83,6 +83,13 @@ Managed by Admins from both the comparsa and the user pages (maintainer decision
 
 Edits carry a version (PostgreSQL `xmin`): an edit based on outdated data is rejected, so two
 FiringChiefs of one comparsa never overwrite each other silently.
+
+**Spreadsheet import** (UC-09, `add-registry-import`) — an Admin imports the PolvorApp template
+for one active comparsa. The file is checked first (a report per row: the registration's blocking
+rules, duplicates inside the file and against the registry, and the compliance warnings), then
+imported only when no row has an error, all rows in one transaction. It only creates arquebusiers
+(license, course and status included; no owned weapons, no photos) and never changes existing ones.
+Uploaded files are read in memory and never stored. Nothing new is stored beyond the arquebusiers.
 
 **License** (current only, no history, no number) — `type` (`AE` | `A_PROF`), `issuedOn`, `expiresOn` (default: AE `issuedOn + 5 years`, A-PROF `issuedOn + 1 year`), `status` (`PENDING` | `VALID` | `EXPIRED` derived from today in Europe/Madrid: valid through its expiry day; no status without a license), `frontPhoto`, `backPhoto`. A pending license has no dates; an issued one has both, `expiresOn` after `issuedOn`, and `issuedOn` not in the future. Renewal replaces the previous data; the photos are kept until new ones are uploaded (maintainer decision), and removing the license deletes them.
 
