@@ -151,8 +151,9 @@ public sealed class PhotoCleanupFailureTests(PostgresFixture postgres, MailpitFi
         var second = await UploadAsync("license-front");
 
         Assert.NotEqual(first, second);
+        // Both ids come from the same test-clock millisecond, so their order is random: compare sorted.
         Assert.Equal(
-            [$"registry/photos/{first:N}.jpg", $"registry/photos/{second:N}.jpg"],
+            new[] { $"registry/photos/{first:N}.jpg", $"registry/photos/{second:N}.jpg" }.Order(StringComparer.Ordinal),
             (await minio.ListKeysAsync(_bucket, "registry/photos/")).Order(StringComparer.Ordinal));
     }
 
