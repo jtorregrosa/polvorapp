@@ -89,9 +89,14 @@
       "INACTIVE": "Inactive"
     },
     "warning": {
-      "LICENSE": "License not valid",
-      "COURSE": "No course",
-      "AGE": "Under age"
+      "LICENSE_MISSING": "No license",
+      "LICENSE_PENDING": "License pending",
+      "LICENSE_EXPIRED": "License expired",
+      "LICENSE_EXPIRING": "License expiring soon",
+      "COURSE_MISSING": "No course",
+      "UNDER_AGE": "Under 18",
+      "ID_PHOTO_MISSING": "No ID photo",
+      "LICENSE_PHOTOS_MISSING": "No license photos"
     },
     "user": {
       "INVITED": "Invited",
@@ -189,5 +194,9 @@
     "edit": "Edit",
     "saved": "Changes saved",
     "saveChanges": "Save changes"
+  },
+  "breakdown": {
+    "share": "% of total",
+    "total": "Total"
   }
 }

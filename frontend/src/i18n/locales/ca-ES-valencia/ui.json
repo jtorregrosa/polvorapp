@@ -89,9 +89,14 @@
       "INACTIVE": "Inactiu"
     },
     "warning": {
-      "LICENSE": "Llicència no vigent",
-      "COURSE": "Sense curs",
-      "AGE": "Menor d'edat"
+      "LICENSE_MISSING": "Sense llicència",
+      "LICENSE_PENDING": "Llicència en tràmit",
+      "LICENSE_EXPIRED": "Llicència caducada",
+      "LICENSE_EXPIRING": "Llicència caduca prompte",
+      "COURSE_MISSING": "Sense curs",
+      "UNDER_AGE": "Menor d'edat",
+      "ID_PHOTO_MISSING": "Sense foto de carnet",
+      "LICENSE_PHOTOS_MISSING": "Sense fotos de la llicència"
     },
     "user": {
       "INVITED": "Convidat",
@@ -189,5 +194,9 @@
     "edit": "Edita",
     "saved": "Canvis desats",
     "saveChanges": "Desa els canvis"
+  },
+  "breakdown": {
+    "share": "% del total",
+    "total": "Total"
   }
 }

@@ -21,14 +21,21 @@ import { isCurrentPath } from './navigation-match';
 import { PolvorAppMark } from './PolvorAppMark';
 import { SaveNoticeProvider } from './SaveNotice';
 
-export interface NavigationItem {
+interface NavigationLink {
   to: string;
   /** Already translated label. */
   label: string;
   icon: LucideIcon;
-  /** Optional counter, e.g. pending warnings. */
-  count?: number;
 }
+
+/**
+ * An optional counter, shown only above zero, with what it means, already translated (e.g. "5 with
+ * warnings"). The label becomes part of the link's accessible name while the badge is hidden from
+ * assistive technology, so the two always come together.
+ */
+type NavigationCount = { count?: undefined; countLabel?: undefined } | { count: number; countLabel: string };
+
+export type NavigationItem = NavigationLink & NavigationCount;
 
 /** A link card in the sidebar, under the mark: e.g. a FiringChief's comparsa with its logo. */
 export interface SidebarCard {
@@ -67,8 +74,9 @@ function NavigationMenu({ items }: { items: readonly NavigationItem[] }) {
   return (
     <nav aria-label={t('nav.label')}>
       <SidebarMenu>
-        {items.map(({ to, label, icon: Icon, count }) => {
+        {items.map(({ to, label, icon: Icon, count, countLabel }) => {
           const current = isCurrentPath(pathname, to);
+          const counted = count !== undefined && count > 0;
           return (
             <SidebarMenuItem key={to}>
               <SidebarMenuButton
@@ -77,12 +85,19 @@ function NavigationMenu({ items }: { items: readonly NavigationItem[] }) {
                 // Current page: an ember bar, weight and icon, not background alone (WCAG 1.4.1).
                 className="relative min-h-9 text-sidebar-muted-foreground before:absolute before:inset-y-1.5 before:left-0 before:w-1 before:rounded-full hover:text-sidebar-foreground data-[active=true]:font-semibold data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-sidebar-primary data-[active=true]:[&>svg]:text-sidebar-primary"
               >
-                <Link to={to} aria-current={current ? 'page' : undefined} onClick={closeDrawer}>
+                <Link
+                  to={to}
+                  aria-current={current ? 'page' : undefined}
+                  // The name starts with the visible label (WCAG 2.5.3) and says what the badge counts;
+                  // an aria-label is exact, where hidden text gets a space before the comma.
+                  aria-label={counted ? `${label}, ${countLabel}` : undefined}
+                  onClick={closeDrawer}
+                >
                   <Icon aria-hidden="true" />
-                  <span>{label}</span>
+                  <span className="break-words">{label}</span>
                 </Link>
               </SidebarMenuButton>
-              {count !== undefined && count > 0 && <SidebarMenuBadge>{count}</SidebarMenuBadge>}
+              {counted && <SidebarMenuBadge aria-hidden="true">{count}</SidebarMenuBadge>}
             </SidebarMenuItem>
           );
         })}

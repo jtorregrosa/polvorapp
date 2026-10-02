@@ -62,6 +62,11 @@ neutral pill with the raw code and a development-only console warning.
 
 | Value | Tone | Icon | es-ES | ca-ES-valencia | en |
 |---|---|---|---|---|---|
-| `LICENSE` | warning | TriangleAlert | Licencia no vigente | Llicència no vigent | License not valid |
-| `COURSE` | warning | TriangleAlert | Sin curso | Sense curs | No course |
-| `AGE` | warning | TriangleAlert | Menor de edad | Menor d'edat | Under age |
+| `LICENSE_MISSING` | warning | TriangleAlert | Sin licencia | Sense llicència | No license |
+| `LICENSE_PENDING` | warning | TriangleAlert | Licencia en trámite | Llicència en tràmit | License pending |
+| `LICENSE_EXPIRED` | warning | TriangleAlert | Licencia caducada | Llicència caducada | License expired |
+| `LICENSE_EXPIRING` | warning | TriangleAlert | Licencia caduca pronto | Llicència caduca prompte | License expiring soon |
+| `COURSE_MISSING` | warning | TriangleAlert | Sin curso | Sense curs | No course |
+| `UNDER_AGE` | warning | TriangleAlert | Menor de edad | Menor d'edat | Under 18 |
+| `ID_PHOTO_MISSING` | warning | TriangleAlert | Sin foto de carnet | Sense foto de carnet | No ID photo |
+| `LICENSE_PHOTOS_MISSING` | warning | TriangleAlert | Sin fotos de la licencia | Sense fotos de la llicència | No license photos |

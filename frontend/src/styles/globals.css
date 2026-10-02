@@ -84,7 +84,7 @@ html:has([data-slot='action-bar']) {
   }
 }
 
-/* Meters (KeyFacts): a track in the muted surface and a bar in the accent, in every engine. */
+/* Meters (KeyFacts, Breakdown): a track in the muted surface and a bar in the accent, in every engine. */
 meter[data-slot='meter'] {
   appearance: none;
   border-radius: 999px;

@@ -89,9 +89,14 @@
       "INACTIVE": "Inactivo"
     },
     "warning": {
-      "LICENSE": "Licencia no vigente",
-      "COURSE": "Sin curso",
-      "AGE": "Menor de edad"
+      "LICENSE_MISSING": "Sin licencia",
+      "LICENSE_PENDING": "Licencia en trámite",
+      "LICENSE_EXPIRED": "Licencia caducada",
+      "LICENSE_EXPIRING": "Licencia caduca pronto",
+      "COURSE_MISSING": "Sin curso",
+      "UNDER_AGE": "Menor de edad",
+      "ID_PHOTO_MISSING": "Sin foto de carnet",
+      "LICENSE_PHOTOS_MISSING": "Sin fotos de la licencia"
     },
     "user": {
       "INVITED": "Invitado",
@@ -189,5 +194,9 @@
     "edit": "Editar",
     "saved": "Cambios guardados",
     "saveChanges": "Guardar cambios"
+  },
+  "breakdown": {
+    "share": "% del total",
+    "total": "Total"
   }
 }

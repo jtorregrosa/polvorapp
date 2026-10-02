@@ -12,8 +12,8 @@ const meta = {
   args: {
     navigation: [
       { to: '/', label: 'Inicio', icon: House },
-      { to: '/arquebusiers', label: 'Arcabuceros', icon: Users, count: 42 },
-      { to: '/orders', label: 'Pedidos', icon: ClipboardList, count: 3 },
+      { to: '/arquebusiers', label: 'Arcabuceros', icon: Users, count: 42, countLabel: '42 con avisos' },
+      { to: '/orders', label: 'Pedidos', icon: ClipboardList, count: 3, countLabel: '3 pendientes' },
     ],
     sidebarFooter: <p className="text-xs text-sidebar-foreground">API 0.1.0</p>,
     children: (
@@ -66,8 +66,20 @@ export const LongValencian: Story = {
   args: {
     navigation: [
       { to: '/', label: 'Inici', icon: House },
-      { to: '/arquebusiers', label: 'Arcabussers de la comparsa', icon: Users, count: 128 },
-      { to: '/orders', label: 'Comandes de pólvora pendents', icon: ClipboardList, count: 12 },
+      {
+        to: '/arquebusiers',
+        label: 'Arcabussers de la comparsa',
+        icon: Users,
+        count: 128,
+        countLabel: '128 amb avisos',
+      },
+      {
+        to: '/orders',
+        label: 'Comandes de pólvora pendents',
+        icon: ClipboardList,
+        count: 12,
+        countLabel: '12 pendents',
+      },
     ],
   },
 };

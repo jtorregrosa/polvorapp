@@ -29,9 +29,15 @@ export function formatNumber(
   return new Intl.NumberFormat(intlLocale(language), options).format(value);
 }
 
+/** A list in the language's own words ("A, B y C"), read naturally by screen readers. */
+export function formatList(items: readonly string[], language: string): string {
+  return new Intl.ListFormat(intlLocale(language), { style: 'long', type: 'conjunction' }).format(items);
+}
+
 export interface Formatters {
   date: (date: Date, options?: Intl.DateTimeFormatOptions) => string;
   number: (value: number, options?: Intl.NumberFormatOptions) => string;
+  list: (items: readonly string[]) => string;
 }
 
 /** Date and number formatters bound to the active UI language. */
@@ -42,6 +48,7 @@ export function useFormatters(): Formatters {
     () => ({
       date: (date, options) => formatDate(date, language, options),
       number: (value, options) => formatNumber(value, language, options),
+      list: (items) => formatList(items, language),
     }),
     [language],
   );
