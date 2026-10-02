@@ -30,7 +30,7 @@
 | UC-06 | Alerts dashboard: license expired / expiring / pending, no course, under age | FC, AD | MVP |
 | UC-07 | Statistics and equality report (age brackets, gender, course, owned weapons, first year) | FC, AD | MVP |
 | UC-08 | Internal comparsa notes | FC | L |
-| UC-09 | Bulk import arquebusiers from a spreadsheet (initial load) | AD | MVP |
+| UC-09 | Bulk import arquebusiers from a spreadsheet (initial load): the PolvorApp template, one comparsa per file, checked first and imported all or nothing, new arquebusiers only (`add-registry-import`) | AD | MVP |
 | UC-29 | Transfer an arquebusier to another comparsa (between editions) | AD | MVP |
 | UC-30 | Generate printable arquebusier badges (PDF, one or many), replacing today's manual design | AD | MVP |
 

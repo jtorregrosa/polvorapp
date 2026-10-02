@@ -36,6 +36,7 @@ PostgreSQL License. Transitive dependencies are covered by CI dependency review.
 
 | Package | License | Scope |
 |---|---|---|
+| `ClosedXML` | MIT (transitive: `DocumentFormat.OpenXml` MIT, `ClosedXML.Parser` MIT, `ExcelNumberFormat` MIT, `RBush.Signed` MIT, `SixLabors.Fonts` 1.0 Apache-2.0) | runtime (spreadsheet import and template, ADR-0008). Upgrade only to a release that keeps `SixLabors.Fonts` 1.x: 2.x is under the Six Labors Split License and needs an assessment first |
 | `EFCore.NamingConventions` | Apache-2.0 | runtime |
 | `MailKit` | MIT | runtime |
 | `Microsoft.AspNetCore.DataProtection.EntityFrameworkCore` | MIT | runtime |
@@ -121,5 +122,6 @@ MPL-2.0 packages (`axe-core`, `@axe-core/playwright`) are used unmodified in tes
 | `@vite-pwa/assets-generator` | MIT | dev |
 | `@vitejs/plugin-react` | MIT | dev |
 | `vitest` | MIT | dev |
+| `write-excel-file` | MIT (dependency `fflate` MIT) | dev (E2E: synthetic import workbooks built at run time) |
 | `@vitest/coverage-v8` | MIT | dev |
 | `zod` | MIT | runtime |
