@@ -7,7 +7,8 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 2 : undefined,
+  // The CI runner has 4 vCPUs and also runs the compose stack: one is left for it.
+  workers: process.env.CI ? 3 : undefined,
   timeout: 30_000,
   expect: { timeout: 10_000 },
   reporter: process.env.CI ? [['github'], ['list'], ['html', { open: 'never' }]] : 'list',
