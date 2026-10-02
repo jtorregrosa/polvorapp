@@ -13,7 +13,7 @@ PostgreSQL License. Transitive dependencies are covered by CI dependency review.
 | Component | License | Used for | Assessment |
 |---|---|---|---|
 | QuestPDF (planned, #12/#13) | [QuestPDF Community License v3.0](https://www.questpdf.com/license/community.html) (effective 2026-07-06) | Server-side PDF generation (ADR-0008) | **Acceptable.** Free for "charitable organisations, academic institutions, and open-source projects" and for businesses under USD 1,000,000 annual gross revenue. The Federation is a private non-profit association well under the threshold, and PolvorApp is open source. Not eligible: public-sector entities and publicly traded companies — a deployment operated by a public body (e.g. a town council) would need a paid license. Re-check on every major QuestPDF upgrade. Checked 2026-09-30. |
-| Inter font via `@fontsource-variable/inter` | [SIL Open Font License 1.1](https://github.com/rsms/inter/blob/master/LICENSE.txt) | UI typeface, self-hosted (add-design-system) | **Acceptable.** OFL allows use, embedding and redistribution in software, including commercial; the font may not be sold on its own. Redistributed copies must carry the copyright notice and licence text, so the build ships them at `/licenses/inter-OFL.txt` (`frontend/public/licenses/`). Shipped unmodified. Checked 2026-09-30. |
+| Bricolage Grotesque, Geist and Geist Mono fonts via `@fontsource-variable/bricolage-grotesque`, `@fontsource-variable/geist` and `@fontsource-variable/geist-mono` | [SIL Open Font License 1.1](https://openfontlicense.org/open-font-license-official-text/) | Display, UI and identifier typefaces, self-hosted (redesign-design-system, ADR-0013; they replace Inter) | **Acceptable.** OFL allows use, embedding and redistribution in software, including commercial; the fonts may not be sold on their own. Redistributed copies must carry the copyright notice and licence text, so the build ships them at `/licenses/bricolage-grotesque-OFL.txt`, `/licenses/geist-OFL.txt` and `/licenses/geist-mono-OFL.txt` (`frontend/public/licenses/`). Shipped unmodified. Checked 2026-10-01. |
 | MinIO via `cgr.dev/chainguard/minio` | [AGPL-3.0](https://github.com/minio/minio/blob/master/LICENSE) | Local development S3 emulator only (ADR-0005/0006) | **Acceptable.** Runs unmodified as a separate container in local/CI environments; not distributed with PolvorApp nor linked into it. Production uses any S3-compatible provider. Checked 2026-09-30. |
 
 ## Data files
@@ -75,7 +75,9 @@ MPL-2.0 packages (`axe-core`, `@axe-core/playwright`) are used unmodified in tes
 | `eslint-plugin-react-hooks` | MIT | dev |
 | `eslint-plugin-react-refresh` | MIT | dev |
 | `@eslint/js` | MIT | dev |
-| `@fontsource-variable/inter` | OFL-1.1 | runtime |
+| `@fontsource-variable/bricolage-grotesque` | OFL-1.1 | runtime |
+| `@fontsource-variable/geist` | OFL-1.1 | runtime |
+| `@fontsource-variable/geist-mono` | OFL-1.1 | runtime |
 | `globals` | MIT | dev |
 | `@hookform/resolvers` | MIT | runtime |
 | `i18next` | MIT | runtime |

@@ -2,26 +2,32 @@
 
 Required reading for any UI change. It explains how screens are built with the design system
 decided in [ADR-0009](../adr/0009-design-system-shadcn-tailwind.md) and the visual identity of
-[ADR-0012](../adr/0012-polvorapp-visual-identity.md).
+[ADR-0013](../adr/0013-polvora-visual-identity.md).
 
-| Page | Content |
-|---|---|
-| [tokens.md](tokens.md) | Colour tokens (light and dark), type, radius — generated from the code |
-| [status.md](status.md) | Domain statuses → tone, icon and label in the three languages — generated from the code |
-| [patterns.md](patterns.md) | Page templates, forms and validation, tables, destructive actions, empty and loading states, responsive rules |
-| [copy.md](copy.md) | Microcopy tone in es-ES, ca-ES-valencia and en |
+| Page                       | Content                                                                                                                    |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| [tokens.md](tokens.md)     | Colour tokens (light and dark), type roles, spacing, sizes, radius, elevation, widths and motion — generated from the code |
+| [status.md](status.md)     | Domain statuses → tone, icon and label in the three languages — generated from the code                                    |
+| [patterns.md](patterns.md) | Page templates, forms and validation, tables, destructive actions, empty and loading states, responsive rules              |
+| [copy.md](copy.md)         | Microcopy tone in es-ES, ca-ES-valencia and en                                                                             |
 
 The component catalogue is Storybook: `npm run storybook` in `frontend/` (toolbar: language and
 theme). Every composite has stories there.
 
 ## Identity
 
-- **PolvorApp's own identity**, not the Federation's. Light, warm-neutral admin UI: sidebar
-  navigation with icons and counters, breadcrumbs, cards and tables with thin borders and minimal
-  shadows, coloured status pills, one accent colour.
-- **Accent**: ember orange (`primary`, "pólvora"). It marks the primary action, links, the focus
-  ring and the current navigation item — nothing else. Status colours are separate tones.
-- **Neutrals**: warm stone greys. **Type**: Inter Variable, self-hosted.
+- **PolvorApp's own identity ("Pólvora", ADR-0013)**, not the Federation's. Structure in the
+  spirit of Stripe Dashboard and Atlassian, with its own character: a dark **night sidebar** in
+  both themes, cool lavender-grey surfaces, cards and tables with hairline borders and two
+  elevation levels, coloured status pills, one accent colour.
+- **Accent**: ember (`primary`, "pólvora"; brighter on the night sidebar and in the dark theme).
+  It marks the primary action, links, the focus indicator, the current navigation item and
+  selections — nothing else. Status colours are separate tones.
+- **Type**: Bricolage Grotesque for page titles, record names and key figures (`font-display`),
+  Geist for the interface (`font-sans`), Geist Mono for identifiers (`font-mono`). All OFL-1.1
+  and self-hosted. Sizes are roles (`text-page`, `text-label`…) that step up from 1700 px.
+- **Restraint**: one display face for titles and figures only, at most one accent, no gradients
+  except the mark, motion only through the motion tokens.
 - **Mark**: an original "P" monogram with an ember spark (`PolvorAppMark`, `frontend/public/icon.svg`).
 - **Third-party brand assets are never committed.** A customer logo (e.g. the Federation's) can
   only be supplied at deployment time.
@@ -42,48 +48,98 @@ theme). Every composite has stories there.
 
 ### Composites
 
-| Composite | Use |
-|---|---|
-| `AppLayout` | Shell: skip link, sidebar (mark, navigation with icons and counters, footer), top bar (drawer trigger, breadcrumbs, language and theme switchers, user menu), main |
-| `PublicLayout` | Pages before signing in: mark, switchers, a centred card and the version |
-| `UserMenu` | The signed-in user in the top bar: name, role, account page, sign out |
-| `Breadcrumbs` | Trail built from the `breadcrumb` handle of the matched routes |
-| `PageHeader` | The page's only `h1`, description, actions, optional back link; `focusOnMount` for a view that replaces the page after an action |
-| `StatCard` | A key figure on a dashboard, optionally a link |
-| `DataTable` | Sortable, paginated table with loading and empty states |
-| `StatusBadge` | A domain status pill (see [status.md](status.md)) |
-| `AlertBanner` | Inline info, success, warning or error message; `focusOnMount` for the outcome of an action whose control went away |
-| `EmptyState` | Replaces an empty list, table or panel |
-| `ConfirmDialog` | Confirmation of destructive or irreversible actions; reject with `ConfirmFailure` to show why it failed |
-| `Form`, `FormField`, `FormSection` | Forms with React Hook Form and Zod (one submission at a time) |
-| `Button` | Every button: `primary`, `secondary`, `destructive`, `quiet`, `link`; `pending` keeps focus; `asChild` for links |
-| `TextInput`, `PasswordInput`, `SelectInput`, `CheckboxField`, `DateInput` | Controls for `FormField` (password with a show/hide toggle; date picker shows the browser's locale) |
-| `SearchField` | Labelled search box above a list; filters rows already loaded (term never in the URL, may be personal data) |
-| `FilterSelect` | Labelled select above a list that filters its rows by a category (comparsa, status) |
-| `PageSection` | A titled region for non-form content (table, action, etc.) on a detail page; looks like `FormSection` so they sit together |
-| `QrCode` | A QR code as an image with an accessible name (e.g. authenticator setup) |
-| `PhotoUpload` | A photo with add/replace/remove: choose a file or take a picture (phones), crop in a dialog (fixed shape or free, keyboard operable), rotate, then hand the cropped JPEG to the page; checks size and format first; removal through `ConfirmDialog`. Reject `onUpload` with `PhotoUploadFailure` to show a translated reason |
-| `RecoveryCodeList` | One-time codes shown once: copy (success or failure announced) and print |
-| `LanguageSwitcher`, `ThemeSwitcher` | Preferences in the top bar |
-| `PolvorAppMark` | The mark |
+**Shell and pages**
 
-## Accessibility rules (WCAG 2.1 AA, NFR-07)
+| Composite                           | Use                                                                                                                                                                                                                                                         |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AppLayout`                         | Shell: skip link; the night sidebar (mark, navigation with icons, counters and the ember current-page bar, footer); a sticky top bar (drawer trigger, breadcrumbs, user menu) aligned with the content; main content up to 1680 px; the `SaveNotice` region |
+| `PublicLayout`                      | Pages before signing in: mark, language and theme switchers, a centred card and the version                                                                                                                                                                 |
+| `UserMenu`                          | The signed-in user in the top bar: name, role, the language and theme switchers (radio groups), the account page, sign out                                                                                                                                  |
+| `LanguageSwitcher`, `ThemeSwitcher` | The switchers of `PublicLayout` (signed in, they are in `UserMenu`)                                                                                                                                                                                         |
+| `Breadcrumbs`                       | Trail built from the `breadcrumb` handle of the matched routes                                                                                                                                                                                              |
+| `PageHeader`, `BackLink`            | The page's only `h1` (display face), description, actions, optional back link (`BackLink`, also above a `RecordHeader`); `focusOnMount` for a view that replaces the page after an action                                                                   |
+| `PolvorAppMark`                     | The mark                                                                                                                                                                                                                                                    |
+
+**Lists**
+
+| Composite                | Use                                                                                                                                                                                                |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `StatFilter`             | Counters above a list that are also toggle filters (`aria-pressed`)                                                                                                                                |
+| `FilterBar`, `NoMatches` | Filters, search and the announced result count in one bar; the empty state when the filters leave nothing, with "Clear filters"                                                                    |
+| `FilterSelect`           | Labelled select that filters a list by a category (comparsa, status); also a choice inside a confirmation, with `error` between label and select                                                   |
+| `SearchField`            | Labelled search box; filters rows already loaded (the term is never in the URL: it may be personal data)                                                                                           |
+| `DataTable`              | Sortable, paginated table with loading and empty states; two-line cells (`secondary`), a whole-row link (`getRowHref`, the name stays the only tab stop) and stacked items on phones (`mobileRow`) |
+| `StatusBadge`            | A domain status pill (see [status.md](status.md))                                                                                                                                                  |
+| `LinkCard`               | A shortcut to a section, e.g. on the start page                                                                                                                                                    |
+| `StatCard`               | A key figure on a dashboard, optionally a link                                                                                                                                                     |
+
+**Detail pages**
+
+| Composite         | Use                                                                                                                               |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `RecordHeader`    | Photo or mark, context line, the record name as `h1`, statuses, frequent actions and "More actions" (destructive items set apart) |
+| `KeyFacts`        | The facts that describe a record at a glance, with an optional meter                                                              |
+| `Tabs`            | Tabs of a detail page (arrow keys, labelled panels, bar and weight on the chosen tab)                                             |
+| `SectionGrid`     | One column, two from 1024 px, three from 1700 px                                                                                  |
+| `SectionCard`     | A titled, read-only section with its "Edit" action                                                                                |
+| `DescriptionList` | Read-only values, "Not given" when empty, identifiers in the mono face                                                            |
+| `EditSheet`       | "Edit" opens a section's fields in a side panel (bottom sheet on phones); saves, announces and returns focus                      |
+| `SaveNotice`      | `useSaveNotice()`'s `notify("Changes saved")`: a polite announcement and a short toast, never taking focus                        |
+
+**Forms**
+
+| Composite                                                                 | Use                                                                                                                                                        |
+| ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Form`, `FormField`, `useAppForm`                                         | Forms with React Hook Form and Zod: required by default, "(optional)" labels, widths, the error summary, one submission at a time                          |
+| `FormLayout`                                                              | The form template: sections, an index from 1280 px, a help column from 1700 px                                                                             |
+| `ActionBar`                                                               | Form actions fixed at the bottom, primary last; its height is kept as scroll padding                                                                       |
+| `ErrorSummary`                                                            | "There is a problem": links to each field; rendered and focused by `Form`                                                                                  |
+| `RadioCards`                                                              | Two to four options as cards, with hints and fields revealed under the chosen answer                                                                       |
+| `TextInput`, `PasswordInput`, `SelectInput`, `CheckboxField`, `DateInput` | Controls for `FormField` (password with a show/hide toggle; a select with a placeholder that is never offered; the date picker shows the browser's locale) |
+
+**Feedback and other**
+
+| Composite                     | Use                                                                                                                                                                                                                                                                                                                                                            |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Button`                      | Every button: `primary`, `secondary`, `destructive`, `quiet`, `link`; `pending` keeps focus; `asChild` for links                                                                                                                                                                                                                                               |
+| `AlertBanner`, `NoticeBanner` | Inline info, success, warning or error message (`NoticeBanner` shows a page's `useNotice()` outcome, focused); `focusOnMount` for the outcome of an action whose control went away; `live={false}` for a lasting state shown with the page ("this comparsa is inactive")                                                                                       |
+| `EmptyState`                  | Replaces an empty list, table or panel                                                                                                                                                                                                                                                                                                                         |
+| `ConfirmDialog`               | Confirmation of destructive or irreversible actions (`tone="primary"` for a reversible one such as a transfer); reject with `ConfirmFailure` to show why it failed, return `false` to stay open when a field inside already says what is missing; `initialFocus` for a field inside, `returnFocus` when it is opened from a menu                               |
+| `PhotoUpload`                 | A photo with add/replace/remove: choose a file or take a picture (phones), crop in a dialog (fixed shape or free; arrow keys, dragging or the move and resize buttons), rotate, then hand the cropped JPEG to the page; checks size and format first; removal through `ConfirmDialog`. Reject `onUpload` with `PhotoUploadFailure` to show a translated reason |
+| `QrCode`                      | A QR code as an image with an accessible name (e.g. authenticator setup)                                                                                                                                                                                                                                                                                       |
+| `RecoveryCodeList`            | One-time codes shown once: copy (success or failure announced) and print                                                                                                                                                                                                                                                                                       |
+
+## Accessibility rules (WCAG 2.2 AA, NFR-07)
 
 - **Never by colour alone.** Statuses carry icon + label; alert banners speak their severity; the
   current navigation item has a bar and weight, not only a background. Selected states (tabs,
   segmented controls) use a border, underline or weight too.
 - `primary-soft` is for non-status UI only (selected row, highlighted panel).
 - Placeholders use `muted-foreground` without opacity, and never replace a label.
-- Contrast of every declared text/UI pair is tested in both themes (`contrast.test.ts`); do not
-  add a new colour without adding its pairs there.
-- Focus is always visible (`ring`); dialogs and the navigation drawer trap focus, close with
-  Escape and return focus to their trigger.
+- Contrast of every declared text/UI pair is tested in both themes (`contrast.test.ts`),
+  including the hover and pressed states and the night sidebar; do not add a new colour without
+  adding its pairs there. Hover and pressed states use the solid `*-hover` tokens, never an
+  opacity.
+- Focus is always visible: a 2 px `ring` outline at full opacity, also inside menu and select
+  items (not a background change alone). Dialogs, side panels and the navigation drawer trap
+  focus, close with Escape and return focus to their trigger.
+- Pointer targets are at least 24 × 24 px (close buttons 36 px), and controls are 44 px high on
+  touch screens (`h-control`). Sticky bars never cover the focused control (SC 2.4.11): the form
+  action bar reserves its height as scroll padding.
+- Dragging always has a single-pointer alternative (SC 2.5.7): the photo crop has move and resize
+  buttons. Sign-in fields keep `autocomplete`, paste and the show-password toggle (SC 3.3.8).
 - `AlertBanner` errors interrupt (`role="alert"`); other severities are polite (`role="status"`)
   and are only announced reliably when their content changes after they are rendered — render the
-  banner where the message will appear, then set its content.
-- `globals.css` honours `prefers-reduced-motion` and `forced-colors` (borders on pills and buttons).
-- Automated checks: axe on every story in both themes and three languages
-  (`catalogue.test.tsx`) and on the shell in a real browser (Playwright, light and dark).
+  banner where the message will appear, then set its content. A lasting state shown with the page
+  is not a live region (`live={false}`), so it never competes with the announcement of an action.
+- Landmark names are unique: a section card is named by its heading, the table inside it by a
+  distinct caption ("Firing chiefs of Comparsa Norte").
+- `globals.css` honours `prefers-reduced-motion` (no movement or scaling, fades of at most
+  100 ms, no looping animations) and `forced-colors` (borders on pills, buttons and banners).
+- Automated checks run the axe rules tagged WCAG 2.2 A/AA (`wcag22aa` included, so `target-size`
+  too): on every story in both themes and three languages (`catalogue.test.tsx`; jsdom cannot
+  measure contrast or target size), in the Storybook panel, and in a real browser (Playwright,
+  light and dark).
 
 ## Content Security Policy (design D10)
 
@@ -105,7 +161,22 @@ marked with a `Local edit` comment:
   (not focusable); Ctrl/Cmd+B does not toggle it inside editable fields; navigation labels wrap
   instead of truncating and leave room for a counter badge.
 - **Table**: `container` passes attributes to the scroll container, so `DataTable` makes it the
-  focusable, named region that scrolls on narrow screens.
+  focusable, named region that scrolls on narrow screens; rows change at once on hover.
+- **Focus, states and targets** (design D3 of `redesign-design-system`): a full-opacity 2 px focus
+  outline on every control and inside menu and select items; solid hover tokens; the destructive
+  token pair in both themes; inputs on the card surface; 20 px checkboxes and radios in a fixed
+  square box (the radio dot never turns oval); 36 px close buttons; token heights.
+- **Motion** (design D5): sheets 250 ms in and 200 ms out with the drawer easing; dialogs 200 ms
+  in (fade and a slight scale) and 150 ms out; menus, selects and tooltips 150 ms in with a fade
+  and a 4 px slide; a 500 ms tooltip delay; skeletons fade in after 150 ms without pulsing; the
+  sidebar never animates its width or position.
+- **Select** (design D11): the `native-select` list follows the menu style where the browser
+  supports a customizable select (`globals.css`); elsewhere the native list opens.
+
+`src/components/ui/primitives-guard.test.ts` and `src/styles/motion.test.ts` fail if a primitive
+goes back to a translucent focus ring or hover colour, white text on the destructive colour, a
+small close button or untokenised motion (ESLint exempts this folder). Re-apply these edits when
+updating a primitive from upstream.
 
 ## Arquebusier badge
 
@@ -114,11 +185,18 @@ It uses the same identity; any Federation marks on it are supplied at deployment
 
 ## Do / don't
 
-| Do | Don't |
-|---|---|
-| Use a composite; add one (with stories) when a pattern repeats | Import `@/components/ui` from a feature |
-| `text-muted-foreground` for secondary text | `text-stone-500`, `opacity-60` on text |
-| `StatusBadge kind="license" value={status}` | A coloured `<span>` with a hand-written label |
-| `ConfirmDialog` before deleting or cancelling | Delete on a single click |
-| `EmptyState` with the action that fills it | An empty table body |
-| Let long Valencian labels wrap | Truncate labels or fix widths in pixels |
+| Do                                                             | Don't                                                                  |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Use a composite; add one (with stories) when a pattern repeats | Import `@/components/ui` from a feature                                |
+| `text-muted-foreground` for secondary text                     | `text-stone-500`, `opacity-60` on text                                 |
+| `StatusBadge kind="license" value={status}`                    | A coloured `<span>` with a hand-written label                          |
+| `ConfirmDialog` before deleting or cancelling                  | Delete on a single click                                               |
+| `EmptyState` with the action that fills it                     | An empty table body                                                    |
+| Let long Valencian labels wrap                                 | Truncate labels or fix widths in pixels                                |
+| Show a record read-only and edit each section in `EditSheet`   | Make the whole detail page one editable form                           |
+| Put rare and destructive actions in "More actions"             | Red buttons in the page body                                           |
+| Announce a save with `useSaveNotice()`                         | Move focus to a success banner                                         |
+| `RadioCards` for two to four options                           | A select for "Yes / No" or for three short options                     |
+| Mark the few optional fields "(optional)"                      | Asterisks on required fields                                           |
+| Validate when the form is sent, with the error summary         | Errors that appear while the person is still typing or leaving a field |
+| A table plus `mobileRow` for phones                            | A table that scrolls sideways at 360 px                                |

@@ -5,24 +5,82 @@ synthetic data only.
 
 ## Page templates
 
-Every page renders inside `AppLayout` and starts with a `PageHeader` (the page's only `h1`).
-Routes declare their breadcrumb with a `handle: { breadcrumb: '<common key>' } satisfies RouteHandle`.
+Every signed-in page renders inside `AppLayout`, whose content uses the width up to 1680 px
+(`max-w-page`) with fixed side margins (`px-gutter`), left-aligned beside the sidebar. Routes
+declare their breadcrumb with a `handle: { breadcrumb: '<common key>' } satisfies RouteHandle`.
 
-| Template      | Structure                                                                                                                                                             |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **List**      | `PageHeader` (title, count in the description, primary action such as "Add arquebusier") → optional filters → `DataTable` (or `EmptyState` when there is nothing yet) |
-| **Detail**    | `PageHeader` with back link, status (`StatusBadge`) and actions → cards with the record's sections → related tables                                                   |
-| **Form**      | `PageHeader` with back link → `Form` with one `FormSection` per group of fields → submit and cancel at the end                                                        |
-| **Dashboard** | `PageHeader` → a grid of `StatCard`s (each linking to its list) → `AlertBanner`s for what needs attention → short tables                                              |
+| Template      | Structure |
+| ------------- | --------- |
+| **List**      | `PageHeader` (title, description, the primary action such as "Register arquebusier") → optional `StatFilter` counters → `FilterBar` (filters, `SearchField`, announced result count) → `DataTable` (two-line cells, whole-row link, stacked rows on phones), or `EmptyState` when there is nothing yet and `NoMatches` when the filters leave nothing |
+| **Detail**    | `RecordHeader` (photo or mark, context line, the name as `h1`, `StatusBadge`s, frequent actions, "More actions") → `KeyFacts` → `Tabs` or a `SectionGrid` of read-only `SectionCard`s (`DescriptionList` inside) whose "Edit" opens an `EditSheet` |
+| **Form**      | `PageHeader` with back link → `Form` → `FormLayout` (sections, index from 1280 px, help from 1700 px) → `ActionBar` fixed at the bottom, primary action last |
+| **Dashboard** | `PageHeader` → `StatCard`s (each linking to its list) → `AlertBanner`s for what needs attention → short tables |
+| **Settings**  | `PageHeader` → a `SectionGrid` of `SectionCard`s, each holding one small form with its own secondary submit (the account page: profile, password, recovery codes, sessions) |
+| **Public**    | `PublicLayout` card: `PageHeader` → notices → `Form` → links ("Forgot your password?"). The card spaces its children; pages add no margins of their own |
+
+### Detail pages in read mode
+
+- The record is read-only. Each `SectionCard` has its own "Edit" (`EditSheet`): a side panel on
+  wide screens, a bottom sheet on phones, holding only that section's fields. Its form uses the
+  section's slice of the feature schema (`schema.pick`), so a stored value outside the section
+  never blocks the save; the page merges the section into the record and sends the full update
+  with its `version` (the arquebusier). The comparsa, weapon model and user APIs have no version:
+  the last save wins.
+- Saving closes the panel, the section shows the new values, "Changes saved" is announced by
+  `SaveNotice` without taking focus, and focus returns to "Edit". Cancel, Escape or closing discard
+  the unsaved values without asking. A version conflict keeps the panel open with the reason in the
+  error summary and the current values to review.
+- Empty values read "Not given". Identifiers use `mono` (Geist Mono).
+
+## Actions
+
+- At most **one primary action** per page, at its natural width (never stretched across a form).
+  On forms it is the last action of the `ActionBar`, with "Cancel" before it.
+- Secondary actions use the `secondary` button; quiet actions (`quiet`) are for low-emphasis
+  commands inside panels and menus.
+- On detail pages, rarely used and destructive actions go in the `RecordHeader`'s "More actions"
+  menu. Destructive items are set apart after a separator, in the destructive colour with an icon.
+- Only the confirming button of a destructive confirmation is filled with the destructive colour;
+  two filled destructive buttons never sit side by side.
 
 ## Forms and validation
 
-- Build forms with `Form` + `FormField` (React Hook Form + Zod). Zod messages are keys of the `ui`
-  namespace (e.g. `validation.required`) and are translated by `FieldError`.
-- Group fields with `FormSection` (a `fieldset` with a `legend` and optional description).
-- Mark required fields with `required` (visible asterisk + `aria-required`); the form shows the
-  "fields marked with * are required" note once.
-- Help text goes in `description` (linked with `aria-describedby`), never in the placeholder.
+The form rules follow the GOV.UK Design System (direction "Registro", design D8 of
+`redesign-design-system`).
+
+- Create the form with `useAppForm` (React Hook Form with the rules below) and render it with
+  `Form` + `FormField`. Zod messages are keys of a translation namespace (e.g.
+  `validation.required`) and are translated at the field and in the summary.
+- Lay a page form out with `FormLayout`: one section per group of fields (a card with an `h2` and
+  an optional description), an index of the sections beside the form from 1280 px, a help column
+  from 1700 px, and an `ActionBar` at the bottom with the secondary actions and then the primary
+  one. The form keeps a readable width (`max-w-form`) on any screen. A form with a single
+  section has no index; below 1700 px the help follows the sections, collapsed in a disclosure.
+- **Required by default, no asterisks.** Mark the exceptions with `optional`: the label then ends
+  in "(optional)" in the user's language. `Form` states once, at its start, that the other fields
+  are required (`requiredNote`).
+- **Order inside a field**: label → help text → error → control. Help text goes in `description`
+  (linked with `aria-describedby`), never in the placeholder.
+- **Widths follow the expected content** (`FormField width`): `id` for nationalId, federationId
+  and codes, `short` for dates, phones and numbers, `name` for names and selects of names, `long`
+  for email addresses; only free text takes the full width.
+- **Choices**: two to four options are `RadioCards` (each with an optional hint); a longer or
+  growing list is a `SelectInput`, whose `placeholder` ("Choose a comparsa") is shown but never
+  offered. An empty value that is a real choice ("All", "No license") is an option, not a
+  placeholder.
+- **Conditional fields** appear under the answer they depend on (`RadioCards` option `reveal`),
+  instead of being shown disabled.
+- **Validation** runs on submit, then again on every change of a field that has an error, so a
+  fixed field clears at once. After a failed submission (or server errors set with
+  `form.setError` while submitting) an `ErrorSummary` titled "There is a problem" appears at the
+  top and takes focus. Each entry links to its field ("Birth date: …"); following it focuses the
+  field (the chosen or first option of a radio group) and scrolls it above the action bar. Each
+  error is repeated at its field, after the help, with a bar beside the field, and read with the
+  field (`aria-describedby`).
+- A server error that belongs to no field goes in the summary as
+  `form.setError('root.server', …)`; in an `EditSheet`, return `{ status: 'rejected', reason }`.
+  An `AlertBanner severity="error"` is only for what is not about the submitted values (e.g. a
+  failed load).
 - Dates use `DateInput` (the native date picker). Its value is ISO `yyyy-MM-dd` as the API expects;
   the picker shows it in the **browser's** locale (not the app language), while read-only dates are
   formatted in the app language. Form defaults are `''`, never `null` (map `null` to `''` when loading
@@ -31,12 +89,9 @@ Routes declare their breadcrumb with a `handle: { breadcrumb: '<common key>' } s
   not announced: the schema checks the bounds (`isIsoDate`, `todayIso()` in Europe/Madrid for "not
   in the future") and its error states them. Optional dates use `clearable`, because some mobile
   pickers cannot empty a date. Autofill is off: these forms record other people's dates.
-- Validate on submit, then on change of the invalid field. The first invalid field receives focus;
-  errors are announced and linked to their field.
-- Server errors for the whole form go in an `AlertBanner severity="error"` above the submit button.
 - **Compliance checks (license, course, age) are warnings, never blocking errors**
-  (BR-04, `docs/data-model.md`): show them with the warning tone and let the user save.
-  Data-integrity rules are blocking errors.
+  (BR-04, `docs/data-model.md`): show them with the warning tone and let the user save. They never
+  appear in the error summary. Data-integrity rules are blocking errors.
 
 ## Tables
 
@@ -52,6 +107,10 @@ Routes declare their breadcrumb with a `handle: { breadcrumb: '<common key>' } s
   When a list has never had data, render `EmptyState` instead of the table.
 - Statuses in cells use `StatusBadge`; numbers are right-aligned and formatted for the active
   language.
+- A list page gives every table a `mobileRow`: the name as the link first, then what the other
+  columns say, so nothing is lost on a phone (WCAG 1.4.10).
+- A table inside a `SectionCard` gets a caption distinct from the card's title ("Firing chiefs of
+  Comparsa Norte"), so no two regions share a name.
 
 ## Destructive and irreversible actions
 
@@ -61,8 +120,15 @@ Routes declare their breadcrumb with a `handle: { breadcrumb: '<common key>' } s
 - `onConfirm` may be async: the dialog stays open and busy while it runs, closes on success
   and shows a translated error (`AlertBanner`) if it fails, so the user can retry. Reject with
   `ConfirmFailure(translatedReason)` to show the specific reason (e.g. "last active Admin").
-- After a confirmed action succeeds, announce the outcome in an `AlertBanner` with `focusOnMount`:
-  the trigger may be gone (e.g. "Deactivate" becomes "Reactivate").
+- The description never claims what is not known yet: while the people who would lose access are
+  still loading, it says "if any" instead of "nobody".
+- A confirmation opened from "More actions" is a controlled `ConfirmDialog` with `returnFocus` on
+  the "More actions" button. After it succeeds, focus goes back there and the outcome is
+  announced with `useSaveNotice()`; a failure stays in the dialog with its reason.
+- When the action takes the person to another page (a deletion), that page shows the outcome in
+  an `AlertBanner` with `focusOnMount`.
+- A choice needed to confirm (the destination of a transfer) goes inside the dialog, which starts
+  on it (`initialFocus`); confirming without it keeps the dialog open and says so at the field.
 - Every write and export is audit-logged on the server; the UI does not need to say so.
 
 ## Empty and loading states
@@ -75,10 +141,33 @@ Routes declare their breadcrumb with a `handle: { breadcrumb: '<common key>' } s
   `PageHeader focusOnMount`, so its title is read and focus is not lost.
 - Errors loading a page: the route's error page (inside the shell) with a way back.
 
-## Responsive rules
+## Responsive rules (360 to 2560 px)
 
-- Usable from **360 px** wide (NFR-01). Below the sidebar breakpoint the sidebar becomes a drawer
-  opened from the top bar.
-- The top bar wraps rather than clipping; long labels (Valencian is the longest) wrap.
-- Use the Tailwind breakpoints (`sm`, `md`, `lg`) and the default scale; no pixel widths.
-- Touch targets are at least 24×24 px; primary controls 36 px or more.
+| Width | What changes |
+|---|---|
+| < 768 px (`md`) | The sidebar is a drawer opened from the top bar; lists become stacked items (`DataTable` `mobileRow`); side panels become bottom sheets; side margins are 16 px. |
+| ≥ 768 px | The sidebar is shown; tables; side margins 28 px. |
+| ≥ 1024 px (`lg`) | Detail sections in two columns. |
+| ≥ 1280 px (`xl`) | Forms get the section index beside them. |
+| ≥ 1700 px (`wide`) | The type steps up; detail sections in three columns; forms get the help column. |
+| > 1680 px of content | The content stops at 1680 px (`max-w-page`), left-aligned; the top bar is aligned with it. |
+
+- Usable from **360 px** wide (NFR-01) with no horizontal page scroll; a table wider than its
+  container scrolls inside its own focusable region.
+- Long labels (Valencian is the longest) wrap instead of being truncated; forms keep a readable
+  width (`max-w-form`) on any screen.
+- Use the breakpoints above and the tokens; no pixel widths.
+- Pointer targets are at least 24×24 px; controls are 40 px high (`h-control`), 44 px on touch
+  screens.
+
+## Motion
+
+- Only opacity and transforms move, never layout. Durations come from the tokens: colour and
+  border changes 100 ms; menus, selects and tooltips 150 ms (a fade and a 4 px slide); dialogs
+  200 ms (a fade and a slight scale); side panels, bottom sheets and the drawer 250 ms with the
+  drawer easing. Leaving is shorter than appearing.
+- Not animated: route changes, sorting, filtering, paging, validation messages, theme and language
+  changes, the sidebar collapsing (it never animates its width), and table rows on hover.
+- No decorative motion: no looping animations (skeletons fade in after 150 ms and do not pulse),
+  no staggered lists, no hover scaling of rows. Buttons press to 98 %.
+- Under reduced motion, movement and scaling are removed and fades last at most 100 ms.

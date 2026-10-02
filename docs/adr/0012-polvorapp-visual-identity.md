@@ -1,6 +1,6 @@
 # 0012. PolvorApp visual identity
 
-- Status: Accepted
+- Status: Superseded by [0013](0013-polvora-visual-identity.md)
 - Date: 2026-09-30
 - Supersedes: [0009](0009-design-system-shadcn-tailwind.md) §5 (Brand) only
 
