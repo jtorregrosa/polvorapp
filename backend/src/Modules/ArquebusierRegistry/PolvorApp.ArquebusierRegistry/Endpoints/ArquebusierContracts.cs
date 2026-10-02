@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using PolvorApp.ArquebusierRegistry.Arquebusiers;
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.ComplianceInsights.Contracts;
 using PolvorApp.FederationCatalog.Contracts;
 
 namespace PolvorApp.ArquebusierRegistry.Endpoints;
@@ -121,6 +122,8 @@ internal sealed record OwnedWeaponResponse(Guid Id, WeaponModelSummary Model, st
 /// <param name="OwnedWeapons">Owned weapons.</param>
 /// <param name="Photos">Which photos exist; the images are read from the photo routes.</param>
 /// <param name="Version">Version to send back when editing.</param>
+/// <param name="Age">Whole years on today's date in Europe/Madrid; derived, never stored.</param>
+/// <param name="Warnings">Compliance warnings (BR-04) on today's date, in rule order; empty when there is none.</param>
 internal sealed record ArquebusierResponse(
     Guid Id,
     Guid ComparsaId,
@@ -139,7 +142,9 @@ internal sealed record ArquebusierResponse(
     LicenseResponse? License,
     IReadOnlyList<OwnedWeaponResponse> OwnedWeapons,
     ArquebusierPhotosResponse Photos,
-    uint Version);
+    uint Version,
+    int Age,
+    IReadOnlyList<ComplianceWarning> Warnings);
 
 /// <summary>The photos an arquebusier has (spec: Private photo access); null when there is none of a kind.</summary>
 /// <param name="Id">ID photo (<c>idPhoto</c>).</param>
@@ -171,6 +176,7 @@ internal sealed record ArquebusierPhotoResponse(ArquebusierPhotoKind Kind, Guid 
 /// <param name="LicenseStatus">Derived license status; null when there is no license.</param>
 /// <param name="LicenseExpiresOn">License expiry date, if issued.</param>
 /// <param name="HasIdPhoto">Whether the arquebusier has an ID photo.</param>
+/// <param name="Warnings">Compliance warnings (BR-04) on today's date, in rule order; empty when there is none.</param>
 internal sealed record ArquebusierRowResponse(
     Guid Id,
     string FirstName,
@@ -182,7 +188,8 @@ internal sealed record ArquebusierRowResponse(
     ArquebusierStatus Status,
     LicenseStatus? LicenseStatus,
     DateOnly? LicenseExpiresOn,
-    bool HasIdPhoto);
+    bool HasIdPhoto,
+    IReadOnlyList<ComplianceWarning> Warnings);
 
 /// <summary>Adds an owned weapon; unknown members are rejected (400).</summary>
 /// <param name="WeaponModelId">An active catalogue model of any kind, pistols included.</param>

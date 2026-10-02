@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using PolvorApp.ArquebusierRegistry.Arquebusiers;
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.ArquebusierRegistry.Insights;
 using PolvorApp.ArquebusierRegistry.Licenses;
 using PolvorApp.ArquebusierRegistry.Persistence;
+using PolvorApp.ComplianceInsights.Contracts;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.SharedKernel.Text;
@@ -15,7 +17,7 @@ namespace PolvorApp.ArquebusierRegistry.Endpoints;
 /// caller's comparsa scope, so an arquebusier outside it is never returned.
 /// </summary>
 internal sealed class ArquebusierQueries(
-    ArquebusierRegistryDbContext db, IComparsaScope scope, ICatalogDirectory catalog, TimeProvider time)
+    ArquebusierRegistryDbContext db, IComparsaScope scope, ICatalogDirectory catalog, IComplianceRules rules, TimeProvider time)
 {
     /// <summary>
     /// The scoped list, sorted by last then first name in Spanish order. At most about 800 rows for an
@@ -35,7 +37,8 @@ internal sealed class ArquebusierQueries(
             query = query.Where(a => a.Status == wantedStatus);
         }
 
-        // Only the listed columns: birth dates and contact data never leave the database here.
+        // Only the listed columns, plus what the compliance rules need: the birth date and the course
+        // date are read to derive the warnings but never returned, and contact data is never read.
         var rows = await query
             .Select(a => new
             {
@@ -50,7 +53,11 @@ internal sealed class ArquebusierQueries(
                 a.LicensePending,
                 a.LicenseIssuedOn,
                 a.LicenseExpiresOn,
+                a.BirthDate,
+                a.TrainingCompletedOn,
                 HasIdPhoto = db.Photos.Any(p => p.ArquebusierId == a.Id && p.Kind == ArquebusierPhotoKind.Id),
+                HasFrontPhoto = db.Photos.Any(p => p.ArquebusierId == a.Id && p.Kind == ArquebusierPhotoKind.LicenseFront),
+                HasBackPhoto = db.Photos.Any(p => p.ArquebusierId == a.Id && p.Kind == ArquebusierPhotoKind.LicenseBack),
             })
             .ToListAsync(cancellationToken);
         var comparsas = (await catalog.FindComparsasAsync([.. rows.Select(a => a.ComparsaId).Distinct()], cancellationToken))
@@ -74,7 +81,15 @@ internal sealed class ArquebusierQueries(
                 a.Status,
                 a.LicenseType is { } type ? new License(type, a.LicensePending, a.LicenseIssuedOn, a.LicenseExpiresOn).StatusOn(today) : null,
                 a.LicenseExpiresOn,
-                a.HasIdPhoto))];
+                a.HasIdPhoto,
+                rules.Evaluate(
+                    RegistryCompliance.FactsOf(
+                        a.Id,
+                        a.BirthDate,
+                        a.TrainingCompletedOn,
+                        new LicenseColumns(a.LicenseType, a.LicensePending, a.LicenseExpiresOn),
+                        new PhotoFlags(a.HasIdPhoto, a.HasFrontPhoto, a.HasBackPhoto)),
+                    today)))];
     }
 
     /// <summary>The arquebusier, read-only, or null when it does not exist or is outside the caller's scope.</summary>

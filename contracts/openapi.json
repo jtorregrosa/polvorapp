@@ -4330,6 +4330,115 @@
           }
         ]
       }
+    },
+    "/api/compliance/summary": {
+      "get": {
+        "tags": [
+          "Compliance"
+        ],
+        "summary": "Active and reserve arquebusiers of the caller's comparsas and how many have each compliance warning.",
+        "operationId": "GetComplianceSummary",
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComplianceSummaryResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/compliance/statistics": {
+      "get": {
+        "tags": [
+          "Compliance"
+        ],
+        "summary": "Aggregate statistics and equality report of the caller's comparsas, optionally of one comparsa and one status.",
+        "operationId": "GetComplianceStatistics",
+        "parameters": [
+          {
+            "name": "comparsaId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComplianceStatisticsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -4390,6 +4499,29 @@
           "recoveryCodesLeft": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "AgeBracket": {
+        "enum": [
+          "UNDER_25",
+          "FROM_25_TO_34",
+          "FROM_35_TO_44",
+          "FROM_45"
+        ]
+      },
+      "AgeBracketCounts": {
+        "required": [
+          "bracket",
+          "counts"
+        ],
+        "type": "object",
+        "properties": {
+          "bracket": {
+            "$ref": "#/components/schemas/AgeBracket"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/GenderCounts"
           }
         }
       },
@@ -4490,7 +4622,9 @@
           "license",
           "ownedWeapons",
           "photos",
-          "version"
+          "version",
+          "age",
+          "warnings"
         ],
         "type": "object",
         "properties": {
@@ -4572,6 +4706,16 @@
           "version": {
             "type": "integer",
             "format": "uint32"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplianceWarning"
+            }
           }
         }
       },
@@ -4587,7 +4731,8 @@
           "status",
           "licenseStatus",
           "licenseExpiresOn",
-          "hasIdPhoto"
+          "hasIdPhoto",
+          "warnings"
         ],
         "type": "object",
         "properties": {
@@ -4637,6 +4782,12 @@
           },
           "hasIdPhoto": {
             "type": "boolean"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplianceWarning"
+            }
           }
         }
       },
@@ -4750,6 +4901,154 @@
           }
         }
       },
+      "ComparsaStatisticsResponse": {
+        "required": [
+          "comparsaId",
+          "name",
+          "total",
+          "active",
+          "reserve",
+          "gender",
+          "withWarnings"
+        ],
+        "type": "object",
+        "properties": {
+          "comparsaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "active": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "reserve": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "gender": {
+            "$ref": "#/components/schemas/GenderCounts"
+          },
+          "withWarnings": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ComplianceStatisticsResponse": {
+        "required": [
+          "total",
+          "active",
+          "reserve",
+          "gender",
+          "ageBrackets",
+          "course",
+          "licenses",
+          "ownedWeapons",
+          "comparsas"
+        ],
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "active": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "reserve": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "gender": {
+            "$ref": "#/components/schemas/GenderCounts"
+          },
+          "ageBrackets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgeBracketCounts"
+            }
+          },
+          "course": {
+            "$ref": "#/components/schemas/CourseCounts"
+          },
+          "licenses": {
+            "$ref": "#/components/schemas/LicenseStateCounts"
+          },
+          "ownedWeapons": {
+            "$ref": "#/components/schemas/OwnedWeaponCounts"
+          },
+          "comparsas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComparsaStatisticsResponse"
+            }
+          }
+        }
+      },
+      "ComplianceSummaryResponse": {
+        "required": [
+          "active",
+          "reserve",
+          "withWarnings",
+          "warnings"
+        ],
+        "type": "object",
+        "properties": {
+          "active": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "reserve": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "withWarnings": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WarningCountResponse"
+            }
+          }
+        }
+      },
+      "ComplianceWarning": {
+        "enum": [
+          "LICENSE_MISSING",
+          "LICENSE_PENDING",
+          "LICENSE_EXPIRED",
+          "LICENSE_EXPIRING",
+          "COURSE_MISSING",
+          "UNDER_AGE",
+          "ID_PHOTO_MISSING",
+          "LICENSE_PHOTOS_MISSING"
+        ]
+      },
+      "CourseCounts": {
+        "required": [
+          "done",
+          "notDone"
+        ],
+        "type": "object",
+        "properties": {
+          "done": {
+            "$ref": "#/components/schemas/GenderCounts"
+          },
+          "notDone": {
+            "$ref": "#/components/schemas/GenderCounts"
+          }
+        }
+      },
       "EnrolmentConfirmRequest": {
         "required": [
           "code"
@@ -4817,6 +5116,28 @@
           "FEMALE",
           "UNSPECIFIED"
         ]
+      },
+      "GenderCounts": {
+        "required": [
+          "male",
+          "female",
+          "unspecified"
+        ],
+        "type": "object",
+        "properties": {
+          "male": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "female": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unspecified": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
       },
       "Handedness": {
         "enum": [
@@ -4949,6 +5270,38 @@
           }
         }
       },
+      "LicenseStateCounts": {
+        "required": [
+          "valid",
+          "expiring",
+          "expired",
+          "pending",
+          "none"
+        ],
+        "type": "object",
+        "properties": {
+          "valid": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "expiring": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "expired": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pending": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "none": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "LicenseStatus": {
         "enum": [
           "PENDING",
@@ -4996,6 +5349,28 @@
         "properties": {
           "file": {
             "$ref": "#/components/schemas/IFormFile"
+          }
+        }
+      },
+      "OwnedWeaponCounts": {
+        "required": [
+          "withWeapon",
+          "withoutWeapon",
+          "byKind"
+        ],
+        "type": "object",
+        "properties": {
+          "withWeapon": {
+            "$ref": "#/components/schemas/GenderCounts"
+          },
+          "withoutWeapon": {
+            "$ref": "#/components/schemas/GenderCounts"
+          },
+          "byKind": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WeaponKindCount"
+            }
           }
         }
       },
@@ -5581,12 +5956,44 @@
           "DEACTIVATED"
         ]
       },
+      "WarningCountResponse": {
+        "required": [
+          "code",
+          "count"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/ComplianceWarning"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "WeaponKind": {
         "enum": [
           "TRABUCO",
           "ARCABUZ",
           "PISTOL"
         ]
+      },
+      "WeaponKindCount": {
+        "required": [
+          "kind",
+          "count"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/WeaponKind"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
       },
       "WeaponModelRequest": {
         "required": [
@@ -5795,6 +6202,9 @@
     },
     {
       "name": "Arquebusiers"
+    },
+    {
+      "name": "Compliance"
     }
   ]
 }

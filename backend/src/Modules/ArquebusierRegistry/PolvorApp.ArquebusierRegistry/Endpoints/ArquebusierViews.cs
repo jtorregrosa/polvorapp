@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using PolvorApp.ArquebusierRegistry.Arquebusiers;
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.ArquebusierRegistry.Insights;
 using PolvorApp.ArquebusierRegistry.Persistence;
+using PolvorApp.ComplianceInsights.Contracts;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.SharedKernel.Time;
 
@@ -9,9 +11,10 @@ namespace PolvorApp.ArquebusierRegistry.Endpoints;
 
 /// <summary>
 /// Builds API responses: the catalog names and models come from <see cref="ICatalogDirectory"/>
-/// (design D2) and the license status is derived from today in Europe/Madrid.
+/// (design D2); the license status, the age and the compliance warnings are derived from today in
+/// Europe/Madrid.
 /// </summary>
-internal sealed class ArquebusierViews(ArquebusierRegistryDbContext db, ICatalogDirectory catalog, TimeProvider time)
+internal sealed class ArquebusierViews(ArquebusierRegistryDbContext db, ICatalogDirectory catalog, IComplianceRules rules, TimeProvider time)
 {
     /// <summary>The detail of <paramref name="arquebusier"/>, with its owned weapons read fresh.</summary>
     public async Task<ArquebusierResponse> DetailAsync(Arquebusier arquebusier, CancellationToken cancellationToken)
@@ -58,6 +61,18 @@ internal sealed class ArquebusierViews(ArquebusierRegistryDbContext db, ICatalog
                 photos.GetValueOrDefault(ArquebusierPhotoKind.Id),
                 photos.GetValueOrDefault(ArquebusierPhotoKind.LicenseFront),
                 photos.GetValueOrDefault(ArquebusierPhotoKind.LicenseBack)),
-            arquebusier.Version);
+            arquebusier.Version,
+            rules.AgeOn(arquebusier.BirthDate, today),
+            rules.Evaluate(
+                RegistryCompliance.FactsOf(
+                    arquebusier.Id,
+                    arquebusier.BirthDate,
+                    arquebusier.TrainingCompletedOn,
+                    new LicenseColumns(arquebusier.LicenseType, arquebusier.LicensePending, arquebusier.LicenseExpiresOn),
+                    new PhotoFlags(
+                        photos.ContainsKey(ArquebusierPhotoKind.Id),
+                        photos.ContainsKey(ArquebusierPhotoKind.LicenseFront),
+                        photos.ContainsKey(ArquebusierPhotoKind.LicenseBack))),
+                today));
     }
 }
