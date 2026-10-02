@@ -8,12 +8,16 @@ using Microsoft.Extensions.Logging.Abstractions;
 using PolvorApp.Api.Platform.Seeding;
 using PolvorApp.Api.Tests.Infrastructure;
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.ArquebusierRegistry.Insights;
 using PolvorApp.ArquebusierRegistry.NationalIds;
 using PolvorApp.ArquebusierRegistry.Persistence;
 using PolvorApp.ArquebusierRegistry.Seeding;
+using PolvorApp.ComplianceInsights;
+using PolvorApp.ComplianceInsights.Contracts;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.FederationCatalog.Persistence;
 using PolvorApp.FederationCatalog.Seeding;
+using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.IdentityAccess.Endpoints;
 using PolvorApp.IdentityAccess.Security;
 using PolvorApp.IdentityAccess.Users;
@@ -77,6 +81,45 @@ public sealed class RegistrySeederTests(PostgresFixture postgres, MailpitFixture
         var catalog = scope.ServiceProvider.GetRequiredService<FederationCatalogDbContext>();
         var kinds = await catalog.WeaponModels.AsNoTracking().Where(m => modelIds.Contains(m.Id)).Select(m => m.Kind).Distinct().ToListAsync(TestContext.Current.CancellationToken);
         Assert.Equal(Enum.GetValues<WeaponKind>(), kinds.Order());
+    }
+
+    /// <summary>Spec "Synthetic registry data": together the seeded arquebusiers show every compliance warning.</summary>
+    [Fact]
+    public async Task The_seed_shows_every_compliance_warning()
+    {
+        await using var host = await StartAsync();
+        Assert.Equal(0, await SeedAsync(host));
+
+        await using var scope = host.Services.CreateAsyncScope();
+        var evaluated = await scope.ServiceProvider.GetRequiredService<ScopedFacts>().ReadAsync(ComparsaAccess.All, TestContext.Current.CancellationToken);
+
+        var seen = evaluated.SelectMany(e => e.Warnings).ToHashSet();
+        Assert.All(Enum.GetValues<ComplianceWarning>(), warning => Assert.Contains(warning, seen));
+    }
+
+    [Theory]
+    [InlineData(14, new[] { ComplianceWarning.LicenseExpiring, ComplianceWarning.CourseMissing, ComplianceWarning.UnderAge, ComplianceWarning.IdPhotoMissing })]
+    [InlineData(7, new[] { ComplianceWarning.LicensePhotosMissing })]
+    public async Task Seeded_arquebusiers_have_their_planned_warnings(int number, ComplianceWarning[] expected)
+    {
+        await using var host = await StartAsync();
+        Assert.Equal(0, await SeedAsync(host));
+
+        await using var scope = host.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<ArquebusierRegistryDbContext>();
+        var id = new Guid($"0193a300-0000-7000-8000-{number:D12}");
+        var arquebusier = await db.Arquebusiers.AsNoTracking().SingleAsync(a => a.Id == id, TestContext.Current.CancellationToken);
+        var kinds = await db.Photos.AsNoTracking().Where(p => p.ArquebusierId == id).Select(p => p.Kind).ToListAsync(TestContext.Current.CancellationToken);
+        var facts = RegistryCompliance.FactsOf(
+            id,
+            arquebusier.BirthDate,
+            arquebusier.TrainingCompletedOn,
+            new LicenseColumns(arquebusier.LicenseType, arquebusier.LicensePending, arquebusier.LicenseExpiresOn),
+            new PhotoFlags(kinds.Contains(ArquebusierPhotoKind.Id), kinds.Contains(ArquebusierPhotoKind.LicenseFront), kinds.Contains(ArquebusierPhotoKind.LicenseBack)));
+
+        var warnings = scope.ServiceProvider.GetRequiredService<IComplianceRules>().Evaluate(facts, FederationCalendar.Today(host.Time));
+
+        Assert.Equal(expected, warnings);
     }
 
     [Fact]
@@ -166,6 +209,7 @@ public sealed class RegistrySeederTests(PostgresFixture postgres, MailpitFixture
         var photos = await db.Photos.AsNoTracking().ToListAsync(TestContext.Current.CancellationToken);
         Assert.Equal(RegistrySeeder.PhotoCount, photos.Count);
         Assert.Equal(7, photos.Count(p => p.Kind == ArquebusierPhotoKind.Id));
+        Assert.Equal([ArquebusierPhotoKind.Id, ArquebusierPhotoKind.LicenseFront], photos.Where(p => p.ArquebusierId == new Guid("0193a300-0000-7000-8000-000000000007")).Select(p => p.Kind).Order());
         Assert.Equal(
             [ArquebusierPhotoKind.Id, ArquebusierPhotoKind.LicenseFront, ArquebusierPhotoKind.LicenseBack],
             photos.Where(p => p.ArquebusierId == RegistrySeeder.AllPhotosArquebusier).Select(p => p.Kind).Order());
