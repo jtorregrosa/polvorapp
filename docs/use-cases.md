@@ -38,8 +38,8 @@
 
 | ID | Use case | Actor | Scope |
 |---|---|---|---|
-| UC-10 | Create and configure an edition: festival dates, order and correction windows, available rental models, prices, calendar milestones | AD | MVP |
-| UC-11 | Move the edition through its windows (open → corrections → locked → closed); lock / unlock the registry | AD | MVP |
+| UC-10 | Create and configure an edition: festival dates, planned order window, available rental models, prices, calendar milestones | AD | MVP |
+| UC-11 | Move the edition through its lifecycle (draft → in progress → closed) and open / close its orders; lock / unlock the registry | AD | MVP |
 
 ## C. Yearly order (replaces the per-arquebusier Google Form)
 
@@ -47,7 +47,7 @@
 |---|---|---|---|
 | UC-12 | Prepare the comparsa order: one entry per arquebusier (active/reserve, kg, caps, weapon source, flask), **pre-filled from last edition** | FC | MVP |
 | UC-13 | Register a weapon loan (owned weapon → borrower, possibly from another comparsa) | FC | MVP |
-| UC-14 | Submit the order with attestation, showing pending warnings; edit again while the correction window is open | FC | MVP |
+| UC-14 | Submit the order with attestation, showing pending warnings; edit again while the orders are open (reopened as a correction window) | FC | MVP |
 | UC-15 | Review orders: validate or return with comments; edit any order even when locked (exceptional cases) | AD | MVP |
 | UC-16 | Federation dashboard: order status per comparsa, totals (kg, caps, rentals by model) | AD | MVP |
 | UC-17 | Exports: powder supplier, weapon rental company, Arms Authority, per-comparsa lists (Excel / PDF) | AD | MVP |
@@ -78,6 +78,8 @@
 
 ## Notes
 
+- **UC-10 (create and configure an edition)**: new editions start with the prices and rentable weapon models of the previous edition (if any), all editable. Festival dates and milestone dates are independent of the calendar; window dates (when orders open and close) are a published plan only — they do not automatically open or close orders.
+- **UC-11 (edition lifecycle and orders)**: the edition moves from `DRAFT` (in preparation) to `IN_PROGRESS` (current, one at a time) to `CLOSED`, by hand, one step at a time. Admins also toggle the orders open and closed (the `ordersOpen` flag), as often as needed; reopening after a review is the corrections window. The registry lock (independent of the edition) is also toggled by Admins.
 - On distribution day the **FiringChief validates the identity** of their arquebusiers; nobody signs.
   The only paper document is the proxy authorisation (UC-19), for the exceptional case.
 - Today the Federation records flask assignments with a laptop and a spreadsheet; UC-20 printable

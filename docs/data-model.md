@@ -111,11 +111,13 @@ Federation labels such as "ARCABUZ CRISTIANO" do not follow Q-07 strictly; Q-53)
 
 ### Edition-scoped
 
-**FestivalEdition** — `year`, festival dates, `status` (`DRAFT` → `ORDERS_OPEN` → `CORRECTIONS_OPEN` → `LOCKED` → `CLOSED`), window dates (orders, corrections).
+**FestivalEdition** — `year` (unique, fixed at creation), festival dates (`festivalStartsOn`, `festivalEndsOn`), `status` (`DRAFT` \| `IN_PROGRESS` \| `CLOSED`), `ordersOpen` flag (meaningful only when `IN_PROGRESS`), planned order window dates (`ordersOpenOn`, `ordersCloseOn`, both optional). Prices (`EditionPrices`, columns of the edition) are euros with two decimals (numeric(6,2)): `powderPerKg`, `capsBox`, `weaponRental`, `flaskRental` (optional while `DRAFT`, required once `IN_PROGRESS`). At most one edition is `IN_PROGRESS` at a time (the **current edition**). Registry lock (see below) blocks FiringChief writes to the registry while on.
 
-**EditionPrices** — flat prices: `powderPerKg`, `capsBox`, `weaponRental`, `flaskRental`. Used for the billing summary.
+**EditionWeaponModel** — which `WeaponModel`s are rentable in an edition (copied from the previous edition at creation, then editable). A model that becomes inactive or non-rentable after being offered stays in the set until an Admin removes it, but is no longer offered for rental.
 
-**EditionWeaponModel** — which `WeaponModel`s are available for rental in this edition.
+**CalendarMilestone** — `date`, `title` (up to 50 per edition); added, edited and removed by Admins in any status. No `notify` field until change #14.
+
+**RegistrySettings** — a single row holding the registry lock state (`locked` boolean, `lockedChangedAt` timestamptz). When locked, FiringChief writes to the registry are refused (`409 registry.locked`); Admins keep writing. The lock is independent of editions and is toggled by Admins.
 
 **ComparsaOrder** — `edition`, `comparsa`, `status` (`DRAFT` | `SUBMITTED` | `RETURNED` | `VALIDATED`), `submittedBy`, `submittedAt`, `attestation` (FiringChief confirms their arquebusiers meet the requirements), `returnReason`. Billing summary derived from entries × `EditionPrices`.
 
@@ -170,7 +172,7 @@ accountability and dispute resolution).
 | BR-07 | A rental model must be available in the edition. Pistols are never rentable. | Block |
 | BR-08 | A rental weapon is assigned to exactly one entry and is non-transferable. | Block |
 | BR-09 | A weapon loan requires an OwnedWeapon; the borrower may belong to any comparsa. No limit on loans. | — |
-| BR-10 | Admins can lock the **registry** and each **edition**. FiringChiefs can edit orders only while the orders or corrections window is open; otherwise read-only. Admins can always edit (exceptional cases). | Block |
+| BR-10 | The **registry lock** (independent of editions) blocks FiringChief writes to the registry; Admins always write. FiringChiefs can edit orders only while the orders of the current edition are open; otherwise read-only. Admins can always edit orders (exceptional cases). | Block |
 | BR-11 | No powder carryover between editions. | — |
 | BR-12 | FiringChiefs only see and edit their own comparsa (except loans, where the borrower's name is visible). | Block |
 | BR-13 | A transfer moves the arquebusier to the new comparsa for future editions only. | — |

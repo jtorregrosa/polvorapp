@@ -37,7 +37,7 @@ their date.
 |---|---|---|---|
 | Q-23 | Phasing | Agreed, but **P1 and P2 merged into one MVP**; no urgency. | ✅ |
 | Q-24 | Google Form | One submission **per arquebusier**, same fields as the order spreadsheet. PolvorApp replaces it. | ✅ |
-| Q-25 | Order workflow | Federation opens a corrections window; exceptional cases handled in person (Admin edits). | ✅ |
+| Q-25 | Order workflow | Federation opens a corrections window; exceptional cases handled in person (Admin edits). **Note**: a corrections window is simply the orders reopened on the `currentEdition` (no separate stage). | ✅ |
 | Q-26 | Distribution | Federation records rental flask number per person (laptop + spreadsheet). No signatures; FiringChief validates identities. | ✅ |
 | Q-27 | License | A-PROF renewed yearly (confirmed by the maintainer, 2026-10-01). No number, no history. | ✅ |
 | Q-28 | Recarga | Not needed. | ✅ |
