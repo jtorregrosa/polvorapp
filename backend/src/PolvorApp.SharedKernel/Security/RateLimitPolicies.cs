@@ -14,4 +14,10 @@ public static class RateLimitPolicies
     /// minute per signed-in user, so duplicate probing cannot run at full speed (add-arquebusier-registry D11).
     /// </summary>
     public const string PersonalDataWrites = "personal-data-writes";
+
+    /// <summary>
+    /// Uploads that decode an image on the server (comparsa logos): 20 per minute per signed-in user,
+    /// so a single account cannot keep the image pipeline busy (add-comparsa-logos D6).
+    /// </summary>
+    public const string ImageUploads = "image-uploads";
 }
