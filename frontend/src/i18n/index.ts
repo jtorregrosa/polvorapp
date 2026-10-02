@@ -10,18 +10,21 @@ import {
 } from './config';
 import caCatalog from './locales/ca-ES-valencia/catalog.json';
 import caCommon from './locales/ca-ES-valencia/common.json';
+import caEditions from './locales/ca-ES-valencia/editions.json';
 import caIdentity from './locales/ca-ES-valencia/identity.json';
 import caInsights from './locales/ca-ES-valencia/insights.json';
 import caRegistry from './locales/ca-ES-valencia/registry.json';
 import caUi from './locales/ca-ES-valencia/ui.json';
 import enCatalog from './locales/en/catalog.json';
 import enCommon from './locales/en/common.json';
+import enEditions from './locales/en/editions.json';
 import enIdentity from './locales/en/identity.json';
 import enInsights from './locales/en/insights.json';
 import enRegistry from './locales/en/registry.json';
 import enUi from './locales/en/ui.json';
 import esCatalog from './locales/es-ES/catalog.json';
 import esCommon from './locales/es-ES/common.json';
+import esEditions from './locales/es-ES/editions.json';
 import esIdentity from './locales/es-ES/identity.json';
 import esInsights from './locales/es-ES/insights.json';
 import esRegistry from './locales/es-ES/registry.json';
@@ -37,6 +40,7 @@ export const resources = {
     catalog: esCatalog,
     registry: esRegistry,
     insights: esInsights,
+    editions: esEditions,
   },
   'ca-ES-valencia': {
     common: caCommon,
@@ -45,6 +49,7 @@ export const resources = {
     catalog: caCatalog,
     registry: caRegistry,
     insights: caInsights,
+    editions: caEditions,
   },
   en: {
     common: enCommon,
@@ -53,10 +58,19 @@ export const resources = {
     catalog: enCatalog,
     registry: enRegistry,
     insights: enInsights,
+    editions: enEditions,
   },
 } as const satisfies Record<
   Language,
-  { common: object; ui: object; identity: object; catalog: object; registry: object; insights: object }
+  {
+    common: object;
+    ui: object;
+    identity: object;
+    catalog: object;
+    registry: object;
+    insights: object;
+    editions: object;
+  }
 >;
 
 /**

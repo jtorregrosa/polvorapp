@@ -78,6 +78,7 @@ export const ARCABUZ: WeaponModelSummary = {
   size: 'NORMAL',
   label: 'ARCABUZ MORO DIESTRO',
   active: true,
+  rentable: true,
 };
 
 export const RETIRED: WeaponModelSummary = {
@@ -97,6 +98,7 @@ export const PISTOLA: WeaponModelSummary = {
   size: null,
   label: 'PISTOLA',
   active: true,
+  rentable: false,
 };
 
 /** The catalogue list as the weapon-model endpoint returns it. */

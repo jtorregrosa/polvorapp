@@ -78,11 +78,13 @@
       "VALIDATED": "Validado"
     },
     "edition": {
-      "DRAFT": "Borrador",
-      "ORDERS_OPEN": "Pedidos abiertos",
-      "CORRECTIONS_OPEN": "Correcciones abiertas",
-      "LOCKED": "Bloqueada",
+      "DRAFT": "En preparación",
+      "IN_PROGRESS": "En curso",
       "CLOSED": "Cerrada"
+    },
+    "orders": {
+      "OPEN": "Pedidos abiertos",
+      "CLOSED": "Pedidos cerrados"
     },
     "catalog": {
       "ACTIVE": "Activo",
@@ -206,5 +208,8 @@
     "none": "Ningún fichero elegido",
     "chosenStatus": "Fichero elegido: {{name}}, {{size}}",
     "removedStatus": "Fichero quitado: {{name}}"
+  },
+  "moneyInput": {
+    "currency": "en euros"
   }
 }

@@ -21,10 +21,13 @@ export function OwnedWeaponsSection({
   arquebusier,
   announce,
   onChanged,
+  canWrite = true,
 }: {
   arquebusier: ArquebusierResponse;
   announce: Announce;
   onChanged: () => Promise<void>;
+  /** False while the registry is locked for the caller (BR-10): no add, edit or remove. */
+  canWrite?: boolean;
 }) {
   const { t } = useTranslation('registry');
   const { t: catalog } = useTranslation('catalog');
@@ -103,15 +106,19 @@ export function OwnedWeaponsSection({
         cell: (weapon) => weapon.weaponNumber,
       },
       { id: 'guide', header: t('ownedWeapons.columns.guide'), cell: (weapon) => weapon.ownershipGuideNumber },
-      {
-        id: 'actions',
-        header: t('ownedWeapons.columns.actions'),
-        hideHeader: true,
-        cell: renderActions,
-      },
+      ...(canWrite
+        ? [
+            {
+              id: 'actions',
+              header: t('ownedWeapons.columns.actions'),
+              hideHeader: true,
+              cell: renderActions,
+            },
+          ]
+        : []),
     ];
     return { columns, renderActions };
-  }, [announce, arquebusier.id, catalog, modelLabel, onChanged, removeWeapon, t]);
+  }, [announce, arquebusier.id, canWrite, catalog, modelLabel, onChanged, removeWeapon, t]);
 
   return (
     <SectionCard
@@ -119,12 +126,14 @@ export function OwnedWeaponsSection({
       title={t('ownedWeapons.title')}
       description={t('ownedWeapons.description')}
       action={
-        <Button asChild variant="secondary">
-          <Link to={`/arquebusiers/${arquebusier.id}/weapons/new`}>
-            <Plus aria-hidden="true" />
-            {t('ownedWeapons.add')}
-          </Link>
-        </Button>
+        canWrite && (
+          <Button asChild variant="secondary">
+            <Link to={`/arquebusiers/${arquebusier.id}/weapons/new`}>
+              <Plus aria-hidden="true" />
+              {t('ownedWeapons.add')}
+            </Link>
+          </Button>
+        )
       }
     >
       <DataTable
@@ -140,7 +149,7 @@ export function OwnedWeaponsSection({
               <span className="font-mono">{weapon.weaponNumber}</span> ·{' '}
               <span className="font-mono">{weapon.ownershipGuideNumber}</span>
             </span>
-            {renderActions(weapon)}
+            {canWrite && renderActions(weapon)}
           </>
         )}
         paginated={false}

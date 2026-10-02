@@ -79,7 +79,7 @@ describe('Arquebusier detail in read mode (spec: Registry screens)', () => {
     expect(banner).toHaveAttribute('data-severity', 'warning');
     expect(banner).toHaveTextContent('La licencia caducó el 10 de marzo de 2025.');
     expect(banner).toHaveTextContent('No consta el curso de arcabucería.');
-    expect(screen.getByRole('button', { name: 'Editar datos personales' })).toBeEnabled();
+    expect(await screen.findByRole('button', { name: 'Editar datos personales' })).toBeEnabled();
   });
 
   it('lists every warning the server derives and shows an expiring license as expiring soon', async () => {
@@ -155,7 +155,7 @@ describe('Arquebusier detail in read mode (spec: Registry screens)', () => {
     await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
 
     expect(await screen.findByText(/está inactiva: no admite nuevos arcabuceros/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Editar datos personales' })).toBeEnabled();
+    expect(await screen.findByRole('button', { name: 'Editar datos personales' })).toBeEnabled();
   });
 });
 

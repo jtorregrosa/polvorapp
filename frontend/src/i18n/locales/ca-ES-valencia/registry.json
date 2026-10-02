@@ -241,7 +241,8 @@
       "modified": "Una altra persona ha canviat esta arma. S’han carregat les seues dades actuals sense perdre el que has escrit: revisa-ho i torna a guardar."
     },
     "registry": {
-      "busy": "El registre està ocupat amb un altre canvi. Torna-ho a provar d'ací a uns segons."
+      "busy": "El registre està ocupat amb un altre canvi. Torna-ho a provar d'ací a uns segons.",
+      "locked": "La Federació ha bloquejat el registre: pots consultar-lo, però no canviar-lo."
     },
     "tooManyRequests": "Has fet molts canvis seguits. Espera un minut i torna-ho a provar.",
     "validation": "Revisa els camps amb error.",
@@ -408,5 +409,24 @@
     },
     "imported_one": "{{count}} arcabusser importat en {{comparsa}}.",
     "imported_other": "{{count}} arcabussers importats en {{comparsa}}."
+  },
+  "lock": {
+    "notice": {
+      "title": "Registre bloquejat",
+      "firingChief": "La Federació ha bloquejat el registre. Pots consultar els arcabussers, però no canviar-los.",
+      "admin": "El registre està bloquejat per als caps de tir. Els administradors poden continuar editant-lo."
+    },
+    "lock": {
+      "action": "Bloquejar el registre",
+      "title": "Vols bloquejar el registre?",
+      "description": "Els caps de tir podran consultar els arcabussers, però no donar d'alta, editar, canviar fotos ni armes, ni eliminar. Els administradors encara podran.",
+      "done": "Registre bloquejat per als caps de tir."
+    },
+    "unlock": {
+      "action": "Desbloquejar el registre",
+      "title": "Vols desbloquejar el registre?",
+      "description": "Els caps de tir podran tornar a canviar els arcabussers de les seues comparses.",
+      "done": "Registre desbloquejat."
+    }
   }
 }

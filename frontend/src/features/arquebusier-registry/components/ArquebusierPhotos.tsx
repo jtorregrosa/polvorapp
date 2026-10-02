@@ -57,10 +57,12 @@ function usePhotoActions(arquebusierId: string, onChanged: () => Promise<void>) 
 interface PhotoProps {
   arquebusier: ArquebusierResponse;
   onChanged: () => Promise<void>;
+  /** False while the registry is locked for the caller: the photos are shown, not changed (BR-10). */
+  canWrite?: boolean;
 }
 
 /** Spec "Photo screens": the ID photo, shown with the personal data. */
-export function IdPhoto({ arquebusier, onChanged }: PhotoProps) {
+export function IdPhoto({ arquebusier, onChanged, canWrite = true }: PhotoProps) {
   const { t } = useTranslation('registry');
   const actions = usePhotoActions(arquebusier.id, onChanged);
   const titleId = useId();
@@ -82,6 +84,7 @@ export function IdPhoto({ arquebusier, onChanged }: PhotoProps) {
           confirmLabel: t('photos.removeConfirm.confirm'),
           onRemove: () => actions.remove('id'),
         }}
+        readOnly={!canWrite}
         {...ID_PHOTO_RULES}
       />
     </div>
@@ -89,7 +92,7 @@ export function IdPhoto({ arquebusier, onChanged }: PhotoProps) {
 }
 
 /** Spec "Photo screens": both sides of the license, offered only while a license is saved. */
-export function LicensePhotos({ arquebusier, onChanged }: PhotoProps) {
+export function LicensePhotos({ arquebusier, onChanged, canWrite = true }: PhotoProps) {
   const { t } = useTranslation('registry');
   const actions = usePhotoActions(arquebusier.id, onChanged);
   const frontId = useId();
@@ -135,6 +138,7 @@ export function LicensePhotos({ arquebusier, onChanged }: PhotoProps) {
               confirmLabel: t('photos.removeConfirm.confirm'),
               onRemove: () => actions.remove(slug),
             }}
+            readOnly={!canWrite}
             {...LICENSE_PHOTO_RULES}
           />
         </div>

@@ -15,6 +15,10 @@ export interface ProblemDetails {
   columns?: unknown;
   /** The validation report of a refused import (`arquebusierImport.rowErrors`); check its shape before use. */
   report?: unknown;
+  /** The fields an edition lacks to start (`editions.incomplete`); check each before use. */
+  missing?: unknown;
+  /** The year of the edition already in progress (`editions.anotherInProgress`); null when unknown. */
+  inProgressYear?: unknown;
 }
 
 /**

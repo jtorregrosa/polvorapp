@@ -111,7 +111,7 @@ describe('Photos on the detail page (spec: Photo screens, Private photo access)'
       screen.getByRole('heading', { level: 1, name: 'Arcabucero García Sintético' }),
     );
     expect(
-      within(header ?? document.body).getByRole('button', { name: 'Sustituir foto de carnet' }),
+      await within(header ?? document.body).findByRole('button', { name: 'Sustituir foto de carnet' }),
     ).toBeInTheDocument();
   });
 
@@ -120,7 +120,7 @@ describe('Photos on the detail page (spec: Photo screens, Private photo access)'
     await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
 
     expect(await screen.findByText('Sin foto de carnet')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Añadir foto de carnet' })).toBeEnabled();
+    expect(await screen.findByRole('button', { name: 'Añadir foto de carnet' })).toBeEnabled();
   });
 
   it('offers license photos only while a license is saved, and says so', async () => {
@@ -138,7 +138,7 @@ describe('Photos on the detail page (spec: Photo screens, Private photo access)'
     await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
 
     const front = await screen.findByRole('group', { name: 'Anverso de la licencia' });
-    expect(within(front).getByRole('button', { name: 'Añadir anverso de la licencia' })).toBeEnabled();
+    expect(await within(front).findByRole('button', { name: 'Añadir anverso de la licencia' })).toBeEnabled();
     expect(within(front).getByText('Sin foto todavía')).toBeInTheDocument();
   });
 

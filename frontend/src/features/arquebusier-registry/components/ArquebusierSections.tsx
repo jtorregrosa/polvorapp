@@ -50,6 +50,8 @@ interface SaverOptions {
 
 interface SectionsProps extends SaverOptions {
   announce: Announce;
+  /** False while the registry is locked for the caller (BR-10): read only. */
+  canWrite: boolean;
 }
 
 /**
@@ -123,9 +125,11 @@ interface SectionProps {
   values: ArquebusierValues;
   save: Save;
   formatDate: (iso: string | null) => string;
+  /** False while the registry is locked for the caller (BR-10): read only. */
+  canWrite: boolean;
 }
 
-function PersonalSection({ arquebusier, values, save, formatDate }: SectionProps) {
+function PersonalSection({ arquebusier, values, save, formatDate, canWrite }: SectionProps) {
   const { t } = useTranslation('registry');
   const personal = useSectionForm('personal', arquebusier);
   return (
@@ -133,6 +137,7 @@ function PersonalSection({ arquebusier, values, save, formatDate }: SectionProps
       title={t('form.personal')}
       action={
         <EditSheet
+          hideTrigger={!canWrite}
           title={t('detail.sections.personal.edit')}
           description={t('form.personalDescription')}
           sectionName={t('detail.sections.personal.name')}
@@ -201,6 +206,7 @@ function LicenseSection({
   save,
   formatDate,
   refresh,
+  canWrite,
 }: SectionProps & { refresh: () => Promise<void> }) {
   const { t } = useTranslation('registry');
   const license = useSectionForm('license', arquebusier);
@@ -238,6 +244,7 @@ function LicenseSection({
         title={t('form.license')}
         action={
           <EditSheet
+            hideTrigger={!canWrite}
             title={t('detail.sections.license.edit')}
             description={t('form.licenseDescription')}
             sectionName={t('detail.sections.license.name')}
@@ -265,14 +272,14 @@ function LicenseSection({
                 : []),
           ]}
         />
-        <LicensePhotos arquebusier={arquebusier} onChanged={refresh} />
+        <LicensePhotos arquebusier={arquebusier} onChanged={refresh} canWrite={canWrite} />
       </SectionCard>
       {removal.dialog}
     </>
   );
 }
 
-function CourseSection({ arquebusier, values, save, formatDate }: SectionProps) {
+function CourseSection({ arquebusier, values, save, formatDate, canWrite }: SectionProps) {
   const { t } = useTranslation('registry');
   const course = useSectionForm('course', arquebusier);
   return (
@@ -280,6 +287,7 @@ function CourseSection({ arquebusier, values, save, formatDate }: SectionProps) 
       title={t('form.training')}
       action={
         <EditSheet
+          hideTrigger={!canWrite}
           title={t('detail.sections.course.edit')}
           description={t('form.trainingDescription')}
           sectionName={t('detail.sections.course.name')}
@@ -306,19 +314,24 @@ function CourseSection({ arquebusier, values, save, formatDate }: SectionProps) 
 }
 
 /** The read-only sections of the record, each with its own edit panel (spec: Registry screens). */
-export function ArquebusierSections({ arquebusier, reload, announce }: SectionsProps) {
+export function ArquebusierSections({ arquebusier, reload, announce, canWrite }: SectionsProps) {
   const { date } = useFormatters();
   const save = useSaveSection({ arquebusier, reload });
   const refresh = useRefreshArquebusier(arquebusier.id);
   const values = useMemo(() => valuesOf(arquebusier), [arquebusier]);
   const formatDate = (iso: string | null) => (iso ? date(new Date(`${iso}T12:00:00Z`), DATE) : '');
-  const props = { arquebusier, values, save, formatDate };
+  const props = { arquebusier, values, save, formatDate, canWrite };
   return (
     <SectionGrid>
       <PersonalSection {...props} />
       <LicenseSection {...props} refresh={refresh} />
       <CourseSection {...props} />
-      <OwnedWeaponsSection arquebusier={arquebusier} announce={announce} onChanged={refresh} />
+      <OwnedWeaponsSection
+        arquebusier={arquebusier}
+        announce={announce}
+        onChanged={refresh}
+        canWrite={canWrite}
+      />
     </SectionGrid>
   );
 }

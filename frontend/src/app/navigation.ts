@@ -1,5 +1,14 @@
 import type { ParseKeys } from 'i18next';
-import { ChartColumn, Crosshair, Flag, House, IdCard, Users, type LucideIcon } from 'lucide-react';
+import {
+  CalendarDays,
+  ChartColumn,
+  Crosshair,
+  Flag,
+  House,
+  IdCard,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
 import type { UserRole } from '@/api/generated/model';
 
 export interface NavigationEntry {
@@ -19,6 +28,7 @@ export interface NavigationEntry {
 export const NAVIGATION: readonly NavigationEntry[] = [
   { to: '/', labelKey: 'nav.home', icon: House },
   { to: '/arquebusiers', labelKey: 'nav.arquebusiers', icon: IdCard, count: 'warnings' },
+  { to: '/editions', labelKey: 'nav.editions', icon: CalendarDays },
   { to: '/statistics', labelKey: 'nav.statistics', icon: ChartColumn },
   { to: '/comparsas', labelKey: 'nav.comparsas', icon: Flag },
   { to: '/weapon-models', labelKey: 'nav.weaponModels', icon: Crosshair, roles: ['ADMIN'] },

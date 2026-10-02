@@ -78,11 +78,13 @@
       "VALIDATED": "Validat"
     },
     "edition": {
-      "DRAFT": "Esborrany",
-      "ORDERS_OPEN": "Comandes obertes",
-      "CORRECTIONS_OPEN": "Correccions obertes",
-      "LOCKED": "Bloquejada",
+      "DRAFT": "En preparació",
+      "IN_PROGRESS": "En curs",
       "CLOSED": "Tancada"
+    },
+    "orders": {
+      "OPEN": "Comandes obertes",
+      "CLOSED": "Comandes tancades"
     },
     "catalog": {
       "ACTIVE": "Actiu",
@@ -206,5 +208,8 @@
     "none": "Cap fitxer triat",
     "chosenStatus": "Fitxer triat: {{name}}, {{size}}",
     "removedStatus": "Fitxer llevat: {{name}}"
+  },
+  "moneyInput": {
+    "currency": "en euros"
   }
 }

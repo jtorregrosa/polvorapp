@@ -25,6 +25,9 @@ import { WeaponModelFormPage } from '@/features/federation-catalog/pages/WeaponM
 import { WeaponModelsPage } from '@/features/federation-catalog/pages/WeaponModelsPage';
 import { ErrorPage, RootErrorPage } from '@/features/platform/pages/ErrorPage';
 import { DashboardPage } from '@/features/compliance-insights/pages/DashboardPage';
+import { EditionCreatePage } from '@/features/festival-editions/pages/EditionCreatePage';
+import { EditionDetailPage } from '@/features/festival-editions/pages/EditionDetailPage';
+import { EditionsPage } from '@/features/festival-editions/pages/EditionsPage';
 import { StatisticsPage } from '@/features/compliance-insights/pages/StatisticsPage';
 import { NotFoundPage } from '@/features/platform/pages/NotFoundPage';
 import { AppShell } from './shell/AppShell';
@@ -97,6 +100,16 @@ export const appRoutes: RouteObject[] = [
                 handle: { breadcrumb: 'nav.arquebusiers' } satisfies RouteHandle,
               },
               {
+                path: 'editions',
+                Component: EditionsPage,
+                handle: { breadcrumb: 'nav.editions' } satisfies RouteHandle,
+              },
+              {
+                path: 'editions/:id',
+                Component: EditionDetailPage,
+                handle: { breadcrumb: 'nav.editions' } satisfies RouteHandle,
+              },
+              {
                 path: 'statistics',
                 Component: StatisticsPage,
                 handle: { breadcrumb: 'nav.statistics' } satisfies RouteHandle,
@@ -118,6 +131,11 @@ export const appRoutes: RouteObject[] = [
                     path: 'arquebusiers/import',
                     Component: ArquebusierImportPage,
                     handle: { breadcrumb: 'nav.arquebusiers' } satisfies RouteHandle,
+                  },
+                  {
+                    path: 'editions/new',
+                    Component: EditionCreatePage,
+                    handle: { breadcrumb: 'nav.editions' } satisfies RouteHandle,
                   },
                   {
                     path: 'comparsas/new',

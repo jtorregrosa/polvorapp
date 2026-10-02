@@ -23,6 +23,8 @@ import { IdPhoto } from '../components/ArquebusierPhotos';
 import { ArquebusierSections } from '../components/ArquebusierSections';
 import { RecordFacts } from '../components/ArquebusierSummary';
 import { LoadFailure } from '../components/LoadFailure';
+import { RegistryLockNotice } from '../components/RegistryLock';
+import { useRegistryLock } from '../registryLock';
 import { useRefreshArquebusier } from '../hooks';
 import { licenseBadgeValue } from '../license-badge';
 import { problemCode, problemMessage } from '../problems';
@@ -102,6 +104,7 @@ function ArquebusierRecord({ details, notice, announce, reload, staleError, onRe
   const moreActions = useRef<HTMLButtonElement>(null);
   const transferButton = useRef<HTMLButtonElement>(null);
   const { items, dialog, setDialog, refresh } = useArquebusierActions(details, name, announce);
+  const lock = useRegistryLock();
   const comparsa = ((comparsas.data?.data ?? []) as ComparsaResponse[]).find(
     (entry) => entry.id === details.comparsaId,
   );
@@ -110,7 +113,7 @@ function ArquebusierRecord({ details, notice, announce, reload, staleError, onRe
     <>
       <RecordHeader
         back={{ to: '/arquebusiers', label: t('detail.back') }}
-        media={<IdPhoto arquebusier={details} onChanged={refresh} />}
+        media={<IdPhoto arquebusier={details} onChanged={refresh} canWrite={lock.canWrite} />}
         context={
           comparsa ? `${details.comparsaName} · ${tCatalog(`side.${comparsa.side}`)}` : details.comparsaName
         }
@@ -149,10 +152,12 @@ function ArquebusierRecord({ details, notice, announce, reload, staleError, onRe
             </Button>
           )
         }
-        moreActions={items}
+        // Status changes and deletion are writes: not offered while the registry is locked (BR-10).
+        moreActions={lock.canWrite ? items : []}
         moreActionsRef={moreActions}
       />
       <NoticeBanner notice={notice} />
+      <RegistryLockNotice lock={lock} />
       {/* A failed refresh keeps what was loaded: the page stays usable and says it may be outdated. */}
       {staleError !== null && staleError !== undefined && (
         <LoadFailure error={staleError} consequence={t('load.stale')} onRetry={onRetry} />
@@ -168,7 +173,12 @@ function ArquebusierRecord({ details, notice, announce, reload, staleError, onRe
         age={details.age}
       />
       <RecordFacts arquebusier={details} />
-      <ArquebusierSections arquebusier={details} reload={reload} announce={announce} />
+      <ArquebusierSections
+        arquebusier={details}
+        reload={reload}
+        announce={announce}
+        canWrite={lock.canWrite}
+      />
       {isAdmin && (
         <TransferDialog
           arquebusier={details}

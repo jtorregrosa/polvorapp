@@ -1,0 +1,223 @@
+{
+  "title": "Editions",
+  "list": {
+    "description": "The festival editions: dates, order window, prices, rental models and milestones.",
+    "descriptionFiringChief": "The festival editions the Federation has opened, read-only.",
+    "new": "New edition",
+    "caption": "Editions",
+    "columns": {
+      "year": "Year",
+      "festival": "Festival",
+      "status": "Status"
+    },
+    "current": "Current edition",
+    "festivalDates": "{{from}} to {{to}}",
+    "emptyAdmin": {
+      "title": "No editions yet",
+      "description": "Create the first edition to prepare the festival orders."
+    },
+    "emptyFiringChief": {
+      "title": "No editions yet",
+      "description": "The Federation has not opened any edition yet."
+    }
+  },
+  "create": {
+    "title": "New edition",
+    "description": "The year and the festival dates. The order window, prices and milestones are completed later in the edition.",
+    "back": "Editions",
+    "section": "Edition",
+    "year": "Year",
+    "yearHelp": "Between 2000 and 2100. It cannot be changed later.",
+    "festivalStartsOn": "First festival day",
+    "festivalEndsOn": "Last festival day",
+    "copyFrom": "The prices of the {{year}} edition and its rental models that are still rented will be copied.",
+    "copyNothing": "There is no earlier edition: prices and rental models start empty.",
+    "submit": "Create edition",
+    "created": "Edition {{year}} created in preparation.",
+    "cancel": "Cancel"
+  },
+  "detail": {
+    "back": "Editions",
+    "name": "Festival {{year}}",
+    "context": "Festival edition",
+    "keyFacts": "Key facts of the edition",
+    "festival": "Festival",
+    "nextWindow": "Next deadline",
+    "nextWindowNone": "No pending deadlines",
+    "window": {
+      "OPENS": "Orders open on {{date}}",
+      "CLOSES": "Orders close on {{date}}"
+    },
+    "orders": "Orders",
+    "ordersEditable": "FiringChiefs can edit orders",
+    "ordersReadOnly": "Orders are read-only for FiringChiefs",
+    "draftNotice": "Edition in preparation: FiringChiefs do not see it until it starts.",
+    "loadFailed": "The edition could not be loaded.",
+    "staleFailed": "What you see may be out of date."
+  },
+  "sections": {
+    "dates": {
+      "title": "Dates and order window",
+      "edit": "Edit dates and order window",
+      "name": "dates and order window",
+      "festivalStartsOn": "First festival day",
+      "festivalEndsOn": "Last festival day",
+      "ordersOpenOn": "Orders open",
+      "ordersCloseOn": "Orders close",
+      "windowHelp": "The window FiringChiefs see. Orders are opened and closed by hand."
+    },
+    "prices": {
+      "title": "Prices",
+      "edit": "Edit prices",
+      "name": "prices",
+      "powderPerKg": "Powder, per kilogram",
+      "capsBox": "Box of caps",
+      "weaponRental": "Weapon rental",
+      "flaskRental": "Flask rental",
+      "billingNote": "The edition has started: billing will use the new prices."
+    },
+    "models": {
+      "title": "Rental models",
+      "edit": "Edit rental models",
+      "name": "rental models",
+      "empty": "No rental model is offered.",
+      "notRentable": "No longer rented",
+      "help": "The active, rentable models of the catalogue.",
+      "noneAvailable": "The catalogue has no active, rentable models.",
+      "retiredHelp": "No longer rented: it can only be removed.",
+      "loading": "Loading the model catalogue…",
+      "loadFailed": "Models cannot be chosen until the catalogue loads."
+    },
+    "milestones": {
+      "title": "Calendar milestones",
+      "caption": "Calendar milestones",
+      "add": "Add milestone",
+      "addTitle": "New milestone",
+      "editTitle": "Edit milestone",
+      "editName": "the milestone {{title}}",
+      "remove": "Remove",
+      "removeName": "Remove the milestone {{title}}",
+      "removeTitle": "Remove the milestone “{{title}}”?",
+      "removeDescription": "It disappears from the edition's calendar.",
+      "removeConfirm": "Remove milestone",
+      "removed": "Milestone removed.",
+      "added": "Milestone added.",
+      "date": "Date",
+      "titleLabel": "Title",
+      "columns": {
+        "date": "Date",
+        "title": "Milestone",
+        "actions": "Actions"
+      },
+      "empty": "No milestones yet."
+    }
+  },
+  "actions": {
+    "start": "Start edition",
+    "openOrders": "Open orders",
+    "closeOrders": "Close orders",
+    "closeEdition": "Close edition",
+    "backToDraft": "Back to preparation",
+    "reopen": "Reopen edition",
+    "delete": "Delete edition",
+    "closeOrdersFirst": "Close the orders first."
+  },
+  "confirm": {
+    "start": {
+      "title": "Start the {{year}} edition?",
+      "description": "It becomes the current edition and FiringChiefs will see it. Orders stay closed until you open them."
+    },
+    "openOrders": {
+      "title": "Open the {{year}} orders?",
+      "description": "FiringChiefs will be able to prepare and edit their comparsas' orders."
+    },
+    "closeOrders": {
+      "title": "Close the {{year}} orders?",
+      "description": "Orders become read-only for FiringChiefs. You can open them again for corrections."
+    },
+    "closeEdition": {
+      "title": "Close the {{year}} edition?",
+      "description": "It is no longer the current edition and is kept as history. FiringChiefs will still see it."
+    },
+    "backToDraft": {
+      "title": "Prepare the {{year}} edition again?",
+      "description": "It is no longer the current edition and FiringChiefs will stop seeing it."
+    },
+    "reopen": {
+      "title": "Reopen the {{year}} edition?",
+      "description": "It becomes the current edition again, with orders closed."
+    },
+    "delete": {
+      "title": "Delete the {{year}} edition?",
+      "description": "Its rental models and milestones are deleted too. This cannot be undone."
+    }
+  },
+  "done": {
+    "start": "Edition {{year}} started.",
+    "openOrders": "Orders for {{year}} opened.",
+    "closeOrders": "Orders for {{year}} closed.",
+    "closeEdition": "Edition {{year}} closed.",
+    "backToDraft": "Edition {{year}} back in preparation.",
+    "reopen": "Edition {{year}} reopened.",
+    "delete": "Edition {{year}} deleted."
+  },
+  "currentCard": {
+    "title": "Current edition",
+    "name": "Festival {{year}}",
+    "noneTitle": "No edition in progress",
+    "noneDescription": "When the Federation starts an edition, its deadlines and milestones show here.",
+    "toEditions": "Go to the editions",
+    "milestones": "Upcoming milestones",
+    "noMilestones": "No upcoming milestones.",
+    "loadFailed": "The current edition could not be loaded."
+  },
+  "fields": {
+    "festivalStartsOn": "the first festival day",
+    "festivalEndsOn": "the last festival day",
+    "ordersOpenOn": "the opening of the orders",
+    "ordersCloseOn": "the closing of the orders",
+    "prices": {
+      "powderPerKg": "the price of powder",
+      "capsBox": "the price of a box of caps",
+      "weaponRental": "the price of a weapon rental",
+      "flaskRental": "the price of a flask rental"
+    }
+  },
+  "errors": {
+    "editions": {
+      "notFound": "This edition does not exist or is no longer available.",
+      "yearTaken": "An edition of that year already exists.",
+      "modified": "Someone else changed the edition while you were editing it. Check the current data and save again.",
+      "invalidTransition": "The edition is no longer in that status. Reload the page.",
+      "anotherInProgress": "The {{year}} edition is already in progress. Close it before starting another.",
+      "anotherInProgressUnknown": "Another edition is already in progress. Close it before starting this one.",
+      "incomplete": "To start the edition, {{fields}} are missing.",
+      "ordersOpen": "The orders are open. Close them first.",
+      "notInProgress": "Only the edition in progress can open orders.",
+      "notDraft": "Only an edition in preparation can be deleted.",
+      "tooManyMilestones": "An edition can have 50 milestones at most.",
+      "milestoneNotFound": "This milestone no longer exists.",
+      "busy": "The edition is busy with another change. Try again in a few seconds."
+    },
+    "validation": "Check the marked data.",
+    "generic": "The operation could not be completed. Try again."
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalid": "The value is not valid",
+    "tooLong": "100 characters at most",
+    "date": "Enter a complete date",
+    "outOfRange": "Outside the allowed range",
+    "yearRange": "A year between 2000 and 2100",
+    "outsideYear": "It must be in the edition's year",
+    "beforeStart": "It cannot be before the first festival day",
+    "beforeOpen": "It cannot be before the opening of the orders",
+    "afterFestival": "It cannot be after the first festival day",
+    "money": "Enter an amount, for example 4.50",
+    "moneyRange": "Between 0 and €9,999.99",
+    "decimals": "Two decimals at most",
+    "notFound": "A model no longer exists in the catalogue",
+    "notRentable": "A model is no longer rented",
+    "tooMany": "Too many items"
+  }
+}

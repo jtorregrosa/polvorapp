@@ -1,0 +1,223 @@
+{
+  "title": "Ediciones",
+  "list": {
+    "description": "Las ediciones de las fiestas: fechas, plazo de pedidos, precios, modelos de alquiler e hitos.",
+    "descriptionFiringChief": "Las ediciones de las fiestas que ha abierto la Federación, de solo lectura.",
+    "new": "Nueva edición",
+    "caption": "Ediciones",
+    "columns": {
+      "year": "Año",
+      "festival": "Fiestas",
+      "status": "Estado"
+    },
+    "current": "Edición actual",
+    "festivalDates": "Del {{from}} al {{to}}",
+    "emptyAdmin": {
+      "title": "Aún no hay ediciones",
+      "description": "Crea la primera edición para preparar los pedidos de las fiestas."
+    },
+    "emptyFiringChief": {
+      "title": "Aún no hay ediciones",
+      "description": "La Federación todavía no ha abierto ninguna edición."
+    }
+  },
+  "create": {
+    "title": "Nueva edición",
+    "description": "El año y las fechas de las fiestas. El plazo de pedidos, los precios y los hitos se completan después en la edición.",
+    "back": "Ediciones",
+    "section": "Edición",
+    "year": "Año",
+    "yearHelp": "Entre 2000 y 2100. No se puede cambiar después.",
+    "festivalStartsOn": "Primer día de fiestas",
+    "festivalEndsOn": "Último día de fiestas",
+    "copyFrom": "Se copiarán los precios de la edición {{year}} y sus modelos de alquiler que se sigan alquilando.",
+    "copyNothing": "No hay ninguna edición anterior: los precios y los modelos de alquiler empiezan vacíos.",
+    "submit": "Crear edición",
+    "created": "Edición {{year}} creada en preparación.",
+    "cancel": "Cancelar"
+  },
+  "detail": {
+    "back": "Ediciones",
+    "name": "Fiestas {{year}}",
+    "context": "Edición de las fiestas",
+    "keyFacts": "Datos clave de la edición",
+    "festival": "Fiestas",
+    "nextWindow": "Próximo plazo",
+    "nextWindowNone": "Sin plazos pendientes",
+    "window": {
+      "OPENS": "Los pedidos se abren el {{date}}",
+      "CLOSES": "Los pedidos se cierran el {{date}}"
+    },
+    "orders": "Pedidos",
+    "ordersEditable": "Los jefes de disparo pueden editar los pedidos",
+    "ordersReadOnly": "Los pedidos son de solo lectura para los jefes de disparo",
+    "draftNotice": "Edición en preparación: los jefes de disparo no la ven hasta que se inicie.",
+    "loadFailed": "No se ha podido cargar la edición.",
+    "staleFailed": "Lo que ves puede estar desactualizado."
+  },
+  "sections": {
+    "dates": {
+      "title": "Fechas y plazo de pedidos",
+      "edit": "Editar fechas y plazo de pedidos",
+      "name": "fechas y plazo de pedidos",
+      "festivalStartsOn": "Primer día de fiestas",
+      "festivalEndsOn": "Último día de fiestas",
+      "ordersOpenOn": "Apertura de pedidos",
+      "ordersCloseOn": "Cierre de pedidos",
+      "windowHelp": "Plazo que ven los jefes de disparo. Los pedidos se abren y se cierran a mano."
+    },
+    "prices": {
+      "title": "Precios",
+      "edit": "Editar precios",
+      "name": "precios",
+      "powderPerKg": "Pólvora, por kilo",
+      "capsBox": "Caja de pistones",
+      "weaponRental": "Alquiler de arma",
+      "flaskRental": "Alquiler de polvorera",
+      "billingNote": "La edición ya está iniciada: la facturación usará los precios nuevos."
+    },
+    "models": {
+      "title": "Modelos de alquiler",
+      "edit": "Editar modelos de alquiler",
+      "name": "modelos de alquiler",
+      "empty": "No se ofrece ningún modelo de alquiler.",
+      "notRentable": "Ya no se alquila",
+      "help": "Los modelos activos y alquilables del catálogo.",
+      "noneAvailable": "El catálogo no tiene modelos activos y alquilables.",
+      "retiredHelp": "Ya no se alquila: solo se puede quitar.",
+      "loading": "Cargando el catálogo de modelos…",
+      "loadFailed": "No se pueden elegir modelos hasta que se cargue el catálogo."
+    },
+    "milestones": {
+      "title": "Hitos del calendario",
+      "caption": "Hitos del calendario",
+      "add": "Añadir hito",
+      "addTitle": "Nuevo hito",
+      "editTitle": "Editar hito",
+      "editName": "el hito {{title}}",
+      "remove": "Quitar",
+      "removeName": "Quitar el hito {{title}}",
+      "removeTitle": "¿Quitar el hito «{{title}}»?",
+      "removeDescription": "Desaparece del calendario de la edición.",
+      "removeConfirm": "Quitar hito",
+      "removed": "Hito quitado.",
+      "added": "Hito añadido.",
+      "date": "Fecha",
+      "titleLabel": "Título",
+      "columns": {
+        "date": "Fecha",
+        "title": "Hito",
+        "actions": "Acciones"
+      },
+      "empty": "Aún no hay hitos."
+    }
+  },
+  "actions": {
+    "start": "Iniciar edición",
+    "openOrders": "Abrir pedidos",
+    "closeOrders": "Cerrar pedidos",
+    "closeEdition": "Cerrar edición",
+    "backToDraft": "Volver a preparación",
+    "reopen": "Reabrir edición",
+    "delete": "Eliminar edición",
+    "closeOrdersFirst": "Cierra antes los pedidos."
+  },
+  "confirm": {
+    "start": {
+      "title": "¿Iniciar la edición {{year}}?",
+      "description": "Pasa a ser la edición actual y los jefes de disparo la verán. Los pedidos seguirán cerrados hasta que los abras."
+    },
+    "openOrders": {
+      "title": "¿Abrir los pedidos de {{year}}?",
+      "description": "Los jefes de disparo podrán preparar y editar los pedidos de sus comparsas."
+    },
+    "closeOrders": {
+      "title": "¿Cerrar los pedidos de {{year}}?",
+      "description": "Los pedidos pasan a ser de solo lectura para los jefes de disparo. Podrás volver a abrirlos para correcciones."
+    },
+    "closeEdition": {
+      "title": "¿Cerrar la edición {{year}}?",
+      "description": "Deja de ser la edición actual y queda como histórico. Los jefes de disparo la seguirán viendo."
+    },
+    "backToDraft": {
+      "title": "¿Volver a preparar la edición {{year}}?",
+      "description": "Deja de ser la edición actual y los jefes de disparo dejarán de verla."
+    },
+    "reopen": {
+      "title": "¿Reabrir la edición {{year}}?",
+      "description": "Vuelve a ser la edición actual, con los pedidos cerrados."
+    },
+    "delete": {
+      "title": "¿Eliminar la edición {{year}}?",
+      "description": "Se eliminan también sus modelos de alquiler y sus hitos. No se puede deshacer."
+    }
+  },
+  "done": {
+    "start": "Edición {{year}} iniciada.",
+    "openOrders": "Pedidos de {{year}} abiertos.",
+    "closeOrders": "Pedidos de {{year}} cerrados.",
+    "closeEdition": "Edición {{year}} cerrada.",
+    "backToDraft": "Edición {{year}} de nuevo en preparación.",
+    "reopen": "Edición {{year}} reabierta.",
+    "delete": "Edición {{year}} eliminada."
+  },
+  "currentCard": {
+    "title": "Edición actual",
+    "name": "Fiestas {{year}}",
+    "noneTitle": "No hay ninguna edición en curso",
+    "noneDescription": "Cuando la Federación inicie una edición, aquí verás sus plazos y sus hitos.",
+    "toEditions": "Ir a las ediciones",
+    "milestones": "Próximos hitos",
+    "noMilestones": "No hay hitos próximos.",
+    "loadFailed": "No se ha podido cargar la edición actual."
+  },
+  "fields": {
+    "festivalStartsOn": "el primer día de fiestas",
+    "festivalEndsOn": "el último día de fiestas",
+    "ordersOpenOn": "la apertura de pedidos",
+    "ordersCloseOn": "el cierre de pedidos",
+    "prices": {
+      "powderPerKg": "el precio de la pólvora",
+      "capsBox": "el precio de la caja de pistones",
+      "weaponRental": "el precio del alquiler de arma",
+      "flaskRental": "el precio del alquiler de polvorera"
+    }
+  },
+  "errors": {
+    "editions": {
+      "notFound": "Esta edición no existe o ya no está disponible.",
+      "yearTaken": "Ya existe una edición de ese año.",
+      "modified": "Otra persona ha cambiado la edición mientras la editabas. Revisa los datos actuales y vuelve a guardar.",
+      "invalidTransition": "La edición ya no está en ese estado. Recarga la página.",
+      "anotherInProgress": "La edición {{year}} ya está en curso. Ciérrala antes de iniciar otra.",
+      "anotherInProgressUnknown": "Ya hay otra edición en curso. Ciérrala antes de iniciar esta.",
+      "incomplete": "Para iniciar la edición faltan {{fields}}.",
+      "ordersOpen": "Los pedidos están abiertos. Ciérralos antes.",
+      "notInProgress": "Solo la edición en curso puede abrir pedidos.",
+      "notDraft": "Solo se puede eliminar una edición en preparación.",
+      "tooManyMilestones": "Una edición puede tener 50 hitos como mucho.",
+      "milestoneNotFound": "Este hito ya no existe.",
+      "busy": "La edición está ocupada con otro cambio. Vuelve a intentarlo en unos segundos."
+    },
+    "validation": "Revisa los datos marcados.",
+    "generic": "No se ha podido completar la operación. Vuelve a intentarlo."
+  },
+  "validation": {
+    "required": "Este campo es obligatorio",
+    "invalid": "El valor no es válido",
+    "tooLong": "Como mucho 100 caracteres",
+    "date": "Escribe una fecha completa",
+    "outOfRange": "Fuera del rango permitido",
+    "yearRange": "Un año entre 2000 y 2100",
+    "outsideYear": "Tiene que ser del año de la edición",
+    "beforeStart": "No puede ser anterior al primer día de fiestas",
+    "beforeOpen": "No puede ser anterior a la apertura de pedidos",
+    "afterFestival": "No puede ser posterior al primer día de fiestas",
+    "money": "Escribe un importe, por ejemplo 4,50",
+    "moneyRange": "Entre 0 y 9999,99 €",
+    "decimals": "Dos decimales como mucho",
+    "notFound": "Algún modelo ya no existe en el catálogo",
+    "notRentable": "Algún modelo ya no se alquila",
+    "tooMany": "Demasiados elementos"
+  }
+}

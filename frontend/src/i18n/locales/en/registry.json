@@ -241,7 +241,8 @@
       "modified": "Someone else has changed this weapon. Its current data has been loaded without losing what you typed: check it and save again."
     },
     "registry": {
-      "busy": "The registry is busy with another change. Try again in a few seconds."
+      "busy": "The registry is busy with another change. Try again in a few seconds.",
+      "locked": "The Federation has locked the registry: you can view it but not change it."
     },
     "tooManyRequests": "You have made many changes in a row. Wait a minute and try again.",
     "validation": "Check the fields with errors.",
@@ -408,5 +409,24 @@
     },
     "imported_one": "{{count}} arquebusier imported into {{comparsa}}.",
     "imported_other": "{{count}} arquebusiers imported into {{comparsa}}."
+  },
+  "lock": {
+    "notice": {
+      "title": "Registry locked",
+      "firingChief": "The Federation has locked the registry. You can view arquebusiers but not change them.",
+      "admin": "The registry is locked for FiringChiefs. Admins can still edit it."
+    },
+    "lock": {
+      "action": "Lock registry",
+      "title": "Lock the registry?",
+      "description": "FiringChiefs will be able to view arquebusiers but not register, edit, change photos or weapons, or delete. Admins still can.",
+      "done": "Registry locked for FiringChiefs."
+    },
+    "unlock": {
+      "action": "Unlock registry",
+      "title": "Unlock the registry?",
+      "description": "FiringChiefs will be able to change their comparsas' arquebusiers again.",
+      "done": "Registry unlocked."
+    }
   }
 }
