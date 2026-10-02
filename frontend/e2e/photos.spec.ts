@@ -296,7 +296,8 @@ test.describe('arquebusier photos', () => {
         .getByRole('row')
         .or(page.getByRole('listitem'))
         .filter({ hasText: lastName })
-        .getByText('Sin foto de carnet'),
+        // Exactly the marker: the warnings line also names a missing ID photo.
+        .getByText('Sin foto de carnet', { exact: true }),
     ).toBeVisible();
 
     await page.goto(`/arquebusiers/${id}`);
@@ -338,7 +339,7 @@ test.describe('arquebusier photos', () => {
     await page.getByRole('searchbox').fill(lastName);
     const row = page.getByRole('row').or(page.getByRole('listitem')).filter({ hasText: lastName });
     await expect(row).toBeVisible();
-    await expect(row.getByText('Sin foto de carnet')).toHaveCount(0);
+    await expect(row.getByText('Sin foto de carnet', { exact: true })).toHaveCount(0);
   });
 
   test('rotates a license photo both ways, replaces it and removes it after a confirmation', async ({
