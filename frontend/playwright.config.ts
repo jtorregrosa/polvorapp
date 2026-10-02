@@ -1,6 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 import { ADMIN_STATE } from './e2e/identity';
 
+/** Specs that change shared state, run by the `serial-state` project only. */
+const SERIAL_STATE = /serial-state[\\/].*\.spec\.ts$/;
+
 // E2E against the running compose stack (docs/development.md#end-to-end-tests).
 export default defineConfig({
   testDir: './e2e',
@@ -23,11 +26,13 @@ export default defineConfig({
     { name: 'setup', testMatch: /auth\.setup\.ts/, use: { ...devices['Desktop Chrome'] } },
     {
       name: 'desktop-chromium',
+      testIgnore: SERIAL_STATE,
       use: { ...devices['Desktop Chrome'], storageState: ADMIN_STATE },
       dependencies: ['setup'],
     },
     {
       name: 'mobile-360',
+      testIgnore: SERIAL_STATE,
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 360, height: 740 },
@@ -65,6 +70,16 @@ export default defineConfig({
       testMatch: /(photos|comparsa-logos|insights)\.spec\.ts$/,
       use: { ...devices['Desktop Safari'], storageState: ADMIN_STATE },
       dependencies: ['setup'],
+    },
+    // Specs that change state every other spec reads (the registry lock, the current edition's
+    // orders) run alone, after all the others have passed, and restore what they change
+    // (add-festival-editions, design D11).
+    {
+      name: 'serial-state',
+      testMatch: SERIAL_STATE,
+      fullyParallel: false,
+      use: { ...devices['Desktop Chrome'], storageState: ADMIN_STATE },
+      dependencies: ['desktop-chromium', 'mobile-360', 'dates-firefox', 'dates-webkit', 'photos-firefox', 'photos-webkit'],
     },
   ],
 });
