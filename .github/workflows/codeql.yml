@@ -3,6 +3,10 @@ name: CodeQL
 
 on:
   pull_request:
+    # Planning and docs hold no analysed code (CodeQL is not a required check).
+    paths-ignore:
+      - 'openspec/**'
+      - 'docs/**'
   push:
     branches: [main]
   schedule:

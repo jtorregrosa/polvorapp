@@ -336,6 +336,13 @@ tests + coverage, contract drift), frontend (audit, lint, types, i18n, tests + c
 E2E on the compose stack, container image builds, secret scanning and dependency review. On
 `main`, `publish-images` pushes the images to GHCR after all gates pass. `codeql.yml` runs CodeQL; Dependabot keeps dependencies and actions current.
 
+A follow-up push to an open pull request that only touches `openspec/` and `docs/` (outside
+`docs/design/`, which the frontend tests read) skips the code gates, such as the OpenSpec archive
+commit. This happens only when the previous commit passed backend, frontend, E2E and images; the
+`changes` job decides it and the skipped gates count as passed for the required checks. Secret
+scanning always runs, and `main` always runs everything. CodeQL ignores pull requests that only
+touch `openspec/` and `docs/`.
+
 ### Dependency updates
 
 Dependabot opens weekly pull requests (minor and patch updates grouped). Major versions that a
