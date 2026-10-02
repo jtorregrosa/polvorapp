@@ -94,6 +94,8 @@ export interface PhotoUploadProps extends PhotoRules {
   disabled?: boolean;
   /** Why the control is disabled, shown under it. */
   disabledHint?: string;
+  /** Shows the image only, without choose, replace or remove (e.g. a locked registry). */
+  readOnly?: boolean;
 }
 
 type Status = 'idle' | 'uploading' | 'uploaded' | 'removed';
@@ -221,6 +223,7 @@ export function PhotoUpload({
   removal,
   disabled = false,
   disabledHint,
+  readOnly = false,
   ...rules
 }: PhotoUploadProps) {
   const { t } = useTranslation('ui');
@@ -451,54 +454,58 @@ export function PhotoUpload({
       </div>
 
       {/* Long labels ("Replace front of the license") wrap inside narrow columns (WCAG 1.4.10). */}
-      <div className="flex min-w-0 flex-wrap gap-2">
-        <Button
-          ref={chooseButton}
-          type="button"
-          variant="secondary"
-          className="h-auto min-h-control max-w-full py-2 text-left whitespace-normal"
-          pending={opening}
-          disabled={disabled}
-          aria-describedby={disabled && disabledHint ? hintId : undefined}
-          onClick={() => fileInput.current?.click()}
-        >
-          {t(photoUrl ? 'photoUpload.replace' : 'photoUpload.choose', { label })}
-        </Button>
-        {removal && photoUrl && (
-          <ConfirmDialog
-            title={removal.title}
-            description={removal.description}
-            confirmLabel={removal.confirmLabel}
-            onConfirm={removal.onRemove}
-            // The remove action goes away with the photo: focus the add action instead (WCAG 2.4.3).
-            onConfirmed={() => {
-              chooseButton.current?.focus();
-              // Announced politely: the remove action went away with the photo (SC 4.1.3).
-              setStatus('removed');
-            }}
-            trigger={
-              <Button
-                type="button"
-                variant="quiet"
-                disabled={disabled}
-                className="h-auto min-h-control max-w-full py-2 text-left whitespace-normal"
-              >
-                {t('photoUpload.remove', { label })}
-              </Button>
-            }
-          />
-        )}
-      </div>
+      {!readOnly && (
+        <div className="flex min-w-0 flex-wrap gap-2">
+          <Button
+            ref={chooseButton}
+            type="button"
+            variant="secondary"
+            className="h-auto min-h-control max-w-full py-2 text-left whitespace-normal"
+            pending={opening}
+            disabled={disabled}
+            aria-describedby={disabled && disabledHint ? hintId : undefined}
+            onClick={() => fileInput.current?.click()}
+          >
+            {t(photoUrl ? 'photoUpload.replace' : 'photoUpload.choose', { label })}
+          </Button>
+          {removal && photoUrl && (
+            <ConfirmDialog
+              title={removal.title}
+              description={removal.description}
+              confirmLabel={removal.confirmLabel}
+              onConfirm={removal.onRemove}
+              // The remove action goes away with the photo: focus the add action instead (WCAG 2.4.3).
+              onConfirmed={() => {
+                chooseButton.current?.focus();
+                // Announced politely: the remove action went away with the photo (SC 4.1.3).
+                setStatus('removed');
+              }}
+              trigger={
+                <Button
+                  type="button"
+                  variant="quiet"
+                  disabled={disabled}
+                  className="h-auto min-h-control max-w-full py-2 text-left whitespace-normal"
+                >
+                  {t('photoUpload.remove', { label })}
+                </Button>
+              }
+            />
+          )}
+        </div>
+      )}
       {/* No `capture`: phones then offer both the camera and the gallery (NFR-01). */}
-      <input
-        ref={fileInput}
-        type="file"
-        accept="image/*"
-        hidden
-        onChange={(event) => {
-          void choose(event);
-        }}
-      />
+      {!readOnly && (
+        <input
+          ref={fileInput}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={(event) => {
+            void choose(event);
+          }}
+        />
+      )}
 
       {disabled && disabledHint && (
         <p id={hintId} className="text-sm text-muted-foreground">

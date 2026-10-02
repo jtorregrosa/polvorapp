@@ -37,11 +37,16 @@ neutral pill with the raw code and a development-only console warning.
 
 | Value | Tone | Icon | es-ES | ca-ES-valencia | en |
 |---|---|---|---|---|---|
-| `DRAFT` | muted | CircleDashed | Borrador | Esborrany | Draft |
-| `ORDERS_OPEN` | success | CircleCheck | Pedidos abiertos | Comandes obertes | Orders open |
-| `CORRECTIONS_OPEN` | warning | TriangleAlert | Correcciones abiertas | Correccions obertes | Corrections open |
-| `LOCKED` | info | Lock | Bloqueada | Bloquejada | Locked |
-| `CLOSED` | muted | CircleDashed | Cerrada | Tancada | Closed |
+| `DRAFT` | muted | CircleDashed | En preparación | En preparació | In preparation |
+| `IN_PROGRESS` | success | CirclePlay | En curso | En curs | In progress |
+| `CLOSED` | muted | Archive | Cerrada | Tancada | Closed |
+
+## `orders`
+
+| Value | Tone | Icon | es-ES | ca-ES-valencia | en |
+|---|---|---|---|---|---|
+| `OPEN` | success | CircleCheck | Pedidos abiertos | Comandes obertes | Orders open |
+| `CLOSED` | info | Lock | Pedidos cerrados | Comandes tancades | Orders closed |
 
 ## `user`
 

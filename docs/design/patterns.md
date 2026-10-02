@@ -69,6 +69,29 @@ template in three steps, and nothing is stored until the last one:
    list filtered by the target with a notice; a refusal with a new report replaces the report and
    focuses its outcome; any other refusal stays in the dialog with its reason.
 
+### State actions (festival editions)
+
+When a record moves through states that change what other users can do (`add-festival-editions`),
+its detail page follows this pattern:
+
+- **Primary action.** The current state's main action is the `RecordHeader`'s primary `Button`,
+  named by its effect: "Start edition" for a draft, "Open orders" or "Close orders" for the
+  edition in progress.
+- **More actions.** Rarer moves go in "More actions": closing the edition, sending it back to
+  preparation, reopening a closed edition, and deleting a draft (destructive, set apart).
+- **Disabled moves.** A move that is not possible yet stays in the menu, disabled, and its label
+  says why, e.g. "Close edition (Close the orders first.)".
+- **Confirmation.** Every move opens a `ConfirmDialog`. Its title names the move and the record,
+  and its description says what changes for FiringChiefs. The tone is `primary`; only a deletion
+  is `destructive`.
+- **Refusals.** A refused move stays in the dialog with the reason in words, e.g. the missing
+  fields listed with `Intl.ListFormat`, or the year of the edition already in progress.
+- **Success.** A success is announced with `SaveNotice` and does not move focus. The `StatusBadge`s
+  update: `edition` for the lifecycle and `orders` for whether orders are open. A deletion leads
+  back to the list with its notice.
+- **Section editing.** Sections are edited in `EditSheet`s. Money uses `MoneyInput`. A panel that
+  adds a row, such as "Add milestone", gives `EditSheet` its own `trigger` label and icon.
+
 ## Actions
 
 - At most **one primary action** per page, at its natural width (never stretched across a form).

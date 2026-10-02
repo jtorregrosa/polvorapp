@@ -99,6 +99,7 @@ theme). Every composite has stories there.
 | `RadioCards`                                                              | Two to four options as cards, with hints and fields revealed under the chosen answer                                                                       |
 | `TextInput`, `PasswordInput`, `SelectInput`, `CheckboxField`, `DateInput` | Controls for `FormField` (password with a show/hide toggle; a select with a placeholder that is never offered; the date picker shows the browser's locale) |
 | `FileField`                                                               | A file to upload, for `FormField`: a button opens the system chooser (`accept`), the chosen file shows with its size (part of the button's description, announced) and can be cleared (focus returns to the button); check type and size in the form's schema with `fileProblem` (`file-rules.ts`) so the problem shows before uploading. Stories: `Empty`, `Chosen`, `Disabled`, `InAFormWithAnError` |
+| `MoneyInput`                                                              | An amount in euros, for `FormField` with `width="short"`: the decimal keypad on phones, a `€` suffix read as "in euros", and the typed text as its value (never reformatted while typing); read it in the form's schema with `parseMoney` (`lib/money.ts`), which takes a comma or a point and refuses more than two decimals, and show amounts with `useFormatters().currency`. Stories: `Default`, `Empty`, `Invalid`, `Disabled` |
 
 **Feedback and other**
 
