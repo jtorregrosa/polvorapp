@@ -51,16 +51,17 @@ export default defineConfig({
       dependencies: ['setup'],
     },
     // Image decoding, EXIF orientation, transparency and canvas export differ per engine: the photo
-    // and logo flows too.
+    // and logo flows too. The compliance insights also run here, for their tables, meters and
+    // native selects in every engine.
     {
       name: 'photos-firefox',
-      testMatch: /(photos|comparsa-logos)\.spec\.ts$/,
+      testMatch: /(photos|comparsa-logos|insights)\.spec\.ts$/,
       use: { ...devices['Desktop Firefox'], storageState: ADMIN_STATE },
       dependencies: ['setup'],
     },
     {
       name: 'photos-webkit',
-      testMatch: /(photos|comparsa-logos)\.spec\.ts$/,
+      testMatch: /(photos|comparsa-logos|insights)\.spec\.ts$/,
       use: { ...devices['Desktop Safari'], storageState: ADMIN_STATE },
       dependencies: ['setup'],
     },
