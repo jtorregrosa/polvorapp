@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { http as mock, HttpResponse } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ArquebusierPhotoResponse, ArquebusierResponse } from '@/api/generated/model';
-import { cropToJpeg, loadImage, previewOf } from '@/components/app/photo-image';
+import { cropImage, loadImage, previewOf } from '@/components/app/photo-image';
 import { problem, recordBodies, renderApp } from '@/test/app';
 import { SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
@@ -14,7 +14,7 @@ vi.mock('@/components/app/photo-image', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/components/app/photo-image')>()),
   loadImage: vi.fn(),
   rotateImage: vi.fn(),
-  cropToJpeg: vi.fn(),
+  cropImage: vi.fn(),
   previewOf: vi.fn(),
   releaseImage: vi.fn(),
 }));
@@ -84,7 +84,7 @@ function chooseFile(index = 0) {
 
 beforeEach(() => {
   vi.mocked(loadImage).mockResolvedValue({ url: 'blob:chosen', width: 1200, height: 1600 });
-  vi.mocked(cropToJpeg).mockResolvedValue(JPEG);
+  vi.mocked(cropImage).mockResolvedValue(JPEG);
   vi.mocked(previewOf).mockResolvedValue({ url: 'blob:preview', width: 160, height: 213 });
   // jsdom has no object URLs; the register page shows the chosen photo through one.
   URL.createObjectURL = vi.fn(() => 'blob:chosen-photo');

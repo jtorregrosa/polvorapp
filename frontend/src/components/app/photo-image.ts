@@ -1,7 +1,8 @@
 /**
- * Browser image work for `PhotoUpload` (design D9): decoding, quarter turns and the cropped JPEG
- * export. Kept apart from the component so tests can replace it (jsdom has no image decoding or
- * canvas). Current browsers (Chrome 81+, Firefox 77+, Safari 13.1+) apply the EXIF orientation when
+ * Browser image work for `PhotoUpload` (design D9): decoding, quarter turns and the cropped export,
+ * as JPEG for photos or as PNG with transparency for logos (add-comparsa-logos D8). Kept apart
+ * from the component so tests can replace it (jsdom has no image decoding or canvas; the encoding
+ * choices are tested with a fake canvas in `photo-image.test.ts`). Current browsers (Chrome 81+, Firefox 77+, Safari 13.1+) apply the EXIF orientation when
  * decoding and drawing, so every size here is upright; older browsers are not supported.
  *
  * A chosen photo is decoded once and reduced to a bounded working copy (long side at most
@@ -22,6 +23,16 @@ export const WORKING_LONG_SIDE = 2400;
 const DECODE_TIMEOUT_MS = 30_000;
 const WORKING_QUALITY = 0.95;
 const JPEG_QUALITY = 0.9;
+
+/** How images are encoded: JPEG (photos, white behind transparency) or PNG (logos, transparency kept). */
+export type ImageOutput = 'jpeg' | 'png';
+
+const MIME: Record<ImageOutput, 'image/jpeg' | 'image/png'> = { jpeg: 'image/jpeg', png: 'image/png' };
+
+/** Lossless PNG takes no quality; JPEG uses the given one. */
+function qualityFor(output: ImageOutput, jpegQuality: number): number | undefined {
+  return output === 'jpeg' ? jpegQuality : undefined;
+}
 
 /** A decoded image ready to crop: an object URL for display and its upright pixel size. */
 export interface LoadedImage {
@@ -120,9 +131,10 @@ function loaded(blob: Blob, width: number, height: number): LoadedImage {
 
 /**
  * Decodes a chosen file into a bounded working copy. Rejects with {@link UnreadableImageError} when
- * the browser cannot read it and {@link OversizedImageError} when it has too many pixels.
+ * the browser cannot read it and {@link OversizedImageError} when it has too many pixels. The copy
+ * is PNG for `png` output, so transparency survives cropping.
  */
-export async function loadImage(file: Blob): Promise<LoadedImage> {
+export async function loadImage(file: Blob, output: ImageOutput = 'jpeg'): Promise<LoadedImage> {
   const url = URL.createObjectURL(file);
   try {
     const source = await decode(url);
@@ -135,9 +147,15 @@ export async function loadImage(file: Blob): Promise<LoadedImage> {
     }
     const scale = Math.min(1, WORKING_LONG_SIDE / Math.max(width, height));
     const [workingWidth, workingHeight] = [Math.round(width * scale), Math.round(height * scale)];
-    const copy = await render(workingWidth, workingHeight, 'image/jpeg', WORKING_QUALITY, (context) => {
-      context.drawImage(source, 0, 0, workingWidth, workingHeight);
-    });
+    const copy = await render(
+      workingWidth,
+      workingHeight,
+      MIME[output],
+      qualityFor(output, WORKING_QUALITY),
+      (context) => {
+        context.drawImage(source, 0, 0, workingWidth, workingHeight);
+      },
+    );
     return loaded(copy, workingWidth, workingHeight);
   } finally {
     URL.revokeObjectURL(url);
@@ -145,27 +163,43 @@ export async function loadImage(file: Blob): Promise<LoadedImage> {
 }
 
 /** The image turned a quarter clockwise (1) or anticlockwise (-1), as a new image. */
-export async function rotateImage(image: LoadedImage, direction: 1 | -1): Promise<LoadedImage> {
+export async function rotateImage(
+  image: LoadedImage,
+  direction: 1 | -1,
+  output: ImageOutput = 'jpeg',
+): Promise<LoadedImage> {
   const source = await decode(image.url);
-  const rotated = await render(image.height, image.width, 'image/jpeg', WORKING_QUALITY, (context) => {
-    context.translate(image.height / 2, image.width / 2);
-    context.rotate((direction * Math.PI) / 2);
-    context.drawImage(source, -image.width / 2, -image.height / 2);
-  });
+  const rotated = await render(
+    image.height,
+    image.width,
+    MIME[output],
+    qualityFor(output, WORKING_QUALITY),
+    (context) => {
+      context.translate(image.height / 2, image.width / 2);
+      context.rotate((direction * Math.PI) / 2);
+      context.drawImage(source, -image.width / 2, -image.height / 2);
+    },
+  );
   return loaded(rotated, image.height, image.width);
 }
 
-/** The region of the image scaled to `width` × `height` and encoded as JPEG: no metadata survives. */
-export async function cropToJpeg(
+/**
+ * The region of the image scaled to `width` × `height` and encoded freshly: no metadata survives.
+ * JPEG puts white behind transparent areas; PNG keeps them.
+ */
+export async function cropImage(
   image: LoadedImage,
   region: PixelRegion,
   width: number,
   height: number,
+  output: ImageOutput = 'jpeg',
 ): Promise<Blob> {
   const source = await decode(image.url);
-  return render(width, height, 'image/jpeg', JPEG_QUALITY, (context) => {
-    context.fillStyle = 'white';
-    context.fillRect(0, 0, width, height);
+  return render(width, height, MIME[output], qualityFor(output, JPEG_QUALITY), (context) => {
+    if (output === 'jpeg') {
+      context.fillStyle = 'white';
+      context.fillRect(0, 0, width, height);
+    }
     context.drawImage(source, region.x, region.y, region.width, region.height, 0, 0, width, height);
   });
 }
@@ -175,9 +209,10 @@ export async function previewOf(
   image: LoadedImage,
   region: PixelRegion,
   width: number,
+  output: ImageOutput = 'jpeg',
 ): Promise<LoadedImage> {
   const height = Math.max(1, Math.round((region.height / region.width) * width));
-  const blob = await cropToJpeg(image, region, width, height);
+  const blob = await cropImage(image, region, width, height, output);
   return loaded(blob, width, height);
 }
 

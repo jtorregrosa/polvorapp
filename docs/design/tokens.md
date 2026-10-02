@@ -57,6 +57,8 @@ contrast of every text, state and UI pair is verified by `src/styles/contrast.te
 | `sidebar-accent-foreground` | `#ebe8f3` | `#ebe8f3` | Text on `sidebar-accent`. |
 | `sidebar-border` | `#2e2842` | `#221d30` | Sidebar separators. |
 | `sidebar-ring` | `#ff8a4a` | `#ff8a4a` | Focus indicator inside the sidebar. |
+| `logo-tile` | `#f7f6fa` | `#f7f6fa` | Light tile behind comparsa logos, in both themes, so dark logos stay visible (`ComparsaLogo`). |
+| `logo-tile-foreground` | `#5e5970` | `#5e5970` | Placeholder icon on `logo-tile` when a comparsa has no logo. |
 
 ## Type, spacing, sizes, radius, elevation, widths and easing
 

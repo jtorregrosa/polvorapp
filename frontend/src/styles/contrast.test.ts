@@ -76,6 +76,11 @@ const PAIRS: ContrastPair[] = [
   { foreground: 'input', background: 'surface-2', minimum: UI },
   { foreground: 'sidebar-ring', background: 'sidebar', minimum: UI },
   { foreground: 'sidebar-ring', background: 'sidebar-accent', minimum: UI },
+  // Comparsa logos: the placeholder icon on the light tile, in both themes, and the sidebar cards'
+  // name at rest and on hover (add-comparsa-logos D8).
+  { foreground: 'logo-tile-foreground', background: 'logo-tile', minimum: UI },
+  { foreground: 'sidebar-foreground', background: 'sidebar-border', minimum: TEXT },
+  { foreground: 'sidebar-ring', background: 'sidebar-border', minimum: UI },
 ];
 
 describe('design token contrast (WCAG 2.2 AA)', () => {

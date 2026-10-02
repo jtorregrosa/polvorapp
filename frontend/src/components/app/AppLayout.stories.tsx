@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { ClipboardList, House, Users } from 'lucide-react';
 import { AppLayout } from './AppLayout';
+import { ComparsaLogo } from './ComparsaLogo';
 import { PageHeader } from './PageHeader';
 import { StatCard } from './StatCard';
 
@@ -32,6 +33,33 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+/** A synthetic emblem on transparency (ADR-0012): flat shapes only. */
+const SYNTHETIC_LOGO =
+  'data:image/svg+xml,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">' +
+      '<path d="M256 56a200 200 0 1 0 170 306a170 170 0 1 1 0-212A200 200 0 0 0 256 56z" fill="#1c1c1e"/>' +
+      '</svg>',
+  );
+
+/** A FiringChief's comparsas under the mark: one with a dark logo, one with the placeholder and a long name. */
+export const WithComparsaCards: Story = {
+  args: {
+    sidebarCards: [
+      {
+        to: '/comparsas/1',
+        label: 'Comparsa Sintética Norte',
+        media: <ComparsaLogo src={SYNTHETIC_LOGO} size="md" />,
+      },
+      {
+        to: '/comparsas/2',
+        label: 'Comparsa Sintètica del Sud amb un nom molt llarg',
+        media: <ComparsaLogo src={null} size="md" />,
+      },
+    ],
+  },
+};
 
 /** Long Valencian navigation labels. */
 export const LongValencian: Story = {

@@ -8,6 +8,7 @@
   },
   "nav": {
     "label": "Main navigation",
+    "comparsas": "My comparsas",
     "toggle": "Show or hide navigation",
     "mobileTitle": "Navigation",
     "mobileDescription": "Application navigation menu",
@@ -162,6 +163,21 @@
       "right": "Move the crop right",
       "smaller": "Make the crop smaller",
       "larger": "Make the crop larger"
+    },
+    "removed": "Removed: {{label}}",
+    "logo": {
+      "use": "Use logo",
+      "cropImage": "Chosen logo",
+      "preview": "Preview of the cropped logo",
+      "uploading": "Uploading the logo…",
+      "loadFailed": "The logo could not be loaded",
+      "errors": {
+        "tooLarge": "The file is too large. Choose an image under 25 MB.",
+        "unsupportedFormat": "This file is not an image that can be opened. Use a JPEG, PNG or WebP image; SVG is not accepted.",
+        "tooSmall": "The logo is too small: its long side must be at least 256 px. Choose an image with a higher resolution or widen the selection.",
+        "aspectRatio": "The logo is too elongated. Crop it so the long side is no more than 3 times the short side.",
+        "generic": "The logo could not be saved. Try again."
+      }
     }
   },
   "filters": {

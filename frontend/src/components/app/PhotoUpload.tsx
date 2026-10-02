@@ -23,11 +23,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button as ButtonPrimitive } from '@/components/ui/button';
+import { cn } from '@/lib/cn';
 import { AlertBanner } from './AlertBanner';
 import { Button } from './Button';
 import { ConfirmDialog } from './ConfirmDialog';
 import {
-  cropToJpeg,
+  cropImage,
   loadImage,
   MAX_SOURCE_BYTES,
   OversizedImageError,
@@ -36,6 +37,7 @@ import {
   releaseImage,
   rotateImage,
   UnreadableImageError,
+  type ImageOutput,
   type LoadedImage,
   type PixelRegion,
 } from './photo-image';
@@ -52,6 +54,8 @@ export interface PhotoRules {
   minLongSide?: number;
   maxWidth: number;
   maxHeight: number;
+  /** `png` keeps transparency and uploads a PNG (logos); `jpeg` by default (photos). */
+  output?: ImageOutput;
 }
 
 export interface PhotoRemoval {
@@ -72,9 +76,17 @@ export interface PhotoUploadProps extends PhotoRules {
   emptyText?: string;
   /** Announced after `onUpload` succeeds; "Saved: <label>" by default. */
   uploadedText?: string;
+  /** Announced after a confirmed removal; "Removed: <label>" by default. */
+  removedText?: string;
   /**
-   * Receives the cropped JPEG. May reject: a {@link PhotoUploadFailure} shows its (translated)
-   * message, anything else a generic one; the crop dialog stays open to try again.
+   * What the image is, for the control's own texts: `photo` (default) or `logo`, whose wording and
+   * rules ("at least 256 px", "at most 3 times") differ.
+   */
+  subject?: 'photo' | 'logo';
+  /**
+   * Receives the cropped image (JPEG, or PNG with `output="png"`). May reject: a
+   * {@link PhotoUploadFailure} shows its (translated) message, anything else a generic one; the
+   * crop dialog stays open to try again.
    */
   onUpload: (photo: Blob) => Promise<void>;
   /** Offers removal through a confirmation (spec: Confirmation of destructive actions). */
@@ -84,7 +96,7 @@ export interface PhotoUploadProps extends PhotoRules {
   disabledHint?: string;
 }
 
-type Status = 'idle' | 'uploading' | 'uploaded';
+type Status = 'idle' | 'uploading' | 'uploaded' | 'removed';
 type RuleProblem = 'tooSmall' | 'aspectRatio';
 
 const INITIAL_CROP_PERCENT = 90;
@@ -185,18 +197,17 @@ function resizeCrop(crop: PercentCrop, direction: 1 | -1, image: LoadedImage, as
 }
 
 /** The translation key for why a chosen file could not be opened. */
-function loadProblem(
-  error: unknown,
-): 'photoUpload.errors.tooLarge' | 'photoUpload.errors.unsupportedFormat' | 'photoUpload.errors.generic' {
-  if (error instanceof OversizedImageError) return 'photoUpload.errors.tooLarge';
-  if (error instanceof UnreadableImageError) return 'photoUpload.errors.unsupportedFormat';
-  return 'photoUpload.errors.generic';
+function loadProblem(error: unknown): 'tooLarge' | 'unsupportedFormat' | 'generic' {
+  if (error instanceof OversizedImageError) return 'tooLarge';
+  if (error instanceof UnreadableImageError) return 'unsupportedFormat';
+  return 'generic';
 }
 
 /**
  * Shows a photo and lets the user choose, crop, rotate and upload a new one, or remove it (spec:
  * Photo upload with cropping). The file is checked and cropped in the browser; only the cropped
- * JPEG is handed to `onUpload`, never the original file. Phones offer the camera and the gallery.
+ * image is handed to `onUpload`, never the original file. Phones offer the camera and the gallery.
+ * With `output="png"` transparency is kept from decoding to upload and shown on a checkerboard.
  */
 export function PhotoUpload({
   label,
@@ -204,6 +215,8 @@ export function PhotoUpload({
   photoAlt,
   emptyText,
   uploadedText,
+  removedText,
+  subject = 'photo',
   onUpload,
   removal,
   disabled = false,
@@ -211,6 +224,24 @@ export function PhotoUpload({
   ...rules
 }: PhotoUploadProps) {
   const { t } = useTranslation('ui');
+  const logo = subject === 'logo';
+  const errorText = (reason: RuleProblem | ReturnType<typeof loadProblem>): string =>
+    logo ? t(`photoUpload.logo.errors.${reason}`) : t(`photoUpload.errors.${reason}`);
+  const copy = logo
+    ? {
+        use: t('photoUpload.logo.use'),
+        cropImage: t('photoUpload.logo.cropImage'),
+        preview: t('photoUpload.logo.preview'),
+        uploading: t('photoUpload.logo.uploading'),
+        loadFailed: t('photoUpload.logo.loadFailed'),
+      }
+    : {
+        use: t('photoUpload.use'),
+        cropImage: t('photoUpload.cropImage'),
+        preview: t('photoUpload.preview'),
+        uploading: t('photoUpload.uploading'),
+        loadFailed: t('photoUpload.loadFailed'),
+      };
   const fileInput = useRef<HTMLInputElement>(null);
   const chooseButton = useRef<HTMLButtonElement>(null);
   const hintId = useId();
@@ -227,6 +258,8 @@ export function PhotoUpload({
   /** Set when an upload succeeded: announced once the dialog has closed (a closing dialog hides the page from screen readers). */
   const uploaded = useRef(false);
   const loadFailed = photoUrl !== null && failedUrl === photoUrl;
+  const output = rules.output ?? 'jpeg';
+  const transparencyClass = output === 'png' ? 'bg-checkerboard' : undefined;
 
   // Images decoded after the control went away are released at once.
   const mounted = useRef(true);
@@ -259,7 +292,7 @@ export function PhotoUpload({
   const showPreview = async (source: LoadedImage, region: PercentCrop) => {
     const request = ++previewRequest.current;
     try {
-      const next = await previewOf(source, toPixels(region, source), PREVIEW_WIDTH);
+      const next = await previewOf(source, toPixels(region, source), PREVIEW_WIDTH, output);
       // A quicker later request may have answered first: only the latest crop is shown.
       if (mounted.current && request === previewRequest.current) setPreview(next);
       else releaseImage(next);
@@ -277,16 +310,16 @@ export function PhotoUpload({
     setProblem(undefined);
     setStatus('idle');
     if (file.size > MAX_SOURCE_BYTES) {
-      setProblem(t('photoUpload.errors.tooLarge'));
+      setProblem(errorText('tooLarge'));
       return;
     }
     setOpening(true);
     let loaded: LoadedImage;
     try {
-      loaded = await loadImage(file);
+      loaded = await loadImage(file, output);
     } catch (error) {
       if (mounted.current) {
-        setProblem(t(loadProblem(error)));
+        setProblem(errorText(loadProblem(error)));
         setOpening(false);
       }
       return;
@@ -299,7 +332,7 @@ export function PhotoUpload({
     const broken = imageProblem(loaded, rules);
     if (broken) {
       releaseImage(loaded);
-      setProblem(t(`photoUpload.errors.${broken}`));
+      setProblem(errorText(broken));
       return;
     }
     const start = initialCrop(loaded, rules.aspect);
@@ -338,7 +371,7 @@ export function PhotoUpload({
     setWorking(true);
     setCropProblem(undefined);
     try {
-      const rotated = await rotateImage(image, direction);
+      const rotated = await rotateImage(image, direction, output);
       if (!mounted.current) {
         releaseImage(rotated);
         return;
@@ -348,7 +381,7 @@ export function PhotoUpload({
       setCrop(start);
       void showPreview(rotated, start);
     } catch {
-      setCropProblem(t('photoUpload.errors.generic'));
+      setCropProblem(errorText('generic'));
     } finally {
       if (mounted.current) setWorking(false);
     }
@@ -360,14 +393,14 @@ export function PhotoUpload({
     const region = toPixels(crop, image);
     const broken = ruleProblem(region, rules);
     if (broken) {
-      setCropProblem(t(`photoUpload.errors.${broken}`));
+      setCropProblem(errorText(broken));
       return;
     }
     setWorking(true);
     setCropProblem(undefined);
     try {
       const size = outputSize(region, rules);
-      const photo = await cropToJpeg(image, region, size.width, size.height);
+      const photo = await cropImage(image, region, size.width, size.height, output);
       setStatus('uploading');
       await onUpload(photo);
       if (!mounted.current) return;
@@ -377,18 +410,29 @@ export function PhotoUpload({
     } catch (error) {
       if (!mounted.current) return;
       setStatus('idle');
-      setCropProblem(error instanceof PhotoUploadFailure ? error.message : t('photoUpload.errors.generic'));
+      setCropProblem(error instanceof PhotoUploadFailure ? error.message : errorText('generic'));
     } finally {
       if (mounted.current) setWorking(false);
     }
   };
 
   const uploading = status === 'uploading';
-  const announcement = status === 'uploaded' ? (uploadedText ?? t('photoUpload.uploaded', { label })) : '';
+  const announcement =
+    status === 'uploaded'
+      ? (uploadedText ?? t('photoUpload.uploaded', { label }))
+      : status === 'removed'
+        ? (removedText ?? t('photoUpload.removed', { label }))
+        : '';
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex w-40 items-center justify-center overflow-hidden rounded-md border bg-muted">
+      <div
+        className={cn(
+          'flex w-40 items-center justify-center overflow-hidden rounded-md border',
+          // A transparent logo is judged on the checkerboard, as in the crop dialog.
+          transparencyClass ?? 'bg-muted',
+        )}
+      >
         {photoUrl && !loadFailed ? (
           <img
             src={photoUrl}
@@ -401,9 +445,7 @@ export function PhotoUpload({
         ) : (
           <div className="flex min-h-32 flex-col items-center justify-center gap-2 p-3 text-center text-sm text-muted-foreground">
             <ImageOff aria-hidden="true" className="size-6" />
-            <span>
-              {photoUrl ? t('photoUpload.loadFailed') : (emptyText ?? t('photoUpload.empty', { label }))}
-            </span>
+            <span>{photoUrl ? copy.loadFailed : (emptyText ?? t('photoUpload.empty', { label }))}</span>
           </div>
         )}
       </div>
@@ -429,7 +471,11 @@ export function PhotoUpload({
             confirmLabel={removal.confirmLabel}
             onConfirm={removal.onRemove}
             // The remove action goes away with the photo: focus the add action instead (WCAG 2.4.3).
-            onConfirmed={() => chooseButton.current?.focus()}
+            onConfirmed={() => {
+              chooseButton.current?.focus();
+              // Announced politely: the remove action went away with the photo (SC 4.1.3).
+              setStatus('removed');
+            }}
             trigger={
               <Button
                 type="button"
@@ -516,14 +562,18 @@ export function PhotoUpload({
                   void showPreview(image, percent);
                 }}
               >
-                <img src={image.url} alt={t('photoUpload.cropImage')} className="max-h-64 sm:max-h-80" />
+                <img
+                  src={image.url}
+                  alt={copy.cropImage}
+                  className={cn('max-h-64 sm:max-h-80', transparencyClass)}
+                />
               </ReactCrop>
               {preview && (
                 <figure className="flex w-28 flex-col gap-1 text-center text-xs text-muted-foreground">
                   <img
                     src={preview.url}
-                    alt={t('photoUpload.preview')}
-                    className="h-auto w-full rounded-sm border"
+                    alt={copy.preview}
+                    className={cn('h-auto w-full rounded-sm border', transparencyClass)}
                   />
                   <figcaption>{t('photoUpload.previewCaption')}</figcaption>
                 </figure>
@@ -554,7 +604,7 @@ export function PhotoUpload({
           {cropProblem && <AlertBanner severity="error">{cropProblem}</AlertBanner>}
           {/* Inside the dialog: the page behind it is hidden from screen readers while it is open. */}
           <p role="status" className="sr-only">
-            {uploading ? t('photoUpload.uploading') : ''}
+            {uploading ? copy.uploading : ''}
           </p>
           <DialogFooter className="flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-between">
             <div className="flex flex-wrap gap-2">
@@ -592,7 +642,7 @@ export function PhotoUpload({
                   void use();
                 }}
               >
-                {t('photoUpload.use')}
+                {copy.use}
               </Button>
             </div>
           </DialogFooter>

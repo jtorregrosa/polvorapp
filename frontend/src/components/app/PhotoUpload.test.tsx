@@ -5,7 +5,7 @@ import { axeViolations } from '@/test/axe';
 import { renderWithProviders } from '@/test/render';
 import { PhotoUpload, type PhotoUploadProps } from './PhotoUpload';
 import {
-  cropToJpeg,
+  cropImage,
   loadImage,
   OversizedImageError,
   PhotoUploadFailure,
@@ -20,7 +20,7 @@ vi.mock('./photo-image', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./photo-image')>()),
   loadImage: vi.fn(),
   rotateImage: vi.fn(),
-  cropToJpeg: vi.fn(),
+  cropImage: vi.fn(),
   previewOf: vi.fn(),
   releaseImage: vi.fn(),
 }));
@@ -57,7 +57,7 @@ function chooseFile(file = new File([new Uint8Array([1])], 'foto.jpg', { type: '
 describe('PhotoUpload', () => {
   beforeEach(() => {
     vi.mocked(loadImage).mockResolvedValue({ url: 'blob:chosen', width: 1200, height: 1600 });
-    vi.mocked(cropToJpeg).mockResolvedValue(JPEG);
+    vi.mocked(cropImage).mockResolvedValue(JPEG);
     vi.mocked(previewOf).mockResolvedValue({ url: 'blob:preview', width: 160, height: 213 });
     vi.mocked(rotateImage).mockImplementation((image) =>
       Promise.resolve({ url: 'blob:rotated', width: image.height, height: image.width }),
@@ -141,11 +141,12 @@ describe('PhotoUpload', () => {
       expect(onUpload).toHaveBeenCalledWith(JPEG);
     });
     // 90 % of a 1200 × 1600 image at 3:4, centred: 1080 × 1440, under the maxima.
-    expect(cropToJpeg).toHaveBeenCalledWith(
+    expect(cropImage).toHaveBeenCalledWith(
       expect.objectContaining({ url: 'blob:chosen' }),
       { x: 60, y: 80, width: 1080, height: 1440 },
       1080,
       1440,
+      'jpeg',
     );
     await waitFor(() => {
       expect(dialog).not.toBeInTheDocument();
@@ -168,15 +169,16 @@ describe('PhotoUpload', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Girar a la derecha' }));
     await userEvent.click(screen.getByRole('button', { name: 'Usar foto' }));
 
-    expect(rotateImage).toHaveBeenCalledWith(expect.objectContaining({ url: 'blob:card' }), 1);
+    expect(rotateImage).toHaveBeenCalledWith(expect.objectContaining({ url: 'blob:card' }), 1, 'jpeg');
     await waitFor(() => {
       expect(onUpload).toHaveBeenCalled();
     });
-    expect(cropToJpeg).toHaveBeenCalledWith(
+    expect(cropImage).toHaveBeenCalledWith(
       expect.objectContaining({ url: 'blob:rotated' }),
       { x: 0, y: 0, width: 700, height: 1000 },
       700,
       1000,
+      'jpeg',
     );
   });
 
@@ -224,11 +226,12 @@ describe('PhotoUpload', () => {
     });
     // From 90 % centred (x 5 %), moved 5 % left (x 0 %), then shrunk by 5 % around its centre:
     // 85 % of 1200 × 1600 at 3:4 is 1020 × 1360, at x 2.5 %, y 7.5 %.
-    expect(cropToJpeg).toHaveBeenCalledWith(
+    expect(cropImage).toHaveBeenCalledWith(
       expect.objectContaining({ url: 'blob:chosen' }),
       { x: 30, y: 120, width: 1020, height: 1360 },
       1020,
       1360,
+      'jpeg',
     );
   });
 
@@ -249,11 +252,12 @@ describe('PhotoUpload', () => {
     await waitFor(() => {
       expect(onUpload).toHaveBeenCalled();
     });
-    expect(cropToJpeg).toHaveBeenCalledWith(
+    expect(cropImage).toHaveBeenCalledWith(
       expect.anything(),
       { x: 0, y: 0, width: 1200, height: 1600 },
       1200,
       1600,
+      'jpeg',
     );
   });
 
@@ -353,11 +357,12 @@ describe('PhotoUpload', () => {
       expect(onUpload).toHaveBeenCalled();
     });
     // 90 % of 1800 × 2400 is 1620 × 2160, scaled to fit 1200 × 1600.
-    expect(cropToJpeg).toHaveBeenCalledWith(
+    expect(cropImage).toHaveBeenCalledWith(
       expect.anything(),
       { x: 90, y: 120, width: 1620, height: 2160 },
       1200,
       1600,
+      'jpeg',
     );
   });
 
@@ -423,5 +428,149 @@ describe('PhotoUpload', () => {
     const dialog = await screen.findByRole('dialog');
 
     expect(await axeViolations(dialog)).toEqual([]);
+  });
+
+  it('announces a confirmed removal', async () => {
+    const user = userEvent.setup();
+    const onRemove = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
+    await setup({
+      photoUrl: '/api/arquebusiers/1/photos/id?v=2',
+      removedText: 'Foto de carnet quitada',
+      removal: {
+        title: '¿Quitar la foto?',
+        description: 'Se borrará.',
+        confirmLabel: 'Quitar foto',
+        onRemove,
+      },
+    }).view;
+
+    await user.click(screen.getByRole('button', { name: 'Quitar foto de carnet' }));
+    await user.click(
+      within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Quitar foto' }),
+    );
+
+    expect(
+      await screen.findByText('Foto de carnet quitada', { selector: '[role=status]' }),
+    ).toBeInTheDocument();
+  });
+
+  it('speaks of a logo, with its own rules, when the image is a logo', async () => {
+    vi.mocked(loadImage).mockResolvedValue({ url: 'blob:logo', width: 1200, height: 300 });
+    await setup({
+      subject: 'logo',
+      aspect: undefined,
+      minWidth: undefined,
+      minHeight: undefined,
+      maxSideRatio: 3,
+      minLongSide: 256,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      output: 'png',
+    }).view;
+
+    chooseFile();
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('lado largo no mida más de 3 veces el corto');
+  });
+
+  describe('keeping transparency (logos)', () => {
+    const LOGO_RULES = {
+      aspect: undefined,
+      minWidth: undefined,
+      minHeight: undefined,
+      maxSideRatio: 3,
+      minLongSide: 256,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      output: 'png' as const,
+    };
+    const PNG = new Blob([new Uint8Array([0x89, 0x50])], { type: 'image/png' });
+
+    beforeEach(() => {
+      vi.mocked(loadImage).mockResolvedValue({ url: 'blob:logo', width: 800, height: 400 });
+      vi.mocked(cropImage).mockResolvedValue(PNG);
+    });
+
+    it('starts with the whole image selected and uploads it as a PNG at once', async () => {
+      const { onUpload, view } = setup(LOGO_RULES);
+      await view;
+
+      chooseFile(new File([new Uint8Array([1])], 'logo.png', { type: 'image/png' }));
+      await screen.findByRole('dialog');
+      await userEvent.click(screen.getByRole('button', { name: 'Usar foto' }));
+
+      await waitFor(() => {
+        expect(onUpload).toHaveBeenCalledWith(PNG);
+      });
+      expect(loadImage).toHaveBeenCalledWith(expect.any(File), 'png');
+      expect(cropImage).toHaveBeenCalledWith(
+        expect.objectContaining({ url: 'blob:logo' }),
+        { x: 0, y: 0, width: 800, height: 400 },
+        800,
+        400,
+        'png',
+      );
+    });
+
+    it('keeps PNG through rotations and the preview', async () => {
+      await setup(LOGO_RULES).view;
+
+      chooseFile();
+      await screen.findByRole('dialog');
+      vi.mocked(previewOf).mockClear();
+      await userEvent.click(screen.getByRole('button', { name: 'Girar a la derecha' }));
+
+      await waitFor(() => {
+        expect(rotateImage).toHaveBeenCalledWith(expect.objectContaining({ url: 'blob:logo' }), 1, 'png');
+      });
+      // The preview of the rotated image is a PNG too.
+      await waitFor(() => {
+        expect(previewOf).toHaveBeenCalledWith(
+          expect.objectContaining({ url: 'blob:rotated' }),
+          expect.anything(),
+          expect.any(Number),
+          'png',
+        );
+      });
+    });
+
+    it('shows transparent areas on a checkerboard: the current logo, the crop and the preview image', async () => {
+      await setup({ ...LOGO_RULES, photoUrl: '/api/comparsas/1/logo?v=1' }).view;
+      expect(
+        screen.getByRole('img', { name: 'Foto de carnet de Arcabucera Sintética' }).parentElement,
+      ).toHaveClass('bg-checkerboard');
+
+      chooseFile();
+      const dialog = await screen.findByRole('dialog');
+
+      expect(within(dialog).getByRole('img', { name: /Vista previa/ })).toHaveClass('bg-checkerboard');
+      expect(
+        within(dialog)
+          .getByRole('img', { name: /Vista previa/ })
+          .closest('figure'),
+      ).not.toHaveClass('bg-checkerboard');
+    });
+
+    it('has no automatically detectable accessibility violations while cropping a logo', async () => {
+      await setup(LOGO_RULES).view;
+
+      chooseFile();
+      const dialog = await screen.findByRole('dialog');
+
+      expect(await axeViolations(dialog)).toEqual([]);
+    });
+  });
+
+  it('shows photos without a checkerboard and decodes them as JPEG', async () => {
+    await setup({ photoUrl: '/api/arquebusiers/1/photos/id?v=2' }).view;
+    expect(
+      screen.getByRole('img', { name: 'Foto de carnet de Arcabucera Sintética' }).parentElement,
+    ).not.toHaveClass('bg-checkerboard');
+
+    chooseFile();
+    const dialog = await screen.findByRole('dialog');
+
+    expect(loadImage).toHaveBeenCalledWith(expect.any(File), 'jpeg');
+    expect(within(dialog).getByRole('img', { name: /Vista previa/ })).not.toHaveClass('bg-checkerboard');
   });
 });
