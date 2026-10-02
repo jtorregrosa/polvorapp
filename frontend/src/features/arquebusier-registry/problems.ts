@@ -20,6 +20,8 @@ export const REGISTRY_PROBLEM_CODES = [
   'photos.noLicense',
   'photos.modified',
   'storage.unavailable',
+  'arquebusierImport.rowErrors',
+  'arquebusierImport.conflict',
 ] as const;
 
 export type RegistryProblemCode = (typeof REGISTRY_PROBLEM_CODES)[number];
@@ -119,8 +121,14 @@ const INVALID_BY_FIELD = {
   'license.expiresOn': messages.date,
 } as const;
 
-/** The translation key for a field reason the API reported on `field`. */
-function reasonMessage(field: string, reason: string): string {
+/** Reasons only an import reports on a row (add-registry-import D2). */
+const IMPORT_REASONS = ['duplicateInFile', 'taken', 'cellError'] as const;
+
+/** The translation key for a field reason the API reported on `field` (a form field or an import row). */
+export function reasonMessage(field: string, reason: string): string {
+  if ((IMPORT_REASONS as readonly string[]).includes(reason)) {
+    return `registry:import.reasons.${reason}`;
+  }
   if (field === 'weaponModelId' && reason === 'notFound') {
     return messages.modelNotFound;
   }

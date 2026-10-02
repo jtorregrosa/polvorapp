@@ -253,6 +253,10 @@
     },
     "storage": {
       "unavailable": "The photo storage is not responding right now. Try again in a few minutes."
+    },
+    "arquebusierImport": {
+      "rowErrors": "Some rows of the file have errors; nothing was imported.",
+      "conflict": "Someone registered a person from the file while it was being imported; nothing was imported. Check the file again."
     }
   },
   "validation": {
@@ -317,5 +321,92 @@
       "description": "Saving without a license also deletes the photos of its front and back. This cannot be undone.",
       "confirm": "Save and delete the photos"
     }
+  },
+  "import": {
+    "action": "Import",
+    "title": "Import arquebusiers",
+    "description": "Initial load from a spreadsheet: the arquebusiers of one comparsa in each file.",
+    "comparsa": {
+      "title": "Comparsa",
+      "description": "Every arquebusier in the file is registered in this comparsa.",
+      "label": "Comparsa"
+    },
+    "file": {
+      "title": "File",
+      "description": "Download the template, copy the comparsa's data into it and upload it.",
+      "template": "Download the template",
+      "templateFailed": "The template could not be downloaded. Try again.",
+      "label": "Spreadsheet",
+      "hint": "The filled-in template: an .xlsx file of up to 2 MB and 1000 arquebusiers.",
+      "check": "Check the file",
+      "wrongType": "Only .xlsx files are accepted.",
+      "tooLarge": "The file is larger than 2 MB."
+    },
+    "fileReasons": {
+      "required": "The file did not arrive. Choose it again.",
+      "tooLarge": "The file is larger than 2 MB.",
+      "invalid": "This is not an .xlsx spreadsheet that can be read. Save it again as an Excel workbook (.xlsx), without macros.",
+      "empty": "The first sheet has no arquebusier under the header row.",
+      "tooManyRows": "The file has more than 1000 arquebusiers. Split it into several.",
+      "missingColumns": "Required columns are missing: {{columns}}. Use the template.",
+      "duplicateColumns": "Some columns appear twice: {{columns}}."
+    },
+    "report": {
+      "title": "Report",
+      "description": "What would be imported. Warnings do not stop the import; errors do.",
+      "rows": "Rows read",
+      "valid": "Valid",
+      "errors": "With errors",
+      "warnings": "With warnings",
+      "blocked_one": "{{count}} row has errors. Fix it in the file and check it again: nothing is imported until every row is valid.",
+      "blocked_other": "{{count}} rows have errors. Fix them in the file and check it again: nothing is imported until every row is valid.",
+      "ready_one": "The file can be imported: {{count}} arquebusier.",
+      "ready_other": "The file can be imported: {{count}} arquebusiers.",
+      "changed_one": "The registry changed since the check: {{count}} row now has errors.",
+      "changed_other": "The registry changed since the check: {{count}} rows now have errors.",
+      "noPhotos": "Imported arquebusiers will have no photos or owned weapons: add them afterwards on each one's page.",
+      "ignoredColumns": "These columns are not in the template and were ignored: {{columns}}.",
+      "onlyErrors": "Show only rows with errors",
+      "caption": "Rows with errors or warnings",
+      "row": "Row",
+      "name": "Name",
+      "problems": "Errors and warnings",
+      "noName": "(no name)",
+      "problem": "{{column}}: {{reason}}",
+      "warning": "Warning: {{warning}}",
+      "none": "No row has errors or warnings.",
+      "shown": "Showing {{shown}} of {{total}} rows."
+    },
+    "reasons": {
+      "duplicateInFile": "It appears again in another row of the file.",
+      "taken": "It is already registered in the Federation.",
+      "cellError": "The cell holds a spreadsheet error, such as #REF!, or a formula without a value."
+    },
+    "columns": {
+      "federationId": "Federation ID",
+      "lastName": "Last names",
+      "firstName": "First name",
+      "nationalId": "DNI/NIE",
+      "birthDate": "Date of birth",
+      "gender": "Gender",
+      "email": "Email",
+      "phone": "Phone",
+      "status": "Status",
+      "licenseType": "License type",
+      "licenseIssuedOn": "Issue date",
+      "licenseExpiresOn": "Expiry date",
+      "trainingCompletedOn": "Course date"
+    },
+    "confirm": {
+      "open_one": "Import {{count}} arquebusier",
+      "open_other": "Import {{count}} arquebusiers",
+      "title_one": "Import {{count}} arquebusier into {{comparsa}}?",
+      "title_other": "Import {{count}} arquebusiers into {{comparsa}}?",
+      "description": "They are all registered at once. Undoing it means deleting them one by one.",
+      "confirm_one": "Import {{count}} arquebusier",
+      "confirm_other": "Import {{count}} arquebusiers"
+    },
+    "imported_one": "{{count}} arquebusier imported into {{comparsa}}.",
+    "imported_other": "{{count}} arquebusiers imported into {{comparsa}}."
   }
 }

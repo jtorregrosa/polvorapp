@@ -253,6 +253,10 @@
     },
     "storage": {
       "unavailable": "El magatzem de fotos no respon ara mateix. Torna-ho a provar d'ací a uns minuts."
+    },
+    "arquebusierImport": {
+      "rowErrors": "Algunes files del fitxer tenen errors; no s'ha importat res.",
+      "conflict": "Algú ha registrat una persona del fitxer mentre s'importava; no s'ha importat res. Comprova el fitxer de nou."
     }
   },
   "validation": {
@@ -317,5 +321,92 @@
       "description": "En guardar sense llicència també s'esborraran les fotos de l'anvers i del revers. Esta acció no es pot desfer.",
       "confirm": "Guarda i esborra les fotos"
     }
+  },
+  "import": {
+    "action": "Importa",
+    "title": "Importa arcabussers",
+    "description": "Càrrega inicial des d'un full de càlcul: els arcabussers d'una comparsa en cada fitxer.",
+    "comparsa": {
+      "title": "Comparsa",
+      "description": "Tots els arcabussers del fitxer es donen d'alta en esta comparsa.",
+      "label": "Comparsa"
+    },
+    "file": {
+      "title": "Fitxer",
+      "description": "Descarrega la plantilla, copia-hi les dades de la comparsa i puja-la.",
+      "template": "Descarrega la plantilla",
+      "templateFailed": "No s'ha pogut descarregar la plantilla. Torna-ho a intentar.",
+      "label": "Full de càlcul",
+      "hint": "La plantilla omplida: un fitxer .xlsx de fins a 2 MB i 1000 arcabussers.",
+      "check": "Comprova el fitxer",
+      "wrongType": "Només s'accepten fitxers .xlsx.",
+      "tooLarge": "El fitxer ocupa més de 2 MB."
+    },
+    "fileReasons": {
+      "required": "No s'ha rebut el fitxer. Torna a triar-lo.",
+      "tooLarge": "El fitxer ocupa més de 2 MB.",
+      "invalid": "No és un full de càlcul .xlsx que es puga llegir. Desa'l de nou com a llibre d'Excel (.xlsx), sense macros.",
+      "empty": "El primer full no té cap arcabusser davall de la fila de capçaleres.",
+      "tooManyRows": "El fitxer té més de 1000 arcabussers. Divideix-lo en uns quants.",
+      "missingColumns": "Falten columnes obligatòries: {{columns}}. Usa la plantilla.",
+      "duplicateColumns": "Hi ha columnes repetides: {{columns}}."
+    },
+    "report": {
+      "title": "Informe",
+      "description": "El que s'importaria. Els avisos no impedixen importar; els errors, sí.",
+      "rows": "Files llegides",
+      "valid": "Vàlides",
+      "errors": "Amb errors",
+      "warnings": "Amb avisos",
+      "blocked_one": "{{count}} fila té errors. Corregix-la en el fitxer i torna a comprovar-lo: no s'importa res fins que totes les files siguen vàlides.",
+      "blocked_other": "{{count}} files tenen errors. Corregix-les en el fitxer i torna a comprovar-lo: no s'importa res fins que totes les files siguen vàlides.",
+      "ready_one": "El fitxer es pot importar: {{count}} arcabusser.",
+      "ready_other": "El fitxer es pot importar: {{count}} arcabussers.",
+      "changed_one": "El registre ha canviat des de la comprovació: {{count}} fila té ara errors.",
+      "changed_other": "El registre ha canviat des de la comprovació: {{count}} files tenen ara errors.",
+      "noPhotos": "Els arcabussers importats no tindran fotos ni armes pròpies: s'afigen després en la fitxa de cadascun.",
+      "ignoredColumns": "S'han ignorat estes columnes, que no són de la plantilla: {{columns}}.",
+      "onlyErrors": "Mostra només les files amb errors",
+      "caption": "Files amb errors o avisos",
+      "row": "Fila",
+      "name": "Nom",
+      "problems": "Errors i avisos",
+      "noName": "(sense nom)",
+      "problem": "{{column}}: {{reason}}",
+      "warning": "Avís: {{warning}}",
+      "none": "Cap fila té errors ni avisos.",
+      "shown": "Es mostren {{shown}} de {{total}} files."
+    },
+    "reasons": {
+      "duplicateInFile": "Es repetix en una altra fila del fitxer.",
+      "taken": "Ja està registrat en la Federació.",
+      "cellError": "La cel·la té un error del full de càlcul, com #REF!, o una fórmula sense valor."
+    },
+    "columns": {
+      "federationId": "ID Unió",
+      "lastName": "Cognoms",
+      "firstName": "Nom",
+      "nationalId": "DNI/NIE",
+      "birthDate": "Data de naixement",
+      "gender": "Gènere",
+      "email": "Correu electrònic",
+      "phone": "Telèfon",
+      "status": "Estat",
+      "licenseType": "Tipus de llicència",
+      "licenseIssuedOn": "Data d'expedició",
+      "licenseExpiresOn": "Data de caducitat",
+      "trainingCompletedOn": "Data del curs"
+    },
+    "confirm": {
+      "open_one": "Importa {{count}} arcabusser",
+      "open_other": "Importa {{count}} arcabussers",
+      "title_one": "Vols importar {{count}} arcabusser en {{comparsa}}?",
+      "title_other": "Vols importar {{count}} arcabussers en {{comparsa}}?",
+      "description": "Es donaran d'alta tots alhora. Per a desfer-ho caldria esborrar-los un a un.",
+      "confirm_one": "Importa {{count}} arcabusser",
+      "confirm_other": "Importa {{count}} arcabussers"
+    },
+    "imported_one": "{{count}} arcabusser importat en {{comparsa}}.",
+    "imported_other": "{{count}} arcabussers importats en {{comparsa}}."
   }
 }
