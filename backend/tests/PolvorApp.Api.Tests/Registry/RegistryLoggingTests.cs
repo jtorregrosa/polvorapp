@@ -11,7 +11,6 @@ namespace PolvorApp.Api.Tests.Registry;
 /// NFR-12 and design D11: rejected registrations log no personal value, neither on the pre-check
 /// path, nor when the database rejects a duplicate that lost a race, nor on validation failures.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class RegistryLoggingTests(PostgresFixture postgres, MailpitFixture mailpit)
 {
     [Fact]

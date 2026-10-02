@@ -10,7 +10,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Catalog;
 
 /// <summary>Spec "Comparsa visibility (BR-12)": Admins see every comparsa, FiringChiefs only theirs, others are 404.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ComparsaVisibilityTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private readonly FakeAssignments _assignments = new();

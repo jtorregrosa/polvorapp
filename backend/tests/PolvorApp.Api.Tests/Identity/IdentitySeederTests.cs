@@ -14,7 +14,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Identity;
 
 /// <summary>Spec platform "Local environment with one command" (synthetic users) and SEC-11.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class IdentitySeederTests(PostgresFixture postgres, MailpitFixture mailpit)
 {
     private const string SeedPassword = "semilla-sintetica-local";

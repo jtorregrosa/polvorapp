@@ -13,7 +13,6 @@ namespace PolvorApp.Api.Tests.Catalog;
 /// Spec "Assignments determine the comparsa scope" end to end: real assignment source, real
 /// endpoints, the FiringChief stays signed in while an Admin changes their assignments.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class AssignmentScopeTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;

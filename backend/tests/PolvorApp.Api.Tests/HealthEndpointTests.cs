@@ -4,7 +4,6 @@ using PolvorApp.Api.Tests.Infrastructure;
 
 namespace PolvorApp.Api.Tests;
 
-[Collection(PostgresGroup.Name)]
 public sealed class HealthEndpointTests(PostgresFixture postgres)
 {
     // Nothing listens on port 1: the database is unreachable.

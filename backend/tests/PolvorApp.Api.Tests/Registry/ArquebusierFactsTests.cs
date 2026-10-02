@@ -9,7 +9,6 @@ namespace PolvorApp.Api.Tests.Registry;
 /// The registry's read contract for the compliance module (design D3): the facts the rules and the
 /// statistics need, for the comparsas the caller asks for, without identifying data.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ArquebusierFactsTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;

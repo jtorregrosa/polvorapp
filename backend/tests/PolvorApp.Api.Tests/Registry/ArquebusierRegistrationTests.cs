@@ -12,7 +12,6 @@ namespace PolvorApp.Api.Tests.Registry;
 /// Spec "Registering and editing arquebusiers (UC-01, UC-02)" (registration), "Arquebusier data",
 /// "Federation-wide uniqueness (BR-02)" and "Registry changes are audited" (registration).
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ArquebusierRegistrationTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private static readonly string[] ExpectedInvalidFields = ["birthDate", "comparsaId", "email", "federationId", "firstName", "gender"];
@@ -161,7 +160,6 @@ public sealed class ArquebusierRegistrationTests(PostgresFixture postgres, Mailp
 }
 
 /// <summary>BR-02 under concurrency: both requests pass the pre-check, the unique index decides.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ArquebusierRegistrationRaceTests(PostgresFixture postgres, MailpitFixture mailpit)
 {
     [Fact]

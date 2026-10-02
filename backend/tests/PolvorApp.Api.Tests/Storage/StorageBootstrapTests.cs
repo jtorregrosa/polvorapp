@@ -12,7 +12,6 @@ using PolvorApp.SharedKernel.Storage;
 namespace PolvorApp.Api.Tests.Storage;
 
 /// <summary>Spec: Private object storage ("Bucket created by migrate"), design D1.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class StorageBootstrapTests(PostgresFixture postgres, MinioFixture minio)
 {
     [Fact]

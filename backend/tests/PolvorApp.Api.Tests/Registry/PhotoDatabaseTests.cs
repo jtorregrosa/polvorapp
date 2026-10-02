@@ -11,7 +11,6 @@ using PolvorApp.FederationCatalog.Comparsas;
 namespace PolvorApp.Api.Tests.Registry;
 
 /// <summary>Design D4 (add-arquebusier-photos): the database backs up the photo rules.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class PhotoDatabaseTests(PostgresFixture postgres) : IAsyncLifetime
 {
     private readonly Comparsa _comparsa = RegistryData.NewComparsa("Comparsa Sintética Fotos");
@@ -22,7 +21,7 @@ public sealed class PhotoDatabaseTests(PostgresFixture postgres) : IAsyncLifetim
 
     public async ValueTask InitializeAsync()
     {
-        _connectionString = await postgres.CreateDatabaseAsync();
+        _connectionString = await postgres.CreateMigratedDatabaseAsync();
         _factory = new ApiFactory(_connectionString);
         Assert.Equal(0, await MigrateCommand.RunAsync(Services, TestContext.Current.CancellationToken));
         await Services.SaveCatalogAsync(_comparsa);

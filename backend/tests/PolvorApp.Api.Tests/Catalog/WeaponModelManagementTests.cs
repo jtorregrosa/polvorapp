@@ -10,7 +10,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Catalog;
 
 /// <summary>Specs "Weapon models" (BR-07) and the model part of "Catalogue changes are audited".</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class WeaponModelManagementTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;

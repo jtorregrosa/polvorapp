@@ -11,7 +11,6 @@ namespace PolvorApp.Api.Tests.Catalog;
 /// and one audit entry. A barrier in the audit trail makes both requests pass their existence
 /// check before either saves, so the race paths of design D4 run every time.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class AssignmentRaceTests(PostgresFixture postgres, MailpitFixture mailpit)
 {
     [Fact]

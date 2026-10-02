@@ -6,7 +6,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Registry;
 
 /// <summary>Spec "Transfer between comparsas (UC-29, BR-13)" and its audit entry.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ArquebusierTransferTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private RegistryTestHost _registry = null!;
@@ -103,7 +102,6 @@ public sealed class ArquebusierTransferTests(PostgresFixture postgres, MailpitFi
 }
 
 /// <summary>Design D10: a transfer racing with the deletion of its target never leaves a dangling reference.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ArquebusierTransferRaceTests(PostgresFixture postgres, MailpitFixture mailpit)
 {
     [Fact]

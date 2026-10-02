@@ -13,7 +13,6 @@ namespace PolvorApp.Api.Tests.Identity;
 /// Spec "Remembered devices": a remembered browser skips the code only for its own user, never past
 /// a lockout, and is forgotten by every change that rotates the security stamp.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class RememberedDeviceTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private const string NewPassword = "otra-frase-sintetica-2026"; // gitleaks:allow (synthetic test value)

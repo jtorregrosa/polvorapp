@@ -11,7 +11,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Compliance;
 
 /// <summary>Spec "Statistics (UC-07)": aggregates of the caller's scope, filters, and no personal data.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ComplianceStatisticsTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private static readonly string[] LicenseStates = ["valid", "expiring", "expired", "pending", "none"];

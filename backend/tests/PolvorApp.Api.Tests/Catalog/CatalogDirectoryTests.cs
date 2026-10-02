@@ -12,7 +12,6 @@ namespace PolvorApp.Api.Tests.Catalog;
 /// The read contract other modules use to validate and show comparsas and weapon models
 /// (change add-arquebusier-registry, design D2).
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class CatalogDirectoryTests(PostgresFixture postgres) : IAsyncLifetime
 {
     private static readonly DateTimeOffset Now = new(2026, 10, 1, 9, 0, 0, TimeSpan.Zero);
@@ -36,7 +35,7 @@ public sealed class CatalogDirectoryTests(PostgresFixture postgres) : IAsyncLife
 
     public async ValueTask InitializeAsync()
     {
-        _factory = new ApiFactory(await postgres.CreateDatabaseAsync());
+        _factory = new ApiFactory(await postgres.CreateMigratedDatabaseAsync());
         Assert.Equal(0, await MigrateCommand.RunAsync(_factory.Services, TestContext.Current.CancellationToken));
         await using var scope = _factory.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<FederationCatalogDbContext>();

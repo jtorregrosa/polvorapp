@@ -14,14 +14,13 @@ namespace PolvorApp.Api.Tests.Catalog;
 /// Design D1: a comparsa's logo lives in nullable columns of its row, all set or all null, and the
 /// database refuses a logo outside the catalogue's storage prefix or one stored twice.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class LogoDatabaseTests(PostgresFixture postgres) : IAsyncLifetime
 {
     private ApiFactory? _factory;
 
     public async ValueTask InitializeAsync()
     {
-        _factory = new ApiFactory(await postgres.CreateDatabaseAsync());
+        _factory = new ApiFactory(await postgres.CreateMigratedDatabaseAsync());
         Assert.Equal(0, await MigrateCommand.RunAsync(_factory.Services, TestContext.Current.CancellationToken));
     }
 

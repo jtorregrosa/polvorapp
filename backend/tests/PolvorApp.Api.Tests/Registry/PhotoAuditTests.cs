@@ -6,7 +6,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Registry;
 
 /// <summary>Spec "Registry changes are audited" (photos), design D8: kinds only, never images, keys or file names.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class PhotoAuditTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     /// <summary>A client file name that would be personal data (synthetic).</summary>

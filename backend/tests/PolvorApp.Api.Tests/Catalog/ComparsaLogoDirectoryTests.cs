@@ -9,7 +9,6 @@ namespace PolvorApp.Api.Tests.Catalog;
 /// Spec "Logo access (BR-12)": other capabilities read a comparsa's logo on the server through the
 /// catalogue contract, without a user scope (design D6), for example to print it in a document.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ComparsaLogoDirectoryTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private RegistryTestHost _host = null!;

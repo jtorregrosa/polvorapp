@@ -10,7 +10,6 @@ namespace PolvorApp.Api.Tests.Registry;
 /// Spec "Registering and editing arquebusiers (UC-01, UC-02)" (editing, outdated versions, no-ops),
 /// "Current license", "Training course", "Active and Reserve status" and "Registry changes are audited".
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ArquebusierEditingTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private RegistryTestHost _registry = null!;

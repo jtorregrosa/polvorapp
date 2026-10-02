@@ -7,7 +7,6 @@ using PolvorApp.Api.Tests.Infrastructure;
 namespace PolvorApp.Api.Tests.Identity;
 
 /// <summary>SEC-01 / spec "Sessions": outside local environments every cookie is Secure; rate limits per IPv6 /64.</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ProductionCookieTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;

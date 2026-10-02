@@ -17,7 +17,6 @@ namespace PolvorApp.Api.Tests.Registry;
 /// Spec "Photo validation and processing" through the HTTP route, with the production rules: the
 /// stored image is read back, so a skipped or misconfigured normalisation fails here (design D3, D5).
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class PhotoProcessingTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     /// <summary>APP1 (EXIF/XMP), APP2 (ICC), APP13 (IPTC), APP14 (Adobe) and comments.</summary>
@@ -121,7 +120,6 @@ public sealed class PhotoProcessingTests(PostgresFixture postgres, MailpitFixtur
 /// Platform spec "Stored file cleanup" end to end: the real sweeper, the registry as owner, Postgres and
 /// MinIO (design D2). Each test has its own bucket, so the remaining keys can be asserted exactly.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class PhotoSweepTests(PostgresFixture postgres, MailpitFixture mailpit, MinioFixture minio) : IAsyncLifetime
 {
     private const string Prefix = "registry/photos/";

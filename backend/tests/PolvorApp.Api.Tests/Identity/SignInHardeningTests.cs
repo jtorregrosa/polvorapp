@@ -14,7 +14,6 @@ namespace PolvorApp.Api.Tests.Identity;
 /// Findings of the group 4 security review: parallel attempts, remembered-device limit, session
 /// checks that do not depend on the security stamp, and the absolute limit of a fresh sign-in.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class SignInHardeningTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;

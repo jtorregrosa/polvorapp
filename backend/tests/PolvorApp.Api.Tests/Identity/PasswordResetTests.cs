@@ -11,7 +11,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Identity;
 
 /// <summary>Spec "Password reset by email".</summary>
-[Collection(PostgresGroup.Name)]
 public sealed partial class PasswordResetTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private const string NewPassword = "nueva-clave-sintetica-2026"; // gitleaks:allow (synthetic test value)

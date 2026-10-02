@@ -19,7 +19,6 @@ namespace PolvorApp.Api.Tests.Registry;
 /// Admin-only. Write routes validate their body before the scope, so the guard sends a valid body;
 /// a new write route fails here until it is taught one.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed partial class RegistryScopeGuardTests(PostgresFixture postgres, MailpitFixture mailpit)
 {
     [Fact]

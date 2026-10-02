@@ -10,7 +10,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Catalog;
 
 /// <summary>Spec "Deleting comparsas and weapon models": deleting a comparsa erases its logo (design D5).</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class ComparsaLogoDeletionTests(PostgresFixture postgres, MailpitFixture mailpit, MinioFixture minio)
 {
     [Fact]

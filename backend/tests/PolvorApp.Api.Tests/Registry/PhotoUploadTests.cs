@@ -11,7 +11,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Registry;
 
 /// <summary>Specs "Arquebusier photos (UC-01, UC-02)" and "Photo validation and processing" (uploads; design D5, D6).</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class PhotoUploadTests(PostgresFixture postgres, MailpitFixture mailpit, MinioFixture minio) : IAsyncLifetime
 {
     private readonly CountingNormalizer _normalizer = new();

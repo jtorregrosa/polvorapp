@@ -22,7 +22,6 @@ namespace PolvorApp.Api.Tests.Registry;
 /// locks conflict exactly as designed, a lock timeout is retryable, and oversized or too frequent
 /// requests are refused.
 /// </summary>
-[Collection(PostgresGroup.Name)]
 public sealed class RegistryHardeningTests(PostgresFixture postgres, MailpitFixture mailpit)
 {
     [Fact]

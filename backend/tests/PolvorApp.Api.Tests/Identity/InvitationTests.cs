@@ -8,7 +8,6 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Identity;
 
 /// <summary>Spec "Invitation-only accounts".</summary>
-[Collection(PostgresGroup.Name)]
 public sealed partial class InvitationTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;
@@ -191,7 +190,6 @@ public sealed partial class InvitationTests(PostgresFixture postgres, MailpitFix
 }
 
 /// <summary>Spec platform "Transactional email", scenario "SMTP server unavailable".</summary>
-[Collection(PostgresGroup.Name)]
 public sealed class InvitationEmailFailureTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;
