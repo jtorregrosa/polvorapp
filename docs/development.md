@@ -218,6 +218,11 @@ dotnet test --solution PolvorApp.slnx --coverlet --coverlet-output-format cobert
 node ../scripts/check-coverage.mjs TestResults 80          # 80 % line gate
 ```
 
+- Integration tests share one PostgreSQL, Mailpit and MinIO container per run, and test classes run
+  in parallel. Each test gets a database of its own: a copy of a template migrated once per run
+  (`PostgresFixture.CreateMigratedDatabaseAsync`), or an empty one for migration tests. Tests that
+  list stored objects use a bucket of their own, and an address whose mail a test reads or counts
+  is used by that test class only.
 - New modules follow [`backend/src/Modules/README.md`](../backend/src/Modules/README.md);
   architecture tests enforce the module boundaries.
 - Persistence: one EF Core `DbContext` and one PostgreSQL schema per module (see the modules
@@ -333,8 +338,9 @@ invite one through the UI, read the link from Mailpit's API and enrol with a com
 
 `.github/workflows/ci.yml` runs on every pull request and on `main`: backend (format, build,
 tests + coverage, contract drift), frontend (audit, lint, types, i18n, tests + coverage, build),
-E2E on the compose stack, container image builds, secret scanning and dependency review. On
-`main`, `publish-images` pushes the images to GHCR after all gates pass. `codeql.yml` runs CodeQL; Dependabot keeps dependencies and actions current.
+E2E on the compose stack, container image builds, secret scanning and dependency review. The gates
+run side by side; the E2E job builds its images while it installs the browsers. On `main`,
+`publish-images` pushes the images to GHCR after all gates pass. `codeql.yml` runs CodeQL; Dependabot keeps dependencies and actions current.
 
 A follow-up push to an open pull request that only touches `openspec/` and `docs/` (outside
 `docs/design/`, which the frontend tests read) skips the code gates, such as the OpenSpec archive
