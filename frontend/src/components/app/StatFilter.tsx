@@ -1,3 +1,4 @@
+import { Check } from 'lucide-react';
 import { useId } from 'react';
 import { cn } from '@/lib/cn';
 
@@ -30,7 +31,8 @@ const TONES: Record<NonNullable<StatFilterItem['tone']>, string> = {
 /**
  * Counters above a list that are also filters (spec: Arquebusier visibility): each is a toggle
  * button with its figure and label, pressed while its filter is on. The page combines the
- * filters and announces the result count (see `FilterBar`).
+ * filters and announces the result count (see `FilterBar`). A pressed counter shows a check and a
+ * ring besides its tint, so the state never depends on colour alone (WCAG 1.4.1, 1.4.11).
  */
 export function StatFilter({ label, items }: StatFilterProps) {
   const baseId = useId();
@@ -58,12 +60,17 @@ export function StatFilter({ label, items }: StatFilterProps) {
               'flex min-h-control min-w-0 flex-col items-start gap-0.5 rounded-lg border border-l-4 bg-card px-3 py-2.5 text-start shadow-e1',
               'transition-colors duration-100 hover:bg-surface-2',
               'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-              'aria-pressed:border-primary aria-pressed:bg-primary-soft',
+              'aria-pressed:border-primary aria-pressed:bg-primary-soft aria-pressed:ring-2 aria-pressed:ring-primary',
               tone,
             )}
           >
-            <span id={`${id}-count`} className="font-display text-figure text-foreground tabular-nums">
-              {item.count}
+            <span className="flex w-full items-start justify-between gap-2">
+              <span id={`${id}-count`} className="font-display text-figure text-foreground tabular-nums">
+                {item.count}
+              </span>
+              {item.pressed && (
+                <Check aria-hidden="true" data-pressed-mark="" className="size-4 shrink-0 text-primary" />
+              )}
             </span>
             <span id={`${id}-label`} className="text-label break-words text-foreground">
               {item.label}

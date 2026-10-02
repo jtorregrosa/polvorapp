@@ -1,5 +1,6 @@
 import { cn } from '@/lib/cn';
 import { useId, type ReactNode } from 'react';
+import { ChevronRight } from 'lucide-react';
 import { Link } from 'react-router';
 
 export interface StatCardProps {
@@ -43,11 +44,23 @@ export function StatCard({ label, value, description, to, className }: StatCardP
   }
 
   return (
-    <div data-stat-card="" className={cn('relative', classes)}>
+    // The whole card is the target, so it shows the focus ring and, besides the border colour, a
+    // chevron and an underlined label say it is a link (WCAG 1.4.1, 2.4.7).
+    <div
+      data-stat-card=""
+      className={cn(
+        'group relative has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ring',
+        classes,
+      )}
+    >
+      <ChevronRight
+        aria-hidden="true"
+        className="absolute top-4 right-4 size-4 text-muted-foreground transition-transform duration-100 group-hover:translate-x-0.5"
+      />
       <Link
         to={to}
         aria-describedby={description ? descriptionId : undefined}
-        className="flex flex-col gap-1 rounded-sm after:absolute after:inset-0"
+        className="flex flex-col gap-1 rounded-sm pr-6 outline-none after:absolute after:inset-0 group-hover:[&>span:first-child]:underline"
       >
         {figure}
       </Link>
