@@ -34,11 +34,15 @@ export function useNotice(): [Notice | undefined, Announce, () => void] {
     return typeof handed === 'string' ? { id: 0, severity, text: handed } : undefined;
   });
 
+  // Forget the handed notice without leaving the page: the query (e.g. a list's filters) stays.
   useEffect(() => {
     if (location.state !== null) {
-      void navigate('.', { replace: true, state: null });
+      void navigate(
+        { pathname: location.pathname, search: location.search, hash: location.hash },
+        { replace: true, state: null },
+      );
     }
-  }, [location.state, navigate]);
+  }, [location.state, location.pathname, location.search, location.hash, navigate]);
 
   // Stable, so pages can list it as a dependency without recomputing on every render.
   const announce: Announce = useCallback((severity, text) => {
