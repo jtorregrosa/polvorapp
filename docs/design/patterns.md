@@ -49,6 +49,26 @@ declare their breadcrumb with a `handle: { breadcrumb: '<common key>' } satisfie
   and name, linking to the comparsa, the open one marked as current). Names wrap, never clipped.
   Admins get no cards.
 
+### Check, report, confirm (spreadsheet import)
+
+For an upload that changes many records at once (`add-registry-import`), the page uses the form
+template in three steps, and nothing is stored until the last one:
+
+1. **Choose**: the target (a `SelectInput`) and the file (`FileField`, its type and size checked by
+   the form's schema with `fileProblem`, so a wrong file is refused before uploading). A "Download
+   the template" secondary `Button` sits above the file field; a failed download shows an error
+   `AlertBanner` next to it.
+2. **Check**: the submit `Button` uploads the file for a report only. A problem with the file as a
+   whole goes on the file field, in words. The report is a third `FormLayout` section: `StatCard`s
+   with the counts, one `AlertBanner` saying whether the file can be imported (success) or not
+   (error), info banners for what is ignored or left out, and a `DataTable` of the rows with
+   errors or warnings (each problem in words, with its column), narrowed to errors by a
+   `CheckboxField`. Changing the target or the file discards the report.
+3. **Confirm**: only a report without errors turns the primary action into "Import N …", which
+   opens a `ConfirmDialog` (`tone="primary"`) naming the target and the count. Success opens the
+   list filtered by the target with a notice; a refusal with a new report replaces the report and
+   focuses its outcome; any other refusal stays in the dialog with its reason.
+
 ## Actions
 
 - At most **one primary action** per page, at its natural width (never stretched across a form).

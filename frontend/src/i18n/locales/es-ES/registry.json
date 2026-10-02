@@ -253,6 +253,10 @@
     },
     "storage": {
       "unavailable": "El almacén de fotos no responde ahora mismo. Inténtalo de nuevo en unos minutos."
+    },
+    "arquebusierImport": {
+      "rowErrors": "Algunas filas del fichero tienen errores; no se ha importado nada.",
+      "conflict": "Alguien ha registrado a una persona del fichero mientras se importaba; no se ha importado nada. Comprueba el fichero de nuevo."
     }
   },
   "validation": {
@@ -317,5 +321,92 @@
       "description": "Al guardar sin licencia se borrarán también las fotos del anverso y del reverso. Esta acción no se puede deshacer.",
       "confirm": "Guardar y borrar las fotos"
     }
+  },
+  "import": {
+    "action": "Importar",
+    "title": "Importar arcabuceros",
+    "description": "Carga inicial desde una hoja de cálculo: los arcabuceros de una comparsa en cada fichero.",
+    "comparsa": {
+      "title": "Comparsa",
+      "description": "Todos los arcabuceros del fichero se dan de alta en esta comparsa.",
+      "label": "Comparsa"
+    },
+    "file": {
+      "title": "Fichero",
+      "description": "Descarga la plantilla, copia en ella los datos de la comparsa y súbela.",
+      "template": "Descargar la plantilla",
+      "templateFailed": "No se ha podido descargar la plantilla. Inténtalo de nuevo.",
+      "label": "Hoja de cálculo",
+      "hint": "La plantilla rellenada: un fichero .xlsx de hasta 2 MB y 1000 arcabuceros.",
+      "check": "Comprobar el fichero",
+      "wrongType": "Solo se aceptan ficheros .xlsx.",
+      "tooLarge": "El fichero ocupa más de 2 MB."
+    },
+    "fileReasons": {
+      "required": "No se ha recibido el fichero. Vuelve a elegirlo.",
+      "tooLarge": "El fichero ocupa más de 2 MB.",
+      "invalid": "No es una hoja de cálculo .xlsx que se pueda leer. Guárdala de nuevo como libro de Excel (.xlsx), sin macros.",
+      "empty": "La primera hoja no tiene ningún arcabucero bajo la fila de cabeceras.",
+      "tooManyRows": "El fichero tiene más de 1000 arcabuceros. Divídelo en varios.",
+      "missingColumns": "Faltan columnas obligatorias: {{columns}}. Usa la plantilla.",
+      "duplicateColumns": "Hay columnas repetidas: {{columns}}."
+    },
+    "report": {
+      "title": "Informe",
+      "description": "Lo que se importaría. Los avisos no impiden importar; los errores sí.",
+      "rows": "Filas leídas",
+      "valid": "Válidas",
+      "errors": "Con errores",
+      "warnings": "Con avisos",
+      "blocked_one": "{{count}} fila tiene errores. Corrígela en el fichero y vuelve a comprobarlo: no se importa nada hasta que todas las filas sean válidas.",
+      "blocked_other": "{{count}} filas tienen errores. Corrígelas en el fichero y vuelve a comprobarlo: no se importa nada hasta que todas las filas sean válidas.",
+      "ready_one": "El fichero se puede importar: {{count}} arcabucero.",
+      "ready_other": "El fichero se puede importar: {{count}} arcabuceros.",
+      "changed_one": "El registro ha cambiado desde la comprobación: {{count}} fila tiene ahora errores.",
+      "changed_other": "El registro ha cambiado desde la comprobación: {{count}} filas tienen ahora errores.",
+      "noPhotos": "Los arcabuceros importados no tendrán fotos ni armas propias: se añaden después en la ficha de cada uno.",
+      "ignoredColumns": "Se han ignorado estas columnas, que no son de la plantilla: {{columns}}.",
+      "onlyErrors": "Mostrar solo las filas con errores",
+      "caption": "Filas con errores o avisos",
+      "row": "Fila",
+      "name": "Nombre",
+      "problems": "Errores y avisos",
+      "noName": "(sin nombre)",
+      "problem": "{{column}}: {{reason}}",
+      "warning": "Aviso: {{warning}}",
+      "none": "Ninguna fila tiene errores ni avisos.",
+      "shown": "Se muestran {{shown}} de {{total}} filas."
+    },
+    "reasons": {
+      "duplicateInFile": "Se repite en otra fila del fichero.",
+      "taken": "Ya está registrado en la Federación.",
+      "cellError": "La celda tiene un error de la hoja de cálculo, como #¡REF!, o una fórmula sin valor."
+    },
+    "columns": {
+      "federationId": "ID Unión",
+      "lastName": "Apellidos",
+      "firstName": "Nombre",
+      "nationalId": "DNI/NIE",
+      "birthDate": "Fecha de nacimiento",
+      "gender": "Género",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "status": "Estado",
+      "licenseType": "Tipo de licencia",
+      "licenseIssuedOn": "Fecha de expedición",
+      "licenseExpiresOn": "Fecha de caducidad",
+      "trainingCompletedOn": "Fecha del curso"
+    },
+    "confirm": {
+      "open_one": "Importar {{count}} arcabucero",
+      "open_other": "Importar {{count}} arcabuceros",
+      "title_one": "¿Importar {{count}} arcabucero en {{comparsa}}?",
+      "title_other": "¿Importar {{count}} arcabuceros en {{comparsa}}?",
+      "description": "Se darán de alta todos a la vez. Para deshacerlo habría que borrarlos uno a uno.",
+      "confirm_one": "Importar {{count}} arcabucero",
+      "confirm_other": "Importar {{count}} arcabuceros"
+    },
+    "imported_one": "{{count}} arcabucero importado en {{comparsa}}.",
+    "imported_other": "{{count}} arcabuceros importados en {{comparsa}}."
   }
 }

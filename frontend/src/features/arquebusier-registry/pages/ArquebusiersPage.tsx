@@ -1,4 +1,4 @@
-import { IdCard, Plus } from 'lucide-react';
+import { FileUp, IdCard, Plus } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
@@ -166,6 +166,15 @@ export function ArquebusiersPage() {
       </Link>
     </Button>
   );
+  // Spec "Import screen": the initial load from a spreadsheet, for Admins only (UC-09).
+  const importAction = isAdmin && (
+    <Button asChild variant="secondary">
+      <Link to="/arquebusiers/import">
+        <FileUp aria-hidden="true" />
+        {t('import.action')}
+      </Link>
+    </Button>
+  );
   const showList =
     !unassigned && !neverFilled && !arquebusiers.isError && !(waitingForComparsas && comparsas.isError);
 
@@ -174,7 +183,14 @@ export function ArquebusiersPage() {
       <PageHeader
         title={t('arquebusiers.title')}
         description={isAdmin ? t('arquebusiers.description') : t('arquebusiers.descriptionFiringChief')}
-        actions={!unassigned && registerAction}
+        actions={
+          !unassigned && (
+            <>
+              {importAction}
+              {registerAction}
+            </>
+          )
+        }
       />
       <NoticeBanner notice={notice} />
       {comparsas.isError && (

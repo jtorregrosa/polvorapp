@@ -14,6 +14,7 @@ import { UsersPage } from '@/features/identity-access/pages/users/UsersPage';
 import { RequireAdmin, RequireSession } from '@/features/identity-access/RequireSession';
 import { ArquebusierDetailPage } from '@/features/arquebusier-registry/pages/ArquebusierDetailPage';
 import { ArquebusierFormPage } from '@/features/arquebusier-registry/pages/ArquebusierFormPage';
+import { ArquebusierImportPage } from '@/features/arquebusier-registry/pages/ArquebusierImportPage';
 import { ArquebusiersPage } from '@/features/arquebusier-registry/pages/ArquebusiersPage';
 import { OwnedWeaponFormPage } from '@/features/arquebusier-registry/pages/OwnedWeaponFormPage';
 import { ComparsaDetailPage } from '@/features/federation-catalog/pages/ComparsaDetailPage';
@@ -113,6 +114,11 @@ export const appRoutes: RouteObject[] = [
               {
                 Component: RequireAdmin,
                 children: [
+                  {
+                    path: 'arquebusiers/import',
+                    Component: ArquebusierImportPage,
+                    handle: { breadcrumb: 'nav.arquebusiers' } satisfies RouteHandle,
+                  },
                   {
                     path: 'comparsas/new',
                     Component: ComparsaFormPage,

@@ -93,7 +93,8 @@
     "typescript-eslint": "8.71.0",
     "vite": "8.3.1",
     "vite-plugin-pwa": "1.3.0",
-    "vitest": "5.0.2"
+    "vitest": "5.0.2",
+    "write-excel-file": "4.1.1"
   },
   "overrides": {
     "@scalar/json-magic": {

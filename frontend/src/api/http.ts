@@ -11,6 +11,10 @@ export interface ProblemDetails {
   errors?: Record<string, string> | string[];
   /** The user an action created before it failed (an invitation whose email was not sent). */
   userId?: string;
+  /** The columns a file problem is about (an import file missing or repeating columns). */
+  columns?: unknown;
+  /** The validation report of a refused import (`arquebusierImport.rowErrors`); check its shape before use. */
+  report?: unknown;
 }
 
 /**
@@ -152,6 +156,52 @@ export function setUnauthorizedHandler(handler: UnauthorizedHandler): () => void
 /** Sign-in steps answer 401 as part of their flow: the page shows the error, not "session expired". */
 const isSignInStep = (url: string): boolean =>
   new URL(url, window.location.origin).pathname.startsWith('/api/auth/');
+
+/** A file the API sent, with the name it suggested. */
+export interface DownloadedFile {
+  blob: Blob;
+  fileName: string | undefined;
+}
+
+/**
+ * The file name of a `Content-Disposition` header (RFC 6266): the UTF-8 `filename*` (with or
+ * without a language tag) when it decodes, else the plain `filename`, quoted or not. Undefined when
+ * there is no usable name.
+ */
+function fileNameOf(disposition: string | null): string | undefined {
+  if (!disposition) return undefined;
+  const encoded = /filename\*\s*=\s*UTF-8'[^']*'([^;\s]+)/i.exec(disposition)?.[1];
+  if (encoded) {
+    try {
+      const name = decodeURIComponent(encoded).trim();
+      if (name) return name;
+    } catch {
+      // A malformed encoded name falls back to the plain one.
+    }
+  }
+  const plain = /filename\s*=\s*(?:"((?:[^"\\]|\\.)*)"|([^;]+))/i.exec(disposition);
+  const name = (plain?.[1]?.replace(/\\(.)/g, '$1') ?? plain?.[2])?.trim();
+  return name === '' ? undefined : name;
+}
+
+/**
+ * Downloads a file the API generates (e.g. the import template, add-registry-import D10):
+ * `apiFetch` only accepts JSON bodies. Same credentials and `Accept-Language` as `apiFetch`, an
+ * expired session is reported to the registered handler, and a refusal throws {@link ApiProblemError}.
+ */
+export async function apiDownload(url: string): Promise<DownloadedFile> {
+  const response = await fetch(url, {
+    credentials: 'same-origin',
+    headers: { 'Accept-Language': activeLanguage() },
+  });
+  if (!response.ok) {
+    if (response.status === 401 && !isSignInStep(url)) {
+      unauthorizedHandler?.();
+    }
+    throw new ApiProblemError(response.status, await readProblem(response));
+  }
+  return { blob: await response.blob(), fileName: fileNameOf(response.headers.get('Content-Disposition')) };
+}
 
 /**
  * Mutator used by the orval-generated client: same-origin cookies, the UI language as
