@@ -20,4 +20,11 @@ public static class RateLimitPolicies
     /// so a single account cannot keep the image pipeline busy (add-comparsa-logos D6).
     /// </summary>
     public const string ImageUploads = "image-uploads";
+
+    /// <summary>
+    /// Uploads that read a spreadsheet on the server (arquebusier import check and import): 10 per
+    /// minute per signed-in user, so a single account cannot keep the workbook reader busy
+    /// (add-registry-import D9).
+    /// </summary>
+    public const string SpreadsheetImports = "spreadsheet-imports";
 }
