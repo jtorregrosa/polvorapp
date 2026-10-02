@@ -2,6 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { http as mock, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
+import { ComplianceWarning } from '@/api/generated/model';
 import type { ArquebusierResponse, ComparsaResponse } from '@/api/generated/model';
 import { problem, recordBodies, renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
@@ -256,5 +257,46 @@ describe('Deletion (spec: Deleting an arquebusier)', () => {
     await askToDelete(user);
 
     expect(await axeViolations(document.body)).toEqual([]);
+  });
+});
+
+/** The warning summary behind the navigation count, answering `withWarnings()` at each request. */
+function warningSummary(withWarnings: () => number) {
+  server.use(
+    mock.get('/api/compliance/summary', () =>
+      HttpResponse.json({
+        active: 1,
+        reserve: 0,
+        withWarnings: withWarnings(),
+        warnings: Object.values(ComplianceWarning).map((code) => ({ code, count: 0 })),
+      }),
+    ),
+  );
+}
+
+describe('Insights follow a deletion (spec: Warning count in the navigation)', () => {
+  it('updates the navigation count without reloading the page', async () => {
+    const user = userEvent.setup();
+    let deleted = false;
+    detail();
+    warningSummary(() => (deleted ? 0 : 1));
+    server.use(
+      mock.delete(`/api/arquebusiers/${DETAIL_UNO.id}`, () => {
+        deleted = true;
+        return new HttpResponse(null, { status: 204 });
+      }),
+      mock.get('/api/arquebusiers', () => HttpResponse.json([])),
+    );
+    await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
+    await screen.findByRole('link', { name: 'Arcabuceros, 1 con aviso' });
+
+    const menu = await openMoreActions(user);
+    await user.click(within(menu).getByRole('menuitem', { name: 'Eliminar arcabucero' }));
+    const dialog = await screen.findByRole('alertdialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Eliminar' }));
+
+    // The main navigation's item, not the breadcrumb of the same name.
+    const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
+    expect(await within(navigation).findByRole('link', { name: 'Arcabuceros' })).toBeInTheDocument();
   });
 });

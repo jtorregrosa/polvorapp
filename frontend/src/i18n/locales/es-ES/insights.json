@@ -1,0 +1,117 @@
+{
+  "dashboard": {
+    "figuresTitle": "Arcabuceros",
+    "active": "En activo",
+    "reserve": "En reserva",
+    "withWarnings": "Con avisos",
+    "attention_one": "{{count, number}} arcabucero necesita atención.",
+    "attention_other": "{{count, number}} arcabuceros necesitan atención.",
+    "upToDate": "Todos los arcabuceros están al día: ninguno tiene avisos.",
+    "warningsTitle": "Avisos",
+    "expiries": {
+      "title": "Próximas caducidades",
+      "caption": "Arcabuceros cuya licencia caduca antes",
+      "seeAll": "Ver todas las licencias que caducan pronto",
+      "empty": "Ninguna licencia caduca en los próximos 12 meses.",
+      "expiresOn": "caduca el {{date}}",
+      "columns": {
+        "name": "Nombre",
+        "comparsa": "Comparsa",
+        "expiresOn": "Caduca el"
+      }
+    }
+  },
+  "statistics": {
+    "title": "Estadísticas",
+    "description": "Cifras de los arcabuceros e informe de igualdad, sin descarga.",
+    "filters": {
+      "comparsa": "Comparsa",
+      "allComparsas": "Todas",
+      "status": "Estado del arcabucero",
+      "allStatuses": "Todos",
+      "ACTIVE": "En activo",
+      "RESERVE": "En reserva"
+    },
+    "figures": {
+      "total": "Arcabuceros",
+      "active": "En activo",
+      "reserve": "En reserva"
+    },
+    "gender": {
+      "title": "Género",
+      "table": "Arcabuceros por género",
+      "category": "Género",
+      "female": "Mujeres",
+      "male": "Hombres",
+      "unspecified": "Sin definir"
+    },
+    "ageBrackets": {
+      "title": "Edad",
+      "table": "Tramos de edad por género",
+      "category": "Tramo de edad",
+      "UNDER_25": "Menos de 25",
+      "FROM_25_TO_34": "De 25 a 34",
+      "FROM_35_TO_44": "De 35 a 44",
+      "FROM_45": "45 o más"
+    },
+    "course": {
+      "title": "Curso de arcabucería",
+      "table": "Curso por género",
+      "category": "Curso",
+      "done": "Hecho",
+      "notDone": "Sin hacer"
+    },
+    "licenses": {
+      "title": "Licencias",
+      "table": "Arcabuceros por estado de la licencia",
+      "category": "Estado de la licencia",
+      "valid": "Vigente",
+      "expiring": "Caduca pronto",
+      "expired": "Caducada",
+      "pending": "En trámite",
+      "none": "Sin licencia"
+    },
+    "ownedWeapons": {
+      "title": "Armas propias",
+      "table": "Arcabuceros con arma propia por género",
+      "category": "Arma propia",
+      "withWeapon": "Con arma propia",
+      "withoutWeapon": "Sin arma propia",
+      "byKindTable": "Armas propias por tipo",
+      "kindCategory": "Tipo",
+      "weapons": "Armas",
+      "shareOfWeapons": "% de las armas"
+    },
+    "comparsas": {
+      "title": "Por comparsa",
+      "caption": "Cifras por comparsa",
+      "summary": "{{total}} arcabuceros: {{active}} en activo, {{reserve}} en reserva, {{withWarnings}} con avisos",
+      "columns": {
+        "name": "Comparsa",
+        "total": "Arcabuceros",
+        "active": "En activo",
+        "reserve": "En reserva",
+        "female": "Mujeres",
+        "male": "Hombres",
+        "unspecified": "Sin definir",
+        "withWarnings": "Con avisos"
+      },
+      "genderSummary": "Mujeres {{female}}, hombres {{male}}, sin definir {{unspecified}}"
+    },
+    "noMatches": "Ningún arcabucero coincide con los filtros.",
+    "resultCount_one": "Mostrando {{count, number}} arcabucero",
+    "resultCount_other": "Mostrando {{count, number}} arcabuceros"
+  },
+  "warnings": {
+    "title": "Avisos de cumplimiento",
+    "hint": "Son avisos, no errores: se puede guardar igualmente. El jefe de disparo responde de que se cumplan los requisitos.",
+    "LICENSE_MISSING": "No tiene licencia.",
+    "LICENSE_PENDING": "La licencia está en trámite.",
+    "LICENSE_EXPIRED": "La licencia caducó el {{date}}.",
+    "LICENSE_EXPIRING": "La licencia caduca el {{date}}, en menos de 12 meses.",
+    "COURSE_MISSING": "No consta el curso de arcabucería.",
+    "UNDER_AGE": "Es menor de edad: tiene {{age}} años.",
+    "ID_PHOTO_MISSING": "Falta la foto de carnet, necesaria para el carnet de arcabucero.",
+    "LICENSE_PHOTOS_MISSING": "Faltan fotos de la licencia (anverso o reverso)."
+  }
+}

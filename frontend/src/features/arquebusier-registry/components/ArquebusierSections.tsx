@@ -20,7 +20,7 @@ import {
   valuesOf,
   type ArquebusierValues,
 } from '../arquebusierSchema';
-import { useRefreshArquebusier } from '../hooks';
+import { useRefreshArquebusier, useRefreshRegistryViews } from '../hooks';
 import { CourseFields, LicenseFields, PersonalFields } from '../pages/ArquebusierFields';
 import { applyFieldErrors, problemCode, problemMessage } from '../problems';
 import { LicensePhotos } from './ArquebusierPhotos';
@@ -61,6 +61,7 @@ function useSaveSection({ arquebusier, reload }: SaverOptions) {
   const isAdmin = useSession().account?.role === 'ADMIN';
   const update = useUpdateArquebusier();
   const refresh = useRefreshArquebusier(arquebusier.id);
+  const refreshViews = useRefreshRegistryViews();
 
   return async (
     section: EditableSection,
@@ -77,7 +78,9 @@ function useSaveSection({ arquebusier, reload }: SaverOptions) {
     } catch (error) {
       const code = problemCode(error);
       if (code === 'arquebusiers.modified') {
-        // Spec: someone else changed the record; show its current values to review.
+        // Spec: someone else changed the record; show its current values to review. Its warnings
+        // may have changed too, so the list and the insights follow.
+        refreshViews();
         const fresh = await reload();
         // Without the current values the form keeps what was typed: resetting it to the stale
         // record would hide the other change and the next save would conflict again.

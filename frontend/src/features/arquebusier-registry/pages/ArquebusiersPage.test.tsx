@@ -7,7 +7,7 @@ import { renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN, SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
-import { DETAIL_UNO, NORTE, OESTE, ROW_DOS, ROW_TRES, ROW_UNO, SUR } from '../test-data';
+import { DETAIL_UNO, NORTE, OESTE, ROW_CUATRO, ROW_DOS, ROW_TRES, ROW_UNO, SUR } from '../test-data';
 
 function registry(
   rows: (query: URLSearchParams) => ArquebusierRowResponse[],
@@ -233,7 +233,7 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
         within(counters())
           .getAllByRole('button')
           .map((button) => button.getAttribute('aria-labelledby') && button.textContent),
-      ).toHaveLength(5);
+      ).toHaveLength(6);
       expect(counter(/En activo/)).toHaveAccessibleName('2 En activo');
       expect(counter(/En reserva/)).toHaveAccessibleName('1 En reserva');
       expect(counter(/Licencia caducada/)).toHaveAccessibleName('1 Licencia caducada');
@@ -286,6 +286,58 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
       expect(screen.getByRole('searchbox', { name: 'Buscar arcabuceros' })).toHaveValue('');
     });
 
+    it('orders the counters active, reserve, expiring, expired, pending and none', async () => {
+      registry(() => [ROW_UNO, ROW_DOS, ROW_TRES, ROW_CUATRO]);
+      await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
+      await screen.findByRole('link', { name: 'García Sintético, Arcabucero' });
+
+      expect(
+        within(counters())
+          .getAllByRole('button')
+          .map((button) => button.textContent.replace(/^\s*\d+\s*/, '')),
+      ).toEqual([
+        'En activo',
+        'En reserva',
+        'Licencia caduca prontoEn menos de 12 meses',
+        'Licencia caducada',
+        'Licencia en trámite',
+        'Sin licencia',
+      ]);
+      expect(counter(/En activo/)).toHaveAccessibleName('3 En activo');
+      expect(counter(/Licencia caduca pronto/)).toHaveAccessibleName('1 Licencia caduca pronto');
+      expect(counter(/Licencia caduca pronto/)).toHaveAccessibleDescription('En menos de 12 meses');
+    });
+
+    it('filters the licenses expiring soon with their counter and keeps it in the address', async () => {
+      const user = userEvent.setup();
+      registry(() => [ROW_UNO, ROW_TRES, ROW_CUATRO]);
+      const app = await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
+      const table = await screen.findByRole('table', { name: 'Arcabuceros' });
+      await within(table).findByRole('link', { name: 'García Sintético, Arcabucero' });
+
+      await user.click(counter(/Licencia caduca pronto/));
+
+      expect(
+        within(table)
+          .getAllByRole('link')
+          .map((link) => link.textContent),
+      ).toEqual(['Sánchez Sintética, Arcabucera']);
+      expect(app.location()).toBe('/arquebusiers?license=EXPIRING');
+      expect(await screen.findByText('1 arcabucero', { selector: '[role=status]' })).toBeInTheDocument();
+    });
+
+    it('honours an expiring-license filter in the address', async () => {
+      registry(() => [ROW_UNO, ROW_CUATRO]);
+      await renderApp('/arquebusiers?license=EXPIRING', { session: SYNTHETIC_ADMIN });
+
+      const table = await screen.findByRole('table', { name: 'Arcabuceros' });
+      expect(
+        await within(table).findByRole('link', { name: 'Sánchez Sintética, Arcabucera' }),
+      ).toBeInTheDocument();
+      expect(within(table).getAllByRole('link')).toHaveLength(1);
+      expect(counter(/Licencia caduca pronto/)).toHaveAttribute('aria-pressed', 'true');
+    });
+
     it("counts only the arquebusiers of a FiringChief's comparsas", async () => {
       registry(() => [ROW_UNO, ROW_TRES], [NORTE]);
       await renderApp('/arquebusiers', { session: SYNTHETIC_FIRING_CHIEF });
@@ -304,7 +356,133 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
     });
   });
 
+  describe('warning filter (spec: Arquebusier visibility, filter by warning)', () => {
+    const warningFilter = () => screen.getByRole('combobox', { name: 'Aviso' });
+
+    it('filters by one warning and keeps it in the address', async () => {
+      const user = userEvent.setup();
+      registry(() => [ROW_UNO, ROW_DOS, ROW_CUATRO]);
+      const app = await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
+      const table = await screen.findByRole('table', { name: 'Arcabuceros' });
+      await within(table).findByRole('link', { name: 'García Sintético, Arcabucero' });
+
+      await user.selectOptions(warningFilter(), 'Menor de edad');
+
+      expect(
+        within(table)
+          .getAllByRole('link')
+          .map((link) => link.textContent),
+      ).toEqual(['Sánchez Sintética, Arcabucera']);
+      expect(app.location()).toBe('/arquebusiers?warning=UNDER_AGE');
+      expect(await screen.findByText('1 arcabucero', { selector: '[role=status]' })).toBeInTheDocument();
+    });
+
+    it('lists only arquebusiers with any warning from a link', async () => {
+      registry(() => [ROW_UNO, ROW_DOS, ROW_CUATRO]);
+      await renderApp('/arquebusiers?warning=ANY', { session: SYNTHETIC_ADMIN });
+
+      const table = await screen.findByRole('table', { name: 'Arcabuceros' });
+      await within(table).findByRole('link', { name: 'Ñúñez Sintética, Arcabucera' });
+      expect(
+        within(table)
+          .getAllByRole('link')
+          .map((link) => link.textContent),
+      ).toEqual(['Ñúñez Sintética, Arcabucera', 'Sánchez Sintética, Arcabucera']);
+      expect(warningFilter()).toHaveDisplayValue('Cualquier aviso');
+    });
+
+    it('combines with a counter, says when nothing matches, and clears both', async () => {
+      const user = userEvent.setup();
+      registry(() => [ROW_UNO, ROW_DOS, ROW_TRES, ROW_CUATRO]);
+      const app = await renderApp('/arquebusiers?warning=UNDER_AGE&license=EXPIRED', {
+        session: SYNTHETIC_ADMIN,
+      });
+
+      expect(
+        await screen.findByRole('heading', {
+          name: 'Ningún arcabucero coincide con la búsqueda o los filtros.',
+        }),
+      ).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'Quitar los filtros' }));
+
+      expect(within(screen.getByRole('table', { name: 'Arcabuceros' })).getAllByRole('link')).toHaveLength(4);
+      expect(app.location()).toBe('/arquebusiers');
+      expect(warningFilter()).toHaveDisplayValue('Con o sin avisos');
+    });
+
+    it('applies any warning and a license counter together', async () => {
+      registry(() => [ROW_UNO, ROW_DOS, ROW_TRES, ROW_CUATRO]);
+      await renderApp('/arquebusiers?warning=ANY&license=EXPIRING', { session: SYNTHETIC_ADMIN });
+
+      const table = await screen.findByRole('table', { name: 'Arcabuceros' });
+      expect(
+        await within(table).findByRole('link', { name: 'Sánchez Sintética, Arcabucera' }),
+      ).toBeInTheDocument();
+      expect(within(table).getAllByRole('link')).toHaveLength(1);
+    });
+
+    it('removes the warning from the address when no warning is chosen', async () => {
+      const user = userEvent.setup();
+      registry(() => [ROW_UNO, ROW_CUATRO]);
+      const app = await renderApp('/arquebusiers?warning=UNDER_AGE', { session: SYNTHETIC_ADMIN });
+      await screen.findByRole('link', { name: 'Sánchez Sintética, Arcabucera' });
+
+      await user.selectOptions(warningFilter(), 'Con o sin avisos');
+
+      expect(app.location()).toBe('/arquebusiers');
+      expect(within(screen.getByRole('table', { name: 'Arcabuceros' })).getAllByRole('link')).toHaveLength(2);
+    });
+
+    it('ignores an unknown warning in the address', async () => {
+      registry(() => [ROW_UNO, ROW_CUATRO]);
+      await renderApp('/arquebusiers?warning=SOMETHING', { session: SYNTHETIC_ADMIN });
+
+      const table = await screen.findByRole('table', { name: 'Arcabuceros' });
+      await within(table).findByRole('link', { name: 'García Sintético, Arcabucero' });
+      expect(within(table).getAllByRole('link')).toHaveLength(2);
+    });
+  });
+
   describe('rows', () => {
+    it('show an expiring license as expiring soon, with its date', async () => {
+      registry(() => [ROW_CUATRO]);
+      await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
+      await screen.findByRole('link', { name: 'Sánchez Sintética, Arcabucera' });
+
+      const cuatro = rowOf('00000004G');
+      expect(within(cuatro).getByText('Caduca pronto')).toBeInTheDocument();
+      expect(within(cuatro).getByText('Caduca el 31/12/2026')).toBeInTheDocument();
+    });
+
+    it('show how many warnings each arquebusier has and their names', async () => {
+      registry(() => [ROW_UNO, ROW_CUATRO]);
+      await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
+      await screen.findByRole('link', { name: 'Sánchez Sintética, Arcabucera' });
+
+      const cuatro = rowOf('00000004G');
+      expect(within(cuatro).getByText('3 avisos')).toBeInTheDocument();
+      expect(
+        within(cuatro).getByText('Licencia caduca pronto, Sin curso y Menor de edad'),
+      ).toBeInTheDocument();
+      expect(within(rowOf('00000001R')).getByText('Sin avisos')).toBeInTheDocument();
+    });
+
+    it('show the warnings on phones too', async () => {
+      Object.defineProperty(window, 'innerWidth', { configurable: true, value: 360 });
+      try {
+        registry(() => [ROW_CUATRO]);
+        await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
+
+        await screen.findByRole('link', { name: 'Sánchez Sintética, Arcabucera' });
+        const [cuatro] = within(screen.getByRole('list', { name: 'Arcabuceros' })).getAllByRole('listitem');
+        expect(cuatro).toHaveTextContent('Licencia: Caduca pronto');
+        expect(cuatro).toHaveTextContent('Caduca el 31/12/2026');
+        expect(cuatro).toHaveTextContent('3 avisos: Licencia caduca pronto, Sin curso y Menor de edad');
+      } finally {
+        Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 });
+      }
+    });
+
     it('show the license expiry, the identifiers in a second line and a missing ID photo in words', async () => {
       registry(() => [ROW_UNO, ROW_DOS]);
       await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });

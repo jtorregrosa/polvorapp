@@ -11,34 +11,52 @@ import {
 import caCatalog from './locales/ca-ES-valencia/catalog.json';
 import caCommon from './locales/ca-ES-valencia/common.json';
 import caIdentity from './locales/ca-ES-valencia/identity.json';
+import caInsights from './locales/ca-ES-valencia/insights.json';
 import caRegistry from './locales/ca-ES-valencia/registry.json';
 import caUi from './locales/ca-ES-valencia/ui.json';
 import enCatalog from './locales/en/catalog.json';
 import enCommon from './locales/en/common.json';
 import enIdentity from './locales/en/identity.json';
+import enInsights from './locales/en/insights.json';
 import enRegistry from './locales/en/registry.json';
 import enUi from './locales/en/ui.json';
 import esCatalog from './locales/es-ES/catalog.json';
 import esCommon from './locales/es-ES/common.json';
 import esIdentity from './locales/es-ES/identity.json';
+import esInsights from './locales/es-ES/insights.json';
 import esRegistry from './locales/es-ES/registry.json';
 import esUi from './locales/es-ES/ui.json';
 
 export const DEFAULT_NAMESPACE = 'common';
 
 export const resources = {
-  'es-ES': { common: esCommon, ui: esUi, identity: esIdentity, catalog: esCatalog, registry: esRegistry },
+  'es-ES': {
+    common: esCommon,
+    ui: esUi,
+    identity: esIdentity,
+    catalog: esCatalog,
+    registry: esRegistry,
+    insights: esInsights,
+  },
   'ca-ES-valencia': {
     common: caCommon,
     ui: caUi,
     identity: caIdentity,
     catalog: caCatalog,
     registry: caRegistry,
+    insights: caInsights,
   },
-  en: { common: enCommon, ui: enUi, identity: enIdentity, catalog: enCatalog, registry: enRegistry },
+  en: {
+    common: enCommon,
+    ui: enUi,
+    identity: enIdentity,
+    catalog: enCatalog,
+    registry: enRegistry,
+    insights: enInsights,
+  },
 } as const satisfies Record<
   Language,
-  { common: object; ui: object; identity: object; catalog: object; registry: object }
+  { common: object; ui: object; identity: object; catalog: object; registry: object; insights: object }
 >;
 
 /**
@@ -60,7 +78,7 @@ export async function createI18n(): Promise<I18n> {
       supportedLngs: [...SUPPORTED_LANGUAGES],
       fallbackLng: DEFAULT_LANGUAGE,
       load: 'currentOnly',
-      ns: [DEFAULT_NAMESPACE, 'ui', 'identity', 'catalog', 'registry'],
+      ns: [DEFAULT_NAMESPACE, 'ui', 'identity', 'catalog', 'registry', 'insights'],
       defaultNS: DEFAULT_NAMESPACE,
       interpolation: { escapeValue: false }, // React already escapes rendered values.
       returnNull: false,

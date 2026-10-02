@@ -1,0 +1,117 @@
+{
+  "dashboard": {
+    "figuresTitle": "Arquebusiers",
+    "active": "Active",
+    "reserve": "Reserve",
+    "withWarnings": "With warnings",
+    "attention_one": "{{count, number}} arquebusier needs attention.",
+    "attention_other": "{{count, number}} arquebusiers need attention.",
+    "upToDate": "Every arquebusier is up to date: none has warnings.",
+    "warningsTitle": "Warnings",
+    "expiries": {
+      "title": "Next license expiries",
+      "caption": "Arquebusiers whose license expires first",
+      "seeAll": "See every license expiring soon",
+      "empty": "No license expires in the next 12 months.",
+      "expiresOn": "expires on {{date}}",
+      "columns": {
+        "name": "Name",
+        "comparsa": "Comparsa",
+        "expiresOn": "Expires on"
+      }
+    }
+  },
+  "statistics": {
+    "title": "Statistics",
+    "description": "Figures about the arquebusiers and the equality report, with no download.",
+    "filters": {
+      "comparsa": "Comparsa",
+      "allComparsas": "All",
+      "status": "Arquebusier status",
+      "allStatuses": "All",
+      "ACTIVE": "Active",
+      "RESERVE": "Reserve"
+    },
+    "figures": {
+      "total": "Arquebusiers",
+      "active": "Active",
+      "reserve": "Reserve"
+    },
+    "gender": {
+      "title": "Gender",
+      "table": "Arquebusiers by gender",
+      "category": "Gender",
+      "female": "Women",
+      "male": "Men",
+      "unspecified": "Unspecified"
+    },
+    "ageBrackets": {
+      "title": "Age",
+      "table": "Age brackets by gender",
+      "category": "Age bracket",
+      "UNDER_25": "Under 25",
+      "FROM_25_TO_34": "25 to 34",
+      "FROM_35_TO_44": "35 to 44",
+      "FROM_45": "45 or older"
+    },
+    "course": {
+      "title": "Training course",
+      "table": "Course by gender",
+      "category": "Course",
+      "done": "Done",
+      "notDone": "Not done"
+    },
+    "licenses": {
+      "title": "Licenses",
+      "table": "Arquebusiers by license state",
+      "category": "License state",
+      "valid": "Valid",
+      "expiring": "Expiring soon",
+      "expired": "Expired",
+      "pending": "Pending",
+      "none": "No license"
+    },
+    "ownedWeapons": {
+      "title": "Owned weapons",
+      "table": "Arquebusiers with an owned weapon by gender",
+      "category": "Owned weapon",
+      "withWeapon": "With an owned weapon",
+      "withoutWeapon": "Without an owned weapon",
+      "byKindTable": "Owned weapons by kind",
+      "kindCategory": "Kind",
+      "weapons": "Weapons",
+      "shareOfWeapons": "% of the weapons"
+    },
+    "comparsas": {
+      "title": "By comparsa",
+      "caption": "Figures by comparsa",
+      "summary": "{{total}} arquebusiers: {{active}} active, {{reserve}} in reserve, {{withWarnings}} with warnings",
+      "columns": {
+        "name": "Comparsa",
+        "total": "Arquebusiers",
+        "active": "Active",
+        "reserve": "Reserve",
+        "female": "Women",
+        "male": "Men",
+        "unspecified": "Unspecified",
+        "withWarnings": "With warnings"
+      },
+      "genderSummary": "Women {{female}}, men {{male}}, unspecified {{unspecified}}"
+    },
+    "noMatches": "No arquebusier matches the filters.",
+    "resultCount_one": "Showing {{count, number}} arquebusier",
+    "resultCount_other": "Showing {{count, number}} arquebusiers"
+  },
+  "warnings": {
+    "title": "Compliance warnings",
+    "hint": "These are warnings, not errors: you can still save. The firing chief is accountable for the requirements being met.",
+    "LICENSE_MISSING": "There is no license.",
+    "LICENSE_PENDING": "The license is pending.",
+    "LICENSE_EXPIRED": "The license expired on {{date}}.",
+    "LICENSE_EXPIRING": "The license expires on {{date}}, in less than 12 months.",
+    "COURSE_MISSING": "The training course is not recorded.",
+    "UNDER_AGE": "Under 18: {{age}} years old.",
+    "ID_PHOTO_MISSING": "The ID photo is missing; the arquebusier badge needs it.",
+    "LICENSE_PHOTOS_MISSING": "License photos are missing (front or back)."
+  }
+}

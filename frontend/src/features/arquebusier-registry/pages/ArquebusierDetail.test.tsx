@@ -2,6 +2,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { http as mock, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
+import { ComplianceWarning } from '@/api/generated/model';
 import type { ArquebusierResponse } from '@/api/generated/model';
 import { problem, recordBodies, renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
@@ -69,15 +70,84 @@ describe('Arquebusier detail in read mode (spec: Registry screens)', () => {
         expiresOn: '2025-03-10',
         status: 'EXPIRED',
       },
+      warnings: ['LICENSE_EXPIRED', 'COURSE_MISSING'],
     }));
     await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
 
     const warning = await screen.findByText('Avisos de cumplimiento');
     const banner = warning.closest('[data-severity]');
     expect(banner).toHaveAttribute('data-severity', 'warning');
-    expect(banner).toHaveTextContent('La licencia no está vigente.');
+    expect(banner).toHaveTextContent('La licencia caducó el 10 de marzo de 2025.');
     expect(banner).toHaveTextContent('No consta el curso de arcabucería.');
     expect(screen.getByRole('button', { name: 'Editar datos personales' })).toBeEnabled();
+  });
+
+  it('lists every warning the server derives and shows an expiring license as expiring soon', async () => {
+    detail(() => ({
+      ...DETAIL_UNO,
+      birthDate: '2010-01-15',
+      age: 16,
+      trainingCompletedOn: null,
+      license: {
+        type: 'AE',
+        pending: false,
+        issuedOn: '2022-01-10',
+        expiresOn: '2027-01-10',
+        status: 'VALID',
+      },
+      warnings: ['LICENSE_EXPIRING', 'COURSE_MISSING', 'UNDER_AGE', 'ID_PHOTO_MISSING'],
+    }));
+    await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
+
+    const banner = (await screen.findByText('Avisos de cumplimiento')).closest<HTMLElement>(
+      '[data-severity]',
+    );
+    if (!banner) throw new Error('No warning banner');
+    expect(
+      within(banner)
+        .getAllByRole('listitem')
+        .map((item) => item.textContent),
+    ).toEqual([
+      'La licencia caduca el 10 de enero de 2027, en menos de 12 meses.',
+      'No consta el curso de arcabucería.',
+      'Es menor de edad: tiene 16 años.',
+      'Falta la foto de carnet, necesaria para el carnet de arcabucero.',
+    ]);
+    expect(screen.getByRole('heading', { level: 1 }).closest('header')).toHaveTextContent(
+      'Licencia: Caduca pronto',
+    );
+  });
+
+  it('derives no warning of its own: a record without warnings shows none', async () => {
+    detail(() => ({ ...DETAIL_UNO, trainingCompletedOn: null, warnings: [] }));
+    await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
+
+    await screen.findByRole('heading', { level: 1, name: 'Arcabucero García Sintético' });
+    expect(screen.queryByText('Avisos de cumplimiento')).not.toBeInTheDocument();
+  });
+
+  it('shows the warnings of the saved data after an edit', async () => {
+    const user = userEvent.setup();
+    let current: ArquebusierResponse = { ...DETAIL_UNO, warnings: ['COURSE_MISSING'] };
+    detail(() => current);
+    server.use(
+      mock.put(`/api/arquebusiers/${DETAIL_UNO.id}`, () => {
+        current = { ...DETAIL_UNO, warnings: [], version: 8 };
+        return HttpResponse.json(current);
+      }),
+    );
+    await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
+    await screen.findByText('Avisos de cumplimiento');
+
+    const panel = await editPersonal(user);
+    const phone = within(panel).getByRole('textbox', { name: 'Teléfono (opcional)' });
+    await user.clear(phone);
+    await user.type(phone, '+34 600 000 009');
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
+
+    await waitFor(() => {
+      expect(screen.queryByText('Avisos de cumplimiento')).not.toBeInTheDocument();
+    });
   });
 
   it('says when the comparsa is inactive and keeps the sections editable', async () => {
@@ -271,5 +341,51 @@ describe('Editing a section (spec: Detail pages in read mode)', () => {
 
     await editPersonal(user);
     expect(await axeViolations(document.body)).toEqual([]);
+  });
+});
+
+/** The warning summary behind the navigation count, answering `withWarnings()` at each request. */
+function warningSummary(withWarnings: () => number) {
+  server.use(
+    mock.get('/api/compliance/summary', () =>
+      HttpResponse.json({
+        active: 1,
+        reserve: 0,
+        withWarnings: withWarnings(),
+        warnings: Object.values(ComplianceWarning).map((code) => ({ code, count: 0 })),
+      }),
+    ),
+  );
+}
+
+describe('Insights follow a save (spec: Warning count in the navigation)', () => {
+  it('updates the navigation count after a section is saved', async () => {
+    const user = userEvent.setup();
+    let saved = false;
+    let current: ArquebusierResponse = { ...DETAIL_UNO, warnings: ['COURSE_MISSING'] };
+    detail(() => current);
+    warningSummary(() => (saved ? 0 : 1));
+    server.use(
+      mock.put(`/api/arquebusiers/${DETAIL_UNO.id}`, () => {
+        saved = true;
+        current = { ...DETAIL_UNO, warnings: [], version: 8 };
+        return HttpResponse.json(current);
+      }),
+    );
+    await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
+    await screen.findByRole('link', { name: 'Arcabuceros, 1 con aviso' });
+
+    const panel = await editPersonal(user);
+    const phone = within(panel).getByRole('textbox', { name: 'Teléfono (opcional)' });
+    await user.clear(phone);
+    await user.type(phone, '+34 600 000 009');
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+    // The main navigation's item, not the breadcrumb of the same name.
+    const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
+    expect(await within(navigation).findByRole('link', { name: 'Arcabuceros' })).toBeInTheDocument();
   });
 });

@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import type { ArquebusierResponse } from '@/api/generated/model';
-import { AlertBanner } from '@/components/app/AlertBanner';
 import { KeyFacts, type KeyFact } from '@/components/app/KeyFacts';
 import { todayIso } from '@/lib/dates';
 import { useFormatters } from '@/lib/format';
@@ -65,24 +64,4 @@ export function RecordFacts({ arquebusier }: { arquebusier: ArquebusierResponse 
   const { t } = useTranslation('registry');
   const items = useKeyFacts(arquebusier);
   return <KeyFacts label={t('detail.keyFacts.label')} items={items} />;
-}
-
-/** BR-04: compliance checks are warnings that never block saving. */
-export function ComplianceWarnings({ arquebusier }: { arquebusier: ArquebusierResponse }) {
-  const { t } = useTranslation('registry');
-  const warnings = [
-    arquebusier.license?.status !== 'VALID' && t('detail.warnings.license'),
-    !arquebusier.trainingCompletedOn && t('detail.warnings.course'),
-  ].filter((warning): warning is string => typeof warning === 'string');
-  if (warnings.length === 0) return null;
-  return (
-    <AlertBanner severity="warning" title={t('detail.warnings.title')}>
-      <ul className="list-disc pl-5">
-        {warnings.map((warning) => (
-          <li key={warning}>{warning}</li>
-        ))}
-      </ul>
-      <p>{t('detail.warnings.hint')}</p>
-    </AlertBanner>
-  );
 }
