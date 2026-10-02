@@ -40,6 +40,11 @@ erDiagram
 
 **Comparsa** — `name`, `side` (`MOORISH` | `CHRISTIAN`), `active`, `logo` (optional image, uploaded by an
 Admin; change `add-comparsa-logos`). Real comparsa logos are third-party brand assets: never committed.
+Logo rules (blocking): JPEG, PNG or WebP of at most 10 MB and 40 megapixels (no SVG); the long side at
+least 256 px and at most 3 times the short side. The server re-encodes it as PNG keeping its
+transparency, strips its metadata and scales it down to at most 1024 px. Only Admins add, replace
+or remove it; anyone who can see the comparsa sees it (BR-12). Deactivating keeps the logo; deleting
+the comparsa erases it. It is shown in the comparsa list and detail and in a FiringChief's sidebar.
 The `name` is unique ignoring case (blocking). Admins deactivate a comparsa that no longer takes part
 but keeps history, and delete one entered by mistake or never used.
 
