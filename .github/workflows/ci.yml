@@ -1,6 +1,7 @@
 # Quality gates for every pull request and every push to main (spec: Continuous integration
 # quality gates; ADR-0006). Actions are pinned by commit SHA; Dependabot keeps them current.
 name: CI
+# Docs-only follow-up pushes to a pull request skip the code gates: see the `changes` job.
 
 on:
   pull_request:
@@ -19,7 +20,58 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
+  # Decides whether the code gates must run. They are skipped only for a follow-up push to an open
+  # pull request that touches nothing but OpenSpec planning and docs (an OpenSpec archive commit),
+  # and only when the commit before it passed every gate. A gate skipped by `if:` counts as passed
+  # for the required checks. Anything else (new pull requests, force pushes, pushes to main, code,
+  # docs/design, which the frontend tests read) runs everything.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      checks: read
+    outputs:
+      code: ${{ steps.decide.outputs.code }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          ACTION: ${{ github.event.action }}
+          BEFORE: ${{ github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          code=true
+          if [ "$EVENT" = pull_request ] && [ "$ACTION" = synchronize ] \
+            && git cat-file -e "${BEFORE}^{commit}" 2>/dev/null \
+            && git merge-base --is-ancestor "$BEFORE" "$HEAD"; then
+            changed=$(git diff --name-only "$BEFORE" "$HEAD")
+            code_files=$(printf '%s\n' "$changed" | grep -Ev '^(openspec|docs)/' | grep -v '^$' || true)
+            design_docs=$(printf '%s\n' "$changed" | grep -E '^docs/design/' || true)
+            if [ -z "$code_files" ] && [ -z "$design_docs" ]; then
+              # The latest run of each gate on the previous commit: passed, or itself skipped by
+              # this rule (which needed a passed commit before it).
+              passed=$(gh api "repos/${REPO}/commits/${BEFORE}/check-runs?per_page=100" --jq '
+                [.check_runs[] | select(.name == "backend" or .name == "frontend" or .name == "e2e" or .name == "images")]
+                | group_by(.name) | map(max_by(.started_at))
+                | map(select(.conclusion == "success" or .conclusion == "skipped")) | length')
+              if [ "$passed" = 4 ]; then
+                code=false
+              fi
+            fi
+          fi
+          echo "Code gates run: $code"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+
   backend:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
@@ -61,6 +113,8 @@ jobs:
           if-no-files-found: ignore
 
   frontend:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
