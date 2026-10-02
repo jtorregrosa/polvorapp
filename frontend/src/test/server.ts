@@ -16,4 +16,7 @@ const NOTHING_PENDING: ComplianceSummaryResponse = {
 /** Network mock for component tests; each test registers the handlers it needs with `server.use`. */
 export const server = setupServer(
   mock.get('/api/compliance/summary', () => HttpResponse.json(NOTHING_PENDING)),
+  // The start page's current-edition card and the registry pages' lock notice.
+  mock.get('/api/editions/current', () => HttpResponse.json({ edition: null })),
+  mock.get('/api/registry/lock', () => HttpResponse.json({ locked: false, changedAt: null })),
 );

@@ -241,7 +241,8 @@
       "modified": "Otra persona ha cambiado esta arma. Se han cargado sus datos actuales sin perder lo que has escrito: revísalo y vuelve a guardar."
     },
     "registry": {
-      "busy": "El registro está ocupado con otro cambio. Inténtalo de nuevo en unos segundos."
+      "busy": "El registro está ocupado con otro cambio. Inténtalo de nuevo en unos segundos.",
+      "locked": "La Federación ha bloqueado el registro: puedes consultarlo, pero no cambiarlo."
     },
     "tooManyRequests": "Has hecho muchos cambios seguidos. Espera un minuto y vuelve a intentarlo.",
     "validation": "Revisa los campos con error.",
@@ -408,5 +409,24 @@
     },
     "imported_one": "{{count}} arcabucero importado en {{comparsa}}.",
     "imported_other": "{{count}} arcabuceros importados en {{comparsa}}."
+  },
+  "lock": {
+    "notice": {
+      "title": "Registro bloqueado",
+      "firingChief": "La Federación ha bloqueado el registro. Puedes consultar los arcabuceros, pero no cambiarlos.",
+      "admin": "El registro está bloqueado para los jefes de disparo. Los administradores pueden seguir editándolo."
+    },
+    "lock": {
+      "action": "Bloquear registro",
+      "title": "¿Bloquear el registro?",
+      "description": "Los jefes de disparo podrán consultar los arcabuceros, pero no dar altas, editar, cambiar fotos ni armas, ni eliminar. Los administradores seguirán pudiendo.",
+      "done": "Registro bloqueado para los jefes de disparo."
+    },
+    "unlock": {
+      "action": "Desbloquear registro",
+      "title": "¿Desbloquear el registro?",
+      "description": "Los jefes de disparo podrán volver a cambiar los arcabuceros de sus comparsas.",
+      "done": "Registro desbloqueado."
+    }
   }
 }

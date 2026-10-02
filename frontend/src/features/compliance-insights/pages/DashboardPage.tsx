@@ -17,6 +17,7 @@ import { EmptyState } from '@/components/app/EmptyState';
 import { PageHeader } from '@/components/app/PageHeader';
 import { StatCard } from '@/components/app/StatCard';
 import { LoadFailure } from '@/features/arquebusier-registry/components/LoadFailure';
+import { CurrentEditionCard } from '@/features/festival-editions/components/CurrentEditionCard';
 import { useSession } from '@/features/identity-access/session';
 import { useFormatters } from '@/lib/format';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
@@ -203,6 +204,7 @@ export function DashboardPage() {
   return (
     <>
       <PageHeader title={t('home.title')} description={t('home.description')} />
+      <CurrentEditionCard />
       {!scopeKnown ? null : unassigned ? (
         <EmptyState
           icon={IdCard}

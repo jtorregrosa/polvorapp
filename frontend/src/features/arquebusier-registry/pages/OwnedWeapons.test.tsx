@@ -36,9 +36,9 @@ describe('Owned weapons section (spec: Owned weapons, Registry screens)', () => 
     expect(within(row).getByText('1001')).toBeInTheDocument();
     expect(within(table).getByText('ARCABUZ MORO ZURDO (PEQUEÑO) (retirado)')).toBeInTheDocument();
     expect(
-      within(row).getByRole('link', { name: 'Editar el arma ARCABUZ MORO DIESTRO nº 1001' }),
+      await within(row).findByRole('link', { name: 'Editar el arma ARCABUZ MORO DIESTRO nº 1001' }),
     ).toHaveAttribute('href', `/arquebusiers/${DETAIL_UNO.id}/weapons/${WEAPON.id}`);
-    expect(screen.getByRole('link', { name: 'Añadir arma propia' })).toHaveAttribute(
+    expect(await screen.findByRole('link', { name: 'Añadir arma propia' })).toHaveAttribute(
       'href',
       `/arquebusiers/${DETAIL_UNO.id}/weapons/new`,
     );

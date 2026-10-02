@@ -1,0 +1,223 @@
+{
+  "title": "Edicions",
+  "list": {
+    "description": "Les edicions de les festes: dates, termini de comandes, preus, models de lloguer i fites.",
+    "descriptionFiringChief": "Les edicions de les festes que ha obert la Federació, de només lectura.",
+    "new": "Nova edició",
+    "caption": "Edicions",
+    "columns": {
+      "year": "Any",
+      "festival": "Festes",
+      "status": "Estat"
+    },
+    "current": "Edició actual",
+    "festivalDates": "Del {{from}} al {{to}}",
+    "emptyAdmin": {
+      "title": "Encara no hi ha edicions",
+      "description": "Crea la primera edició per a preparar les comandes de les festes."
+    },
+    "emptyFiringChief": {
+      "title": "Encara no hi ha edicions",
+      "description": "La Federació encara no ha obert cap edició."
+    }
+  },
+  "create": {
+    "title": "Nova edició",
+    "description": "L'any i les dates de les festes. El termini de comandes, els preus i les fites es completen després en l'edició.",
+    "back": "Edicions",
+    "section": "Edició",
+    "year": "Any",
+    "yearHelp": "Entre 2000 i 2100. No es pot canviar després.",
+    "festivalStartsOn": "Primer dia de festes",
+    "festivalEndsOn": "Últim dia de festes",
+    "copyFrom": "Es copiaran els preus de l'edició {{year}} i els seus models de lloguer que encara es lloguen.",
+    "copyNothing": "No hi ha cap edició anterior: els preus i els models de lloguer comencen buits.",
+    "submit": "Crear edició",
+    "created": "Edició {{year}} creada en preparació.",
+    "cancel": "Cancel·lar"
+  },
+  "detail": {
+    "back": "Edicions",
+    "name": "Festes {{year}}",
+    "context": "Edició de les festes",
+    "keyFacts": "Dades clau de l'edició",
+    "festival": "Festes",
+    "nextWindow": "Pròxim termini",
+    "nextWindowNone": "Sense terminis pendents",
+    "window": {
+      "OPENS": "Les comandes s'obrin el {{date}}",
+      "CLOSES": "Les comandes es tanquen el {{date}}"
+    },
+    "orders": "Comandes",
+    "ordersEditable": "Els caps de tir poden editar les comandes",
+    "ordersReadOnly": "Les comandes són de només lectura per als caps de tir",
+    "draftNotice": "Edició en preparació: els caps de tir no la veuen fins que s'inicie.",
+    "loadFailed": "No s'ha pogut carregar l'edició.",
+    "staleFailed": "El que veus pot estar desactualitzat."
+  },
+  "sections": {
+    "dates": {
+      "title": "Dates i termini de comandes",
+      "edit": "Editar les dates i el termini de comandes",
+      "name": "dates i termini de comandes",
+      "festivalStartsOn": "Primer dia de festes",
+      "festivalEndsOn": "Últim dia de festes",
+      "ordersOpenOn": "Obertura de comandes",
+      "ordersCloseOn": "Tancament de comandes",
+      "windowHelp": "El termini que veuen els caps de tir. Les comandes s'obrin i es tanquen a mà."
+    },
+    "prices": {
+      "title": "Preus",
+      "edit": "Editar els preus",
+      "name": "preus",
+      "powderPerKg": "Pólvora, per quilo",
+      "capsBox": "Caixa de pistons",
+      "weaponRental": "Lloguer d'arma",
+      "flaskRental": "Lloguer de polvorera",
+      "billingNote": "L'edició ja està iniciada: la facturació usarà els preus nous."
+    },
+    "models": {
+      "title": "Models de lloguer",
+      "edit": "Editar els models de lloguer",
+      "name": "models de lloguer",
+      "empty": "No s'oferix cap model de lloguer.",
+      "notRentable": "Ja no es lloga",
+      "help": "Els models actius i llogables del catàleg.",
+      "noneAvailable": "El catàleg no té models actius i llogables.",
+      "retiredHelp": "Ja no es lloga: només es pot llevar.",
+      "loading": "S'està carregant el catàleg de models…",
+      "loadFailed": "No es poden triar models fins que es carregue el catàleg."
+    },
+    "milestones": {
+      "title": "Fites del calendari",
+      "caption": "Fites del calendari",
+      "add": "Afegir fita",
+      "addTitle": "Nova fita",
+      "editTitle": "Editar la fita",
+      "editName": "la fita {{title}}",
+      "remove": "Llevar",
+      "removeName": "Llevar la fita {{title}}",
+      "removeTitle": "Vols llevar la fita «{{title}}»?",
+      "removeDescription": "Desapareix del calendari de l'edició.",
+      "removeConfirm": "Llevar fita",
+      "removed": "Fita llevada.",
+      "added": "Fita afegida.",
+      "date": "Data",
+      "titleLabel": "Títol",
+      "columns": {
+        "date": "Data",
+        "title": "Fita",
+        "actions": "Accions"
+      },
+      "empty": "Encara no hi ha fites."
+    }
+  },
+  "actions": {
+    "start": "Iniciar edició",
+    "openOrders": "Obrir comandes",
+    "closeOrders": "Tancar comandes",
+    "closeEdition": "Tancar edició",
+    "backToDraft": "Tornar a preparació",
+    "reopen": "Reobrir edició",
+    "delete": "Eliminar edició",
+    "closeOrdersFirst": "Tanca abans les comandes."
+  },
+  "confirm": {
+    "start": {
+      "title": "Vols iniciar l'edició {{year}}?",
+      "description": "Passa a ser l'edició actual i els caps de tir la veuran. Les comandes seguiran tancades fins que les obrigues."
+    },
+    "openOrders": {
+      "title": "Vols obrir les comandes de {{year}}?",
+      "description": "Els caps de tir podran preparar i editar les comandes de les seues comparses."
+    },
+    "closeOrders": {
+      "title": "Vols tancar les comandes de {{year}}?",
+      "description": "Les comandes passen a ser de només lectura per als caps de tir. Podràs tornar a obrir-les per a correccions."
+    },
+    "closeEdition": {
+      "title": "Vols tancar l'edició {{year}}?",
+      "description": "Deixa de ser l'edició actual i queda com a històric. Els caps de tir la seguiran veient."
+    },
+    "backToDraft": {
+      "title": "Vols tornar a preparar l'edició {{year}}?",
+      "description": "Deixa de ser l'edició actual i els caps de tir deixaran de veure-la."
+    },
+    "reopen": {
+      "title": "Vols reobrir l'edició {{year}}?",
+      "description": "Torna a ser l'edició actual, amb les comandes tancades."
+    },
+    "delete": {
+      "title": "Vols eliminar l'edició {{year}}?",
+      "description": "També s'eliminen els seus models de lloguer i les seues fites. No es pot desfer."
+    }
+  },
+  "done": {
+    "start": "Edició {{year}} iniciada.",
+    "openOrders": "Comandes de {{year}} obertes.",
+    "closeOrders": "Comandes de {{year}} tancades.",
+    "closeEdition": "Edició {{year}} tancada.",
+    "backToDraft": "Edició {{year}} de nou en preparació.",
+    "reopen": "Edició {{year}} reoberta.",
+    "delete": "Edició {{year}} eliminada."
+  },
+  "currentCard": {
+    "title": "Edició actual",
+    "name": "Festes {{year}}",
+    "noneTitle": "No hi ha cap edició en curs",
+    "noneDescription": "Quan la Federació inicie una edició, ací veuràs els seus terminis i les seues fites.",
+    "toEditions": "Anar a les edicions",
+    "milestones": "Pròximes fites",
+    "noMilestones": "No hi ha fites pròximes.",
+    "loadFailed": "No s'ha pogut carregar l'edició actual."
+  },
+  "fields": {
+    "festivalStartsOn": "el primer dia de festes",
+    "festivalEndsOn": "l'últim dia de festes",
+    "ordersOpenOn": "l'obertura de comandes",
+    "ordersCloseOn": "el tancament de comandes",
+    "prices": {
+      "powderPerKg": "el preu de la pólvora",
+      "capsBox": "el preu de la caixa de pistons",
+      "weaponRental": "el preu del lloguer d'arma",
+      "flaskRental": "el preu del lloguer de polvorera"
+    }
+  },
+  "errors": {
+    "editions": {
+      "notFound": "Esta edició no existix o ja no està disponible.",
+      "yearTaken": "Ja hi ha una edició d'eixe any.",
+      "modified": "Una altra persona ha canviat l'edició mentres l'editaves. Revisa les dades actuals i torna a guardar.",
+      "invalidTransition": "L'edició ja no està en eixe estat. Recarrega la pàgina.",
+      "anotherInProgress": "L'edició {{year}} ja està en curs. Tanca-la abans d'iniciar-ne una altra.",
+      "anotherInProgressUnknown": "Ja hi ha una altra edició en curs. Tanca-la abans d'iniciar esta.",
+      "incomplete": "Per a iniciar l'edició falten {{fields}}.",
+      "ordersOpen": "Les comandes estan obertes. Tanca-les abans.",
+      "notInProgress": "Només l'edició en curs pot obrir comandes.",
+      "notDraft": "Només es pot eliminar una edició en preparació.",
+      "tooManyMilestones": "Una edició pot tindre 50 fites com a màxim.",
+      "milestoneNotFound": "Esta fita ja no existix.",
+      "busy": "L'edició està ocupada amb un altre canvi. Torna a intentar-ho d'ací a uns segons."
+    },
+    "validation": "Revisa les dades marcades.",
+    "generic": "No s'ha pogut completar l'operació. Torna a intentar-ho."
+  },
+  "validation": {
+    "required": "Este camp és obligatori",
+    "invalid": "El valor no és vàlid",
+    "tooLong": "Com a màxim 100 caràcters",
+    "date": "Escriu una data completa",
+    "outOfRange": "Fora de l'interval permés",
+    "yearRange": "Un any entre 2000 i 2100",
+    "outsideYear": "Ha de ser de l'any de l'edició",
+    "beforeStart": "No pot ser anterior al primer dia de festes",
+    "beforeOpen": "No pot ser anterior a l'obertura de comandes",
+    "afterFestival": "No pot ser posterior al primer dia de festes",
+    "money": "Escriu un import, per exemple 4,50",
+    "moneyRange": "Entre 0 i 9999,99 €",
+    "decimals": "Dos decimals com a màxim",
+    "notFound": "Algun model ja no existix en el catàleg",
+    "notRentable": "Algun model ja no es lloga",
+    "tooMany": "Massa elements"
+  }
+}

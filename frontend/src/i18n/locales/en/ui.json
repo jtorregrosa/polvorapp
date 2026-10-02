@@ -78,11 +78,13 @@
       "VALIDATED": "Validated"
     },
     "edition": {
-      "DRAFT": "Draft",
-      "ORDERS_OPEN": "Orders open",
-      "CORRECTIONS_OPEN": "Corrections open",
-      "LOCKED": "Locked",
+      "DRAFT": "In preparation",
+      "IN_PROGRESS": "In progress",
       "CLOSED": "Closed"
+    },
+    "orders": {
+      "OPEN": "Orders open",
+      "CLOSED": "Orders closed"
     },
     "catalog": {
       "ACTIVE": "Active",
@@ -206,5 +208,8 @@
     "none": "No file chosen",
     "chosenStatus": "File chosen: {{name}}, {{size}}",
     "removedStatus": "File removed: {{name}}"
+  },
+  "moneyInput": {
+    "currency": "in euros"
   }
 }

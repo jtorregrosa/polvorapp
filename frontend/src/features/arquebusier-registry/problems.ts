@@ -16,6 +16,7 @@ export const REGISTRY_PROBLEM_CODES = [
   'ownedWeapons.guideTaken',
   'ownedWeapons.modified',
   'registry.busy',
+  'registry.locked',
   'photos.notFound',
   'photos.noLicense',
   'photos.modified',

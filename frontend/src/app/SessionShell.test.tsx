@@ -17,6 +17,7 @@ describe('signed-in shell (platform: Application shell; identity-access: role-ba
       '/arquebusiers',
     );
     expect(within(navigation).getByRole('link', { name: 'Comparsas' })).toHaveAttribute('href', '/comparsas');
+    expect(within(navigation).getByRole('link', { name: 'Ediciones' })).toHaveAttribute('href', '/editions');
     expect(within(navigation).getByRole('link', { name: 'Modelos de arma' })).toHaveAttribute(
       'href',
       '/weapon-models',
@@ -34,6 +35,7 @@ describe('signed-in shell (platform: Application shell; identity-access: role-ba
       '/arquebusiers',
     );
     expect(within(navigation).getByRole('link', { name: 'Comparsas' })).toHaveAttribute('href', '/comparsas');
+    expect(within(navigation).getByRole('link', { name: 'Ediciones' })).toHaveAttribute('href', '/editions');
     expect(within(navigation).queryByRole('link', { name: 'Modelos de arma' })).not.toBeInTheDocument();
   });
 

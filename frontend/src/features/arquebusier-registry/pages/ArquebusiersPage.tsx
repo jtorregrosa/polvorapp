@@ -18,6 +18,8 @@ import { useSession } from '@/features/identity-access/session';
 import { useNotice } from '@/lib/notices';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { LoadFailure } from '../components/LoadFailure';
+import { RegistryLockAction, RegistryLockNotice } from '../components/RegistryLock';
+import { useRegistryLock } from '../registryLock';
 import { useArquebusierColumns } from '../components/useArquebusierColumns';
 import { filterRows, useArquebusierFilters, WARNING_FILTERS } from '../components/useArquebusierFilters';
 
@@ -156,7 +158,9 @@ export function ArquebusiersPage() {
 
   const [notice] = useNotice();
   const unassigned = !isAdmin && comparsas.isSuccess && comparsaList.length === 0;
-  const canRegister = isAdmin || comparsaList.some((comparsa) => comparsa.active);
+  const lock = useRegistryLock();
+  // A locked registry takes no new arquebusiers from FiringChiefs (BR-10); Admins still register.
+  const canRegister = lock.canWrite && (isAdmin || comparsaList.some((comparsa) => comparsa.active));
   const neverFilled = arquebusiers.isSuccess && rows.length === 0 && !comparsaId;
   const registerAction = canRegister && (
     <Button asChild>
@@ -186,6 +190,7 @@ export function ArquebusiersPage() {
         actions={
           !unassigned && (
             <>
+              <RegistryLockAction lock={lock} />
               {importAction}
               {registerAction}
             </>
@@ -193,6 +198,7 @@ export function ArquebusiersPage() {
         }
       />
       <NoticeBanner notice={notice} />
+      <RegistryLockNotice lock={lock} />
       {comparsas.isError && (
         <LoadFailure
           error={comparsas.error}
