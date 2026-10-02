@@ -142,3 +142,22 @@ reference fails even before any of its types is used.
   parameter. Callers pass `FederationCalendar.Today(TimeProvider)`, and later modules can pass the
   festival dates instead. Never store a derived value such as the age, the license status or a
   warning.
+
+## Conventions shared by modules (from `add-festival-editions`)
+
+- **Locks that other writes respect**: the registry lock (BR-10) is one row,
+  `registry.registry_settings`. Every registry write a FiringChief can reach opens its transaction
+  with `RegistryWriteGuard.BeginWriteAsync`, which reads the lock `FOR SHARE` for FiringChiefs and
+  ends the write as `registry.locked` (409). Locking takes the row `FOR UPDATE`, so it waits for
+  writes in flight, and no FiringChief write commits after it. A new FiringChief write path must
+  use `guard.BeginWriteAsync` (Admin-only paths may keep `db.BeginWriteAsync`).
+  `RegistryLockGuardTests` lists every FiringChief write route and fails for an unlisted one.
+- **Money**: amounts are `decimal` in C#, `numeric(p,2)` in PostgreSQL and JSON numbers in the API.
+  They are validated, never rounded: more than two decimals is a field error. Responses carry two
+  decimals.
+- **"At most one" rules**: a partial unique index enforces them, e.g. a single edition in
+  progress (`ux_festival_editions_in_progress`, a unique index on `status` filtered to one value).
+  A plain query before saving only builds the message; the index is the authority under concurrency.
+- **Write guards per module**: a module with concurrent writes runs each one through a guard
+  (`RegistryWriteGuard`, `EditionWriteGuard`). The guard turns lock timeouts and deadlocks into a
+  retryable 503 and logs every rejection at Warning, with ids only.

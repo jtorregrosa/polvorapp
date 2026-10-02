@@ -91,7 +91,7 @@ internal sealed partial class ArquebusierImporter(
 
         var (outcome, done) = await guard.RunAsync<ImportCheck>(nameof(ImportAsync), null, null, async () =>
         {
-            await using var transaction = await db.BeginWriteAsync(cancellationToken);
+            await using var transaction = await guard.BeginWriteAsync(cancellationToken);
             await db.LockImportsAsync(cancellationToken);
             var result = await ValidateAsync(sheet!, cancellationToken);
             if (result.HasErrors)

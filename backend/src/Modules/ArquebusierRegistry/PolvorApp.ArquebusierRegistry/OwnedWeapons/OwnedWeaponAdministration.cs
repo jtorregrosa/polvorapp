@@ -31,7 +31,7 @@ internal sealed class OwnedWeaponAdministration(
             // run and a request never needs two pooled connections at once. The foreign key decides races.
             var access = await scope.GetAccessAsync(cancellationToken);
             var modelProblem = await ModelProblemAsync(input.WeaponModelId, cancellationToken);
-            await using var transaction = await db.BeginWriteAsync(cancellationToken);
+            await using var transaction = await guard.BeginWriteAsync(cancellationToken);
             if (await OwnerComparsaAsync(arquebusierId, access, cancellationToken) is not { } comparsaId)
             {
                 return (RegistryOutcome.ArquebusierNotFound, null);
@@ -69,7 +69,7 @@ internal sealed class OwnedWeaponAdministration(
         {
             var access = await scope.GetAccessAsync(cancellationToken);
             var modelProblem = await ModelProblemAsync(input.WeaponModelId, cancellationToken);
-            await using var transaction = await db.BeginWriteAsync(cancellationToken);
+            await using var transaction = await guard.BeginWriteAsync(cancellationToken);
             if (await OwnerComparsaAsync(arquebusierId, access, cancellationToken) is not { } comparsaId)
             {
                 return (RegistryOutcome.ArquebusierNotFound, null);
@@ -118,7 +118,7 @@ internal sealed class OwnedWeaponAdministration(
         guard.RunAsync<OwnedWeapon>(nameof(RemoveAsync), arquebusierId, weaponId, async () =>
         {
             var access = await scope.GetAccessAsync(cancellationToken);
-            await using var transaction = await db.BeginWriteAsync(cancellationToken);
+            await using var transaction = await guard.BeginWriteAsync(cancellationToken);
             if (await OwnerComparsaAsync(arquebusierId, access, cancellationToken) is not { } comparsaId)
             {
                 return (RegistryOutcome.ArquebusierNotFound, null);

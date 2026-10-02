@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Public contract of the festival-editions module: the edition status and the current-edition
+       lookup that comparsa orders build on (change add-festival-editions, design D7). -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\PolvorApp.SharedKernel\PolvorApp.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

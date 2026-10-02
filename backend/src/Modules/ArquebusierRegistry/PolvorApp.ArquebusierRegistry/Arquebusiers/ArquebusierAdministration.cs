@@ -33,6 +33,13 @@ internal sealed class ArquebusierAdministration(
         Guid comparsaId, ArquebusierInput input, CancellationToken cancellationToken) =>
         guard.RunAsync<Arquebusier>(nameof(RegisterAsync), null, null, async () =>
         {
+            // A locked registry refuses first, so the duplicate checks below never answer a
+            // FiringChief while the lock is on; the check in the transaction stays the authority.
+            if (await guard.IsLockedForCallerAsync(cancellationToken))
+            {
+                return (RegistryOutcome.RegistryLocked, null);
+            }
+
             var access = await scope.GetAccessAsync(cancellationToken);
             if (!access.CanAccess(comparsaId))
             {
@@ -56,10 +63,9 @@ internal sealed class ArquebusierAdministration(
             }
 
             var arquebusier = New(comparsaId, input, time.GetUtcNow());
+            await using var transaction = await guard.BeginWriteAsync(cancellationToken);
             db.Arquebusiers.Add(arquebusier);
             Record(RegisteredAction, arquebusier);
-
-            await using var transaction = await db.BeginWriteAsync(cancellationToken);
             var outcome = await SaveAsync(arquebusier.Id, versioned: false, cancellationToken);
             if (outcome != RegistryOutcome.Done)
             {
@@ -82,7 +88,7 @@ internal sealed class ArquebusierAdministration(
         {
             // Resolved before the transaction, so no row lock is held while it queries the scope.
             var access = await scope.GetAccessAsync(cancellationToken);
-            await using var transaction = await db.BeginWriteAsync(cancellationToken);
+            await using var transaction = await guard.BeginWriteAsync(cancellationToken);
             if (!await db.LockArquebusierForChangeAsync(id, access, cancellationToken))
             {
                 return (RegistryOutcome.ArquebusierNotFound, null);
@@ -141,7 +147,7 @@ internal sealed class ArquebusierAdministration(
         {
             var access = await scope.GetAccessAsync(cancellationToken);
             var target = await catalog.FindComparsaAsync(targetComparsaId, cancellationToken);
-            await using var transaction = await db.BeginWriteAsync(cancellationToken);
+            await using var transaction = await guard.BeginWriteAsync(cancellationToken);
             if (!await db.LockArquebusierForUpdateAsync(id, access, cancellationToken))
             {
                 return (RegistryOutcome.ArquebusierNotFound, null);
@@ -187,7 +193,7 @@ internal sealed class ArquebusierAdministration(
         var result = await guard.RunAsync<Arquebusier>(nameof(DeleteAsync), id, null, async () =>
         {
             var access = await scope.GetAccessAsync(cancellationToken);
-            await using var transaction = await db.BeginWriteAsync(cancellationToken);
+            await using var transaction = await guard.BeginWriteAsync(cancellationToken);
             if (!await db.LockArquebusierForUpdateAsync(id, access, cancellationToken))
             {
                 return (RegistryOutcome.ArquebusierNotFound, null);

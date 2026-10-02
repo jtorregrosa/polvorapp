@@ -31,6 +31,11 @@ public sealed class MigrateCommandTests(PostgresFixture postgres)
         {
             Assert.True(await TableExistsAsync(connectionString, "registry", table), table);
         }
+
+        foreach (var table in new[] { "festival_editions", "edition_weapon_models", "calendar_milestones", "__EFMigrationsHistory" })
+        {
+            Assert.True(await TableExistsAsync(connectionString, "editions", table), table);
+        }
     }
 
     [Fact]
@@ -40,7 +45,7 @@ public sealed class MigrateCommandTests(PostgresFixture postgres)
 
         var order = factory.Services.GetServices<IDatabaseMigrator>().OrderBy(m => m.Order).Select(m => m.Name);
 
-        Assert.Equal(["AuditDbContext", "IdentityAccessDbContext", "FederationCatalogDbContext", "ArquebusierRegistryDbContext"], order);
+        Assert.Equal(["AuditDbContext", "IdentityAccessDbContext", "FederationCatalogDbContext", "ArquebusierRegistryDbContext", "FestivalEditionsDbContext"], order);
     }
 
     [Fact]

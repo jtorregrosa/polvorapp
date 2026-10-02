@@ -94,12 +94,12 @@ public sealed class CatalogDirectoryTests(PostgresFixture postgres) : IAsyncLife
         await using (scope)
         {
             Assert.Equal(
-                new WeaponModelSummary(_arcabuz.Id, WeaponKind.Arcabuz, Side.Moorish, Handedness.Left, WeaponSize.Small, _arcabuz.Label, Active: true),
+                new WeaponModelSummary(_arcabuz.Id, WeaponKind.Arcabuz, Side.Moorish, Handedness.Left, WeaponSize.Small, _arcabuz.Label, Active: true, Rentable: true),
                 await directory.FindWeaponModelAsync(_arcabuz.Id, TestContext.Current.CancellationToken));
 
             var found = await directory.FindWeaponModelsAsync([_pistol.Id, Guid.CreateVersion7()], TestContext.Current.CancellationToken);
 
-            Assert.Equal([new WeaponModelSummary(_pistol.Id, WeaponKind.Pistol, null, null, null, "PISTOLA", Active: false)], found);
+            Assert.Equal([new WeaponModelSummary(_pistol.Id, WeaponKind.Pistol, null, null, null, "PISTOLA", Active: false, Rentable: false)], found);
         }
     }
 

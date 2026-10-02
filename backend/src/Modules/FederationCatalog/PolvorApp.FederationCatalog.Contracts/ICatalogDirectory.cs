@@ -15,8 +15,9 @@ public sealed record ComparsaSummary(Guid Id, string Name, Side Side, bool Activ
 /// <param name="Size">Size, optional for pistols.</param>
 /// <param name="Label">Federation label, as entered.</param>
 /// <param name="Active">False once an Admin deactivated it.</param>
+/// <param name="Rentable">Whether editions may offer it for rental; never for a pistol (BR-07; add-festival-editions).</param>
 public sealed record WeaponModelSummary(
-    Guid Id, WeaponKind Kind, Side? Side, Handedness? Handedness, WeaponSize? Size, string Label, bool Active);
+    Guid Id, WeaponKind Kind, Side? Side, Handedness? Handedness, WeaponSize? Size, string Label, bool Active, bool Rentable);
 
 /// <summary>A comparsa's logo for other modules, e.g. to print it in a document (change add-comparsa-logos, design D6).</summary>
 /// <param name="Png">The whole image, PNG-encoded with its transparency.</param>
