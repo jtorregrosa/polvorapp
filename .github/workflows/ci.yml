@@ -147,15 +147,23 @@ jobs:
       - name: Build the component catalogue (Storybook)
         run: npm run build-storybook
 
+  # Runs beside the backend and frontend gates (it builds its own images); publishing still waits for
+  # every gate.
   e2e:
-    needs: [backend, frontend]
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Start the compose stack with the example settings
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Start the compose stack with the example settings, installing Playwright meanwhile
         run: |
           cp .env.example .env
           # The whole suite signs in from one address: raise the per-address sign-in limits.
@@ -163,18 +171,21 @@ jobs:
           echo "RATE_LIMIT_AUTH_EMAIL_PER_15_MINUTES=100" >> .env
           echo "RATE_LIMIT_PERSONAL_DATA_WRITES_PER_MINUTE=600" >> .env
           echo "RATE_LIMIT_IMAGE_UPLOADS_PER_MINUTE=200" >> .env
-          docker compose up --detach --build --wait
+          # Building the images and installing the browsers are independent: run them side by side.
+          docker compose up --detach --build --wait > "$RUNNER_TEMP/compose-up.log" 2>&1 &
+          compose=$!
+          installed=0
+          (cd frontend && npm ci && npx playwright install --with-deps chromium firefox webkit) || installed=$?
+          started=0
+          wait "$compose" || started=$?
+          echo "::group::docker compose up"
+          cat "$RUNNER_TEMP/compose-up.log"
+          echo "::endgroup::"
+          if [ "$installed" -ne 0 ] || [ "$started" -ne 0 ]; then
+            echo "Playwright install exit code: $installed; compose up exit code: $started"
+            exit 1
+          fi
           docker compose run --rm api-seed
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version-file: frontend/.nvmrc
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-      - name: Install Playwright
-        working-directory: frontend
-        run: |
-          npm ci
-          npx playwright install --with-deps chromium firefox webkit
       - name: Playwright
         working-directory: frontend
         run: npm run e2e
@@ -188,9 +199,10 @@ jobs:
           path: frontend/playwright-report
           if-no-files-found: ignore
 
-  # Builds both images on every run (no registry access).
+  # Builds both images on every run (no registry access), beside the other gates.
   images:
-    needs: [backend, frontend]
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -219,7 +231,7 @@ jobs:
   # Publishes to GHCR only from main, after every gate passed; the only job with packages: write.
   publish-images:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [images, e2e, secrets]
+    needs: [backend, frontend, e2e, images, secrets]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
