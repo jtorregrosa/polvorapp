@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using PolvorApp.FederationCatalog.Contracts;
+using PolvorApp.FederationCatalog.Logos;
 using PolvorApp.FederationCatalog.Persistence;
 
 namespace PolvorApp.FederationCatalog;
 
 /// <summary>Read-only catalogue lookups for other modules (change add-arquebusier-registry, design D2).</summary>
-internal sealed class CatalogDirectory(FederationCatalogDbContext db) : ICatalogDirectory
+internal sealed class CatalogDirectory(FederationCatalogDbContext db, LogoReader reader) : ICatalogDirectory
 {
     public Task<ComparsaSummary?> FindComparsaAsync(Guid comparsaId, CancellationToken cancellationToken) =>
         db.Comparsas.AsNoTracking()
@@ -45,5 +46,21 @@ internal sealed class CatalogDirectory(FederationCatalogDbContext db) : ICatalog
             .Where(m => weaponModelIds.Contains(m.Id))
             .Select(m => new WeaponModelSummary(m.Id, m.Kind, m.Side, m.Handedness, m.Size, m.Label, m.Active))
             .ToListAsync(cancellationToken);
+    }
+
+    /// <summary>Applies no scope, like the rest of the directory: callers acting for a user apply BR-12 themselves.</summary>
+    public async Task<ComparsaLogoImage?> ReadComparsaLogoAsync(Guid comparsaId, CancellationToken cancellationToken)
+    {
+        // A reference without an image is logged by the reader: worth an alert, not a failed document.
+        var (_, logo, image) = await reader.OpenAsync(db.Comparsas.Where(c => c.Id == comparsaId), cancellationToken);
+        if (image is null || logo is null)
+        {
+            return null;
+        }
+
+        await using (image)
+        {
+            return new ComparsaLogoImage(await LogoReader.ReadAllAsync(image, logo.SizeBytes, cancellationToken), logo.Width, logo.Height);
+        }
     }
 }

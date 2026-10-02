@@ -97,7 +97,13 @@ reference fails even before any of its types is used.
   (ADR-0005), never to the database or the local disk. Each module owns one key prefix per
   collection, `<module>/<collection>/`, and names objects with a random UUIDv7
   (`registry/photos/<uuid>.jpg`): a key never contains or derives from personal data. Logs carry
-  keys and sizes only.
+  keys and sizes only. Prefixes in use:
+  - `registry/photos/` (arquebusier photos, JPEG);
+  - `catalog/logos/` (comparsa logos, PNG with transparency; `add-comparsa-logos`).
+- **Uploads** are read with `SharedKernel.Http.ImageUploads`: one `file` part of a
+  `multipart/form-data` body, read in memory, with the endpoint's request size limit set to
+  `ImageUploads.MaxRequestBytes`. Uploads that decode an image use a per-user rate limit
+  (`RateLimitPolicies.ImageUploads` for logos).
 - **Write order**: put the new object, then commit the record that references it, then delete the
   object it replaced. **Delete order**: commit the removal of the reference, then delete the
   object. Every failure then leaves an unreferenced object, never a reference without an object.

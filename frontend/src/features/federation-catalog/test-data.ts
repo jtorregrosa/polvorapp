@@ -1,9 +1,18 @@
 import type {
+  ComparsaLogoResponse,
   ComparsaResponse,
   FiringChiefResponse,
   UserResponse,
   WeaponModelResponse,
 } from '@/api/generated/model';
+
+/** A stored logo as the API describes it (the image itself is never part of a comparsa). */
+export const LOGO: ComparsaLogoResponse = {
+  version: '0193a600-0000-7000-8000-000000000001',
+  width: 512,
+  height: 512,
+  uploadedAt: '2026-10-02T08:00:00Z',
+};
 
 /** Synthetic catalogue data for component tests (never real comparsas or people). */
 export const NORTE: ComparsaResponse = {
@@ -11,6 +20,7 @@ export const NORTE: ComparsaResponse = {
   name: 'Comparsa Sintética Norte',
   side: 'CHRISTIAN',
   active: true,
+  logo: null,
 };
 
 export const SUR: ComparsaResponse = {
@@ -18,6 +28,7 @@ export const SUR: ComparsaResponse = {
   name: 'Comparsa Sintética Sur',
   side: 'MOORISH',
   active: true,
+  logo: null,
 };
 
 export const OESTE: ComparsaResponse = {
@@ -25,6 +36,7 @@ export const OESTE: ComparsaResponse = {
   name: 'Comparsa Sintética Oeste',
   side: 'MOORISH',
   active: false,
+  logo: null,
 };
 
 export const CHIEF_UNO: UserResponse = {

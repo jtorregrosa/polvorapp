@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using PolvorApp.FederationCatalog.Assignments;
 using PolvorApp.FederationCatalog.Comparsas;
 using PolvorApp.FederationCatalog.Contracts;
+using PolvorApp.FederationCatalog.Logos;
 using PolvorApp.FederationCatalog.WeaponModels;
 using PolvorApp.SharedKernel.Auditing;
 using PolvorApp.SharedKernel.Codes;
@@ -25,6 +26,9 @@ internal sealed class FederationCatalogDbContext(DbContextOptions<FederationCata
     public const string ComparsaNameIndex = "ix_comparsas_name_key";
     public const string WeaponModelLabelIndex = "ix_weapon_models_label_key";
     public const string WeaponModelCombinationIndex = "ix_weapon_models_combination";
+
+    /// <summary>One stored logo belongs to one comparsa.</summary>
+    public const string ComparsaLogoKeyIndex = "ix_comparsas_logo_object_key";
 
     /// <summary>Primary key of an assignment: a concurrent identical assignment violates it.</summary>
     public const string AssignmentKey = "pk_firing_chief_assignments";
@@ -56,6 +60,14 @@ internal sealed class FederationCatalogDbContext(DbContextOptions<FederationCata
                 // Adding an enum member changes this list: the model snapshot then asks for a migration.
                 table.HasCheckConstraint("ck_comparsas_side", In("side", EnumCodes.All<Side>()));
                 table.HasCheckConstraint("ck_comparsas_name_not_blank", "btrim(name) <> ''");
+
+                // A logo is all its columns or none (design D1). Its key is derived from its id under
+                // the prefix the orphan sweep owns (LogoStorage.KeyFor), so the sweep never misses one.
+                table.HasCheckConstraint("ck_comparsas_logo_complete", LogoColumnsAllNullOrAllSet());
+                table.HasCheckConstraint(
+                    "ck_comparsas_logo_key",
+                    "logo_object_key IS NULL OR logo_object_key = " + Quote(LogoStorage.Prefix) + " || replace(logo_id::text, '-', '') || '.png'");
+                table.HasCheckConstraint("ck_comparsas_logo_size", "logo_id IS NULL OR (logo_width > 0 AND logo_height > 0 AND logo_size_bytes > 0)");
             });
             comparsa.HasKey(c => c.Id);
             comparsa.Property(c => c.Id).ValueGeneratedNever();
@@ -67,7 +79,28 @@ internal sealed class FederationCatalogDbContext(DbContextOptions<FederationCata
             // Requires a UTF-8 ctype: with C/POSIX, lower() folds ASCII only (docs/development.md).
             comparsa.Property<string>("NameKey").IsRequired().HasColumnType("text").HasComputedColumnSql("lower(name)", stored: true);
             comparsa.HasIndex("NameKey").IsUnique().HasDatabaseName(ComparsaNameIndex);
+
+            // Columns of the comparsa row, not a table (design D1): comparsas carry no version, and
+            // EF writes only changed columns, so a logo upload and a name edit never clobber each other.
+            comparsa.OwnsOne(c => c.Logo, logo =>
+            {
+                logo.Property(l => l.Id).HasColumnName("logo_id");
+                logo.Property(l => l.ObjectKey).HasColumnName("logo_object_key").HasMaxLength(200);
+                logo.Property(l => l.Width).HasColumnName("logo_width");
+                logo.Property(l => l.Height).HasColumnName("logo_height");
+                logo.Property(l => l.SizeBytes).HasColumnName("logo_size_bytes");
+                logo.Property(l => l.UploadedAt).HasColumnName("logo_uploaded_at");
+                // The filter is explicit rather than needed: comparsas without a logo are not indexed.
+                logo.HasIndex(l => l.ObjectKey).IsUnique().HasFilter("logo_object_key IS NOT NULL").HasDatabaseName(ComparsaLogoKeyIndex);
+            });
         });
+
+    private static string LogoColumnsAllNullOrAllSet()
+    {
+        string[] columns = ["logo_id", "logo_object_key", "logo_width", "logo_height", "logo_size_bytes", "logo_uploaded_at"];
+        return "(" + string.Join(" AND ", columns.Select(c => c + " IS NULL")) + ") OR ("
+            + string.Join(" AND ", columns.Select(c => c + " IS NOT NULL")) + ")";
+    }
 
     private static void MapAssignments(ModelBuilder modelBuilder) =>
         modelBuilder.Entity<FiringChiefAssignment>(assignment =>

@@ -43,6 +43,7 @@ public sealed class CatalogModelTests : IAsyncLifetime
         var tables = Model<FederationCatalogDbContext>().GetEntityTypes()
             .Where(e => !e.IsTableExcludedFromMigrations())
             .Select(e => $"{e.GetSchema()}.{e.GetTableName()}")
+            .Distinct() // The comparsa's logo is an owned type in the comparsas table (add-comparsa-logos D1).
             .Order(StringComparer.Ordinal);
 
         Assert.Equal(["catalog.comparsas", "catalog.firing_chief_assignments", "catalog.weapon_models"], tables);

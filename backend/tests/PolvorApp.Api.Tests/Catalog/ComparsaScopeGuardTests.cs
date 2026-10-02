@@ -36,10 +36,18 @@ public sealed partial class ComparsaScopeGuardTests(PostgresFixture postgres, Ma
         using var ownerClient = await host.SignInAsync(owner);
         using var outsiderClient = await host.SignInAsync(outsider);
 
+        // The logo route reads an existing logo: without one, its own FiringChief would get 404 too.
+        using (var logo = await LogoRequests.UploadAsync(admin, own.Id, TestImages.Png(800, 400)))
+        {
+            Assert.Equal(HttpStatusCode.OK, logo.StatusCode);
+        }
+
         var routes = ComparsaRoutes(host.Services.GetRequiredService<EndpointDataSource>());
 
         Assert.Contains(new GuardedRoute("GET", "/api/comparsas/{id:guid}", AdminOnly: false), routes);
         Assert.Contains(new GuardedRoute("PUT", "/api/comparsas/{id:guid}/firing-chiefs/{userId:guid}", AdminOnly: true), routes);
+        Assert.Contains(new GuardedRoute("GET", "/api/comparsas/{id:guid}/logo", AdminOnly: false), routes);
+        Assert.Contains(new GuardedRoute("PUT", "/api/comparsas/{id:guid}/logo", AdminOnly: true) { Multipart = true }, routes);
         foreach (var route in routes)
         {
             var refused = await StatusAsync(outsiderClient, route, own.Id, owner.Id);
@@ -80,7 +88,11 @@ public sealed partial class ComparsaScopeGuardTests(PostgresFixture postgres, Ma
             .SelectMany(e => (e.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods ?? ["GET"]).Select(method => new GuardedRoute(
                 method,
                 "/" + e.RoutePattern.RawText!.TrimStart('/'),
-                e.Metadata.GetOrderedMetadata<IAuthorizeData>().Any(a => a.Policy == AuthorizationPolicies.Admin))))
+                e.Metadata.GetOrderedMetadata<IAuthorizeData>().Any(a => a.Policy == AuthorizationPolicies.Admin))
+            {
+                // Routing refuses another content type (415) before authorisation runs.
+                Multipart = e.Metadata.GetMetadata<Microsoft.AspNetCore.Http.Metadata.IAcceptsMetadata>()?.ContentTypes.Contains("multipart/form-data") == true,
+            }))
             .Distinct()];
 
     private static string PathOf(GuardedRoute route, Guid comparsaId, Guid userId) =>
@@ -94,7 +106,11 @@ public sealed partial class ComparsaScopeGuardTests(PostgresFixture postgres, Ma
     private static async Task<HttpStatusCode> StatusAsync(HttpClient client, GuardedRoute route, Guid comparsaId, Guid userId)
     {
         using var request = new HttpRequestMessage(new HttpMethod(route.Method), PathOf(route, comparsaId, userId));
-        if (route.Method is "POST" or "PUT" or "PATCH")
+        if (route.Multipart)
+        {
+            request.Content = new MultipartFormDataContent { { new ByteArrayContent(TestImages.Png(800, 400)), "file", "image.png" } };
+        }
+        else if (route.Method is "POST" or "PUT" or "PATCH")
         {
             request.Content = JsonContent.Create(new { });
         }
@@ -119,5 +135,9 @@ public sealed partial class ComparsaScopeGuardTests(PostgresFixture postgres, Ma
     [GeneratedRegex(@"\{(?<name>\w+)(:[^}]*)?\}")]
     private static partial Regex RouteParameter();
 
-    private sealed record GuardedRoute(string Method, string Template, bool AdminOnly);
+    /// <summary>A route to probe; <see cref="Multipart"/> routes are sent an image upload instead of JSON.</summary>
+    private sealed record GuardedRoute(string Method, string Template, bool AdminOnly)
+    {
+        public bool Multipart { get; init; }
+    }
 }
