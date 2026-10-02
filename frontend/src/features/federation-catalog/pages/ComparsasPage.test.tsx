@@ -7,7 +7,7 @@ import { problem, renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN, SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
-import { NORTE, OESTE, SUR } from '../test-data';
+import { LOGO, NORTE, OESTE, SUR } from '../test-data';
 
 function comparsas(respond: (query: URLSearchParams) => ComparsaResponse[]) {
   const queries: string[] = [];
@@ -73,10 +73,12 @@ describe('ComparsasPage (specs: Comparsas, Comparsa visibility)', () => {
     const queries = comparsas(() => [SUR, OESTE]);
     await renderApp('/comparsas', { session: SYNTHETIC_FIRING_CHIEF });
 
-    await screen.findByRole('link', { name: 'Comparsa Sintética Sur' });
-    expect(screen.getByRole('link', { name: 'Comparsa Sintética Oeste' })).toBeInTheDocument();
+    // The sidebar also links their active comparsas: look in the page itself.
+    const main = screen.getByRole('main');
+    await within(main).findByRole('link', { name: 'Comparsa Sintética Sur' });
+    expect(within(main).getByRole('link', { name: 'Comparsa Sintética Oeste' })).toBeInTheDocument();
     expect(screen.getByText('Las comparsas que tienes asignadas.')).toBeInTheDocument();
-    expect(queries).toEqual(['?includeInactive=true']);
+    expect(queries).toContain('?includeInactive=true');
     expect(screen.queryByRole('link', { name: 'Nueva comparsa' })).not.toBeInTheDocument();
     expect(screen.queryByRole('combobox', { name: 'Bando' })).not.toBeInTheDocument();
   });
@@ -119,6 +121,40 @@ describe('ComparsasPage (specs: Comparsas, Comparsa visibility)', () => {
     await waitFor(async () => {
       expect(await axeViolations(container)).toEqual([]);
     });
+  });
+
+  it('shows each logo before its name, or the placeholder, without repeating the name (spec: Logo display)', async () => {
+    comparsas(() => [{ ...NORTE, logo: LOGO }, SUR]);
+    await renderApp('/comparsas', { session: SYNTHETIC_FIRING_CHIEF });
+
+    const table = await screen.findByRole('table', { name: 'Comparsas' });
+    await within(table).findByRole('link', { name: 'Comparsa Sintética Norte' });
+    const norteLogo = rowOf(table, 'Comparsa Sintética Norte').querySelector(
+      '[data-slot="comparsa-logo"] img',
+    );
+    expect(norteLogo).toHaveAttribute('src', `/api/comparsas/${NORTE.id}/logo?v=${LOGO.version}`);
+    expect(norteLogo).toHaveAttribute('alt', '');
+    const surTile = rowOf(table, 'Comparsa Sintética Sur').querySelector('[data-slot="comparsa-logo"]');
+    expect(surTile).toBeInTheDocument();
+    expect(surTile?.querySelector('img')).toBeNull();
+  });
+
+  it('shows the logo on phones too', async () => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 360 });
+    try {
+      comparsas(() => [{ ...NORTE, logo: LOGO }]);
+      await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
+
+      const list = await screen.findByRole('list', { name: 'Comparsas' });
+      const link = await within(list).findByRole('link', { name: NORTE.name });
+
+      expect(link.closest('li')?.querySelector('[data-slot="comparsa-logo"] img')).toHaveAttribute(
+        'src',
+        `/api/comparsas/${NORTE.id}/logo?v=${LOGO.version}`,
+      );
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 });
+    }
   });
 
   it('stacks each comparsa on a phone, with its side and status', async () => {

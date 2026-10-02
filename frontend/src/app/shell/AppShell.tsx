@@ -4,6 +4,7 @@ import { Outlet } from 'react-router';
 import { AlertBanner } from '@/components/app/AlertBanner';
 import { AppLayout } from '@/components/app/AppLayout';
 import { UserMenu } from '@/components/app/UserMenu';
+import { useFiringChiefComparsaCards } from '@/features/federation-catalog/components/useFiringChiefComparsaCards';
 import { useSaveLanguage, useSession, useSignOut } from '@/features/identity-access/session';
 import { NAVIGATION } from '../navigation';
 import { useFocusMainOnNavigation } from './useFocusMainOnNavigation';
@@ -13,8 +14,9 @@ type ShellProblem = 'signOutFailed' | 'languageNotSaved';
 
 /**
  * Route element for every signed-in page: the design-system layout with the navigation allowed
- * for the user's role, the user menu, and the language switch saved as the user's preference
- * (platform spec: Application shell; identity-access spec: Switch UI language).
+ * for the user's role, a FiringChief's comparsa cards, the user menu, and the language switch saved
+ * as the user's preference (platform spec: Application shell; identity-access spec: Switch UI
+ * language).
  */
 export function AppShell() {
   const { t } = useTranslation();
@@ -27,6 +29,7 @@ export function AppShell() {
   const [problem, setProblem] = useState<ShellProblem>();
   const latestAttempt = useRef(0);
   const role = session.account?.role;
+  const comparsaCards = useFiringChiefComparsaCards();
 
   const navigation = useMemo(
     () =>
@@ -65,7 +68,13 @@ export function AppShell() {
   );
 
   return (
-    <AppLayout navigation={navigation} sidebarFooter={<VersionFooter />} userMenu={userMenu} mainRef={main}>
+    <AppLayout
+      navigation={navigation}
+      sidebarCards={comparsaCards}
+      sidebarFooter={<VersionFooter />}
+      userMenu={userMenu}
+      mainRef={main}
+    >
       {problem && <AlertBanner severity="error">{t(`session.${problem}`)}</AlertBanner>}
       <Outlet />
     </AppLayout>

@@ -61,7 +61,19 @@
       "deleteDescriptionUnknown": "No es pot desfer. Els seus caps de disparada, si en té, perdran l'accés."
     },
     "resultCount_one": "{{count}} comparsa",
-    "resultCount_other": "{{count}} comparses"
+    "resultCount_other": "{{count}} comparses",
+    "logo": {
+      "section": "Logo",
+      "help": "Es recomana un PNG amb fons transparent. El costat llarg ha de mesurar almenys 256 px i no pot ser més de 3 vegades el curt. Es guarda com a PNG d'1024 px com a màxim.",
+      "label": "logo de la comparsa",
+      "alt": "Logo de {{name}}",
+      "empty": "Sense logo",
+      "removeTitle": "Vols llevar el logo de {{name}}?",
+      "removeDescription": "S'esborrarà la imatge. La comparsa es mostrarà amb el símbol genèric fins que en pugues una altra.",
+      "removeConfirm": "Lleva el logo",
+      "uploaded": "Logo guardat",
+      "removed": "Logo llevat"
+    }
   },
   "firingChiefs": {
     "title": "Caps de disparada",
@@ -195,7 +207,14 @@
     "invalid": "Este valor no és vàlid.",
     "tooLong": "100 caràcters com a màxim.",
     "pistolNotRentable": "Les pistoles no es lloguen mai.",
-    "choice": "Tria una opció."
+    "choice": "Tria una opció.",
+    "file": {
+      "required": "No s'ha rebut cap imatge. Torna a triar-la.",
+      "tooLarge": "El logo és massa gran: com a màxim 10 MB i 40 megapíxels.",
+      "unsupportedFormat": "El fitxer no és una imatge JPEG, PNG o WebP. Els SVG no s'admeten.",
+      "tooSmall": "El logo és massa xicotet: necessita almenys 256 px en el costat llarg.",
+      "aspectRatio": "El logo és massa allargat: el costat llarg no pot passar de 3 voltes el curt."
+    }
   },
   "errors": {
     "comparsas": {
@@ -215,6 +234,16 @@
       "combinationTaken": "Ja hi ha un model amb este tipus, bàndol, mà i grandària.",
       "inUse": "Altres registres utilitzen este model, així que no es pot esborrar. Desactiva'l en compte d'esborrar-lo."
     },
+    "logos": {
+      "notFound": "Esta comparsa ja no té logo."
+    },
+    "storage": {
+      "unavailable": "El magatzem d'imatges no respon ara mateix. Torna-ho a provar d'ací a uns minuts."
+    },
+    "catalog": {
+      "busy": "El servidor està processant altres imatges. Torna-ho a provar d'ací a uns segons."
+    },
+    "tooManyRequests": "Has fet massa pujades seguides. Espera un minut i torna-ho a provar.",
     "validation": "Revisa els camps marcats.",
     "generic": "Alguna cosa ha fallat. Torna-ho a provar."
   }

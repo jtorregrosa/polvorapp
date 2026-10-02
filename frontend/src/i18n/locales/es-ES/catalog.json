@@ -61,7 +61,19 @@
       "deleteDescriptionUnknown": "No se puede deshacer. Sus jefes de disparo, si los tiene, perderán el acceso a ella."
     },
     "resultCount_one": "{{count}} comparsa",
-    "resultCount_other": "{{count}} comparsas"
+    "resultCount_other": "{{count}} comparsas",
+    "logo": {
+      "section": "Logo",
+      "help": "Se recomienda un PNG con fondo transparente. El lado largo debe medir al menos 256 px y no puede ser más de 3 veces el corto. Se guarda como PNG de 1024 px como máximo.",
+      "label": "logo de la comparsa",
+      "alt": "Logo de {{name}}",
+      "empty": "Sin logo",
+      "removeTitle": "¿Quitar el logo de {{name}}?",
+      "removeDescription": "Se borrará la imagen. La comparsa se mostrará con el símbolo genérico hasta que subas otra.",
+      "removeConfirm": "Quitar logo",
+      "uploaded": "Logo guardado",
+      "removed": "Logo quitado"
+    }
   },
   "firingChiefs": {
     "title": "Jefes de disparo",
@@ -195,7 +207,14 @@
     "invalid": "Este valor no es válido.",
     "tooLong": "100 caracteres como máximo.",
     "pistolNotRentable": "Las pistolas nunca se alquilan.",
-    "choice": "Elige una opción."
+    "choice": "Elige una opción.",
+    "file": {
+      "required": "No se ha recibido ninguna imagen. Vuelve a elegirla.",
+      "tooLarge": "El logo es demasiado grande: como máximo 10 MB y 40 megapíxeles.",
+      "unsupportedFormat": "El archivo no es una imagen JPEG, PNG o WebP. Los SVG no se admiten.",
+      "tooSmall": "El logo es demasiado pequeño: necesita al menos 256 px en el lado largo.",
+      "aspectRatio": "El logo es demasiado alargado: el lado largo no puede pasar de 3 veces el corto."
+    }
   },
   "errors": {
     "comparsas": {
@@ -215,6 +234,16 @@
       "combinationTaken": "Ya existe un modelo con ese tipo, bando, mano y tamaño.",
       "inUse": "Otros registros usan este modelo, así que no se puede eliminar. Desactívalo en su lugar."
     },
+    "logos": {
+      "notFound": "Esta comparsa ya no tiene logo."
+    },
+    "storage": {
+      "unavailable": "El almacén de imágenes no responde ahora mismo. Inténtalo de nuevo en unos minutos."
+    },
+    "catalog": {
+      "busy": "El servidor está procesando otras imágenes. Inténtalo de nuevo en unos segundos."
+    },
+    "tooManyRequests": "Has hecho demasiadas subidas seguidas. Espera un minuto y vuelve a intentarlo.",
     "validation": "Revisa los campos marcados.",
     "generic": "Algo ha fallado. Inténtalo de nuevo."
   }

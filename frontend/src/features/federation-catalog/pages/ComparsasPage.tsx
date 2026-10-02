@@ -7,6 +7,7 @@ import { Side, type ComparsaResponse, type ListComparsasParams } from '@/api/gen
 import { AlertBanner, NoticeBanner } from '@/components/app/AlertBanner';
 import { Button } from '@/components/app/Button';
 import { CheckboxField } from '@/components/app/CheckboxField';
+import { ComparsaLogo } from '@/components/app/ComparsaLogo';
 import { DataTable, type DataTableColumn } from '@/components/app/DataTable';
 import { EmptyState } from '@/components/app/EmptyState';
 import { FilterBar } from '@/components/app/FilterBar';
@@ -17,6 +18,7 @@ import { useSession } from '@/features/identity-access/session';
 import { knownFilter, withFilter } from '@/lib/search-filters';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { useNotice } from '@/lib/notices';
+import { logoUrl } from '../logos';
 import { problemMessage } from '../problems';
 
 const SIDES = Object.values(Side);
@@ -47,9 +49,12 @@ export function ComparsasPage() {
         header: t('comparsas.columns.name'),
         sortValue: (comparsa) => comparsa.name,
         cell: (comparsa) => (
-          <Link to={`/comparsas/${comparsa.id}`} className="font-semibold text-foreground hover:underline">
-            {comparsa.name}
-          </Link>
+          <span className="flex items-center gap-2.5">
+            <ComparsaLogo src={logoUrl(comparsa.id, comparsa.logo)} size="sm" />
+            <Link to={`/comparsas/${comparsa.id}`} className="font-semibold text-foreground hover:underline">
+              {comparsa.name}
+            </Link>
+          </span>
         ),
       },
       { id: 'side', header: t('comparsas.columns.side'), cell: (comparsa) => t(`side.${comparsa.side}`) },
@@ -132,9 +137,12 @@ export function ComparsasPage() {
           getRowHref={(comparsa) => `/comparsas/${comparsa.id}`}
           mobileRow={(comparsa) => (
             <>
-              <Link to={`/comparsas/${comparsa.id}`} className="font-semibold text-foreground">
-                {comparsa.name}
-              </Link>
+              <span className="flex items-center gap-2.5">
+                <ComparsaLogo src={logoUrl(comparsa.id, comparsa.logo)} size="sm" />
+                <Link to={`/comparsas/${comparsa.id}`} className="font-semibold text-foreground">
+                  {comparsa.name}
+                </Link>
+              </span>
               <span className="flex flex-wrap items-center gap-2 text-help text-muted-foreground">
                 {t(`side.${comparsa.side}`)}
                 <StatusBadge kind="catalog" value={comparsa.active ? 'ACTIVE' : 'INACTIVE'} />
