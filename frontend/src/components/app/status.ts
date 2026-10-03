@@ -8,6 +8,7 @@ import {
   Clock,
   Lock,
   Send,
+  Sparkles,
   TriangleAlert,
   Undo2,
   type LucideIcon,
@@ -49,6 +50,10 @@ export const STATUS_MAP = {
     DRAFT: { tone: 'muted', icon: CircleDashed },
     IN_PROGRESS: { tone: 'success', icon: CirclePlay },
     CLOSED: { tone: 'muted', icon: Archive },
+  },
+  /** An arquebusier's participation (add-comparsa-orders): the first-year flag (UC-07). */
+  participation: {
+    FIRST_YEAR: { tone: 'info', icon: Sparkles },
   },
   /** Whether FiringChiefs may edit the orders of the edition in progress (BR-10). */
   orders: {

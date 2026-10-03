@@ -50,6 +50,14 @@
     "help": "Help",
     "unexpectedError": "It could not be saved. Please try again."
   },
+  "textArea": {
+    "limit": "Up to {{max}} characters.",
+    "remaining_one": "{{count}} character left",
+    "remaining_other": "{{count}} characters left",
+    "over_one": "{{count}} character too many",
+    "over_other": "{{count}} characters too many",
+    "tooLong": "It has more characters than allowed"
+  },
   "confirm": {
     "cancel": "Cancel",
     "failed": "The action could not be completed. Please try again."
@@ -81,6 +89,9 @@
       "DRAFT": "In preparation",
       "IN_PROGRESS": "In progress",
       "CLOSED": "Closed"
+    },
+    "participation": {
+      "FIRST_YEAR": "First year"
     },
     "orders": {
       "OPEN": "Orders open",

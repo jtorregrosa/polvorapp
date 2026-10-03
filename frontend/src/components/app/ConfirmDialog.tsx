@@ -46,10 +46,20 @@ export interface ConfirmDialogProps {
   returnFocus?: RefObject<HTMLElement | null>;
   /** Choices the confirmation needs, e.g. the destination of a transfer, under the description. */
   children?: ReactNode;
+  /**
+   * Consequences that must be heard before confirming, e.g. what a deletion does elsewhere: shown
+   * first and read as part of the dialog's description (WCAG 1.3.1, 3.3.4).
+   */
+  notes?: ReactNode;
   /** What takes focus when the dialog opens, e.g. a field in `children`; the cancel option otherwise. */
   initialFocus?: RefObject<HTMLElement | null>;
   /** `primary` for an irreversible action that destroys nothing (a transfer); `destructive` otherwise. */
   tone?: 'destructive' | 'primary';
+  /**
+   * Keeps the confirmation unavailable until a choice in `children` allows it, e.g. a required
+   * statement checkbox; say next to that choice what it unlocks.
+   */
+  confirmDisabled?: boolean;
 }
 
 /**
@@ -69,6 +79,8 @@ export function ConfirmDialog({
   children,
   tone = 'destructive',
   initialFocus,
+  confirmDisabled = false,
+  notes,
 }: ConfirmDialogProps) {
   const { t } = useTranslation('ui');
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
@@ -127,7 +139,16 @@ export function ConfirmDialog({
       >
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          {notes ? (
+            <AlertDialogDescription asChild>
+              <div className="flex flex-col gap-3">
+                {notes}
+                <p>{description}</p>
+              </div>
+            </AlertDialogDescription>
+          ) : (
+            <AlertDialogDescription>{description}</AlertDialogDescription>
+          )}
         </AlertDialogHeader>
         {children}
         {failure && <AlertBanner severity="error">{failure}</AlertBanner>}
@@ -136,6 +157,7 @@ export function ConfirmDialog({
           {/* Busy rather than disabled while pending, so focus stays on it (WCAG 2.4.3). */}
           <AlertDialogAction
             variant={tone === 'destructive' ? 'destructive' : 'default'}
+            disabled={confirmDisabled}
             aria-disabled={pending || undefined}
             aria-busy={pending || undefined}
             className="aria-disabled:cursor-progress aria-disabled:opacity-50"
