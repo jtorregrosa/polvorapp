@@ -10,6 +10,7 @@ import {
 } from './config';
 import caBilling from './locales/ca-ES-valencia/billing.json';
 import caCatalog from './locales/ca-ES-valencia/catalog.json';
+import caDistribution from './locales/ca-ES-valencia/distribution.json';
 import caExports from './locales/ca-ES-valencia/exports.json';
 import caCommon from './locales/ca-ES-valencia/common.json';
 import caEditions from './locales/ca-ES-valencia/editions.json';
@@ -20,6 +21,7 @@ import caRegistry from './locales/ca-ES-valencia/registry.json';
 import caUi from './locales/ca-ES-valencia/ui.json';
 import enBilling from './locales/en/billing.json';
 import enCatalog from './locales/en/catalog.json';
+import enDistribution from './locales/en/distribution.json';
 import enExports from './locales/en/exports.json';
 import enCommon from './locales/en/common.json';
 import enEditions from './locales/en/editions.json';
@@ -30,6 +32,7 @@ import enRegistry from './locales/en/registry.json';
 import enUi from './locales/en/ui.json';
 import esBilling from './locales/es-ES/billing.json';
 import esCatalog from './locales/es-ES/catalog.json';
+import esDistribution from './locales/es-ES/distribution.json';
 import esExports from './locales/es-ES/exports.json';
 import esCommon from './locales/es-ES/common.json';
 import esEditions from './locales/es-ES/editions.json';
@@ -53,6 +56,7 @@ export const resources = {
     orders: esOrders,
     billing: esBilling,
     exports: esExports,
+    distribution: esDistribution,
   },
   'ca-ES-valencia': {
     common: caCommon,
@@ -65,6 +69,7 @@ export const resources = {
     orders: caOrders,
     billing: caBilling,
     exports: caExports,
+    distribution: caDistribution,
   },
   en: {
     common: enCommon,
@@ -77,6 +82,7 @@ export const resources = {
     orders: enOrders,
     billing: enBilling,
     exports: enExports,
+    distribution: enDistribution,
   },
 } as const satisfies Record<
   Language,
@@ -91,6 +97,7 @@ export const resources = {
     orders: object;
     billing: object;
     exports: object;
+    distribution: object;
   }
 >;
 

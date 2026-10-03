@@ -1,0 +1,206 @@
+{
+  "page": {
+    "title": "Repartiment de {{year}}",
+    "description": "Els dies de pólvora i d'armes, el torn de cada comparsa i els autoritzats de recollida.",
+    "back": "Edició {{year}}",
+    "link": "Repartiment",
+    "loadFailed": "No s'ha pogut carregar el repartiment.",
+    "staleFailed": "No s'ha pogut actualitzar el repartiment: pot ser que el que veus no estiga al dia.",
+    "noCurrent": {
+      "title": "No hi ha cap edició en curs",
+      "body": "El repartiment pertany a una edició. Obri les edicions per a triar-ne una.",
+      "link": "Edicions"
+    },
+    "loading": "S'està carregant el repartiment…",
+    "notInProgress": {
+      "DRAFT": "L'edició és un esborrany: els dies de repartiment es planifiquen quan estiga en curs.",
+      "CLOSED": "L'edició no està en curs: els dies de repartiment i els torns ja no es poden canviar."
+    }
+  },
+  "types": {
+    "POWDER": "Pólvora",
+    "WEAPONS": "Armes"
+  },
+  "day": {
+    "title": {
+      "POWDER": "Dia de repartiment de pólvora",
+      "WEAPONS": "Dia de repartiment d'armes"
+    },
+    "name": {
+      "POWDER": "dia de repartiment de pólvora",
+      "WEAPONS": "dia de repartiment d'armes"
+    },
+    "notPlanned": "Sense planificar.",
+    "date": "Data",
+    "location": "Lloc",
+    "facts": {
+      "POWDER": "Dades del dia de repartiment de pólvora",
+      "WEAPONS": "Dades del dia de repartiment d'armes"
+    },
+    "plan": "Planificar",
+    "planTitle": {
+      "POWDER": "Planificar el dia de pólvora",
+      "WEAPONS": "Planificar el dia d'armes"
+    },
+    "editTitle": {
+      "POWDER": "Editar el dia de pólvora",
+      "WEAPONS": "Editar el dia d'armes"
+    },
+    "planned": "Dia planificat",
+    "saved": "Dia guardat",
+    "delete": "Eliminar",
+    "deleteName": {
+      "POWDER": "Eliminar el dia de pólvora",
+      "WEAPONS": "Eliminar el dia d'armes"
+    },
+    "deleteTitle": {
+      "POWDER": "Vols eliminar el dia de pólvora?",
+      "WEAPONS": "Vols eliminar el dia d'armes?"
+    },
+    "deleteDescription": "També s'eliminen els seus torns. Els autoritzats de recollida es mantenen.",
+    "deleteConfirm": "Eliminar dia",
+    "deleted": "Dia eliminat"
+  },
+  "slots": {
+    "title": "Torns",
+    "caption": {
+      "POWDER": "Torns del dia de repartiment de pólvora",
+      "WEAPONS": "Torns del dia de repartiment d'armes"
+    },
+    "edit": "Editar torns",
+    "editContext": {
+      "POWDER": "del dia de repartiment de pólvora",
+      "WEAPONS": "del dia de repartiment d'armes"
+    },
+    "editTitle": {
+      "POWDER": "Torns del dia de pólvora",
+      "WEAPONS": "Torns del dia d'armes"
+    },
+    "hint": "Una hora d'inici per comparsa. Deixa-la buida si no té torn; diverses comparses poden compartir hora.",
+    "saved": "Torns guardats",
+    "empty": "Encara no hi ha torns.",
+    "noSlot": "Sense torn",
+    "columns": {
+      "startsAt": "Hora",
+      "comparsa": "Comparsa"
+    },
+    "timeFor": "Hora de {{comparsa}}"
+  },
+  "list": {
+    "title": "Llistat de repartiment",
+    "what": {
+      "POWDER": "el llistat de pólvora",
+      "WEAPONS": "el llistat d'armes"
+    },
+    "numbering": "Els números es calculen en cada descàrrega: un llistat descarregat després de canvis pot numerar d'una altra manera.",
+    "notValidated": {
+      "title": "Comandes sense validar",
+      "body_one": "La comanda d'aquesta comparsa no està validada i no apareix en el llistat:",
+      "body_other": "Les comandes d'aquestes {{count}} comparses no estan validades i no apareixen en el llistat:",
+      "item": "{{comparsa}} ({{status}})",
+      "status": {
+        "NOT_PREPARED": "sense preparar",
+        "DRAFT": "en esborrany",
+        "SUBMITTED": "enviada",
+        "RETURNED": "tornada"
+      }
+    }
+  },
+  "proxies": {
+    "title": "Autoritzats de recollida",
+    "description": "Excepcionalment, un arcabusser que no pot assistir autoritza un altre arcabusser de la mateixa comanda a recollir en el seu lloc.",
+    "caption": "Llista d'autoritzats",
+    "empty": "No hi ha autoritzats de recollida.",
+    "filter": "Comparsa",
+    "allComparsas": "Totes les comparses",
+    "columns": {
+      "holder": "Titular",
+      "type": "Tipus",
+      "proxy": "Autoritzat",
+      "comparsa": "Comparsa",
+      "problem": "Problema",
+      "actions": "Accions"
+    },
+    "collectsFor": "{{proxy}} recull per {{holder}}",
+    "problemHint": "Un autoritzat amb un problema queda fora del llistat i no té formulari. Elimina'l i torna a registrar-lo si cal.",
+    "add": "Afegir autoritzat",
+    "addTitle": "Afegir un autoritzat de recollida",
+    "added": "Autoritzat afegit",
+    "comparsa": "Comparsa",
+    "type": "Què recull",
+    "typeHint": {
+      "POWDER": "La pólvora (i el flascó) del titular.",
+      "WEAPONS": "L'arma llogada del titular."
+    },
+    "holder": "Titular",
+    "holderHint": "Qui no pot assistir: inscripcions amb alguna cosa d'aquest tipus per recollir i sense autoritzat per a això.",
+    "proxy": "Autoritzat",
+    "proxyHint": "Un altre arcabusser de la mateixa comanda, amb llicència d'armes en vigor eixe dia.",
+    "noHolders": "Ningú d'aquesta comanda pot tindre un autoritzat d'aquest tipus.",
+    "notEligible": "{{name}} (no pot: {{reason}})",
+    "ineligible": {
+      "licenseInvalid": "sense llicència d'armes en vigor el dia de recollida",
+      "proxyAbsent": "té el seu propi autoritzat",
+      "other": "no complix les condicions"
+    },
+    "reasonNote": "El motiu no es guarda: s'escriu a mà en el formulari imprés, que signen les dues persones.",
+    "printForm": "Imprimir formulari",
+    "printFormFor": "Imprimir formulari de {{holder}} ({{type}})",
+    "formWhat": "el formulari de {{type}} de {{holder}}",
+    "remove": "Eliminar",
+    "removeName": "Eliminar l'autoritzat de {{type}} de {{holder}}",
+    "removeTitle": "Vols eliminar l'autoritzat de {{type}} de {{holder}}?",
+    "removeDescription": "{{proxy}} deixarà de recollir per {{holder}}. Un formulari ja imprés deixa de ser vàlid.",
+    "removeConfirm": "Eliminar autoritzat",
+    "removed": "Autoritzat eliminat",
+    "readOnly": "L'edició no està en curs: ja no es poden afegir ni eliminar autoritzats. Els formularis es poden continuar imprimint.",
+    "notEligibleSummary": "No poden ser autoritzats: {{people}}.",
+    "typeName": {
+      "POWDER": "pólvora",
+      "WEAPONS": "armes"
+    },
+    "loadingPeople": "S'estan carregant les inscripcions de la comanda…",
+    "peopleFailed": "No s'han pogut carregar les inscripcions de la comanda.",
+    "noProblem": "Cap",
+    "count_one": "{{count}} autoritzat",
+    "count_other": "{{count}} autoritzats",
+    "chooseHolder": "Tria el titular…",
+    "chooseProxy": "Tria l'autoritzat…",
+    "chooseComparsa": "Tria la comparsa…",
+    "readOnlyDraft": "L'edició és un esborrany: els autoritzats es registren quan estiga en curs.",
+    "comparsasFailed": "No s'han pogut carregar les comparses: no es pot filtrar ni afegir autoritzats."
+  },
+  "errors": {
+    "distribution": {
+      "notFound": "El dia de repartiment ja no existeix. S'ha actualitzat la pàgina.",
+      "alreadyPlanned": "Aquest dia ja està planificat. S'ha actualitzat la pàgina.",
+      "editionNotInProgress": "L'edició no està en curs: el repartiment ja no es pot canviar.",
+      "modified": "Una altra persona ha canviat aquest dia. S'ha actualitzat la pàgina: revisa-ho i torna-ho a intentar.",
+      "busy": "Una altra persona està canviant aquests autoritzats. Torna-ho a intentar d'ací a un moment.",
+      "auditUnavailable": "No s'ha pogut registrar el canvi, així que no s'ha guardat. Torna-ho a intentar d'ací a uns minuts."
+    },
+    "proxies": {
+      "notFound": "L'autoritzat ja no existeix. S'ha actualitzat la pàgina.",
+      "alreadyAuthorised": "El titular ja té un autoritzat d'aquest tipus.",
+      "proxyAbsent": "L'autoritzat té al seu torn un autoritzat d'aquest tipus, així que no pot recollir per altres.",
+      "holderIsProxy": "El titular recull per altres d'aquest tipus, així que no pot tindre un autoritzat."
+    },
+    "tooMany": "Has fet massa peticions seguides. Espera un minut i torna-ho a intentar.",
+    "validation": "Revisa les dades marcades.",
+    "generic": "No s'ha pogut completar l'operació. Torna-ho a intentar."
+  },
+  "fields": {
+    "time": "Escriu una hora completa: hores i minuts.",
+    "date": "Escriu una data completa: dia, mes i any.",
+    "required": "Obligatori.",
+    "invalid": "No és vàlid.",
+    "tooLong": "Massa llarg.",
+    "outOfEdition": "Ha d'estar en l'any de l'edició i no després de les festes.",
+    "unknown": "Comparsa desconeguda.",
+    "duplicate": "Només un torn per comparsa.",
+    "notInOrder": "Ha de ser una altra inscripció de la mateixa comanda.",
+    "sameAsHolder": "Ha de ser una persona diferent del titular.",
+    "nothingToCollect": "El titular no té res d'aquest tipus per recollir.",
+    "licenseInvalid": "No té llicència d'armes en vigor eixe dia."
+  }
+}

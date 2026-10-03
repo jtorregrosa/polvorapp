@@ -7,6 +7,8 @@ export interface SelectOption {
   label: string;
   /** Language of the label when it differs from the page (e.g. language names). */
   lang?: string;
+  /** Shown but not offered, e.g. a person who is not eligible; the label says why. */
+  disabled?: boolean;
 }
 
 export type SelectInputProps = Omit<ComponentProps<typeof NativeSelect>, 'children' | 'placeholder'> & {
@@ -35,7 +37,12 @@ export function SelectInput({ options, placeholder, ...props }: SelectInputProps
         </NativeSelectOption>
       )}
       {options.map((option) => (
-        <NativeSelectOption key={option.value} value={option.value} lang={option.lang}>
+        <NativeSelectOption
+          key={option.value}
+          value={option.value}
+          lang={option.lang}
+          disabled={option.disabled}
+        >
           {option.label}
         </NativeSelectOption>
       ))}

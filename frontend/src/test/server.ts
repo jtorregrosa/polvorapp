@@ -19,4 +19,6 @@ export const server = setupServer(
   // The start page's current-edition card and the registry pages' lock notice.
   mock.get('/api/editions/current', () => HttpResponse.json({ edition: null })),
   mock.get('/api/registry/lock', () => HttpResponse.json({ locked: false, changedAt: null })),
+  // The comparsas page's Federation logo section, for Admins: no logo yet.
+  mock.get('/api/federation', () => HttpResponse.json({ logo: null })),
 );

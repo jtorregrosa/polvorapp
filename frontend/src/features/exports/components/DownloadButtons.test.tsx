@@ -95,6 +95,23 @@ describe('DownloadButtons (spec: Exports screens)', () => {
       () => problem(503, 'exports.auditUnavailable'),
       'No se ha podido registrar la descarga, así que no se ha generado el fichero. Inténtalo de nuevo en unos minutos.',
     ],
+    [
+      () => problem(503, 'distribution.auditUnavailable'),
+      'No se ha podido registrar la descarga, así que no se ha generado el fichero. Inténtalo de nuevo en unos minutos.',
+    ],
+    [
+      () => problem(409, 'proxies.notApplicable'),
+      'El titular ya no recoge nada de este tipo, así que no hay formulario.',
+    ],
+    [
+      () => problem(409, 'proxies.licenseInvalid'),
+      'La licencia de armas del autorizado no es válida el día del reparto, así que no hay formulario.',
+    ],
+    [
+      () => problem(503, 'storage.unavailable'),
+      'No se ha podido leer el logo de la Federación. Inténtalo de nuevo en unos minutos.',
+    ],
+    [() => problem(404, 'proxies.notFound'), 'Ya no existe: actualiza la página.'],
     [() => HttpResponse.error(), 'Inténtalo de nuevo.'],
   ])('says what failed and why', async (answer, message) => {
     const user = userEvent.setup();
@@ -170,6 +187,64 @@ describe('DownloadButtons (spec: Exports screens)', () => {
       expect(saved).toBe('lista.xlsx');
     });
     expect(screen.queryByText('No se ha descargado la lista')).not.toBeInTheDocument();
+  });
+
+  it('offers no format without a URL', async () => {
+    await renderWithProviders(<DownloadButtons what="la lista" urls={{ xlsx: URLS.xlsx }} />);
+
+    expect(screen.getByRole('button', { name: 'Descargar la lista en Excel' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /en PDF$/ })).not.toBeInTheDocument();
+  });
+
+  it('says a download is still on its way while another click is ignored', async () => {
+    const user = userEvent.setup();
+    let release: () => void = () => undefined;
+    server.use(
+      mock.get(URLS.xlsx, async () => {
+        await new Promise<void>((resolve) => {
+          release = resolve;
+        });
+        return file('lista.xlsx');
+      }),
+    );
+    await renderWithProviders(<DownloadButtons what="la lista" urls={URLS} />);
+
+    await user.click(screen.getByRole('button', { name: /en Excel$/ }));
+    await user.click(screen.getByRole('button', { name: /en PDF$/ }));
+
+    expect(screen.getByRole('status')).toHaveTextContent('Descargando la lista…');
+    release();
+    await waitFor(() => {
+      expect(screen.getByRole('status')).toHaveTextContent('Descargado: lista.xlsx');
+    });
+  });
+
+  it('offers only the formats asked for', async () => {
+    await renderWithProviders(<DownloadButtons what="la lista" urls={{ pdf: URLS.pdf }} formats={['pdf']} />);
+
+    expect(screen.getByRole('button', { name: 'Descargar la lista en PDF' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /en Excel$/ })).not.toBeInTheDocument();
+  });
+
+  it('shows its own label on a single download, and keeps it in the accessible name', async () => {
+    const user = userEvent.setup();
+    server.use(mock.get(URLS.pdf, () => file('polvorapp-2031-autorizacion.pdf')));
+    await renderWithProviders(
+      <DownloadButtons
+        what="el formulario de Ana Sintética"
+        urls={{ pdf: URLS.pdf }}
+        formats={['pdf']}
+        label={{ text: 'Imprimir formulario', name: 'Imprimir formulario de Ana Sintética' }}
+      />,
+    );
+
+    const button = screen.getByRole('button', { name: 'Imprimir formulario de Ana Sintética' });
+    expect(button).toHaveTextContent('Imprimir formulario');
+    await user.click(button);
+
+    await waitFor(() => {
+      expect(saved).toBe('polvorapp-2031-autorizacion.pdf');
+    });
   });
 
   it('speaks Valencian and English', async () => {

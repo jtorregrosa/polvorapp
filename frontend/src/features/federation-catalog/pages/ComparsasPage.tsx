@@ -18,6 +18,7 @@ import { useSession } from '@/features/identity-access/session';
 import { knownFilter, withFilter } from '@/lib/search-filters';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { useNotice } from '@/lib/notices';
+import { FederationLogoSection } from '../components/FederationLogoSection';
 import { logoUrl } from '../logos';
 import { problemMessage } from '../problems';
 
@@ -26,7 +27,8 @@ const SIDES = Object.values(Side);
 /**
  * Specs "Comparsas" and "Comparsa visibility (BR-12)". An Admin sees every comparsa, with
  * filters and the "New comparsa" action; a FiringChief sees all of theirs (one or two, active or
- * not), read-only. The server decides the scope; the page only shapes the view.
+ * not), read-only. The server decides the scope; the page only shapes the view. Admins also
+ * manage the Federation's logo here (spec: Federation logo).
  */
 export function ComparsasPage() {
   const { t } = useTranslation('catalog');
@@ -153,6 +155,7 @@ export function ComparsasPage() {
           emptyText={t('comparsas.empty.description')}
         />
       )}
+      {isAdmin && <FederationLogoSection />}
     </>
   );
 }

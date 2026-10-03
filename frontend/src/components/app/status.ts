@@ -13,7 +13,7 @@ import {
   Undo2,
   type LucideIcon,
 } from 'lucide-react';
-import type { BillingState, ComplianceWarning, EditionStatus } from '@/api/generated/model';
+import type { BillingState, ComplianceWarning, EditionStatus, ProxyProblem } from '@/api/generated/model';
 
 /** Semantic tone of a status (design D1/D6); each maps to verified token pairs. */
 export type StatusTone = 'success' | 'warning' | 'destructive' | 'info' | 'muted';
@@ -75,6 +75,11 @@ export const STATUS_MAP = {
     ACTIVE: { tone: 'success', icon: CircleCheck },
     INACTIVE: { tone: 'muted', icon: CircleDashed },
   },
+  /** A pickup proxy that no longer holds (add-distribution-planning): left out of the lists, no form. */
+  proxy: {
+    NOT_APPLICABLE: { tone: 'warning', icon: TriangleAlert },
+    LICENSE_INVALID: { tone: 'warning', icon: TriangleAlert },
+  },
   /** Compliance warnings (BR-04, `ComplianceWarning`), in rule order. */
   warning: {
     LICENSE_MISSING: { tone: 'warning', icon: TriangleAlert },
@@ -91,6 +96,7 @@ export const STATUS_MAP = {
   warning: Record<ComplianceWarning, StatusStyle>;
   edition: Record<EditionStatus, StatusStyle>;
   billing: Record<BillingState, StatusStyle>;
+  proxy: Record<ProxyProblem, StatusStyle>;
 };
 
 export type StatusKind = keyof typeof STATUS_MAP;

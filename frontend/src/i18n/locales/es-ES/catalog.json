@@ -75,6 +75,23 @@
       "removed": "Logo quitado"
     }
   },
+  "federation": {
+    "logo": {
+      "section": "Logo de la Federación",
+      "help": "Se imprime en el formulario de autorización de recogida (y más adelante en las acreditaciones). Se recomienda un PNG con fondo transparente. El lado largo debe medir al menos 256 px y no puede ser más de 3 veces el corto. Se guarda como PNG de 1024 px como máximo.",
+      "label": "logo de la Federación",
+      "alt": "Logo de la Federación",
+      "empty": "Sin logo",
+      "loading": "Cargando el logo…",
+      "loadFailed": "No se ha podido cargar el logo de la Federación.",
+      "staleFailed": "No se ha podido actualizar el logo de la Federación: puede que lo que ves no esté al día.",
+      "removeTitle": "¿Quitar el logo de la Federación?",
+      "removeDescription": "Se borrará la imagen. Los documentos se imprimirán sin logo hasta que subas otro.",
+      "removeConfirm": "Quitar logo",
+      "uploaded": "Logo guardado",
+      "removed": "Logo quitado"
+    }
+  },
   "firingChiefs": {
     "title": "Jefes de disparo",
     "description": "Usuarios que gestionan esta comparsa. Solo ven las comparsas que tienen asignadas.",

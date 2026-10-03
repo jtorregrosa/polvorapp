@@ -44,6 +44,8 @@
     "optional": "Opcional",
     "requiredNote": "Tots els camps són obligatoris excepte els marcats com a opcionals.",
     "clearDate": "Esborra la data",
+    "clearTime": "Esborra l'hora",
+    "clearTimeFor": "Esborra l'hora de {{subject}}",
     "optionalSuffix": "(opcional)",
     "errorSummaryTitle": "Hi ha un problema",
     "index": "En aquest formulari",
@@ -104,6 +106,10 @@
     "catalog": {
       "ACTIVE": "Actiu",
       "INACTIVE": "Inactiu"
+    },
+    "proxy": {
+      "NOT_APPLICABLE": "El titular ja no recull",
+      "LICENSE_INVALID": "Llicència no vàlida eixe dia"
     },
     "warning": {
       "LICENSE_MISSING": "Sense llicència",

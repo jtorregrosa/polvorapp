@@ -50,6 +50,7 @@
     },
     "orders": "Pedidos",
     "ordersLink": "Ver los pedidos",
+    "distributionLink": "Reparto",
     "ordersEditable": "Los jefes de disparo pueden editar los pedidos",
     "ordersReadOnly": "Los pedidos son de solo lectura para los jefes de disparo",
     "draftNotice": "Edición en preparación: los jefes de disparo no la ven hasta que se inicie.",
@@ -196,7 +197,7 @@
       "ordersOpen": "Los pedidos están abiertos. Ciérralos antes.",
       "notInProgress": "Solo la edición en curso puede abrir pedidos.",
       "notDraft": "Solo se puede eliminar una edición en preparación.",
-      "inUse": "La edición tiene pedidos de comparsas y no se puede eliminar.",
+      "inUse": "La edición tiene pedidos de comparsas o días de reparto y no se puede eliminar.",
       "tooManyMilestones": "Una edición puede tener 50 hitos como mucho.",
       "milestoneNotFound": "Este hito ya no existe.",
       "busy": "La edición está ocupada con otro cambio. Vuelve a intentarlo en unos segundos."

@@ -95,6 +95,8 @@ export function DateInput({
           size="sm"
           icon={X}
           onClick={() => {
+            // A partly typed date shows segments React does not know about: empty the field itself.
+            if (input.current) input.current.value = '';
             onChange?.('');
             input.current?.focus();
           }}

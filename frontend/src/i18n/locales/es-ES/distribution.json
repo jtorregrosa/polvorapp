@@ -1,0 +1,206 @@
+{
+  "page": {
+    "title": "Reparto de {{year}}",
+    "description": "Los días de pólvora y de armas, el turno de cada comparsa y los autorizados de recogida.",
+    "back": "Edición {{year}}",
+    "link": "Reparto",
+    "loadFailed": "No se ha podido cargar el reparto.",
+    "staleFailed": "No se ha podido actualizar el reparto: puede que lo que ves no esté al día.",
+    "noCurrent": {
+      "title": "No hay ninguna edición en curso",
+      "body": "El reparto pertenece a una edición. Abre las ediciones para elegir una.",
+      "link": "Ediciones"
+    },
+    "loading": "Cargando el reparto…",
+    "notInProgress": {
+      "DRAFT": "La edición es un borrador: los días de reparto se planifican cuando esté en curso.",
+      "CLOSED": "La edición no está en curso: los días de reparto y los turnos ya no se pueden cambiar."
+    }
+  },
+  "types": {
+    "POWDER": "Pólvora",
+    "WEAPONS": "Armas"
+  },
+  "day": {
+    "title": {
+      "POWDER": "Día de reparto de pólvora",
+      "WEAPONS": "Día de reparto de armas"
+    },
+    "name": {
+      "POWDER": "día de reparto de pólvora",
+      "WEAPONS": "día de reparto de armas"
+    },
+    "notPlanned": "Sin planificar.",
+    "date": "Fecha",
+    "location": "Lugar",
+    "facts": {
+      "POWDER": "Datos del día de reparto de pólvora",
+      "WEAPONS": "Datos del día de reparto de armas"
+    },
+    "plan": "Planificar",
+    "planTitle": {
+      "POWDER": "Planificar el día de pólvora",
+      "WEAPONS": "Planificar el día de armas"
+    },
+    "editTitle": {
+      "POWDER": "Editar el día de pólvora",
+      "WEAPONS": "Editar el día de armas"
+    },
+    "planned": "Día planificado",
+    "saved": "Día guardado",
+    "delete": "Eliminar",
+    "deleteName": {
+      "POWDER": "Eliminar el día de pólvora",
+      "WEAPONS": "Eliminar el día de armas"
+    },
+    "deleteTitle": {
+      "POWDER": "¿Eliminar el día de pólvora?",
+      "WEAPONS": "¿Eliminar el día de armas?"
+    },
+    "deleteDescription": "También se eliminan sus turnos. Los autorizados de recogida se mantienen.",
+    "deleteConfirm": "Eliminar día",
+    "deleted": "Día eliminado"
+  },
+  "slots": {
+    "title": "Turnos",
+    "caption": {
+      "POWDER": "Turnos del día de reparto de pólvora",
+      "WEAPONS": "Turnos del día de reparto de armas"
+    },
+    "edit": "Editar turnos",
+    "editContext": {
+      "POWDER": "del día de reparto de pólvora",
+      "WEAPONS": "del día de reparto de armas"
+    },
+    "editTitle": {
+      "POWDER": "Turnos del día de pólvora",
+      "WEAPONS": "Turnos del día de armas"
+    },
+    "hint": "Una hora de inicio por comparsa. Déjala vacía si no tiene turno; varias comparsas pueden compartir hora.",
+    "saved": "Turnos guardados",
+    "empty": "Aún no hay turnos.",
+    "noSlot": "Sin turno",
+    "columns": {
+      "startsAt": "Hora",
+      "comparsa": "Comparsa"
+    },
+    "timeFor": "Hora de {{comparsa}}"
+  },
+  "list": {
+    "title": "Listado de reparto",
+    "what": {
+      "POWDER": "el listado de pólvora",
+      "WEAPONS": "el listado de armas"
+    },
+    "numbering": "Los números se calculan en cada descarga: un listado descargado después de cambios puede numerar distinto.",
+    "notValidated": {
+      "title": "Pedidos sin validar",
+      "body_one": "El pedido de esta comparsa no está validado y no aparece en el listado:",
+      "body_other": "Los pedidos de estas {{count}} comparsas no están validados y no aparecen en el listado:",
+      "item": "{{comparsa}} ({{status}})",
+      "status": {
+        "NOT_PREPARED": "sin preparar",
+        "DRAFT": "en borrador",
+        "SUBMITTED": "enviado",
+        "RETURNED": "devuelto"
+      }
+    }
+  },
+  "proxies": {
+    "title": "Autorizados de recogida",
+    "description": "Excepcionalmente, un arcabucero que no puede asistir autoriza a otro arcabucero del mismo pedido a recoger en su lugar.",
+    "caption": "Lista de autorizados",
+    "empty": "No hay autorizados de recogida.",
+    "filter": "Comparsa",
+    "allComparsas": "Todas las comparsas",
+    "columns": {
+      "holder": "Titular",
+      "type": "Tipo",
+      "proxy": "Autorizado",
+      "comparsa": "Comparsa",
+      "problem": "Problema",
+      "actions": "Acciones"
+    },
+    "collectsFor": "{{proxy}} recoge por {{holder}}",
+    "problemHint": "Un autorizado con un problema queda fuera del listado y no tiene formulario. Elimínalo y vuelve a registrarlo si hace falta.",
+    "add": "Añadir autorizado",
+    "addTitle": "Añadir un autorizado de recogida",
+    "added": "Autorizado añadido",
+    "comparsa": "Comparsa",
+    "type": "Qué recoge",
+    "typeHint": {
+      "POWDER": "La pólvora (y el frasco) del titular.",
+      "WEAPONS": "El arma alquilada del titular."
+    },
+    "holder": "Titular",
+    "holderHint": "Quien no puede asistir: inscripciones con algo de este tipo que recoger y sin autorizado para ello.",
+    "proxy": "Autorizado",
+    "proxyHint": "Otro arcabucero del mismo pedido, con licencia de armas en vigor ese día.",
+    "noHolders": "Nadie de este pedido puede tener un autorizado de este tipo.",
+    "notEligible": "{{name}} (no puede: {{reason}})",
+    "ineligible": {
+      "licenseInvalid": "sin licencia de armas en vigor el día de recogida",
+      "proxyAbsent": "tiene su propio autorizado",
+      "other": "no cumple las condiciones"
+    },
+    "reasonNote": "El motivo no se guarda: se escribe a mano en el formulario impreso, que firman las dos personas.",
+    "printForm": "Imprimir formulario",
+    "printFormFor": "Imprimir formulario de {{holder}} ({{type}})",
+    "formWhat": "el formulario de {{type}} de {{holder}}",
+    "remove": "Eliminar",
+    "removeName": "Eliminar el autorizado de {{type}} de {{holder}}",
+    "removeTitle": "¿Eliminar el autorizado de {{type}} de {{holder}}?",
+    "removeDescription": "{{proxy}} dejará de recoger por {{holder}}. Un formulario ya impreso deja de ser válido.",
+    "removeConfirm": "Eliminar autorizado",
+    "removed": "Autorizado eliminado",
+    "readOnly": "La edición no está en curso: ya no se pueden añadir ni eliminar autorizados. Los formularios se pueden seguir imprimiendo.",
+    "notEligibleSummary": "No pueden ser autorizados: {{people}}.",
+    "typeName": {
+      "POWDER": "pólvora",
+      "WEAPONS": "armas"
+    },
+    "loadingPeople": "Cargando las inscripciones del pedido…",
+    "peopleFailed": "No se han podido cargar las inscripciones del pedido.",
+    "noProblem": "Ninguno",
+    "count_one": "{{count}} autorizado",
+    "count_other": "{{count}} autorizados",
+    "chooseHolder": "Elige el titular…",
+    "chooseProxy": "Elige el autorizado…",
+    "chooseComparsa": "Elige la comparsa…",
+    "readOnlyDraft": "La edición es un borrador: los autorizados se registran cuando esté en curso.",
+    "comparsasFailed": "No se han podido cargar las comparsas: no se puede filtrar ni añadir autorizados."
+  },
+  "errors": {
+    "distribution": {
+      "notFound": "El día de reparto ya no existe. Se ha actualizado la página.",
+      "alreadyPlanned": "Este día ya está planificado. Se ha actualizado la página.",
+      "editionNotInProgress": "La edición no está en curso: el reparto ya no se puede cambiar.",
+      "modified": "Otra persona ha cambiado este día. Se ha actualizado la página: revísalo y vuelve a intentarlo.",
+      "busy": "Otra persona está cambiando estos autorizados. Vuelve a intentarlo en un momento.",
+      "auditUnavailable": "No se ha podido registrar el cambio, así que no se ha guardado. Vuelve a intentarlo en unos minutos."
+    },
+    "proxies": {
+      "notFound": "El autorizado ya no existe. Se ha actualizado la página.",
+      "alreadyAuthorised": "El titular ya tiene un autorizado de este tipo.",
+      "proxyAbsent": "El autorizado tiene a su vez un autorizado de este tipo, así que no puede recoger por otros.",
+      "holderIsProxy": "El titular recoge por otros de este tipo, así que no puede tener un autorizado."
+    },
+    "tooMany": "Has hecho demasiadas peticiones seguidas. Espera un minuto y vuelve a intentarlo.",
+    "validation": "Revisa los datos marcados.",
+    "generic": "No se ha podido completar la operación. Vuelve a intentarlo."
+  },
+  "fields": {
+    "time": "Escribe una hora completa: horas y minutos.",
+    "date": "Escribe una fecha completa: día, mes y año.",
+    "required": "Obligatorio.",
+    "invalid": "No es válido.",
+    "tooLong": "Demasiado largo.",
+    "outOfEdition": "Debe estar en el año de la edición y no después de las fiestas.",
+    "unknown": "Comparsa desconocida.",
+    "duplicate": "Solo un turno por comparsa.",
+    "notInOrder": "Debe ser otra inscripción del mismo pedido.",
+    "sameAsHolder": "Debe ser otra persona distinta del titular.",
+    "nothingToCollect": "El titular no tiene nada de este tipo que recoger.",
+    "licenseInvalid": "No tiene licencia de armas en vigor ese día."
+  }
+}
