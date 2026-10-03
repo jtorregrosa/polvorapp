@@ -117,6 +117,13 @@
   owned weapons and, for the edition in progress, `ACTIVE` entries with warnings. Admins see every
   active comparsa, the counts by status and the edition totals; FiringChiefs see their comparsas
   only. Totals are computed, never stored.
+- **UC-28 (billing summary)**, change `add-billing-summary` (maintainer decisions): what each
+  comparsa owes the Federation for its order, by concept (powder, caps, weapon rentals, flask
+  rentals) at the edition's flat prices, not per arquebusier — what each arquebusier pays the
+  comparsa stays comparsa-internal. The amounts are always computed from the current entries and
+  prices, never frozen; they are provisional until the order is validated. The summary is shown on
+  the order page and in the orders overview (each comparsa's amount, and for Admins the edition
+  billing). There is no download: exports come with UC-17.
 - On distribution day the **FiringChief validates the identity** of their arquebusiers; nobody signs.
   The only paper document is the proxy authorisation (UC-19), for the exceptional case.
 - Today the Federation records flask assignments with a laptop and a spreadsheet; UC-20 printable

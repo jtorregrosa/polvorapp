@@ -168,3 +168,14 @@ reference fails even before any of its types is used.
 - **Write guards per module**: a module with concurrent writes runs each one through a guard
   (`RegistryWriteGuard`, `EditionWriteGuard`). The guard turns lock timeouts and deadlocks into a
   retryable 503 and logs every rejection at Warning, with ids only.
+
+## Conventions shared by modules (from `add-billing-summary`)
+
+- **Pricing**: `Billing` is the second module without data (no `DbContext`, schema, migrations or
+  endpoints). It owns the pricing rule behind `Billing.Contracts.IBillingCalculator`: an order's
+  `BillingQuantities` and the edition's `BillingPrices` become a `BillingSummary` (four lines,
+  total, provisional or final, missing prices). Modules that show or export amounts call it and
+  never multiply prices by hand, so the order page, the overview and the exports cannot disagree.
+- **Derived values travel with their source**: the billing is not served by endpoints of its own.
+  The orders compute it from the same `OrderTotals` they return and add it to their responses, so
+  it inherits their scope (BR-12) and `DRAFT` rules and is always consistent with the totals.
