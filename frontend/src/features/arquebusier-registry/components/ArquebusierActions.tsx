@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useMemo, useRef, useState, type RefObject } from 'react';
+import { type RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import {
@@ -15,7 +15,7 @@ import { ConfirmDialog } from '@/components/app/ConfirmDialog';
 import { ConfirmFailure } from '@/components/app/confirm-failure';
 import { FilterSelect } from '@/components/app/FilterSelect';
 import { noticeState, type Announce } from '@/lib/notices';
-import { invalidateInsights } from '@/features/compliance-insights/queries';
+import { invalidateOrders } from '@/features/comparsa-orders/queries';
 import { problemCode, problemMessage } from '../problems';
 
 const fullName = (arquebusier: ArquebusierResponse): string =>
@@ -136,6 +136,11 @@ export function DeleteDialog({ arquebusier, open, onOpenChange, returnFocus }: A
   const remove = useDeleteArquebusier();
   const name = fullName(arquebusier);
 
+  // What the deletion does to the orders may have changed since the page loaded (orders closed).
+  useEffect(() => {
+    if (open) void queryClient.invalidateQueries({ queryKey: getGetArquebusierQueryKey(arquebusier.id) });
+  }, [open, queryClient, arquebusier.id]);
+
   return (
     <ConfirmDialog
       open={open}
@@ -156,7 +161,8 @@ export function DeleteDialog({ arquebusier, open, onOpenChange, returnFocus }: A
       }}
       onConfirmed={() => {
         void queryClient.invalidateQueries({ queryKey: getListArquebusiersQueryKey() });
-        void invalidateInsights(queryClient);
+        // The orders show the arquebusier, and the statistics count them (invalidateOrders does both).
+        void invalidateOrders(queryClient);
         // Leave the page first, then drop the deleted person's data: nothing refetches it into a 404.
         void Promise.resolve(
           navigate('/arquebusiers', { state: noticeState(t('delete.deleted', { name })) }),
@@ -164,6 +170,45 @@ export function DeleteDialog({ arquebusier, open, onOpenChange, returnFocus }: A
           queryClient.removeQueries({ queryKey: getGetArquebusierQueryKey(arquebusier.id) });
         });
       }}
+      notes={<DeletionImpactNotes arquebusier={arquebusier} />}
     />
+  );
+}
+
+/**
+ * What the deletion does to the orders (add-comparsa-orders): the entry of the edition in progress
+ * is deleted while its orders are open, or kept as history; lent weapons show as removed; past
+ * entries are kept. Nothing when the deletion touches no order.
+ */
+function DeletionImpactNotes({ arquebusier }: { arquebusier: ArquebusierResponse }) {
+  const { t } = useTranslation('registry');
+  const { currentEntry, lentWeapons, hasPastEntries } = arquebusier.deletionImpact;
+  return (
+    <>
+      {currentEntry && (
+        <AlertBanner severity={currentEntry.willBeRemoved ? 'warning' : 'info'} live={false}>
+          {currentEntry.willBeRemoved
+            ? t('delete.currentEntry', {
+                year: currentEntry.editionYear,
+                comparsa: currentEntry.comparsaName,
+                status: t(`delete.orderStatus.${currentEntry.orderStatus}`),
+              })
+            : t('delete.currentEntryKept', {
+                year: currentEntry.editionYear,
+                comparsa: currentEntry.comparsaName,
+              })}
+        </AlertBanner>
+      )}
+      {lentWeapons > 0 && (
+        <AlertBanner severity="warning" live={false}>
+          {t('delete.lentWeapons', { count: lentWeapons })}
+        </AlertBanner>
+      )}
+      {hasPastEntries && (
+        <AlertBanner severity="info" live={false}>
+          {t('delete.historyKept')}
+        </AlertBanner>
+      )}
+    </>
   );
 }

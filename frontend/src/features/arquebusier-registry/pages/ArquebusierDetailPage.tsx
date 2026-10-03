@@ -121,6 +121,7 @@ function ArquebusierRecord({ details, notice, announce, reload, staleError, onRe
         statuses={
           <>
             <StatusBadge kind="arquebusier" value={details.status} />
+            {details.firstYear === true && <StatusBadge kind="participation" value="FIRST_YEAR" />}
             {details.license ? (
               <>
                 {/* The header has no field labels: the badge is named "License: …". */}

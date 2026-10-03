@@ -61,6 +61,14 @@
       "done": "Done",
       "notDone": "Not done"
     },
+    "firstYear": {
+      "title": "First year",
+      "table": "First year by gender",
+      "category": "Arquebusiers",
+      "firstYear": "In their first year",
+      "notFirstYear": "Not their first year",
+      "unknown": "First-year figures will be available once an earlier edition has orders."
+    },
     "licenses": {
       "title": "Licenses",
       "table": "Arquebusiers by license state",

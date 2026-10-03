@@ -211,7 +211,18 @@
     "confirmDescription": "No es pot desfer: s'esborren les seues dades i les seues armes pròpies.",
     "reserveHint": "Si només deixa de disparar, passa la seua fitxa a Reserva: així es conserven les seues dades. Si torna més endavant després d'eliminar-la, caldrà registrar-la de nou des de zero.",
     "confirm": "Elimina",
-    "deleted": "{{name}} s'ha eliminat del registre."
+    "deleted": "{{name}} s'ha eliminat del registre.",
+    "currentEntry": "La seua línia s'eliminarà de la comanda de {{year}} de {{comparsa}}, que està {{status}}.",
+    "currentEntryKept": "La seua línia de la comanda de {{year}} de {{comparsa}} es conserva com a històric: les comandes estan tancades.",
+    "orderStatus": {
+      "DRAFT": "en esborrany",
+      "SUBMITTED": "enviada",
+      "RETURNED": "retornada",
+      "VALIDATED": "validada"
+    },
+    "lentWeapons_one": "{{count}} arma seua està cedida en esta edició: la comanda de qui la porta mostrarà que l'arma ja no està en el registre.",
+    "lentWeapons_other": "{{count}} armes seues estan cedides en esta edició: les comandes de qui les porten mostraran que les armes ja no estan en el registre.",
+    "historyKept": "Les seues línies d'edicions anteriors es conserven com a històric."
   },
   "gender": {
     "MALE": "Home",

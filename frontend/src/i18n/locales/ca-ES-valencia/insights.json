@@ -61,6 +61,14 @@
       "done": "Fet",
       "notDone": "Sense fer"
     },
+    "firstYear": {
+      "title": "Primer any",
+      "table": "Primer any per gènere",
+      "category": "Arcabussers",
+      "firstYear": "En el seu primer any",
+      "notFirstYear": "No és el seu primer any",
+      "unknown": "Les xifres de primer any estaran disponibles quan una edició anterior tinga comandes."
+    },
     "licenses": {
       "title": "Llicències",
       "table": "Arcabussers per estat de la llicència",

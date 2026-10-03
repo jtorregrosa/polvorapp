@@ -61,6 +61,14 @@
       "done": "Hecho",
       "notDone": "Sin hacer"
     },
+    "firstYear": {
+      "title": "Primer año",
+      "table": "Primer año por género",
+      "category": "Arcabuceros",
+      "firstYear": "En su primer año",
+      "notFirstYear": "No es su primer año",
+      "unknown": "Las cifras de primer año estarán disponibles cuando una edición anterior tenga pedidos."
+    },
     "licenses": {
       "title": "Licencias",
       "table": "Arcabuceros por estado de la licencia",
