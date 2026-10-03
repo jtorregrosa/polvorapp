@@ -179,6 +179,7 @@ test('a FiringChief submits, the Admin returns it, she fixes and resubmits, and 
 
     await openOrder(chief);
     await expect(chief.getByText('Devuelto por Admin Sintética')).toBeVisible();
+    await expect(chief.getByRole('region', { name: 'Resumen de pago' })).toContainText('Provisional');
     await expect(chief.getByText('Revisad la línea de Sintético Tres.')).toBeVisible();
     const fix = await editEntry(chief, 'Sintético Tres, Arcabucero');
     await fix.getByRole('radio', { name: 'Activo' }).click();
@@ -189,10 +190,12 @@ test('a FiringChief submits, the Admin returns it, she fixes and resubmits, and 
     await page.getByRole('button', { name: 'Validar' }).click();
     await page.getByRole('alertdialog').getByRole('button', { name: 'Validar' }).click();
     await expect(page.getByText('Pedido validado.')).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Resumen de pago' })).toContainText('Definitivo');
 
     await openOrder(chief);
     await expect(chief.getByText('El pedido está validado: ya no puedes modificarlo.')).toBeVisible();
     await expect(chief.getByRole('button', { name: /^Editar/ })).toHaveCount(0);
+    await expect(chief.getByRole('region', { name: 'Resumen de pago' })).toContainText('Definitivo');
   } finally {
     await context.close();
   }
