@@ -87,13 +87,13 @@ public sealed class ArquebusierFactsTests(PostgresFixture postgres, MailpitFixtu
 
         var first = facts[1981];
         Assert.Equal((comparsa.Id, ArquebusierStatus.Reserve, Gender.Female), (first.ComparsaId, first.Status, first.Gender));
-        Assert.Equal(new ArquebusierLicenseFacts.Issued(new DateOnly(2029, 3, 10), HasFrontPhoto: true, HasBackPhoto: false), first.License);
+        Assert.Equal(new ArquebusierLicenseFacts.Issued(LicenseType.Ae, new DateOnly(2029, 3, 10), HasFrontPhoto: true, HasBackPhoto: false), first.License);
         Assert.Equal(new DateOnly(2025, 11, 15), first.TrainingCompletedOn);
         Assert.True(first.HasIdPhoto);
         Assert.Equal(new[] { trabuco.Id, pistol.Id }.Order(), first.OwnedWeaponModelIds.Order());
 
-        Assert.Equal(new ArquebusierLicenseFacts.Issued(new DateOnly(2027, 2, 1), HasFrontPhoto: true, HasBackPhoto: true), facts[1982].License);
-        Assert.IsType<ArquebusierLicenseFacts.Pending>(facts[1983].License);
+        Assert.Equal(new ArquebusierLicenseFacts.Issued(LicenseType.AProf, new DateOnly(2027, 2, 1), HasFrontPhoto: true, HasBackPhoto: true), facts[1982].License);
+        Assert.Equal(new ArquebusierLicenseFacts.Pending(LicenseType.AProf), facts[1983].License);
         Assert.Null(facts[1984].License);
         Assert.False(facts[1984].HasIdPhoto);
         Assert.Null(facts[1984].TrainingCompletedOn);
@@ -114,9 +114,13 @@ public sealed class ArquebusierFactsTests(PostgresFixture postgres, MailpitFixtu
     }
 
     [Fact]
+    public void Licenses_differ_by_type() =>
+        Assert.NotEqual<ArquebusierLicenseFacts>(new ArquebusierLicenseFacts.Pending(LicenseType.Ae), new ArquebusierLicenseFacts.Pending(LicenseType.AProf));
+
+    [Fact]
     public void Facts_print_no_personal_value()
     {
-        var license = new ArquebusierLicenseFacts.Issued(new DateOnly(2029, 3, 10), HasFrontPhoto: true, HasBackPhoto: true);
+        var license = new ArquebusierLicenseFacts.Issued(LicenseType.Ae, new DateOnly(2029, 3, 10), HasFrontPhoto: true, HasBackPhoto: true);
         var facts = new ArquebusierFacts(Guid.NewGuid(), Guid.NewGuid(), ArquebusierStatus.Active, Gender.Male, new DateOnly(1990, 5, 1), license, null, HasIdPhoto: false, []);
 
         Assert.DoesNotContain("1990", facts.ToString(), StringComparison.Ordinal);

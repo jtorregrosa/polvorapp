@@ -31,3 +31,14 @@ public interface IAuditTrail
     /// </summary>
     void Record(DbContext context, AuditRecord record);
 }
+
+/// <summary>
+/// Records an audit entry on its own, in its own transaction, for actions that write nothing and so
+/// have no unit of work to join, such as an export (change add-exports, design D2). Writes use
+/// <see cref="IAuditTrail"/> instead, so the entry commits with the change.
+/// </summary>
+public interface IAuditLog
+{
+    /// <summary>Stores the entry; throws when it cannot, so the caller does not go on unaudited.</summary>
+    Task RecordAsync(AuditRecord record, CancellationToken cancellationToken);
+}

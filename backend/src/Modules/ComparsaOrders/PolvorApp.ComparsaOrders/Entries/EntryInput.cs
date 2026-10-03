@@ -1,4 +1,5 @@
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.SharedKernel.Validation;
 
 namespace PolvorApp.ComparsaOrders.Entries;

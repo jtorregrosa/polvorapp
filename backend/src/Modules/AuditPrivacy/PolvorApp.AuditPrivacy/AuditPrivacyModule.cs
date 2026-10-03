@@ -24,6 +24,7 @@ public sealed class AuditPrivacyModule : IModule
         services.TryAddSingleton(TimeProvider.System);
         services.AddModuleDbContext<AuditDbContext>(AuditTrailModel.Schema, MigrationOrder);
         services.AddSingleton<IAuditTrail, AuditTrail>();
+        services.AddScoped<IAuditLog, AuditLog>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder endpoints)

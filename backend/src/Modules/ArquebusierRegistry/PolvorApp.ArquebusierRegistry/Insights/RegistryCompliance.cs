@@ -37,8 +37,8 @@ internal static class RegistryCompliance
     public static ArquebusierLicenseFacts? LicenseOf(Guid arquebusierId, LicenseColumns license, PhotoFlags photos) => license switch
     {
         { Type: null } => null,
-        { Pending: true } => new ArquebusierLicenseFacts.Pending(),
-        { ExpiresOn: { } expiresOn } => new ArquebusierLicenseFacts.Issued(expiresOn, photos.LicenseFront, photos.LicenseBack),
+        { Type: { } type, Pending: true } => new ArquebusierLicenseFacts.Pending(type),
+        { Type: { } type, ExpiresOn: { } expiresOn } => new ArquebusierLicenseFacts.Issued(type, expiresOn, photos.LicenseFront, photos.LicenseBack),
         _ => throw new InvalidOperationException($"The issued license of arquebusier {arquebusierId} has no expiry date."),
     };
 }

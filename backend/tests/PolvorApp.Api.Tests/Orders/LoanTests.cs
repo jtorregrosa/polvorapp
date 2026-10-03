@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PolvorApp.Api.Tests.Infrastructure;
+using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.ComparsaOrders.Entries;
 using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 

@@ -80,6 +80,7 @@ services:
       RateLimits__SpreadsheetImports__PermitLimit: ${RATE_LIMIT_SPREADSHEET_IMPORTS_PER_MINUTE:-10}
       # Comparsa order writes (entries, loans, submission, review) per user and minute.
       RateLimits__OrderWrites__PermitLimit: ${RATE_LIMIT_ORDER_WRITES_PER_MINUTE:-120}
+      RateLimits__Exports__PermitLimit: ${RATE_LIMIT_EXPORTS_PER_MINUTE:-30}
       # Private photo bucket (ADR-0005). Locally the API uses the MinIO root credentials; real
       # environments use a key limited to this bucket (docs/development.md).
       Storage__ServiceUrl: http://storage:9000

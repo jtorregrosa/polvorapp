@@ -1,11 +1,11 @@
 using System.Text.Json.Serialization;
 using PolvorApp.SharedKernel.Codes;
 
-namespace PolvorApp.ComparsaOrders.Entries;
+namespace PolvorApp.ComparsaOrders.Contracts;
 
 /// <summary>Type of the percussion caps of an entry (glossary: <c>PercussionCaps</c>).</summary>
 [JsonConverter(typeof(CodeEnumConverter<CapsType>))]
-internal enum CapsType
+public enum CapsType
 {
     [JsonStringEnumMemberName("NORMAL")]
     Normal,
@@ -16,7 +16,7 @@ internal enum CapsType
 
 /// <summary>Where an entry's weapon comes from (spec: Edition entries (BR-05, BR-07)).</summary>
 [JsonConverter(typeof(CodeEnumConverter<WeaponSource>))]
-internal enum WeaponSource
+public enum WeaponSource
 {
     /// <summary>One of the arquebusier's owned weapons.</summary>
     [JsonStringEnumMemberName("OWNED")]
@@ -37,7 +37,7 @@ internal enum WeaponSource
 
 /// <summary>The powder flask of an entry (glossary: <c>PowderFlask</c>).</summary>
 [JsonConverter(typeof(CodeEnumConverter<FlaskOption>))]
-internal enum FlaskOption
+public enum FlaskOption
 {
     [JsonStringEnumMemberName("OWNED")]
     Owned,
@@ -54,7 +54,7 @@ internal enum FlaskOption
 
 /// <summary>Who lends the weapon of a loan (spec: Weapon loans (UC-13, BR-09)).</summary>
 [JsonConverter(typeof(CodeEnumConverter<LenderKind>))]
-internal enum LenderKind
+public enum LenderKind
 {
     /// <summary>A registered arquebusier of any comparsa, with one of their owned weapons.</summary>
     [JsonStringEnumMemberName("ARQUEBUSIER")]

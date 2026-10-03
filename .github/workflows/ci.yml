@@ -172,6 +172,7 @@ jobs:
           echo "RATE_LIMIT_PERSONAL_DATA_WRITES_PER_MINUTE=600" >> .env
           echo "RATE_LIMIT_IMAGE_UPLOADS_PER_MINUTE=200" >> .env
           echo "RATE_LIMIT_SPREADSHEET_IMPORTS_PER_MINUTE=100" >> .env
+          echo "RATE_LIMIT_EXPORTS_PER_MINUTE=300" >> .env
           # Building the images and installing the browsers are independent: run them side by side.
           docker compose up --detach --build --wait > "$RUNNER_TEMP/compose-up.log" 2>&1 &
           compose=$!
