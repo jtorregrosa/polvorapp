@@ -1,0 +1,9 @@
+--- page 1 (portrait) ---
+Listado de prueba
+Numeración válida para esta impresión.
+test-list, versión 1
+Nº Apellidos y nombre Firma A Firma B
+1 Abad Sintético, Ana
+2 Zamora Sintética, Berta
+3 Climent Sintético, Carles
+15/02/2031 · 1 / 1

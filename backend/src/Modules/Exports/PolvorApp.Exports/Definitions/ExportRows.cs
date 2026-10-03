@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text;
 using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.SharedKernel.Codes;
@@ -82,7 +81,7 @@ internal static class ExportRows
         var parts = new List<string> { "polvorapp", year.ToString(CultureInfo.InvariantCulture), definition };
         if (comparsa is not null)
         {
-            var slug = Slug(comparsa);
+            var slug = FileSlug.Of(comparsa);
             parts.Add(slug.Length > 0 ? slug : "comparsa");
         }
 
@@ -97,31 +96,6 @@ internal static class ExportRows
         }
 
         return string.Join('-', parts);
-    }
-
-    /// <summary>"Comparsa Sintética Norte" → "comparsa-sintetica-norte": ASCII letters and digits only.</summary>
-    public static string Slug(string text)
-    {
-        ArgumentNullException.ThrowIfNull(text);
-        var builder = new StringBuilder(text.Length);
-        foreach (var c in text.Normalize(NormalizationForm.FormD))
-        {
-            if (CharUnicodeInfo.GetUnicodeCategory(c) == UnicodeCategory.NonSpacingMark)
-            {
-                continue;
-            }
-
-            if (char.IsAsciiLetterOrDigit(c))
-            {
-                builder.Append(char.ToLowerInvariant(c));
-            }
-            else if (builder.Length > 0 && builder[^1] != '-')
-            {
-                builder.Append('-');
-            }
-        }
-
-        return builder.ToString().Trim('-');
     }
 
     /// <summary>The notices: first, for a draft, the order's status (spec: Comparsa list export); then the provisional one.</summary>

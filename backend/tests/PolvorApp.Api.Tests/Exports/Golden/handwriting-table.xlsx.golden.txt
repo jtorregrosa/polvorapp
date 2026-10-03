@@ -1,0 +1,17 @@
+sheet: PolvorApp
+A1: Text bold Listado de prueba
+A2: Text bold Numeración válida para esta impresión.
+A3: Text test-list, versión 1
+A5: Text bold Nº
+B5: Text bold Apellidos y nombre
+C5: Text bold Firma A
+D5: Text bold Firma B
+A6: Number [0] 1
+B6: Text Abad Sintético, Ana
+A7: Number [0] 2
+B7: Text Zamora Sintética, Berta
+A8: Number [0] 3
+B8: Text Climent Sintético, Carles
+merged: A2:D2
+frozen rows: 5
+auto-filter: A5:D8

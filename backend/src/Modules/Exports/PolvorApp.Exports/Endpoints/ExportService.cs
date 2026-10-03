@@ -3,15 +3,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Logging;
 using PolvorApp.ComparsaOrders.Contracts;
+using PolvorApp.Exports.Contracts;
 using PolvorApp.Exports.Definitions;
-using PolvorApp.Exports.Writers;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.FestivalEditions.Contracts;
 using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.SharedKernel.Auditing;
 using PolvorApp.SharedKernel.Codes;
 using PolvorApp.SharedKernel.Http;
-using PolvorApp.SharedKernel.Time;
 
 namespace PolvorApp.Exports.Endpoints;
 
@@ -28,7 +27,7 @@ internal sealed partial class ExportService(
     IComparsaScope scope,
     ICurrentUser currentUser,
     IAuditLog auditLog,
-    TimeProvider time,
+    IDocumentRenderer renderer,
     ILogger<ExportService> logger)
 {
     public const string AuditAction = "ExportDownloaded";
@@ -87,12 +86,10 @@ internal sealed partial class ExportService(
     }
 
     private async Task<Results<FileContentHttpResult, ProblemHttpResult>> DeliverAsync(
-        IExportDefinition definition, ExportTable table, ExportFormat format, EditionSnapshot edition, Guid? comparsaId, OrderStatus? orderStatus,
+        IExportDefinition definition, DocumentTable table, DocumentFileFormat format, EditionSnapshot edition, Guid? comparsaId, OrderStatus? orderStatus,
         CancellationToken cancellationToken)
     {
-        var (bytes, contentType, extension) = format == ExportFormat.Pdf
-            ? (PdfExportWriter.Write(table, FederationCalendar.Today(time)), PdfExportWriter.ContentType, PdfExportWriter.Extension)
-            : (XlsxExportWriter.Write(table), XlsxExportWriter.ContentType, XlsxExportWriter.Extension);
+        var document = renderer.RenderTable(table, format);
         try
         {
             await auditLog.RecordAsync(
@@ -119,14 +116,14 @@ internal sealed partial class ExportService(
             return ProblemResults.Problem(StatusCodes.Status503ServiceUnavailable, AuditUnavailable);
         }
 
-        return TypedResults.File(bytes, contentType, $"{table.FileStem}.{extension}");
+        return TypedResults.File(document.Content.ToArray(), document.ContentType, document.FileName);
     }
 
     /// <summary><c>xlsx</c> or <c>pdf</c>, as in the route; anything else is not found.</summary>
-    private static ExportFormat? ParseFormat(string format) => format switch
+    private static DocumentFileFormat? ParseFormat(string format) => format switch
     {
-        "xlsx" => ExportFormat.Xlsx,
-        "pdf" => ExportFormat.Pdf,
+        "xlsx" => DocumentFileFormat.Xlsx,
+        "pdf" => DocumentFileFormat.Pdf,
         _ => null,
     };
 

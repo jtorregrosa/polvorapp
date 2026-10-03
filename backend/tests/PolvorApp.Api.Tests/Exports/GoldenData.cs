@@ -1,6 +1,7 @@
 using System.Globalization;
 using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ComparsaOrders.Contracts;
+using PolvorApp.Exports.Contracts;
 using PolvorApp.Exports.Definitions;
 using static PolvorApp.Api.Tests.Exports.ExportFixtures;
 
@@ -55,7 +56,7 @@ internal static class GoldenData
     /// <summary>Each golden case: its name and its table.</summary>
     public static TheoryData<string> Cases => ["powder-supplier", "rental-company", "arms-authority", "comparsa-list", "comparsa-list-draft-en"];
 
-    public static ExportTable Table(string name) => name switch
+    public static DocumentTable Table(string name) => name switch
     {
         "powder-supplier" => new PowderSupplierExport().Build(All, ExportTexts.Spanish),
         "rental-company" => new RentalCompanyExport().Build(All, ExportTexts.Spanish),

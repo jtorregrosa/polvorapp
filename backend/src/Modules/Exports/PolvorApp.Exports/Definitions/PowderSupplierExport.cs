@@ -1,4 +1,5 @@
 using PolvorApp.ComparsaOrders.Contracts;
+using PolvorApp.Exports.Contracts;
 using PolvorApp.SharedKernel.Text;
 
 namespace PolvorApp.Exports.Definitions;
@@ -17,7 +18,7 @@ internal sealed class PowderSupplierExport : IExportDefinition
 
     public ExportAudience Audience => ExportAudience.Recipient;
 
-    public ExportTable Build(ExportData data, ExportTexts texts)
+    public DocumentTable Build(ExportData data, ExportTexts texts)
     {
         ArgumentNullException.ThrowIfNull(data);
         ArgumentNullException.ThrowIfNull(texts);
@@ -41,16 +42,16 @@ internal sealed class PowderSupplierExport : IExportDefinition
             .OrderBy(t => t.Comparsa, SpanishOrder.Names)
             .ToList();
         var rows = totals.Select(t => (IReadOnlyList<object?>)[t.Comparsa, t.PowderKg, t.Normal, t.Small]).ToList();
-        return new ExportTable(
+        return new DocumentTable(
             ExportRows.FileStem(data.EditionYear, Name, Provisional),
             texts.Format(texts.PowderSupplierTitle, data.EditionYear),
             ExportRows.Notices(texts, Provisional),
             texts.Format(texts.VersionLine, Name, Version),
             [
-                new(texts.Comparsa, ExportCellType.Text),
-                new(texts.PowderKg, ExportCellType.Integer),
-                new(texts.NormalCapsBoxes, ExportCellType.Integer),
-                new(texts.SmallCapsBoxes, ExportCellType.Integer),
+                new(texts.Comparsa, DocumentCellType.Text),
+                new(texts.PowderKg, DocumentCellType.Number),
+                new(texts.NormalCapsBoxes, DocumentCellType.Number),
+                new(texts.SmallCapsBoxes, DocumentCellType.Number),
             ],
             rows,
             [texts.Total, totals.Sum(t => t.PowderKg), totals.Sum(t => t.Normal), totals.Sum(t => t.Small)]);

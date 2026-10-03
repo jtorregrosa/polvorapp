@@ -1,4 +1,5 @@
 using System.Globalization;
+using PolvorApp.Exports.Contracts;
 using PolvorApp.Exports.Definitions;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -7,10 +8,11 @@ using QuestPDF.Infrastructure;
 namespace PolvorApp.Exports.Writers;
 
 /// <summary>
-/// Writes an <see cref="ExportTable"/> as a PDF (spec: Excel and PDF; design D4): A4, landscape above
+/// Writes a <see cref="DocumentTable"/> as a PDF (spec: Excel and PDF; design D4): A4, landscape above
 /// six columns; the title, notices and version line, then the table whose header repeats on every
 /// page; a footer with the generation date and "page / pages". Geist only, so the output is the same
-/// on every host. Numbers are written without thousands separators (they are counts and IDs).
+/// on every host. Numbers are written without thousands separators (they are counts and IDs). A
+/// failure surfaces as a <see cref="DocumentRenderingException"/> that never quotes the content.
 /// </summary>
 internal static class PdfExportWriter
 {
@@ -18,19 +20,22 @@ internal static class PdfExportWriter
 
     public const string Extension = "pdf";
 
+    /// <summary>The width of a column filled in by hand, in points: room for a number or a short code.</summary>
+    public const float HandwritingColumnWidth = 72;
+
+    /// <summary>The minimum row height of a table with columns filled in by hand, in points: room to write.</summary>
+    public const float HandwritingRowHeight = 22;
+
     private const int PortraitMaxColumns = 6;
     private const float DateWidth = 62;
-    private const float IntegerWidth = 56;
+    private const float NumberWidth = 56;
 
-    public static byte[] Write(ExportTable table, DateOnly generatedOn)
+    public static byte[] Write(DocumentTable table, DateOnly generatedOn)
     {
         ArgumentNullException.ThrowIfNull(table);
         PdfSetup.EnsureApplied();
         var landscape = table.Columns.Count > PortraitMaxColumns;
-        // Fixed dates: the same table on the same day gives the same file.
-        var day = new DateTimeOffset(generatedOn.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
-        var metadata = new DocumentMetadata { Title = table.Title, Author = "PolvorApp", Creator = "PolvorApp", Producer = "PolvorApp", CreationDate = day, ModifiedDate = day };
-        return Document.Create(document => document.Page(page =>
+        return PdfSetup.Generate("table", PdfSetup.Metadata(table.Title, generatedOn), document => document.Page(page =>
         {
             page.Size(landscape ? PageSizes.A4.Landscape() : PageSizes.A4);
             page.Margin(28);
@@ -54,10 +59,10 @@ internal static class PdfExportWriter
                 text.Span(" / ");
                 text.TotalPages();
             });
-        })).WithMetadata(metadata).GeneratePdf();
+        }));
     }
 
-    private static void Table(IContainer container, ExportTable table) => container.Table(grid =>
+    private static void Table(IContainer container, DocumentTable table) => container.Table(grid =>
     {
         grid.ColumnsDefinition(columns =>
         {
@@ -65,13 +70,19 @@ internal static class PdfExportWriter
             // text columns share the rest.
             foreach (var column in table.Columns)
             {
+                if (column.ForHandwriting)
+                {
+                    columns.ConstantColumn(HandwritingColumnWidth);
+                    continue;
+                }
+
                 switch (column.Type)
                 {
-                    case ExportCellType.Date:
+                    case DocumentCellType.Date:
                         columns.ConstantColumn(DateWidth);
                         break;
-                    case ExportCellType.Integer:
-                        columns.ConstantColumn(IntegerWidth);
+                    case DocumentCellType.Number:
+                        columns.ConstantColumn(NumberWidth);
                         break;
                     default:
                         columns.RelativeColumn();
@@ -86,22 +97,30 @@ internal static class PdfExportWriter
                 header.Cell().Background(Colors.Grey.Lighten3).BorderBottom(0.5f).Padding(3).Text(column.Header).Bold();
             }
         });
+        // Rows are tall enough to write in only when the table asks for handwriting.
+        var minHeight = table.Columns.Any(column => column.ForHandwriting) ? HandwritingRowHeight : 0;
         foreach (var row in table.Rows)
         {
-            Row(grid, table.Columns, row, bold: false);
+            Row(grid, table.Columns, row, bold: false, minHeight);
         }
 
         if (table.TotalRow is { } total)
         {
-            Row(grid, table.Columns, total, bold: true);
+            Row(grid, table.Columns, total, bold: true, minHeight);
         }
     });
 
-    private static void Row(TableDescriptor grid, IReadOnlyList<ExportColumn> columns, IReadOnlyList<object?> cells, bool bold)
+    private static void Row(TableDescriptor grid, IReadOnlyList<DocumentColumn> columns, IReadOnlyList<object?> cells, bool bold, float minHeight)
     {
         for (var c = 0; c < cells.Count; c++)
         {
-            var cell = grid.Cell().BorderBottom(0.25f).BorderColor(Colors.Grey.Lighten2).Padding(3);
+            var cell = grid.Cell().BorderBottom(0.25f).BorderColor(Colors.Grey.Lighten2);
+            if (minHeight > 0)
+            {
+                cell = cell.MinHeight(minHeight);
+            }
+
+            cell = cell.Padding(3);
             if (cells[c] is int or DateOnly)
             {
                 cell = cell.AlignRight();
@@ -115,7 +134,7 @@ internal static class PdfExportWriter
         }
     }
 
-    private static string Format(ExportColumn column, object? value) => value switch
+    private static string Format(DocumentColumn column, object? value) => value switch
     {
         null => string.Empty,
         int number => number.ToString(CultureInfo.InvariantCulture),
