@@ -63,6 +63,36 @@ describe('EditSheet', () => {
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 });
   });
 
+  it('names its own trigger with its visible label first and an optional context', async () => {
+    function Planner() {
+      const form = useAppForm<Values>({
+        resolver: zodResolver(schema),
+        defaultValues: { lastName: '', phone: '' },
+      });
+      return (
+        <SaveNoticeProvider>
+          <EditSheet
+            title="Planificar el día de pólvora"
+            sectionName="día de pólvora"
+            trigger={{ label: 'Planificar', context: 'día de reparto de pólvora' }}
+            form={form}
+            values={{ lastName: '', phone: '' }}
+            onSave={vi.fn()}
+          >
+            <FormField control={form.control} name="lastName" label="Apellidos">
+              {(field) => <Input {...field} />}
+            </FormField>
+          </EditSheet>
+        </SaveNoticeProvider>
+      );
+    }
+    await renderWithProviders(<Planner />);
+
+    expect(screen.getByRole('button', { name: 'Planificar día de reparto de pólvora' })).toHaveTextContent(
+      /^Planificar/,
+    );
+  });
+
   it('opens the section fields in a side panel, with focus inside', async () => {
     const user = userEvent.setup();
     await renderWithProviders(<PersonalSection save={vi.fn()} />);

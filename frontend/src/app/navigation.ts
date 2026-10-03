@@ -7,6 +7,7 @@ import {
   Flag,
   House,
   IdCard,
+  Truck,
   Users,
   type LucideIcon,
 } from 'lucide-react';
@@ -31,6 +32,7 @@ export const NAVIGATION: readonly NavigationEntry[] = [
   { to: '/arquebusiers', labelKey: 'nav.arquebusiers', icon: IdCard, count: 'warnings' },
   { to: '/editions', labelKey: 'nav.editions', icon: CalendarDays },
   { to: '/orders', labelKey: 'nav.orders', icon: ClipboardList },
+  { to: '/distribution', labelKey: 'nav.distribution', icon: Truck },
   { to: '/statistics', labelKey: 'nav.statistics', icon: ChartColumn },
   { to: '/comparsas', labelKey: 'nav.comparsas', icon: Flag },
   { to: '/weapon-models', labelKey: 'nav.weaponModels', icon: Crosshair, roles: ['ADMIN'] },

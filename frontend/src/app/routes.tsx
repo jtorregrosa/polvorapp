@@ -28,6 +28,8 @@ import { DashboardPage } from '@/features/compliance-insights/pages/DashboardPag
 import { EditionCreatePage } from '@/features/festival-editions/pages/EditionCreatePage';
 import { EditionDetailPage } from '@/features/festival-editions/pages/EditionDetailPage';
 import { EditionsPage } from '@/features/festival-editions/pages/EditionsPage';
+import { CurrentDistributionPage } from '@/features/distribution/pages/CurrentDistributionPage';
+import { DistributionPage } from '@/features/distribution/pages/DistributionPage';
 import { ExportsPage } from '@/features/exports/pages/ExportsPage';
 import { OrderPage } from '@/features/comparsa-orders/pages/OrderPage';
 import { OrdersOverviewPage } from '@/features/comparsa-orders/pages/OrdersOverviewPage';
@@ -126,6 +128,16 @@ export const appRoutes: RouteObject[] = [
                 path: 'orders/:orderId',
                 Component: OrderPage,
                 handle: { breadcrumb: 'nav.orders' } satisfies RouteHandle,
+              },
+              {
+                path: 'distribution',
+                Component: CurrentDistributionPage,
+                handle: { breadcrumb: 'nav.distribution' } satisfies RouteHandle,
+              },
+              {
+                path: 'editions/:editionId/distribution',
+                Component: DistributionPage,
+                handle: { breadcrumb: 'nav.distribution' } satisfies RouteHandle,
               },
               {
                 path: 'statistics',

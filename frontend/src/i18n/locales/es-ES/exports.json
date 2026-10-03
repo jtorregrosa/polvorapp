@@ -49,12 +49,17 @@
     "listOf": "la lista de {{comparsa}}",
     "draftListOf": "la lista de {{comparsa}} (borrador)",
     "saved": "Descargado: {{name}}",
+    "inProgress": "Descargando {{what}}…",
     "failedTitle": "No se ha descargado {{what}}"
   },
   "errors": {
     "notPrepared": "La comparsa no ha preparado su pedido.",
     "tooMany": "Has descargado demasiados ficheros seguidos. Espera un minuto y vuelve a intentarlo.",
     "auditUnavailable": "No se ha podido registrar la descarga, así que no se ha generado el fichero. Inténtalo de nuevo en unos minutos.",
+    "notApplicable": "El titular ya no recoge nada de este tipo, así que no hay formulario.",
+    "licenseInvalid": "La licencia de armas del autorizado no es válida el día del reparto, así que no hay formulario.",
+    "storageUnavailable": "No se ha podido leer el logo de la Federación. Inténtalo de nuevo en unos minutos.",
+    "gone": "Ya no existe: actualiza la página.",
     "failed": "Inténtalo de nuevo."
   },
   "order": {

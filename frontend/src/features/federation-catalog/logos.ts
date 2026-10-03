@@ -1,4 +1,5 @@
 import { getGetComparsaLogoUrl } from '@/api/generated/comparsas/comparsas';
+import { getGetFederationLogoUrl } from '@/api/generated/federation/federation';
 import type { ComparsaLogoResponse } from '@/api/generated/model';
 import type { PhotoRules } from '@/components/app/PhotoUpload';
 
@@ -17,4 +18,9 @@ export const LOGO_RULES: PhotoRules = {
 /** The logo's URL, versioned so the browser reloads it when it changes; null without a logo. */
 export function logoUrl(comparsaId: string, logo: ComparsaLogoResponse | null): string | null {
   return logo ? `${getGetComparsaLogoUrl(comparsaId)}?v=${encodeURIComponent(logo.version)}` : null;
+}
+
+/** The Federation logo's URL, versioned like a comparsa's; null without a logo. */
+export function federationLogoUrl(logo: ComparsaLogoResponse | null): string | null {
+  return logo ? `${getGetFederationLogoUrl()}?v=${encodeURIComponent(logo.version)}` : null;
 }

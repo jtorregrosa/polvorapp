@@ -240,6 +240,23 @@ describe('SelectInput', () => {
     expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Comparsa Sintética']);
   });
 
+  it('shows an option that cannot be chosen, with its reason in its label', async () => {
+    await renderWithProviders(
+      <SelectInput
+        aria-label="Autorizado"
+        placeholder="Elige…"
+        defaultValue=""
+        options={[
+          { value: 'e1', label: 'Zamora Sintético, Bruno' },
+          { value: 'e2', label: 'Domènech Sintètic, Dani — no puede: sin licencia', disabled: true },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole('option', { name: 'Zamora Sintético, Bruno' })).toBeEnabled();
+    expect(screen.getByRole('option', { name: /Domènech Sintètic, Dani — no puede/ })).toBeDisabled();
+  });
+
   it('keeps an empty option that is a real choice, such as "All"', async () => {
     await renderWithProviders(
       <SelectInput

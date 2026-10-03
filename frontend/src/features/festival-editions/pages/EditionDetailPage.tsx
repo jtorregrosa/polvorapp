@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { ClipboardList } from 'lucide-react';
+import { ClipboardList, Truck } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import { useGetEdition } from '@/api/generated/editions/editions';
 import type { EditionResponse } from '@/api/generated/model';
@@ -45,6 +45,14 @@ function EditionDetail({ edition, isAdmin }: { edition: EditionResponse; isAdmin
                 <Link to={`/editions/${edition.id}/orders`}>
                   <ClipboardList aria-hidden="true" />
                   {t('detail.ordersLink')}
+                </Link>
+              </Button>
+            )}
+            {edition.status !== 'DRAFT' && (
+              <Button asChild variant="secondary">
+                <Link to={`/editions/${edition.id}/distribution`}>
+                  <Truck aria-hidden="true" />
+                  {t('detail.distributionLink')}
                 </Link>
               </Button>
             )}

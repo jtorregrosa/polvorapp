@@ -44,6 +44,8 @@
     "optional": "Optional",
     "requiredNote": "All fields are required unless marked as optional.",
     "clearDate": "Clear date",
+    "clearTime": "Clear time",
+    "clearTimeFor": "Clear time of {{subject}}",
     "optionalSuffix": "(optional)",
     "errorSummaryTitle": "There is a problem",
     "index": "On this form",
@@ -104,6 +106,10 @@
     "catalog": {
       "ACTIVE": "Active",
       "INACTIVE": "Inactive"
+    },
+    "proxy": {
+      "NOT_APPLICABLE": "Holder no longer collects",
+      "LICENSE_INVALID": "License not valid on the day"
     },
     "warning": {
       "LICENSE_MISSING": "No license",

@@ -527,7 +527,7 @@ describe('EditionActions (spec: Editions screens, design D10)', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Eliminar edición' }));
 
     expect(
-      await within(dialog).findByText(/tiene pedidos de comparsas y no se puede eliminar/),
+      await within(dialog).findByText(/tiene pedidos de comparsas o días de reparto y no se puede eliminar/),
     ).toBeInTheDocument();
     expect(app.location()).toBe(`/editions/${DRAFT_2032.id}`);
   });

@@ -44,6 +44,8 @@
     "optional": "Opcional",
     "requiredNote": "Todos los campos son obligatorios salvo los marcados como opcionales.",
     "clearDate": "Borrar fecha",
+    "clearTime": "Borrar hora",
+    "clearTimeFor": "Borrar hora de {{subject}}",
     "optionalSuffix": "(opcional)",
     "errorSummaryTitle": "Hay un problema",
     "index": "En este formulario",
@@ -104,6 +106,10 @@
     "catalog": {
       "ACTIVE": "Activo",
       "INACTIVE": "Inactivo"
+    },
+    "proxy": {
+      "NOT_APPLICABLE": "El titular ya no recoge",
+      "LICENSE_INVALID": "Licencia no válida ese día"
     },
     "warning": {
       "LICENSE_MISSING": "Sin licencia",

@@ -75,6 +75,23 @@
       "removed": "Logo removed"
     }
   },
+  "federation": {
+    "logo": {
+      "section": "Federation logo",
+      "help": "Printed on the pickup authorisation form (and later on the badges). A PNG with a transparent background is recommended. The long side must be at least 256 px and no more than 3 times the short one. It is stored as a PNG of at most 1024 px.",
+      "label": "Federation logo",
+      "alt": "Federation logo",
+      "empty": "No logo",
+      "loading": "Loading the logo…",
+      "loadFailed": "The Federation logo could not be loaded.",
+      "staleFailed": "The Federation logo could not be refreshed: what you see may be outdated.",
+      "removeTitle": "Remove the Federation logo?",
+      "removeDescription": "The image will be deleted. Documents will be printed without a logo until you upload another.",
+      "removeConfirm": "Remove logo",
+      "uploaded": "Logo saved",
+      "removed": "Logo removed"
+    }
+  },
   "firingChiefs": {
     "title": "Firing chiefs",
     "description": "Users who manage this comparsa. They only see the comparsas assigned to them.",

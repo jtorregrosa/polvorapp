@@ -50,6 +50,7 @@
     },
     "orders": "Orders",
     "ordersLink": "See the orders",
+    "distributionLink": "Distribution",
     "ordersEditable": "FiringChiefs can edit orders",
     "ordersReadOnly": "Orders are read-only for FiringChiefs",
     "draftNotice": "Edition in preparation: FiringChiefs do not see it until it starts.",
@@ -196,7 +197,7 @@
       "ordersOpen": "The orders are open. Close them first.",
       "notInProgress": "Only the edition in progress can open orders.",
       "notDraft": "Only an edition in preparation can be deleted.",
-      "inUse": "The edition has comparsa orders and cannot be deleted.",
+      "inUse": "The edition has comparsa orders or distribution days and cannot be deleted.",
       "tooManyMilestones": "An edition can have 50 milestones at most.",
       "milestoneNotFound": "This milestone no longer exists.",
       "busy": "The edition is busy with another change. Try again in a few seconds."

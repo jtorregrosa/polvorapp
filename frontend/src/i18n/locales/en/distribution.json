@@ -1,0 +1,206 @@
+{
+  "page": {
+    "title": "Distribution of {{year}}",
+    "description": "The powder and weapons days, each comparsa's slot and the pickup proxies.",
+    "back": "Edition {{year}}",
+    "link": "Distribution",
+    "loadFailed": "The distribution could not be loaded.",
+    "staleFailed": "The distribution could not be refreshed: what you see may be outdated.",
+    "noCurrent": {
+      "title": "There is no edition in progress",
+      "body": "The distribution belongs to an edition. Open the editions to choose one.",
+      "link": "Editions"
+    },
+    "loading": "Loading the distribution…",
+    "notInProgress": {
+      "DRAFT": "The edition is a draft: the distribution days are planned once it is in progress.",
+      "CLOSED": "The edition is not in progress: the distribution days and slots can no longer be changed."
+    }
+  },
+  "types": {
+    "POWDER": "Powder",
+    "WEAPONS": "Weapons"
+  },
+  "day": {
+    "title": {
+      "POWDER": "Powder day",
+      "WEAPONS": "Weapons day"
+    },
+    "name": {
+      "POWDER": "powder distribution day",
+      "WEAPONS": "weapons distribution day"
+    },
+    "notPlanned": "Not planned yet.",
+    "date": "Date",
+    "location": "Location",
+    "facts": {
+      "POWDER": "Powder distribution day details",
+      "WEAPONS": "Weapons distribution day details"
+    },
+    "plan": "Plan",
+    "planTitle": {
+      "POWDER": "Plan the powder day",
+      "WEAPONS": "Plan the weapons day"
+    },
+    "editTitle": {
+      "POWDER": "Edit the powder day",
+      "WEAPONS": "Edit the weapons day"
+    },
+    "planned": "Day planned",
+    "saved": "Day saved",
+    "delete": "Delete",
+    "deleteName": {
+      "POWDER": "Delete the powder day",
+      "WEAPONS": "Delete the weapons day"
+    },
+    "deleteTitle": {
+      "POWDER": "Delete the powder day?",
+      "WEAPONS": "Delete the weapons day?"
+    },
+    "deleteDescription": "Its slots are removed too. The pickup proxies are kept.",
+    "deleteConfirm": "Delete day",
+    "deleted": "Day deleted"
+  },
+  "slots": {
+    "title": "Slots",
+    "caption": {
+      "POWDER": "Slots of the powder distribution day",
+      "WEAPONS": "Slots of the weapons distribution day"
+    },
+    "edit": "Edit slots",
+    "editContext": {
+      "POWDER": "of the powder distribution day",
+      "WEAPONS": "of the weapons distribution day"
+    },
+    "editTitle": {
+      "POWDER": "Slots of the powder day",
+      "WEAPONS": "Slots of the weapons day"
+    },
+    "hint": "One start time per comparsa. Leave it empty for no slot; comparsas may share a time.",
+    "saved": "Slots saved",
+    "empty": "No slot yet.",
+    "noSlot": "No slot",
+    "columns": {
+      "startsAt": "Time",
+      "comparsa": "Comparsa"
+    },
+    "timeFor": "Time for {{comparsa}}"
+  },
+  "list": {
+    "title": "Distribution list",
+    "what": {
+      "POWDER": "the powder list",
+      "WEAPONS": "the weapons list"
+    },
+    "numbering": "The numbers are worked out on each download: a list downloaded after changes may number differently.",
+    "notValidated": {
+      "title": "Orders not validated",
+      "body_one": "This comparsa's order is not validated and is not on the list:",
+      "body_other": "These {{count}} comparsas' orders are not validated and are not on the list:",
+      "item": "{{comparsa}} ({{status}})",
+      "status": {
+        "NOT_PREPARED": "not prepared",
+        "DRAFT": "draft",
+        "SUBMITTED": "submitted",
+        "RETURNED": "returned"
+      }
+    }
+  },
+  "proxies": {
+    "title": "Pickup proxies",
+    "description": "Exceptionally, an arquebusier who cannot attend authorises another arquebusier of the same order to collect for them.",
+    "caption": "List of proxies",
+    "empty": "No pickup proxy.",
+    "filter": "Comparsa",
+    "allComparsas": "All comparsas",
+    "columns": {
+      "holder": "Holder",
+      "type": "Type",
+      "proxy": "Proxy",
+      "comparsa": "Comparsa",
+      "problem": "Problem",
+      "actions": "Actions"
+    },
+    "collectsFor": "{{proxy}} collects for {{holder}}",
+    "problemHint": "A proxy with a problem is left out of the list and has no form. Remove it and register it again if needed.",
+    "add": "Add proxy",
+    "addTitle": "Add a pickup proxy",
+    "added": "Proxy added",
+    "comparsa": "Comparsa",
+    "type": "What they collect",
+    "typeHint": {
+      "POWDER": "The holder's powder (and flask).",
+      "WEAPONS": "The holder's rented weapon."
+    },
+    "holder": "Holder",
+    "holderHint": "Who cannot attend: entries with something of this type to collect and no proxy for it.",
+    "proxy": "Proxy",
+    "proxyHint": "Another arquebusier of the same order, with an active weapons license on the day.",
+    "noHolders": "Nobody in this order can have a proxy of this type.",
+    "notEligible": "{{name}} (not eligible: {{reason}})",
+    "ineligible": {
+      "licenseInvalid": "no active weapons license on the pickup day",
+      "proxyAbsent": "has their own proxy",
+      "other": "does not meet the conditions"
+    },
+    "reasonNote": "The reason is not stored: it is written by hand on the printed form, which both people sign.",
+    "printForm": "Print form",
+    "printFormFor": "Print form for {{holder}} ({{type}})",
+    "formWhat": "the {{type}} form for {{holder}}",
+    "remove": "Remove",
+    "removeName": "Remove the {{type}} proxy of {{holder}}",
+    "removeTitle": "Remove the {{type}} proxy of {{holder}}?",
+    "removeDescription": "{{proxy}} will no longer collect for {{holder}}. A form already printed is no longer valid.",
+    "removeConfirm": "Remove proxy",
+    "removed": "Proxy removed",
+    "readOnly": "The edition is not in progress: proxies can no longer be added or removed. Their forms can still be printed.",
+    "notEligibleSummary": "Cannot be proxies: {{people}}.",
+    "typeName": {
+      "POWDER": "powder",
+      "WEAPONS": "weapons"
+    },
+    "loadingPeople": "Loading the order's entries…",
+    "peopleFailed": "The order's entries could not be loaded.",
+    "noProblem": "None",
+    "count_one": "{{count}} proxy",
+    "count_other": "{{count}} proxies",
+    "chooseHolder": "Choose the holder…",
+    "chooseProxy": "Choose the proxy…",
+    "chooseComparsa": "Choose the comparsa…",
+    "readOnlyDraft": "The edition is a draft: proxies are registered once it is in progress.",
+    "comparsasFailed": "The comparsas could not be loaded: proxies cannot be filtered or added."
+  },
+  "errors": {
+    "distribution": {
+      "notFound": "The distribution day no longer exists. The page has been refreshed.",
+      "alreadyPlanned": "This day is already planned. The page has been refreshed.",
+      "editionNotInProgress": "The edition is not in progress: the distribution can no longer be changed.",
+      "modified": "Someone else changed this day. The page has been refreshed: check it and try again.",
+      "busy": "Someone else is changing these proxies. Try again in a moment.",
+      "auditUnavailable": "The change could not be recorded, so it was not saved. Try again in a few minutes."
+    },
+    "proxies": {
+      "notFound": "The proxy no longer exists. The page has been refreshed.",
+      "alreadyAuthorised": "The holder already has a proxy of this type.",
+      "proxyAbsent": "The proxy has a proxy of this type themselves, so they cannot collect for others.",
+      "holderIsProxy": "The holder collects for others of this type, so they cannot have a proxy."
+    },
+    "tooMany": "You have made too many requests in a row. Wait a minute and try again.",
+    "validation": "Check the marked fields.",
+    "generic": "The operation could not be completed. Try again."
+  },
+  "fields": {
+    "time": "Write a complete time: hours and minutes.",
+    "date": "Write a complete date: day, month and year.",
+    "required": "Required.",
+    "invalid": "Not valid.",
+    "tooLong": "Too long.",
+    "outOfEdition": "Must be in the edition's year and not after the festival.",
+    "unknown": "Unknown comparsa.",
+    "duplicate": "Only one slot per comparsa.",
+    "notInOrder": "Must be another entry of the same order.",
+    "sameAsHolder": "Must be someone other than the holder.",
+    "nothingToCollect": "The holder has nothing of this type to collect.",
+    "licenseInvalid": "Has no active weapons license on the day."
+  }
+}

@@ -49,12 +49,17 @@
     "listOf": "the list of {{comparsa}}",
     "draftListOf": "the list of {{comparsa}} (draft)",
     "saved": "Downloaded: {{name}}",
+    "inProgress": "Downloading {{what}}…",
     "failedTitle": "{{what}} was not downloaded"
   },
   "errors": {
     "notPrepared": "The comparsa has not prepared its order.",
     "tooMany": "You have downloaded too many files in a row. Wait a minute and try again.",
     "auditUnavailable": "The download could not be recorded, so the file was not generated. Try again in a few minutes.",
+    "notApplicable": "The holder no longer collects anything of this type, so there is no form.",
+    "licenseInvalid": "The proxy's weapons license is not valid on the distribution day, so there is no form.",
+    "storageUnavailable": "The Federation logo could not be read. Try again in a few minutes.",
+    "gone": "It no longer exists: refresh the page.",
     "failed": "Try again."
   },
   "order": {

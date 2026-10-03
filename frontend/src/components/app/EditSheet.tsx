@@ -48,9 +48,10 @@ export interface EditSheetProps<TValues extends FieldValues, TOutput extends Fie
   savedText?: string;
   /**
    * The trigger's own visible label and icon, e.g. "Add milestone" for a panel that creates a row;
-   * "Edit" and `sectionName` otherwise.
+   * "Edit" and `sectionName` otherwise. `context` completes its name for screen readers when the
+   * page has several such buttons, e.g. "Plan" + "the powder day".
    */
-  trigger?: { label: string; icon?: LucideIcon };
+  trigger?: { label: string; icon?: LucideIcon; context?: string };
   /** The trigger button, e.g. to move focus to it after a row it added is removed. */
   triggerRef?: Ref<HTMLButtonElement>;
   /**
@@ -118,6 +119,12 @@ export function EditSheet<TValues extends FieldValues, TOutput extends FieldValu
               <>
                 {trigger.icon && <trigger.icon aria-hidden="true" />}
                 {trigger.label}
+                {trigger.context && (
+                  <>
+                    {' '}
+                    <span className="sr-only">{trigger.context}</span>
+                  </>
+                )}
               </>
             ) : (
               <>

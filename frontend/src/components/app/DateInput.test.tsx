@@ -150,6 +150,21 @@ describe('DateInput', () => {
     expect(screen.queryByRole('button', { name: 'Borrar fecha' })).not.toBeInTheDocument();
   });
 
+  it('empties a partly typed date when cleared', async () => {
+    const user = userEvent.setup();
+    await renderWithProviders(<DatesForm onSubmit={vi.fn()} />);
+    const course = screen.getByLabelText('Fecha del curso (opcional)');
+
+    typeDate(course, '2025-11-15');
+    typeDate(course, '', { incomplete: true });
+    // The browser still shows the typed segments, which React does not know about.
+    const written = vi.spyOn(course as HTMLInputElement, 'value', 'set');
+    await user.click(screen.getByRole('button', { name: 'Borrar fecha' }));
+
+    expect(written).toHaveBeenCalledWith('');
+    expect(course).toHaveFocus();
+  });
+
   it('can be disabled', async () => {
     await renderWithProviders(<DatesForm onSubmit={vi.fn()} disabled />);
 
