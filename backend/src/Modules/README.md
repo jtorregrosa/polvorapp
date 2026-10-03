@@ -40,6 +40,9 @@ reference fails even before any of its types is used.
   before `SaveChangesAsync`, so the entry commits in the same transaction as the change. Each
   module context calls `modelBuilder.AddAuditTrail()` (the table is excluded from its migrations;
   the `AuditPrivacy` module owns it). Audit data never contains passwords, codes or tokens.
+  An action that writes nothing, such as an export, has no transaction to join: it uses
+  `SharedKernel.Auditing.IAuditLog.RecordAsync`, which saves the entry on its own and throws when it
+  cannot, so the caller returns nothing unaudited (from `add-exports`).
 
 ## Conventions shared by modules (from `add-federation-catalog`)
 
@@ -179,3 +182,12 @@ reference fails even before any of its types is used.
 - **Derived values travel with their source**: the billing is not served by endpoints of its own.
   The orders compute it from the same `OrderTotals` they return and add it to their responses, so
   it inherits their scope (BR-12) and `DRAFT` rules and is always consistent with the totals.
+
+## Conventions shared by modules (from `add-exports`)
+
+- **Documents**: `Exports` is a module without a schema. Each export is a named, versioned
+  `IExportDefinition` (ADR-0008), a pure function of the data a loader reads once per request
+  (`ExportData`), returning an `ExportTable` (typed cells, validated) that one Excel writer and one
+  PDF writer render. A recipient's real template changes only its definition and golden files.
+- **Personal data in files**: definitions hold only the columns their recipient needs (SEC-06);
+  files are generated per request, never stored, and audited with `IAuditLog` before they are sent.

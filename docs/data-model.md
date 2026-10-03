@@ -134,6 +134,16 @@ Admins also see the edition billing: the prepared orders' quantities summed and 
 only when there is at least one prepared order and every one is validated. Payments are out of
 scope.
 
+**Export definitions** (change `add-exports`, UC-17; code, not data) — a named, versioned layout of
+rows and columns rendered as Excel and as PDF, generated per request and never stored:
+`powder-supplier` (powder and caps per comparsa, no personal data), `rental-company` (who rents a
+weapon model or a flask), `arms-authority` (each `ACTIVE` entry with a weapon: license from the
+registry, weapon data, lender for a loan) and `comparsa-list` (a comparsa's order). The recipient
+exports read only `VALIDATED` orders; the comparsa list reads an order in any status and is a
+**draft** until the order is validated. Every definition is **provisional** (version
+`provisional-1`) until the recipients' templates arrive (Q-44): the file name, its first lines and
+the screen say so.
+
 **EditionEntry** (one per arquebusier per edition, at most one, created when the order is prepared or the arquebusier is added)
 | Field | Values |
 |---|---|
