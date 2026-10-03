@@ -1,0 +1,43 @@
+{
+  "section": {
+    "title": "Resumen de pago",
+    "description": "Lo que la comparsa debe a la Unión por este pedido, a los precios de la edición.",
+    "provisionalNote": "Provisional: el importe puede cambiar hasta que la Unión valide el pedido.",
+    "finalNote": "Definitivo: la Unión ha validado el pedido. Sigue los precios actuales de la edición.",
+    "noTotal": "No hay total hasta que la Unión fije el precio en la edición."
+  },
+  "concepts": {
+    "POWDER": "Pólvora",
+    "CAPS": "Pistones",
+    "WEAPON_RENTAL": "Alquiler de arma",
+    "FLASK_RENTAL": "Alquiler de cantimplora"
+  },
+  "prices": {
+    "POWDER": "pólvora por kg",
+    "CAPS": "caja de pistones",
+    "WEAPON_RENTAL": "alquiler de arma",
+    "FLASK_RENTAL": "alquiler de cantimplora"
+  },
+  "missingPrices_one": "Falta un precio en la edición: {{prices}}.",
+  "missingPrices_other": "Faltan precios en la edición: {{prices}}.",
+  "quantity": {
+    "POWDER": "{{value}} kg",
+    "CAPS_one": "{{count}} caja",
+    "CAPS_other": "{{count}} cajas",
+    "WEAPON_RENTAL_one": "{{count}} alquiler",
+    "WEAPON_RENTAL_other": "{{count}} alquileres",
+    "FLASK_RENTAL_one": "{{count}} cantimplora",
+    "FLASK_RENTAL_other": "{{count}} cantimploras"
+  },
+  "overview": {
+    "amount": "Importe",
+    "priceMissing": "Falta un precio"
+  },
+  "edition": {
+    "title": "Resumen de pago de la edición",
+    "description": "Lo que deben todos los pedidos preparados, a los precios de la edición.",
+    "provisionalNote": "Provisional mientras quede algún pedido sin validar.",
+    "finalNote": "Definitivo: la Unión ha validado todos los pedidos preparados.",
+    "noTotal": "No hay total hasta que la Unión fije el precio en la edición."
+  }
+}

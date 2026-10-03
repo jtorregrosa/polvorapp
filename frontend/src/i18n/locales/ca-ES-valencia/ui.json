@@ -93,6 +93,10 @@
     "participation": {
       "FIRST_YEAR": "Primer any"
     },
+    "billing": {
+      "PROVISIONAL": "Provisional",
+      "FINAL": "Definitiu"
+    },
     "orders": {
       "OPEN": "Comandes obertes",
       "CLOSED": "Comandes tancades"
@@ -207,6 +211,14 @@
     "edit": "Edita",
     "saved": "Canvis desats",
     "saveChanges": "Desa els canvis"
+  },
+  "amountTable": {
+    "amount": "Import",
+    "concept": "Concepte",
+    "noPrice": "Sense preu",
+    "quantity": "Quantitat",
+    "total": "Total",
+    "unitPrice": "Preu"
   },
   "breakdown": {
     "share": "% del total",

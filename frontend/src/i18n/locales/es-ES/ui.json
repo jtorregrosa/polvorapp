@@ -93,6 +93,10 @@
     "participation": {
       "FIRST_YEAR": "Primer año"
     },
+    "billing": {
+      "PROVISIONAL": "Provisional",
+      "FINAL": "Definitivo"
+    },
     "orders": {
       "OPEN": "Pedidos abiertos",
       "CLOSED": "Pedidos cerrados"
@@ -207,6 +211,14 @@
     "edit": "Editar",
     "saved": "Cambios guardados",
     "saveChanges": "Guardar cambios"
+  },
+  "amountTable": {
+    "amount": "Importe",
+    "concept": "Concepto",
+    "noPrice": "Sin precio",
+    "quantity": "Cantidad",
+    "total": "Total",
+    "unitPrice": "Precio"
   },
   "breakdown": {
     "share": "% del total",

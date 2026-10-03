@@ -16,6 +16,7 @@ import { PageHeader } from '@/components/app/PageHeader';
 import { RecordHeader } from '@/components/app/RecordHeader';
 import { SectionCard } from '@/components/app/SectionCard';
 import { StatusBadge } from '@/components/app/StatusBadge';
+import { BillingSummarySection } from '@/features/billing/components/BillingSummarySection';
 import { LoadFailure } from '@/features/arquebusier-registry/components/LoadFailure';
 import { useSession } from '@/features/identity-access/session';
 import { logoUrl } from '@/features/federation-catalog/logos';
@@ -317,6 +318,7 @@ export function OrderPage() {
       )}
       <OrderMessages order={order} />
       <OrderTotals order={order} />
+      <BillingSummarySection billing={order.billing} />
       <section
         id={ENTRIES_ID}
         aria-labelledby={`${ENTRIES_ID}-title`}

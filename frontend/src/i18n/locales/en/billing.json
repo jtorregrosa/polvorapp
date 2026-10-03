@@ -1,0 +1,43 @@
+{
+  "section": {
+    "title": "Billing summary",
+    "description": "What the comparsa owes the Federation for this order, at the edition's prices.",
+    "provisionalNote": "Provisional: the amount can change until the Federation validates the order.",
+    "finalNote": "Final: the Federation has validated the order. It follows the edition's current prices.",
+    "noTotal": "There is no total until the Federation sets the price in the edition."
+  },
+  "concepts": {
+    "POWDER": "Powder",
+    "CAPS": "Caps",
+    "WEAPON_RENTAL": "Weapon rental",
+    "FLASK_RENTAL": "Flask rental"
+  },
+  "prices": {
+    "POWDER": "powder per kg",
+    "CAPS": "caps box",
+    "WEAPON_RENTAL": "weapon rental",
+    "FLASK_RENTAL": "flask rental"
+  },
+  "missingPrices_one": "A price is missing in the edition: {{prices}}.",
+  "missingPrices_other": "Prices are missing in the edition: {{prices}}.",
+  "quantity": {
+    "POWDER": "{{value}} kg",
+    "CAPS_one": "{{count}} box",
+    "CAPS_other": "{{count}} boxes",
+    "WEAPON_RENTAL_one": "{{count}} rental",
+    "WEAPON_RENTAL_other": "{{count}} rentals",
+    "FLASK_RENTAL_one": "{{count}} flask",
+    "FLASK_RENTAL_other": "{{count}} flasks"
+  },
+  "overview": {
+    "amount": "Amount",
+    "priceMissing": "A price is missing"
+  },
+  "edition": {
+    "title": "Edition billing summary",
+    "description": "What every prepared order owes, at the edition's prices.",
+    "provisionalNote": "Provisional while any order is not validated.",
+    "finalNote": "Final: the Federation has validated every prepared order.",
+    "noTotal": "There is no total until the Federation sets the price in the edition."
+  }
+}

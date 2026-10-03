@@ -8,6 +8,7 @@ import {
   SUPPORTED_LANGUAGES,
   type Language,
 } from './config';
+import caBilling from './locales/ca-ES-valencia/billing.json';
 import caCatalog from './locales/ca-ES-valencia/catalog.json';
 import caCommon from './locales/ca-ES-valencia/common.json';
 import caEditions from './locales/ca-ES-valencia/editions.json';
@@ -16,6 +17,7 @@ import caInsights from './locales/ca-ES-valencia/insights.json';
 import caOrders from './locales/ca-ES-valencia/orders.json';
 import caRegistry from './locales/ca-ES-valencia/registry.json';
 import caUi from './locales/ca-ES-valencia/ui.json';
+import enBilling from './locales/en/billing.json';
 import enCatalog from './locales/en/catalog.json';
 import enCommon from './locales/en/common.json';
 import enEditions from './locales/en/editions.json';
@@ -24,6 +26,7 @@ import enInsights from './locales/en/insights.json';
 import enOrders from './locales/en/orders.json';
 import enRegistry from './locales/en/registry.json';
 import enUi from './locales/en/ui.json';
+import esBilling from './locales/es-ES/billing.json';
 import esCatalog from './locales/es-ES/catalog.json';
 import esCommon from './locales/es-ES/common.json';
 import esEditions from './locales/es-ES/editions.json';
@@ -45,6 +48,7 @@ export const resources = {
     insights: esInsights,
     editions: esEditions,
     orders: esOrders,
+    billing: esBilling,
   },
   'ca-ES-valencia': {
     common: caCommon,
@@ -55,6 +59,7 @@ export const resources = {
     insights: caInsights,
     editions: caEditions,
     orders: caOrders,
+    billing: caBilling,
   },
   en: {
     common: enCommon,
@@ -65,6 +70,7 @@ export const resources = {
     insights: enInsights,
     editions: enEditions,
     orders: enOrders,
+    billing: enBilling,
   },
 } as const satisfies Record<
   Language,
@@ -77,6 +83,7 @@ export const resources = {
     insights: object;
     editions: object;
     orders: object;
+    billing: object;
   }
 >;
 

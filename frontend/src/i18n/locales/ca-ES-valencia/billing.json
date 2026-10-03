@@ -1,0 +1,43 @@
+{
+  "section": {
+    "title": "Resum de pagament",
+    "description": "El que la comparsa deu a la Unió per esta comanda, als preus de l'edició.",
+    "provisionalNote": "Provisional: l'import pot canviar fins que la Unió valide la comanda.",
+    "finalNote": "Definitiu: la Unió ha validat la comanda. Seguix els preus actuals de l'edició.",
+    "noTotal": "No hi ha total fins que la Unió fixe el preu en l'edició."
+  },
+  "concepts": {
+    "POWDER": "Pólvora",
+    "CAPS": "Pistons",
+    "WEAPON_RENTAL": "Lloguer d'arma",
+    "FLASK_RENTAL": "Lloguer de cantimplora"
+  },
+  "prices": {
+    "POWDER": "pólvora per kg",
+    "CAPS": "caixa de pistons",
+    "WEAPON_RENTAL": "lloguer d'arma",
+    "FLASK_RENTAL": "lloguer de cantimplora"
+  },
+  "missingPrices_one": "Falta un preu en l'edició: {{prices}}.",
+  "missingPrices_other": "Falten preus en l'edició: {{prices}}.",
+  "quantity": {
+    "POWDER": "{{value}} kg",
+    "CAPS_one": "{{count}} caixa",
+    "CAPS_other": "{{count}} caixes",
+    "WEAPON_RENTAL_one": "{{count}} lloguer",
+    "WEAPON_RENTAL_other": "{{count}} lloguers",
+    "FLASK_RENTAL_one": "{{count}} cantimplora",
+    "FLASK_RENTAL_other": "{{count}} cantimplores"
+  },
+  "overview": {
+    "amount": "Import",
+    "priceMissing": "Falta un preu"
+  },
+  "edition": {
+    "title": "Resum de pagament de l'edició",
+    "description": "El que deuen totes les comandes preparades, als preus de l'edició.",
+    "provisionalNote": "Provisional mentre quede alguna comanda sense validar.",
+    "finalNote": "Definitiu: la Unió ha validat totes les comandes preparades.",
+    "noTotal": "No hi ha total fins que la Unió fixe el preu en l'edició."
+  }
+}

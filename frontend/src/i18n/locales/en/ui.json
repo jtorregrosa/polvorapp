@@ -93,6 +93,10 @@
     "participation": {
       "FIRST_YEAR": "First year"
     },
+    "billing": {
+      "PROVISIONAL": "Provisional",
+      "FINAL": "Final"
+    },
     "orders": {
       "OPEN": "Orders open",
       "CLOSED": "Orders closed"
@@ -207,6 +211,14 @@
     "edit": "Edit",
     "saved": "Changes saved",
     "saveChanges": "Save changes"
+  },
+  "amountTable": {
+    "amount": "Amount",
+    "concept": "Item",
+    "noPrice": "No price",
+    "quantity": "Quantity",
+    "total": "Total",
+    "unitPrice": "Price"
   },
   "breakdown": {
     "share": "% of total",
