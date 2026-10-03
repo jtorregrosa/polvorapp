@@ -7,6 +7,7 @@ import { problem, recordBodies, renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN, SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
+import { billingOf } from '@/features/billing/test-data';
 import { NORTE_ORDER } from '../test-data';
 
 const ORIGINAL_WIDTH = window.innerWidth;
@@ -223,6 +224,48 @@ describe('OrderPage (spec: Orders screens)', () => {
     expect(
       await screen.findByText('Sintético Nueve, Arcabucero se ha añadido al pedido.'),
     ).toBeInTheDocument();
+  });
+
+  it('shows the billing summary after the totals (spec: Billing screens)', async () => {
+    await open();
+
+    const section = screen.getByRole('region', { name: 'Resumen de pago' });
+    expect(within(section).getByText('Provisional')).toBeInTheDocument();
+    expect(within(section).getByRole('cell', { name: /^335,00\s€$/ })).toBeInTheDocument();
+    const facts = screen.getByRole('list', { name: 'Totales del pedido' });
+    expect(facts.compareDocumentPosition(section) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('shows the new billing once a change returns the order', async () => {
+    const user = userEvent.setup();
+    const added: OrderResponse = {
+      ...NORTE_ORDER,
+      version: 13,
+      notInOrder: [],
+      billing: billingOf({ powderKg: 7, capsBoxes: 4, weaponRentals: 1, flaskRentals: 2 }),
+    };
+    server.use(mock.post(`/api/comparsa-orders/${NORTE_ORDER.id}/entries`, () => HttpResponse.json(added)));
+    await open();
+
+    const notIn = screen.getByRole('region', { name: 'No están en el pedido' });
+    await user.click(within(notIn).getByRole('button', { name: 'Añadir a Sintético Nueve, Arcabucero' }));
+
+    const section = screen.getByRole('region', { name: 'Resumen de pago' });
+    expect(await within(section).findByRole('cell', { name: /^445,00\s€$/ })).toBeInTheDocument();
+  });
+
+  it('shows the billing of a read-only past order', async () => {
+    await open({
+      ...NORTE_ORDER,
+      status: 'VALIDATED',
+      canEdit: false,
+      readOnlyReason: 'validated',
+      edition: { ...NORTE_ORDER.edition, status: 'CLOSED', ordersOpen: false },
+      billing: { ...NORTE_ORDER.billing, state: 'FINAL' },
+    });
+
+    const section = screen.getByRole('region', { name: 'Resumen de pago' });
+    expect(within(section).getByText('Definitivo')).toBeInTheDocument();
   });
 
   it('shows the weapons lent to others', async () => {

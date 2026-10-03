@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import { TriangleAlert } from 'lucide-react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ComplianceWarning } from '@/api/generated/model';
+import { BillingState, ComplianceWarning } from '@/api/generated/model';
 import caUi from '@/i18n/locales/ca-ES-valencia/ui.json';
 import enUi from '@/i18n/locales/en/ui.json';
 import esUi from '@/i18n/locales/es-ES/ui.json';
@@ -53,6 +53,12 @@ describe('StatusBadge', () => {
       expect(STATUS_MAP.warning[code].icon).toBe(TriangleAlert);
     },
   );
+
+  it('maps exactly the billing states of the API: provisional as information, final as success', () => {
+    expect(Object.keys(STATUS_MAP.billing).sort()).toEqual(Object.values(BillingState).sort());
+    expect(STATUS_MAP.billing.PROVISIONAL.tone).toBe('info');
+    expect(STATUS_MAP.billing.FINAL.tone).toBe('success');
+  });
 
   it('maps exactly the compliance warnings of the API', () => {
     expect(Object.keys(STATUS_MAP.warning).sort()).toEqual(Object.values(ComplianceWarning).sort());

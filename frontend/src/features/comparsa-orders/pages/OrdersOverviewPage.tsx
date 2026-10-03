@@ -24,6 +24,8 @@ import { KeyFacts } from '@/components/app/KeyFacts';
 import { PageHeader } from '@/components/app/PageHeader';
 import { StatCard } from '@/components/app/StatCard';
 import { StatusBadge } from '@/components/app/StatusBadge';
+import { BillingAmount } from '@/features/billing/components/BillingAmount';
+import { BillingSummarySection } from '@/features/billing/components/BillingSummarySection';
 import { ApiProblemError } from '@/api/http';
 import { LoadFailure } from '@/features/arquebusier-registry/components/LoadFailure';
 import { useSession } from '@/features/identity-access/session';
@@ -200,6 +202,7 @@ function EditionTotals({ totals }: { totals: OrderTotalsResponse }) {
  */
 export function OrdersOverviewPage() {
   const { t } = useTranslation('orders');
+  const { t: tBilling } = useTranslation('billing');
   const { editionId } = useParams();
   const session = useSession();
   const isAdmin = session.account?.role === 'ADMIN';
@@ -268,6 +271,12 @@ export function OrdersOverviewPage() {
       { id: 'status', header: t('overview.columns.status'), cell: (row) => <RowStatus row={row} /> },
       { id: 'totals', header: t('overview.columns.totals'), cell: (row) => totalsText(row.totals) },
       {
+        id: 'amount',
+        header: tBilling('overview.amount'),
+        align: 'end',
+        cell: (row) => (row.billing ? <BillingAmount billing={row.billing} /> : null),
+      },
+      {
         id: 'action',
         header: t('overview.columns.action'),
         hideHeader: true,
@@ -283,7 +292,7 @@ export function OrdersOverviewPage() {
           ) : null,
       },
     ],
-    [t, totalsText, edition, preparing, startPrepare],
+    [t, tBilling, totalsText, edition, preparing, startPrepare],
   );
 
   if (overview.isError && overview.error instanceof ApiProblemError && overview.error.status === 404) {
@@ -323,6 +332,9 @@ export function OrdersOverviewPage() {
       )}
       {data && edition && isAdmin && <StatusFigures overview={data} />}
       {data && edition && isAdmin && data.editionTotals && <EditionTotals totals={data.editionTotals} />}
+      {data && edition && isAdmin && data.editionBilling && (
+        <BillingSummarySection billing={data.editionBilling} scope="edition" />
+      )}
       {(data ? edition : !overview.isError) && (
         <Section title={t('overview.caption')}>
           <DataTable
@@ -344,6 +356,12 @@ export function OrdersOverviewPage() {
                 )}
                 <RowStatus row={row} />
                 <span className="text-help text-muted-foreground">{totalsText(row.totals)}</span>
+                {row.billing && (
+                  <span className="flex flex-wrap items-center gap-1 text-help">
+                    <span className="text-muted-foreground">{tBilling('overview.amount')}:</span>
+                    <BillingAmount billing={row.billing} className="justify-start" />
+                  </span>
+                )}
                 {row.canPrepare && edition && (
                   <PrepareButton
                     comparsa={row.comparsa.name}

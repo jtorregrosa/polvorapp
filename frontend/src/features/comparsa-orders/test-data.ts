@@ -4,6 +4,7 @@ import type {
   OrderTotalsResponse,
   OverviewResponse,
 } from '@/api/generated/model';
+import { billingOf } from '@/features/billing/test-data';
 
 /** Synthetic orders for component tests: invented comparsas, people, numbers and dates. */
 const NORTE = {
@@ -205,19 +206,25 @@ export const NORTE_ORDER: OrderResponse = {
     entriesWithWarnings: 1,
   },
   offeredModels: [ARCABUZ, TRABUCO],
+  // 5 kg, 4 caps boxes, 1 weapon and 2 flask rentals: 335.00.
+  billing: billingOf({ powderKg: 5, capsBoxes: 4, weaponRentals: 1, flaskRentals: 2 }),
 };
+
+/** Sur's submitted order: 3 kg and 2 weapon rentals, 225.00. */
+const SUR_BILLING = billingOf({ powderKg: 3, capsBoxes: 0, weaponRentals: 2, flaskRentals: 0 });
 
 /** The Admin's overview of the current edition: one order validated, one submitted, one not prepared. */
 export const ADMIN_OVERVIEW: OverviewResponse = {
   edition: EDITION_2031,
   rows: [
-    { comparsa: ESTE, orderId: null, status: null, totals: null, canPrepare: true },
+    { comparsa: ESTE, orderId: null, status: null, totals: null, canPrepare: true, billing: null },
     {
       comparsa: NORTE,
       orderId: NORTE_ORDER.id,
       status: 'VALIDATED',
       totals: NORTE_ORDER.totals,
       canPrepare: false,
+      billing: { ...NORTE_ORDER.billing, state: 'FINAL' },
     },
     {
       comparsa: SUR,
@@ -225,6 +232,7 @@ export const ADMIN_OVERVIEW: OverviewResponse = {
       status: 'SUBMITTED',
       totals: { ...NO_TOTALS, active: 2, powderKg: 3, weaponRentals: [{ weaponModel: ARCABUZ, count: 2 }] },
       canPrepare: false,
+      billing: SUR_BILLING,
     },
   ],
   statusCounts: { notPrepared: 1, draft: 0, submitted: 1, returned: 0, validated: 1 },
@@ -237,6 +245,8 @@ export const ADMIN_OVERVIEW: OverviewResponse = {
       { weaponModel: TRABUCO, count: 1 },
     ],
   },
+  // Both orders together: 560.00, provisional while Sur's is not validated.
+  editionBilling: billingOf({ powderKg: 8, capsBoxes: 4, weaponRentals: 3, flaskRentals: 2 }),
 };
 
 /** A FiringChief's overview: their two comparsas, one prepared, without Federation figures. */
@@ -249,11 +259,13 @@ export const CHIEF_OVERVIEW: OverviewResponse = {
       status: 'DRAFT',
       totals: NORTE_ORDER.totals,
       canPrepare: false,
+      billing: NORTE_ORDER.billing,
     },
-    { comparsa: SUR, orderId: null, status: null, totals: null, canPrepare: true },
+    { comparsa: SUR, orderId: null, status: null, totals: null, canPrepare: true, billing: null },
   ],
   statusCounts: null,
   editionTotals: null,
+  editionBilling: null,
 };
 
 export const NO_EDITION_OVERVIEW: OverviewResponse = {
@@ -261,4 +273,5 @@ export const NO_EDITION_OVERVIEW: OverviewResponse = {
   rows: [],
   statusCounts: null,
   editionTotals: null,
+  editionBilling: null,
 };

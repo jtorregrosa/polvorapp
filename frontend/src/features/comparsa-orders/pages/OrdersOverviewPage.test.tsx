@@ -7,6 +7,7 @@ import { problem, recordBodies, renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN, SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
+import { billingOf } from '@/features/billing/test-data';
 import { ADMIN_OVERVIEW, CHIEF_OVERVIEW, NO_EDITION_OVERVIEW, NORTE_ORDER } from '../test-data';
 
 const ORIGINAL_WIDTH = window.innerWidth;
@@ -48,6 +49,68 @@ describe('OrdersOverviewPage (spec: Orders screens, Order totals and dashboard (
       'Sin preparar',
     );
     expect(within(table).getByText('Comparsa Sintética Sur').closest('tr')).toHaveTextContent('Enviado');
+  });
+
+  it('shows each prepared order’s amount and, for an Admin, the edition billing (spec: Billing screens)', async () => {
+    overview(ADMIN_OVERVIEW);
+    await renderApp('/orders', { session: SYNTHETIC_ADMIN });
+
+    const table = await screen.findByRole('table', { name: 'Pedidos de las comparsas' });
+    const norte = (await within(table).findByText('Comparsa Sintética Norte')).closest('tr') as HTMLElement;
+    expect(within(table).getByRole('columnheader', { name: 'Importe' })).toBeInTheDocument();
+    expect(within(norte).getByText(/^335,00\s€$/)).toBeInTheDocument();
+    expect(within(norte).getByText('Definitivo')).toBeInTheDocument();
+    const sur = within(table).getByText('Comparsa Sintética Sur').closest('tr') as HTMLElement;
+    expect(within(sur).getByText(/^225,00\s€$/)).toBeInTheDocument();
+    expect(within(sur).getByText('Provisional')).toBeInTheDocument();
+    const este = within(table).getByText('Comparsa Sintética Este').closest('tr') as HTMLElement;
+    expect(within(este).queryByText(/€/)).not.toBeInTheDocument();
+    const billing = screen.getByRole('region', { name: 'Resumen de pago de la edición' });
+    expect(within(billing).getByRole('cell', { name: /^560,00\s€$/ })).toBeInTheDocument();
+    const totals = screen.getByRole('region', { name: 'Totales de la edición' });
+    expect(totals.compareDocumentPosition(billing) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('shows a FiringChief their orders’ amounts but no edition billing', async () => {
+    overview(CHIEF_OVERVIEW);
+    await renderApp('/orders', { session: SYNTHETIC_FIRING_CHIEF });
+
+    const table = await screen.findByRole('table', { name: 'Pedidos de las comparsas' });
+    const norte = (await within(table).findByText('Comparsa Sintética Norte')).closest('tr') as HTMLElement;
+    expect(within(norte).getByText(/^335,00\s€$/)).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Resumen de pago de la edición' })).not.toBeInTheDocument();
+  });
+
+  it('says a price is missing instead of an amount', async () => {
+    const missing = billingOf(
+      { powderKg: 3, capsBoxes: 0, weaponRentals: 2, flaskRentals: 0 },
+      'PROVISIONAL',
+      ['WEAPON_RENTAL'],
+    );
+    overview({
+      ...ADMIN_OVERVIEW,
+      rows: ADMIN_OVERVIEW.rows.map((row) => (row.billing ? { ...row, billing: missing } : row)),
+      editionBilling: missing,
+    });
+    await renderApp('/orders', { session: SYNTHETIC_ADMIN });
+
+    const table = await screen.findByRole('table', { name: 'Pedidos de las comparsas' });
+    const sur = (await within(table).findByText('Comparsa Sintética Sur')).closest('tr') as HTMLElement;
+    expect(within(sur).getByText('Falta un precio')).toBeInTheDocument();
+    const billing = screen.getByRole('region', { name: 'Resumen de pago de la edición' });
+    expect(
+      within(billing).getByText(/^Falta un precio en la edición: alquiler de arma\./),
+    ).toBeInTheDocument();
+  });
+
+  it('shows the amount on a phone too', async () => {
+    setViewportWidth(360);
+    overview(ADMIN_OVERVIEW);
+    await renderApp('/orders', { session: SYNTHETIC_ADMIN });
+
+    await screen.findByRole('link', { name: 'Comparsa Sintética Norte' });
+    expect(screen.getAllByText(/^335,00\s€$/)).toHaveLength(1);
+    expect(screen.getAllByText('Importe:').length).toBeGreaterThan(0);
   });
 
   it('lists a FiringChief’s comparsas with "Prepare order", without Federation figures', async () => {

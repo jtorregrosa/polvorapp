@@ -13,7 +13,7 @@ import {
   Undo2,
   type LucideIcon,
 } from 'lucide-react';
-import type { ComplianceWarning, EditionStatus } from '@/api/generated/model';
+import type { BillingState, ComplianceWarning, EditionStatus } from '@/api/generated/model';
 
 /** Semantic tone of a status (design D1/D6); each maps to verified token pairs. */
 export type StatusTone = 'success' | 'warning' | 'destructive' | 'info' | 'muted';
@@ -60,6 +60,11 @@ export const STATUS_MAP = {
     OPEN: { tone: 'success', icon: CircleCheck },
     CLOSED: { tone: 'info', icon: Lock },
   },
+  /** A billing summary (UC-28): it can still change until the Federation validates the order. */
+  billing: {
+    PROVISIONAL: { tone: 'info', icon: Clock },
+    FINAL: { tone: 'success', icon: CircleCheck },
+  },
   user: {
     INVITED: { tone: 'info', icon: Send },
     ACTIVE: { tone: 'success', icon: CircleCheck },
@@ -85,6 +90,7 @@ export const STATUS_MAP = {
   // Exactly the API's codes: a new or removed code fails the type check here.
   warning: Record<ComplianceWarning, StatusStyle>;
   edition: Record<EditionStatus, StatusStyle>;
+  billing: Record<BillingState, StatusStyle>;
 };
 
 export type StatusKind = keyof typeof STATUS_MAP;
