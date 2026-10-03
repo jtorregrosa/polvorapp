@@ -149,8 +149,9 @@ public sealed partial class RegistryLockGuardTests(PostgresFixture postgres, Mai
     {
         await using var registry = await RegistryTestHost.StartAsync(postgres, mailpit);
         var target = (await registry.RegisterAsync(registry.Own.Id)).GetProperty("id").GetGuid();
-        using (await RegistryLockTests.SetAsync(registry.Admin, true))
+        using (var locked = await RegistryLockTests.SetAsync(registry.Admin, true))
         {
+            locked.EnsureSuccessStatusCode();
         }
 
         var registered = (await registry.RegisterAsync(registry.Own.Id)).GetProperty("id").GetGuid();
@@ -165,6 +166,45 @@ public sealed partial class RegistryLockGuardTests(PostgresFixture postgres, Mai
         Assert.Equal(HttpStatusCode.NoContent, transferred.StatusCode);
         Assert.Equal(HttpStatusCode.OK, imported.StatusCode);
         Assert.Equal(HttpStatusCode.NoContent, deleted.StatusCode);
+    }
+
+    [Fact]
+    public async Task While_locked_admins_keep_changing_weapons_and_photos()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        await using var registry = await RegistryTestHost.StartAsync(postgres, mailpit);
+        var model = RegistryData.NewWeaponModel("ARCABUZ SINTÉTICO ADMIN");
+        await registry.Services.SaveCatalogAsync(model);
+        var target = (await registry.RegisterAsync(registry.Own.Id)).GetProperty("id").GetGuid();
+        using (var locked = await RegistryLockTests.SetAsync(registry.Admin, true))
+        {
+            locked.EnsureSuccessStatusCode();
+        }
+
+        // The lock is on: the same write is refused to the FiringChief.
+        using (var refused = await registry.FiringChief.PostAsJsonAsync(
+            $"/api/arquebusiers/{target}/owned-weapons", new { weaponModelId = model.Id, weaponNumber = "1", ownershipGuideNumber = "SINT-0961" }, ct))
+        {
+            await AssertProblemAsync(refused, HttpStatusCode.Conflict, "registry.locked");
+        }
+
+        using var added = await registry.Admin.PostAsJsonAsync(
+            $"/api/arquebusiers/{target}/owned-weapons", new { weaponModelId = model.Id, weaponNumber = "1", ownershipGuideNumber = "SINT-0960" }, ct);
+        Assert.Equal(HttpStatusCode.Created, added.StatusCode);
+        var weapon = await ReadAsync<JsonElement>(added);
+        var weaponId = weapon.GetProperty("id").GetGuid();
+        using var edited = await registry.Admin.PutAsJsonAsync(
+            $"/api/arquebusiers/{target}/owned-weapons/{weaponId}",
+            new { weaponModelId = model.Id, weaponNumber = "2", ownershipGuideNumber = "SINT-0960", version = weapon.GetProperty("version").GetUInt32() },
+            ct);
+        using var removedWeapon = await registry.Admin.DeleteAsync($"/api/arquebusiers/{target}/owned-weapons/{weaponId}", ct);
+        using var uploaded = await PhotoRequests.UploadAsync(registry.Admin, target, "id", TestImages.Jpeg(600, 800));
+        using var removedPhoto = await registry.Admin.DeleteAsync($"/api/arquebusiers/{target}/photos/id", ct);
+
+        Assert.Equal(HttpStatusCode.OK, edited.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, removedWeapon.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, uploaded.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, removedPhoto.StatusCode);
     }
 
     [Fact]
