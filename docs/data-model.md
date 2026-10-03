@@ -40,6 +40,9 @@ erDiagram
 
 **Comparsa** — `name`, `side` (`MOORISH` | `CHRISTIAN`), `active`, `logo` (optional image, uploaded by an
 Admin; change `add-comparsa-logos`). Real comparsa logos are third-party brand assets: never committed.
+The Federation's own logo (`FederationSettings`, one row) follows the same rules: uploaded at run time
+by an Admin, printed on the pickup authorisation form and later the badges, never committed
+(`add-distribution-planning`).
 Logo rules (blocking): JPEG, PNG or WebP of at most 10 MB and 40 megapixels (no SVG); the long side at
 least 256 px and at most 3 times the short side. The server re-encodes it as PNG keeping its
 transparency, strips its metadata and scales it down to at most 1024 px. Only Admins add, replace
@@ -179,11 +182,35 @@ external owner and copied for a registered one. An owned weapon may be lent to s
 
 ### Distribution (edition-scoped)
 
-**Distribution** — `edition`, `type` (`POWDER` | `WEAPONS`), `date`, `location`.
+**Distribution** — `edition`, `type` (`DistributionType`: `POWDER` | `WEAPONS`), `date`, `location`.
+At most one of each type per edition, planned by Admins while the edition is in progress; the date
+falls within the edition's year and not after the festival (`add-distribution-planning`). The code
+class is `DistributionDay`, as `Distribution` is the module's namespace.
 
-**DistributionSlot** — `distribution`, `comparsa`, `startsAt`.
+**DistributionSlot** — `distribution`, `comparsa`, `startsAt` (a time of day, `HH:mm`, on the
+distribution's date). At most one per comparsa and day; comparsas may share a time; Admins save a
+day's slots as one set.
 
-**PickupProxy** (exceptional) — `holderEntry`, `proxyEntry`, `type` (`POWDER` | `WEAPON`), `reason`. The app prints the pre-filled authorisation form; it is signed on paper.
+**PickupProxy** (exceptional) — `holderEntry`, `proxyEntry`, `type` (`DistributionType`). No reason
+is stored (maintainer decision, GDPR: it may reveal health data); it is written by hand on the
+printed form, signed on paper. Rules (blocking, BR-06 and `add-distribution-planning`): the proxy is
+another entry of the holder's order (`ACTIVE` or `RESERVE`); the holder collects something of that
+type (`POWDER`: an `ACTIVE` entry with powder; `WEAPONS`: an `ACTIVE` rental); the proxy holds an
+**active weapons license** on the day of that type (the festival's first day while it is not planned)
+— a deliberate exception to compliance checks being warnings; one proxy per holder and type; nobody
+absent collects (a proxy has no proxy of that type, a holder who collects for others gets none).
+A proxy may collect for several holders. FiringChiefs manage their comparsas' proxies while the
+edition is in progress, Admins in any edition that is not a draft. A proxy whose holder no longer
+collects, or whose license no longer holds, shows the problem, is left out of the lists and has no
+form until removed. It goes with either entry when an arquebusier's deletion removes it (cross-schema
+`ON DELETE CASCADE`).
+
+**Distribution lists** (derived, `add-distribution-planning`) — per day, from the `VALIDATED` orders:
+the powder list's `ACTIVE` entries with powder, the weapons list's `ACTIVE` rentals, with the holder's
+proxy while it holds, and empty columns filled in by hand (flask number, traceability 1 and 2, weapon
+number). The **global numbering** is derived on every print: comparsas by slot time, then name;
+comparsas without a slot last; people by name; from 1 across the day. Nothing is stored; UC-21 will
+store `distributionNumber` at handover.
 
 **Handover** (later, UC-21) — `distribution`, `entry`, `distributionNumber`, `collectedBy` (holder or proxy entry), `collectedAt`, `powderKg`, `traceability1`, `traceability2`, `weaponNumber`, `rentalFlaskNumber`. Must work **offline** and sync later. No signatures: the FiringChief validates identities.
 

@@ -48,6 +48,10 @@ declare their breadcrumb with a `handle: { breadcrumb: '<common key>' } satisfie
 - `AppLayout`'s `sidebarCards` show a FiringChief's active comparsas above the navigation (logo
   and name, linking to the comparsa, the open one marked as current). Names wrap, never clipped.
   Admins get no cards.
+- The Federation's own logo (printed on documents, never in the repository) is managed the same way
+  in a "Federation logo" `SectionCard` at the end of the comparsas page, for Admins only. Its URL is
+  `/api/federation-logo?v={logo.version}` (`federationLogoUrl`). A failed load offers a retry, and a
+  failed refresh after a change says the logo shown may be outdated.
 
 ### Check, report, confirm (spreadsheet import)
 
@@ -114,6 +118,38 @@ uses the detail template this way:
 - **Refusals.** A write refused because the record changed or orders closed reloads the order and
   says why; the page then shows its new state.
 
+### Distribution page (distribution planning)
+
+An edition's distribution (`add-distribution-planning`) uses the detail template with sections
+only, one per day and one for the proxies:
+
+- **Header.** `PageHeader` "Distribution of {year}", back to the edition. The "Distribution"
+  navigation entry opens the edition in progress, or says there is none with a link to the editions.
+- **One section per day.** Powder, then weapons. A day not planned says so; Admins get "Plan". A
+  planned day shows `KeyFacts` (date in words, location) and its slots in a `DataTable`: by time,
+  then name, the comparsas without a slot last as "No slot" (Admins only; FiringChiefs see their
+  own). Admins edit the day in an `EditSheet` (the "Plan" trigger turns into "Edit" in place, so
+  focus stays) and delete it with a `ConfirmDialog` that says its slots go.
+- **Slots sheet.** One optional `TimeInput` per comparsa, by name, each named after the comparsa
+  (its clear button too, `clearSubject`); empty means no slot; saved as one set with the day's
+  version. The API's `slots[i]` reasons are mapped back to the comparsa's row.
+- **Lists.** For Admins, under the slots: the numbering note, a warning naming the comparsas whose
+  orders are not validated (and so not on the list), and `DownloadButtons` for Excel and PDF.
+- **Proxies.** A full-width section with a `DataTable` (holder as row header, type, proxy,
+  comparsa, problem as a `proxy` status badge). "Print form" is a single PDF download named after
+  the holder and the type (a holder may have both), hidden while the proxy has a problem; "Remove"
+  is confirmed, and a proxy already removed elsewhere counts as removed. Admins filter by
+  comparsa (in the address). When the user may not change proxies, an info banner says why and no
+  add or remove action is shown; the form can still be printed.
+- **Proxy sheet.** The comparsa only when the user has several, the type as `RadioCards`, then the
+  holder and the proxy as selects: people who cannot be chosen stay in the list, disabled, with the
+  reason in their label, and are summed up in the field's description too, as browsers skip
+  disabled options. The panel says that the reason is written by hand on the form. Conflicts about
+  a person land on their field.
+- **Not in progress.** A draft or closed edition says so under the header; the panels stay mounted
+  with hidden triggers, so one left open still shows why its save was refused. After a conflict a
+  panel shows the server's values before the person saves again.
+
 ## Actions
 
 - At most **one primary action** per page, at its natural width (never stretched across a form).
@@ -171,6 +207,10 @@ The form rules follow the GOV.UK Design System (direction "Registro", design D8 
   not announced: the schema checks the bounds (`isIsoDate`, `todayIso()` in Europe/Madrid for "not
   in the future") and its error states them. Optional dates use `clearable`, because some mobile
   pickers cannot empty a date. Autofill is off: these forms record other people's dates.
+- Times of day use `TimeInput` (the native time picker, whole minutes). Its value is `HH:mm`, the
+  same rules as `DateInput` apply (`''` defaults, `INCOMPLETE_TIME`, `clearable`), and where several
+  times share a form each clear button gets its own name with `clearLabel` (e.g. a distribution
+  day's slots).
 - **Compliance checks (license, course, age) are warnings, never blocking errors**
   (BR-04, `docs/data-model.md`): show them with the warning tone and let the user save. They never
   appear in the error summary. Data-integrity rules are blocking errors.

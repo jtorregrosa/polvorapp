@@ -89,3 +89,10 @@ their date.
 |---|---|---|---|
 | Q-52 | Link between a FiringChief's `User` and their own `Arquebusier` record (a FiringChief may also fire) | No link: two separate records. A FiringChief who fires is registered like any other arquebusier of their comparsa (`add-arquebusier-registry`). | ✅ |
 | Q-54 | Under-18 arquebusiers | Arquebusiers must be of legal age (18); there is no special authorisation for minors. PolvorApp shows the `UNDER_AGE` warning; like every BR-04 check it never blocks (confirmed by the maintainer, 2026-10-02; `add-compliance-insights`). | ✅ |
+| Q-55 | Distribution numbering (UC-20) | Derived on every print: comparsas by slot time (those without one last), people by name; nothing stored, a reprint after changes renumbers (maintainer decision, 2026-10-03; `add-distribution-planning`). | ✅ |
+| Q-56 | Distribution days per edition | One powder day and one weapons day (maintainer decision, 2026-10-03). | ✅ |
+| Q-57 | Who manages pickup proxies, and when | The comparsa's FiringChiefs while the edition is in progress, even with the orders closed or the order validated; Admins in any edition that is not a draft (maintainer decision, 2026-10-03). | ✅ |
+| Q-58 | Reason of a pickup proxy | Not stored (GDPR, it may reveal health data): the form leaves it blank, written by hand (maintainer decision, 2026-10-03). | ✅ |
+| Q-59 | Language of distribution lists and forms | The user's language (es-ES, ca-ES-valencia, en) (maintainer decision, 2026-10-03). | ✅ |
+| Q-60 | Proxy's license | A proxy must hold an active weapons license on the day: **blocking**, a deliberate exception to compliance checks being warnings (maintainer decision, 2026-10-03). | ✅ |
+| Q-61 | Federation logo on documents | Uploaded at run time by an Admin into private storage and printed on the form (and later the badges); never committed, as the repository is public (maintainer decision, 2026-10-03). | ✅ |

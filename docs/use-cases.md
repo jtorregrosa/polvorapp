@@ -130,6 +130,13 @@
   blocking. Each comparsa's list is available to Admins and its FiringChiefs for an order in any
   status, as a draft until the order is validated. The layouts are provisional until the
   recipients' templates arrive (Q-44). Sending the files is up to the Federation.
+- **UC-18 to UC-20 (distribution)**, change `add-distribution-planning` (maintainer decisions): one
+  powder day and one weapons day per edition, planned by Admins with a slot per comparsa; the lists
+  come from the `VALIDATED` orders, as Excel and PDF, in the user's language, numbered on every print
+  (comparsas by slot, people by name), with columns filled in by hand on the day. Pickup proxies are
+  registered by the comparsa's FiringChiefs while the edition is in progress, even with the orders
+  closed; the proxy must hold an active weapons license on the day (blocking); no reason is stored;
+  the authorisation form is printed in the user's language with the Federation's logo once uploaded.
 - On distribution day the **FiringChief validates the identity** of their arquebusiers; nobody signs.
   The only paper document is the proxy authorisation (UC-19), for the exceptional case.
 - Today the Federation records flask assignments with a laptop and a spreadsheet; UC-20 printable
