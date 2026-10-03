@@ -1,0 +1,88 @@
+# Tasks
+
+## 1. Research
+
+- [x] 1.1 Check with Context7 (and `gh search code` for real-world usage) what design D2–D11 rely on:
+  - Npgsql EF Core: `TimeOnly` ↔ `time` mapping, and a cross-schema `ON DELETE CASCADE` key added with `migrationBuilder.Sql`;
+  - PostgreSQL `pg_advisory_xact_lock` with a two-part key, and `FOR SHARE` / `FOR UPDATE` with `lock_timeout`;
+  - QuestPDF (the version in use): a form layout with labelled fields, blank writing lines, signature boxes and a PNG image at a fixed height keeping its shape, and a table column with a minimum row height;
+  - HTML `input type="time"` accessibility and keyboard behaviour in the three browsers Playwright runs.
+
+  Record versions and any workaround in design.md. Verify: design.md updated, with no open question beyond Q-43 and the layout note.
+
+## 2. Shared document pipeline and contracts in other modules
+
+- [x] 2.1 Move `ExportTable`, `ExportColumn`, `ExportCellType` and `ExportFormat` to `Exports.Contracts` as the public `DocumentTable`, `DocumentColumn`, `DocumentCellType` and `DocumentFormat` (design D3), and the comparsa slug helper to `SharedKernel.Text`, with no behaviour change. Verify: every existing Exports unit and golden-file test passes unchanged, and the architecture tests pass.
+- [x] 2.2 Write tests for `IDocumentRenderer.RenderTable` (Excel and PDF of a `DocumentTable`) and for `DocumentColumn.ForHandwriting` (fixed width and writable row height in the PDF, ignored in Excel), with golden files. Then add the contract and implement it in `Exports` with the existing writers. Verify: the new golden files pass twice with identical output, and the exports' golden files are unchanged.
+- [x] 2.3 Write golden-file tests for `IDocumentRenderer.RenderForm` with a synthetic `DocumentForm` (title, heading lines, sections with filled and blank fields, statements, blank lines, two signature boxes; with and without a generated synthetic PNG logo; A4 portrait, Geist only). Then implement it. Verify: the tests pass twice with identical output.
+- [x] 2.4 Write Testcontainers tests for `ComparsaOrders.Contracts.IEditionEntries` (design D3): `ListAsync` returns one comparsa's entries of the edition (empty when not prepared, none of other comparsas or editions); `FindManyAsync` returns entries by id with order, edition, comparsa, order status, status, powder, weapon source, rental model, flask and copy; `ToString()` prints no personal data. Then implement it. Verify: the tests pass.
+- [x] 2.5 Update the modules README (document rendering contract, `IEditionEntries`). Verify: the README matches the code.
+- [x] 2.6 Review group 2 in parallel with `csharp-reviewer`, `type-design-analyzer` and `security-reviewer`. Fix CRITICAL/HIGH findings.
+
+## 3. Federation logo (federation-catalog)
+
+- [x] 3.1 Write database tests for `catalog.federation_settings` (design D11): one row created by the migration, a second row refused by the check constraint. Then add the entity and the migration, and update `ModelDriftTests`. Verify: the tests pass.
+- [x] 3.2 Write endpoint tests for `GET`, `PUT` and `DELETE /api/catalog/federation-logo`: Admin uploads, replaces (previous image erased after commit) and removes; the comparsa logo validation reasons (`required`, `tooLarge`, `unsupportedFormat`, `tooSmall`, `aspectRatio`); PNG without metadata, transparency kept, scaled to 1024 px; `403` for a FiringChief's writes, reads for every signed-in user, `404` without a logo, `no-store`, `503 storage.unavailable`; audit entries without the image; the orphan sweep keeps the referenced image and erases a replaced one. Use generated synthetic images only. Then implement `FederationLogoAdministration`, the endpoints and `CatalogLogoOwner`'s new reference. Verify: the tests pass.
+- [x] 3.3 Write tests for `ICatalogDirectory.ReadFederationLogoAsync` (image or null) and rename `ComparsaLogoImage` to `LogoImage` in the contract. Then implement it. Verify: the tests and every existing catalogue and export test pass.
+- [x] 3.4 Review group 3 in parallel with `csharp-reviewer` and `security-reviewer` (uploads, storage, no committed image). Fix CRITICAL/HIGH findings.
+
+## 4. Distribution module, days and slots
+
+- [x] 4.1 Create `PolvorApp.Distribution` and `.Contracts` (design D1): `DistributionModule`, the coded enum `DistributionType` (`POWDER`, `WEAPONS`), `DistributionDbContext` with the `distribution` schema, and the problem codes. Register it in `Program.cs`, `PolvorApp.slnx`, the `Dockerfile` and the migration order after `ComparsaOrders`. Verify: `dotnet build` passes, and the architecture, `ModuleRegistrationTests` and `CodedEnumsTests` tests pass.
+- [x] 4.2 Write database tests for the migration (design D2): the three tables, `ux_distributions_edition_type`, `ux_pickup_proxies_holder_type`, the check constraints, the cross-schema keys with their delete rules, and that deleting an edition entry removes its proxies. Then add the entities and the migration, and the context to `ModelDriftTests`. Verify: the tests pass and `ModelDriftTests` is green.
+- [x] 4.3 Write tests for `IEditionUsage` and `ICatalogUsage` in the module: an edition with a distribution and a comparsa with a slot or a proxy are in use; the festival-editions deletion of a draft edition with a distribution answers `409 editions.inUse`; a comparsa with a slot cannot be deleted. Then implement them. Verify: the tests pass.
+- [x] 4.4 Write Testcontainers endpoint tests for planning, editing and deleting a day (design D4, D7): Admin only (`403` for a FiringChief); one per type (`409 distribution.alreadyPlanned`, also for two concurrent requests); the date and location rules (`400` naming the field); `409 distribution.editionNotInProgress` outside `IN_PROGRESS`; `409 distribution.modified` on an outdated version; deletion removes the slots and keeps the proxies; a save without changes records nothing; each write audited (design D8). Then implement `DistributionWriteGuard`, the service and the endpoints. Verify: the tests pass.
+- [x] 4.5 Write endpoint tests for `PUT /distributions/{id}/slots`: replace the set; unknown or duplicate comparsa and invalid time (`400` naming `slots[i].…`); version and edition rules; the audit of added, moved and removed comparsas with their times; nothing recorded without changes. Then implement it. Verify: the tests pass.
+- [x] 4.6 Write endpoint tests for `GET /editions/{editionId}`: Admins see both days, every slot in time order, the comparsas without a slot and the orders not validated; a FiringChief sees the days and only their comparsas' slots; `404` for a FiringChief on a `DRAFT` edition. Then implement it. Verify: the tests pass, and `ComparsaScopeGuardTests` knows the new comparsa-scoped routes.
+- [x] 4.7 Review group 4 in parallel with `csharp-reviewer`, `database-reviewer` and `security-reviewer`. Fix CRITICAL/HIGH findings.
+
+## 5. Pickup proxies
+
+- [x] 5.1 Write unit tests for `ProxyLicenseRule` and `ProxyProblems` (design D5): an issued license of either type valid through the reference date holds; pending, missing, expiring before it, or an arquebusier no longer in the registry does not; the reference date is the day of that type or the festival's first day; `NOT_APPLICABLE` after the holder's entry changed; `LICENSE_INVALID` after the license changed or the day was planned or moved. Then implement them with the other proxy rules (same order, not the holder, something to collect). Verify: the tests pass.
+- [x] 5.2 Write endpoint tests for `POST /editions/{editionId}/proxies` and `DELETE /proxies/{id}`: a FiringChief in scope while `IN_PROGRESS` with orders closed and a `VALIDATED` order; `409 distribution.editionNotInProgress` for a FiringChief on a `CLOSED` edition and success for an Admin; `404` out of scope; `400 notInOrder` for another comparsa's, edition's or unknown entry (same answer); `sameAsHolder`, `nothingToCollect`, `licenseInvalid` (expired before the day, pending); `409 proxies.alreadyAuthorised`, `proxies.proxyAbsent` and `proxies.holderIsProxy`, also for concurrent requests in one comparsa; one proxy for two holders; audit entries with ids only, none for a rejection. Then implement the advisory lock, the service and the endpoints. Verify: the tests pass.
+- [x] 5.3 Write endpoint tests for `GET /editions/{editionId}/proxies` (scope, comparsa filter, names from the registry or the copy, problems) and `GET …/proxy-candidates` (holders with something to collect and no proxy of that type; the order's other entries, `ACTIVE` and `RESERVE`, with `eligible` and `licenseInvalid` as the reason). Then implement them. Verify: the tests pass.
+- [x] 5.4 Write a test that deleting from the registry, while the orders are open, the arquebusier of a holder or of a proxy entry removes the proxy with the entry, and that with the orders closed the proxy stays and shows `LICENSE_INVALID` when it was the proxy who left. Verify: the test passes against the cascade from 4.2.
+- [x] 5.5 Review group 5 in parallel with `csharp-reviewer`, `security-reviewer` and `silent-failure-hunter`. Fix CRITICAL/HIGH findings.
+
+## 6. Lists and authorisation form
+
+- [x] 6.1 Write unit tests for `DistributionNumbering`: slot order, same-time comparsas by name, slotless comparsas last, Spanish order of holders, numbers from 1, renumbering when a holder is added. Then implement it. Verify: the tests pass.
+- [x] 6.2 Write unit tests for `PowderDistributionList` and `WeaponDistributionList` (design D6): only validated orders' `ACTIVE` holders with powder or a rental; columns and handwriting columns; flask words; the proxy's name and DNI/NIE, none for a proxy with a problem; identity from the registry or the copy; an empty edition; no license, phone, email or birth date; titles, headings and words in es-ES, ca-ES-valencia and en, with model labels and comparsa names untranslated. Then implement them with `DistributionTexts`. Verify: the tests pass.
+- [x] 6.3 Write unit tests for `PickupAuthorisationForm`: the Federation logo when given and none otherwise; holder and proxy sections with license types (the holder's blank when missing), comparsa, year, powder or weapon wording, the day's date and location when planned, blank reason, place and date lines and signatures; the three languages. Then implement it. Verify: the tests pass.
+- [x] 6.4 Write golden-file tests for both lists in Excel and PDF and for the form (with a generated synthetic logo), from one synthetic data set, in Spanish and in one other language. Verify: the golden files pass twice with identical output, and contain no real data.
+- [x] 6.5 Write endpoint tests for `GET /distributions/{id}/list/{format}` and `GET /proxies/{id}/form`: Admin only for lists (`403` for a FiringChief); the form for Admins and the FiringChief in scope (`404` otherwise); the request's language; `409 proxies.notApplicable` and `proxies.licenseInvalid`; `503 storage.unavailable` when the logo exists and the storage is down, and a form without logo when none was uploaded; `404` for an unknown format or distribution; file names without personal data; one `DistributionDocumentDownloaded` audit entry per file with no personal data, none for a refusal, `503` and no file when the audit fails; `429` under the `Exports` limit; `no-store`. Then implement `DistributionDocumentLoader` and the endpoints. Verify: the tests pass.
+- [x] 6.6 Review group 6 in parallel with `csharp-reviewer`, `security-reviewer` (SEC-06 per document) and `silent-failure-hunter`. Fix CRITICAL/HIGH findings.
+
+## 7. API contract, seed and documentation
+
+- [x] 7.1 Regenerate `contracts/openapi.json` and check `OpenApiDocumentTests`: the new routes, file responses and problem codes. Verify: the tests pass and the diff is additive except the `LogoImage` rename, which is server-side only.
+- [x] 7.2 Write tests for the synthetic seed (spec: Synthetic distribution data): both days, slots for some seeded comparsas and one without, a powder proxy and a weapons proxy, each proxy with a synthetic license valid on its day (the seeded current edition has no reserve with a valid license, so both proxies are active entries); no Federation logo; running twice creates them once; no real names, places or IDs. Then implement `DistributionSeeder`. Verify: the tests pass and `seed` runs twice on the compose stack.
+- [x] 7.3 Update the docs: `docs/data-model.md` (slot `startsAt` as a time, proxy `type` as `DistributionType`, no reason stored, the proxy license rule, cascade with entries, the Federation logo), `docs/glossary.md` (location, slot time, distribution list, Federation logo), `docs/use-cases.md` (UC-18..20 notes with the maintainer decisions), `docs/compliance.md` (proxies, lists and forms: data, audit, no reason stored), `docs/open-questions.md` (the maintainer decisions dated 2026-10-03: numbering, one day per type, proxies while in progress, no reason, documents in the user's language, proxy license blocking as an exception to compliance warnings, Federation logo uploaded at run time). Verify: the docs match the spec, and no real data from `docs/sources/` appears.
+- [x] 7.4 Review group 7 with `doc-updater` for consistency of the docs. Fix findings.
+
+## 8. Frontend foundations
+
+- [x] 8.1 Regenerate the API client and add the `distribution` namespace in `es-ES`, `ca-ES-valencia` and `en`, registered in `i18n/index.ts`; update the `editions.inUse` copy to "orders or distribution days" in the three locales (design D9). Verify: `npm run typecheck` and `npm run check-i18n` pass.
+- [x] 8.2 Write tests (Vitest + Testing Library + axe) for a `TimeInput` composite: label, value as `HH:mm`, empty, invalid and disabled states, error message, keyboard use. Then implement it in `components/app` with its story and catalogue entry (ADR-0009). Verify: the tests and axe pass, and Storybook builds.
+- [x] 8.3 Write tests for `DownloadButtons` with `formats={['pdf']}` and the `proxies.notApplicable`, `proxies.licenseInvalid` and `storage.unavailable` reasons. Then extend it. Verify: the new and existing tests pass.
+- [x] 8.4 Write tests for `FederationLogoSection` on the comparsas page: Admins add (crop starting with the whole image), replace and remove (confirmed) the logo, with the client-side checks and translated API reasons; FiringChiefs see no section actions. Then generalise the comparsa logo section's parts and implement it, with the `catalog` keys in the three locales. Verify: the tests and axe pass, and the comparsa logo tests still pass.
+- [x] 8.5 Review group 8 in parallel with `react-reviewer` and `a11y-architect`. Fix CRITICAL/HIGH findings.
+
+## 9. Distribution screens
+
+- [x] 9.1 Write tests for the routes and navigation: the "Distribution" entry for both roles, `distribution` opening the current edition's page or saying there is none with a link to the editions, the link on non-draft edition pages, the not-found page for a FiringChief on a draft edition. Then implement them. Verify: the tests pass.
+- [x] 9.2 Write tests for `DistributionDaySection`, `DaySheet` and `SlotsSheet`: "not planned" with "Plan" for Admins; facts and slots in time order; comparsas without a slot; edit, delete (dialog saying the slots go) and slot editing with field errors from the API; the list downloads with the not-validated warning and the renumbering note; FiringChiefs see only their slots and no actions. Then implement them. Verify: the tests and axe pass.
+- [x] 9.3 Write tests for `ProxiesSection` and `ProxySheet`: the table with comparsa filter for Admins, problems, "Print form" hidden for a proxy with a problem, "Remove" with confirmation; "Add proxy" choosing comparsa, type, holder and proxy from the candidates, with ineligible entries shown and why, and the handwritten-reason note; every rejection's translated reason; read-only with the reason in a closed edition for a FiringChief. Then implement them. Verify: the tests and axe pass.
+- [x] 9.4 Write a test that the distribution page works at 360 px without sideways scrolling of the page, and assemble `DistributionPage`. Update `docs/design/patterns.md` (distribution page: day sections, slot sheet, proxies; Federation logo section). Verify: the tests pass and the pattern note matches the page.
+- [x] 9.5 Review group 9 in parallel with `react-reviewer` and `a11y-architect`. Fix CRITICAL/HIGH findings.
+
+## 10. End-to-end and verification
+
+- [x] 10.1 Write `e2e/distribution.spec.ts` on the seeded stack: the seeded FiringChief opens the distribution page, sees their slots and proxies, sees an entry without an active license as not eligible, registers a proxy, prints its form (Playwright `download`: file name, PDF header) and removes it; axe on the page. Write `e2e/serial-state/distribution-planning.spec.ts`: an Admin uploads a generated synthetic Federation logo and removes it at the end, edits the powder day's location and a slot and restores them, and downloads the powder list as Excel and PDF once an order is validated. Verify: the specs pass in the compose stack, and the full suite passes twice in a row.
+- [x] 10.2 Run `verification-loop`:
+  - build, types and lint;
+  - backend and frontend tests with coverage of at least 80 % on the `Distribution` module, the new contracts, the Federation logo and `features/distribution`;
+  - a security grep: no unauthenticated route, FiringChief scope on every comparsa route, no personal data in logs, audit data or file names, `no-store` on every document, and no image file added by the change;
+  - a diff review.
+
+  Run `e2e-runner` and `pr-test-analyzer` on the change. Verify: the PASS report, with the findings and follow-ups recorded in design.md. `docs/mvp.md` marks #13 done when the change is archived.
