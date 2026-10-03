@@ -13,6 +13,7 @@ equivalent are kept as-is (e.g. `Comparsa`).
 | Unión / Federación Unión de Comparsas Ber-Largas | `Federation` | Umbrella body that coordinates all comparsas, aggregates orders, organises training courses and deals with suppliers and authorities. Owner and host of PolvorApp and GDPR data controller. |
 | Comparsa | `Comparsa` | A festival troupe/association. There are ~20. Each belongs to one `Side`. Example: Contrabandistas. |
 | Logo / escudo de la comparsa | `logo` (of a `Comparsa`) | The comparsa's emblem, an optional PNG uploaded by an Admin. Shown next to its name; never a Federation or real emblem in the repository. |
+| Logo de la Federación | `FederationSettings.logo` | The Federation's emblem, uploaded at run time by an Admin and printed on documents (pickup authorisation form, badges). Never in the repository. |
 | Bando (Moro / Cristiano) | `Side` (`MOORISH`, `CHRISTIAN`) | The side a comparsa belongs to. Usually goes with a weapon kind (Moorish → arcabuz, Christian → trabuco), but PolvorApp does not enforce it: Federation labels such as "ARCABUZ CRISTIANO" exist (Q-53). |
 | Comparsista / Socio | `Member` | Person registered in a comparsa. Managed in the Federation's external app, **not** in PolvorApp. |
 | ID Unión | `federationId` | ID of the person's record in the Federation's external app. Mandatory cross-reference. |
@@ -109,8 +110,10 @@ equivalent are kept as-is (e.g. `Comparsa`).
 |---|---|---|
 | Reparto / Recogida | `Distribution` | Scheduled day when the Federation hands out powder (outside town, with Guardia Civil, possibly **without connectivity**) or weapons, in slots per comparsa. |
 | Devolución | `WeaponReturn` | After the acts, rented weapons and flasks are returned to the rental company, which checks them. **Out of scope** — the Federation does not manage it. |
-| Turno | `DistributionSlot` | Time slot assigned to a comparsa on a distribution day. |
-| Nº de orden | `distributionNumber` | Sequential number of each arquebusier in the global powder distribution list. |
+| Turno | `DistributionSlot` | Time slot assigned to a comparsa on a distribution day: its start time (`startsAt`, `HH:mm`). |
+| Lugar | `location` (of a `Distribution`) | Where a distribution day takes place, typed by an Admin. |
+| Listado de reparto | distribution list | Printable list of a distribution day (powder or weapons), from the validated orders, numbered across the day, with columns filled in by hand. |
+| Nº de orden | `distributionNumber` | Sequential number of each arquebusier in a day's distribution list. Derived on every print in the MVP; stored at handover by UC-21. |
 | Autorizado / Autorización de recogida | `PickupProxy` | **Exceptional**: arquebusier who collects powder or a weapon on behalf of a holder who cannot attend, with a paper form signed by both. **Must be on the edition list** (active or reserve). |
 | Trazabilidad 1 / 2 | `traceability1`, `traceability2` | Codes recorded at powder handover. ❓ meaning |
 | Almuerzo | — | Comparsa-internal lunch. **Out of scope.** |

@@ -76,6 +76,13 @@ neutral pill with the raw code and a development-only console warning.
 | `ACTIVE` | success | CircleCheck | Activo | Actiu | Active |
 | `INACTIVE` | muted | CircleDashed | Inactivo | Inactiu | Inactive |
 
+## `proxy`
+
+| Value | Tone | Icon | es-ES | ca-ES-valencia | en |
+|---|---|---|---|---|---|
+| `NOT_APPLICABLE` | warning | TriangleAlert | El titular ya no recoge | El titular ja no recull | Holder no longer collects |
+| `LICENSE_INVALID` | warning | TriangleAlert | Licencia no válida ese día | Llicència no vàlida eixe dia | License not valid on the day |
+
 ## `warning`
 
 | Value | Tone | Icon | es-ES | ca-ES-valencia | en |
