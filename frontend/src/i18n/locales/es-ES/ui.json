@@ -50,6 +50,14 @@
     "help": "Ayuda",
     "unexpectedError": "No se ha podido guardar. Inténtalo de nuevo."
   },
+  "textArea": {
+    "limit": "Hasta {{max}} caracteres.",
+    "remaining_one": "Queda {{count}} carácter",
+    "remaining_other": "Quedan {{count}} caracteres",
+    "over_one": "Sobra {{count}} carácter",
+    "over_other": "Sobran {{count}} caracteres",
+    "tooLong": "Tiene más caracteres de los permitidos"
+  },
   "confirm": {
     "cancel": "Cancelar",
     "failed": "No se ha podido completar la acción. Inténtalo de nuevo."
@@ -81,6 +89,9 @@
       "DRAFT": "En preparación",
       "IN_PROGRESS": "En curso",
       "CLOSED": "Cerrada"
+    },
+    "participation": {
+      "FIRST_YEAR": "Primer año"
     },
     "orders": {
       "OPEN": "Pedidos abiertos",

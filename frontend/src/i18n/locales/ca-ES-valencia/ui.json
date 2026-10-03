@@ -50,6 +50,14 @@
     "help": "Ajuda",
     "unexpectedError": "No s’ha pogut desar. Torna-ho a provar."
   },
+  "textArea": {
+    "limit": "Fins a {{max}} caràcters.",
+    "remaining_one": "Queda {{count}} caràcter",
+    "remaining_other": "Queden {{count}} caràcters",
+    "over_one": "Sobra {{count}} caràcter",
+    "over_other": "Sobren {{count}} caràcters",
+    "tooLong": "Té més caràcters dels permesos"
+  },
   "confirm": {
     "cancel": "Cancel·la",
     "failed": "No s'ha pogut completar l'acció. Torna-ho a provar."
@@ -81,6 +89,9 @@
       "DRAFT": "En preparació",
       "IN_PROGRESS": "En curs",
       "CLOSED": "Tancada"
+    },
+    "participation": {
+      "FIRST_YEAR": "Primer any"
     },
     "orders": {
       "OPEN": "Comandes obertes",
