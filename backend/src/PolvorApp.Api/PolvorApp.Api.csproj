@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Modules\ArquebusierRegistry\PolvorApp.ArquebusierRegistry\PolvorApp.ArquebusierRegistry.csproj" />
     <ProjectReference Include="..\Modules\AuditPrivacy\PolvorApp.AuditPrivacy\PolvorApp.AuditPrivacy.csproj" />
+    <ProjectReference Include="..\Modules\Billing\PolvorApp.Billing\PolvorApp.Billing.csproj" />
     <ProjectReference Include="..\Modules\ComparsaOrders\PolvorApp.ComparsaOrders\PolvorApp.ComparsaOrders.csproj" />
     <ProjectReference Include="..\Modules\ComplianceInsights\PolvorApp.ComplianceInsights\PolvorApp.ComplianceInsights.csproj" />
     <ProjectReference Include="..\Modules\FederationCatalog\PolvorApp.FederationCatalog\PolvorApp.FederationCatalog.csproj" />

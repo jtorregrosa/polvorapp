@@ -88,6 +88,17 @@ public sealed class OrderTestHost : IAsyncDisposable
         await db.Editions.Where(e => e.Id == Current.Id).ExecuteUpdateAsync(e => e.SetProperty(x => x.OrdersOpen, open), TestContext.Current.CancellationToken);
     }
 
+    /// <summary>Sets the prices of an edition directly; null clears one (as only a draft may have).</summary>
+    internal async Task SetPricesAsync(Guid editionId, decimal? powderPerKg, decimal? capsBox, decimal? weaponRental, decimal? flaskRental)
+    {
+        await using var scope = Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<FestivalEditionsDbContext>();
+        await db.Editions.Where(e => e.Id == editionId).ExecuteUpdateAsync(
+            e => e.SetProperty(x => x.PowderPerKg, powderPerKg).SetProperty(x => x.CapsBox, capsBox)
+                .SetProperty(x => x.WeaponRental, weaponRental).SetProperty(x => x.FlaskRental, flaskRental),
+            TestContext.Current.CancellationToken);
+    }
+
     /// <summary>Moves the current edition to another status directly (orders closed).</summary>
     internal async Task SetCurrentStatusAsync(EditionStatus status)
     {

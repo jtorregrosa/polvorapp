@@ -7372,6 +7372,85 @@
           "RESERVE"
         ]
       },
+      "BillingConcept": {
+        "enum": [
+          "POWDER",
+          "CAPS",
+          "WEAPON_RENTAL",
+          "FLASK_RENTAL"
+        ]
+      },
+      "BillingLineResponse": {
+        "required": [
+          "concept",
+          "quantity",
+          "unitPrice",
+          "amount"
+        ],
+        "type": "object",
+        "properties": {
+          "concept": {
+            "$ref": "#/components/schemas/BillingConcept"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unitPrice": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "amount": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          }
+        }
+      },
+      "BillingState": {
+        "enum": [
+          "PROVISIONAL",
+          "FINAL"
+        ]
+      },
+      "BillingSummaryResponse": {
+        "required": [
+          "lines",
+          "total",
+          "state",
+          "missingPrices"
+        ],
+        "type": "object",
+        "properties": {
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BillingLineResponse"
+            }
+          },
+          "total": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "state": {
+            "$ref": "#/components/schemas/BillingState"
+          },
+          "missingPrices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BillingConcept"
+            }
+          }
+        }
+      },
       "CalendarMilestoneRequest": {
         "required": [
           "date",
@@ -9148,7 +9227,8 @@
           "notInOrder",
           "lentOut",
           "totals",
-          "offeredModels"
+          "offeredModels",
+          "billing"
         ],
         "type": "object",
         "properties": {
@@ -9228,6 +9308,9 @@
             "items": {
               "$ref": "#/components/schemas/WeaponModelReference"
             }
+          },
+          "billing": {
+            "$ref": "#/components/schemas/BillingSummaryResponse"
           }
         }
       },
@@ -9361,7 +9444,8 @@
           "edition",
           "rows",
           "statusCounts",
-          "editionTotals"
+          "editionTotals",
+          "editionBilling"
         ],
         "type": "object",
         "properties": {
@@ -9400,6 +9484,16 @@
                 "$ref": "#/components/schemas/OrderTotalsResponse"
               }
             ]
+          },
+          "editionBilling": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/BillingSummaryResponse"
+              }
+            ]
           }
         }
       },
@@ -9409,7 +9503,8 @@
           "orderId",
           "status",
           "totals",
-          "canPrepare"
+          "canPrepare",
+          "billing"
         ],
         "type": "object",
         "properties": {
@@ -9445,6 +9540,16 @@
           },
           "canPrepare": {
             "type": "boolean"
+          },
+          "billing": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/BillingSummaryResponse"
+              }
+            ]
           }
         }
       },

@@ -21,6 +21,8 @@ COPY src/Modules/FestivalEditions/PolvorApp.FestivalEditions/PolvorApp.FestivalE
 COPY src/Modules/FestivalEditions/PolvorApp.FestivalEditions.Contracts/PolvorApp.FestivalEditions.Contracts.csproj src/Modules/FestivalEditions/PolvorApp.FestivalEditions.Contracts/
 COPY src/Modules/ComparsaOrders/PolvorApp.ComparsaOrders/PolvorApp.ComparsaOrders.csproj src/Modules/ComparsaOrders/PolvorApp.ComparsaOrders/
 COPY src/Modules/ComparsaOrders/PolvorApp.ComparsaOrders.Contracts/PolvorApp.ComparsaOrders.Contracts.csproj src/Modules/ComparsaOrders/PolvorApp.ComparsaOrders.Contracts/
+COPY src/Modules/Billing/PolvorApp.Billing/PolvorApp.Billing.csproj src/Modules/Billing/PolvorApp.Billing/
+COPY src/Modules/Billing/PolvorApp.Billing.Contracts/PolvorApp.Billing.Contracts.csproj src/Modules/Billing/PolvorApp.Billing.Contracts/
 RUN dotnet restore src/PolvorApp.Api/PolvorApp.Api.csproj
 
 COPY src/ src/

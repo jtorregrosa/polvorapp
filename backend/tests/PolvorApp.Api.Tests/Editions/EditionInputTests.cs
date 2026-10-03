@@ -1,3 +1,4 @@
+using PolvorApp.FestivalEditions.Contracts;
 using PolvorApp.FestivalEditions.Editions;
 
 namespace PolvorApp.Api.Tests.Editions;

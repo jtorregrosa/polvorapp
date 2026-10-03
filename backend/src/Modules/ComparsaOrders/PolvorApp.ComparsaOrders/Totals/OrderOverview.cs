@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.Billing.Contracts;
 using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.ComparsaOrders.Endpoints;
 using PolvorApp.ComparsaOrders.Entries;
@@ -26,7 +27,8 @@ internal sealed class OrderOverview(
     IEditionDirectory editions,
     ICatalogDirectory catalog,
     IArquebusierRoster roster,
-    IComplianceRules rules)
+    IComplianceRules rules,
+    IBillingCalculator billing)
 {
     /// <summary>The overview of the edition, or of the current one when none is given; not found for a FiringChief's draft.</summary>
     public async Task<OverviewResponse?> FindAsync(Guid? editionId, CancellationToken cancellationToken)
@@ -36,7 +38,7 @@ internal sealed class OrderOverview(
             : await editions.GetCurrentAsync(cancellationToken);
         if (edition is null || (!currentUser.IsAdmin && edition.Status == EditionStatus.Draft))
         {
-            return editionId is null ? new OverviewResponse(null, [], null, null) : null;
+            return editionId is null ? new OverviewResponse(null, [], null, null, null) : null;
         }
 
         var access = await scope.GetAccessAsync(cancellationToken);
@@ -44,6 +46,7 @@ internal sealed class OrderOverview(
         var comparsas = await ComparsasAsync(access, orders, cancellationToken);
         var totals = await TotalsByOrderAsync(orders, edition, cancellationToken);
         var labels = await LabelsAsync(totals.Values, cancellationToken);
+        var prices = BillingMapping.PricesOf(edition.Prices);
         var byComparsa = orders.ToDictionary(o => o.ComparsaId);
         foreach (var missing in byComparsa.Keys.Where(id => comparsas.All(c => c.Id != id)))
         {
@@ -55,14 +58,33 @@ internal sealed class OrderOverview(
             .OrderBy(c => c.Name, SpanishOrder.Names)
             .ThenBy(c => c.Id)
             .Select(c => byComparsa.GetValueOrDefault(c.Id) is { } order
-                ? new OverviewRowResponse(Comparsa(c), order.Id, order.Status, OrderTotalsResponse.From(totals[order.Id], labels), CanPrepare: false)
-                : new OverviewRowResponse(Comparsa(c), null, null, null, CanPrepare(c, edition)))
+                ? new OverviewRowResponse(
+                    Comparsa(c),
+                    order.Id,
+                    order.Status,
+                    OrderTotalsResponse.From(totals[order.Id], labels),
+                    CanPrepare: false,
+                    Billing(totals[order.Id], prices, BillingMapping.StateOfOrder(order.Status)))
+                : new OverviewRowResponse(Comparsa(c), null, null, null, CanPrepare(c, edition), Billing: null))
             .ToList();
         var editionResponse = new OrderEditionResponse(edition.Id, edition.Year, edition.Status, edition.OrdersOpen);
-        return currentUser.IsAdmin
-            ? new OverviewResponse(editionResponse, rows, StatusCounts(rows), OrderTotalsResponse.From(OrderTotals.Sum(totals.Values), labels))
-            : new OverviewResponse(editionResponse, rows, null, null);
+        if (!currentUser.IsAdmin)
+        {
+            return new OverviewResponse(editionResponse, rows, null, null, null);
+        }
+
+        // The edition's quantities are summed and priced once (add-billing-summary, design D1).
+        var editionTotals = OrderTotals.Sum(totals.Values);
+        return new OverviewResponse(
+            editionResponse,
+            rows,
+            StatusCounts(rows),
+            OrderTotalsResponse.From(editionTotals, labels),
+            Billing(editionTotals, prices, BillingMapping.StateOfEdition([.. orders.Select(o => o.Status)])));
     }
+
+    private BillingSummaryResponse Billing(OrderTotals totals, BillingPrices prices, BillingState state) =>
+        BillingSummaryResponse.From(billing.Summarise(BillingMapping.QuantitiesOf(totals), prices, state));
 
     /// <summary>Admins: the active comparsas plus those with an order. FiringChiefs: their scope.</summary>
     private async Task<List<ComparsaSummary>> ComparsasAsync(ComparsaAccess access, List<ComparsaOrder> orders, CancellationToken cancellationToken)

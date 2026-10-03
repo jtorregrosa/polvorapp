@@ -40,7 +40,7 @@ internal sealed class EditionAdministration(
                 .Where(e => e.Year < year)
                 .OrderByDescending(e => e.Year)
                 .FirstOrDefaultAsync(cancellationToken);
-            var prices = previous is null ? EditionPrices.None : EditionPrices.Of(previous);
+            var prices = previous is null ? EditionPrices.None : previous.GetPrices();
             var (copied, dropped) = previous is null ? (new List<Guid>(), new List<Guid>()) : await CopyableModelsAsync(previous.Id, cancellationToken);
 
             var now = time.GetUtcNow();
@@ -173,7 +173,7 @@ internal sealed class EditionAdministration(
                 edition.FestivalEndsOn,
                 edition.OrdersOpenOn,
                 edition.OrdersCloseOn,
-                prices = EditionPrices.Of(edition),
+                prices = edition.GetPrices(),
                 weaponModelIds = modelIds,
                 milestoneCount,
             });
@@ -238,7 +238,7 @@ internal sealed class EditionAdministration(
     }
 
     private static EditableFields Editable(FestivalEdition edition) =>
-        new(edition.FestivalStartsOn, edition.FestivalEndsOn, edition.OrdersOpenOn, edition.OrdersCloseOn, EditionPrices.Of(edition));
+        new(edition.FestivalStartsOn, edition.FestivalEndsOn, edition.OrdersOpenOn, edition.OrdersCloseOn, edition.GetPrices());
 
     /// <summary>The changed fields only, with their previous and new values (spec: Edition changes are audited).</summary>
     private static object Changes(EditableFields previous, EditableFields current)
