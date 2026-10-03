@@ -49,6 +49,17 @@ export const test = base.extend<Fixtures>({
   ],
   axeViolations: async ({ page }, use) => {
     await use(async (target = page, include) => {
+      // Contrast is measured on the final colours: a dialog still fading in reads as low contrast
+      // (seen in WebKit under load). Endless animations, such as spinners, are not waited for.
+      await target.waitForFunction(() =>
+        document
+          .getAnimations()
+          .every(
+            (animation) =>
+              animation.playState !== 'running' ||
+              animation.effect?.getComputedTiming().iterations === Infinity,
+          ),
+      );
       const builder = new AxeBuilder({ page: target }).withTags([
         'wcag2a',
         'wcag2aa',
