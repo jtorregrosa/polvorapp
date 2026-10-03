@@ -78,6 +78,8 @@ export default defineConfig({
       name: 'serial-state',
       testMatch: SERIAL_STATE,
       fullyParallel: false,
+      // One file at a time: each changes state the others read (orders open, registry lock, Norte's order).
+      workers: 1,
       use: { ...devices['Desktop Chrome'], storageState: ADMIN_STATE },
       dependencies: [
         'desktop-chromium',
