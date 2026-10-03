@@ -1,3 +1,4 @@
+using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.ComparsaOrders.Entries;
 
 namespace PolvorApp.ComparsaOrders.Loans;

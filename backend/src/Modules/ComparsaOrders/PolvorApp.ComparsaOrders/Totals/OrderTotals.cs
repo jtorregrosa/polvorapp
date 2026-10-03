@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.ComparsaOrders.Entries;
 
 namespace PolvorApp.ComparsaOrders.Totals;

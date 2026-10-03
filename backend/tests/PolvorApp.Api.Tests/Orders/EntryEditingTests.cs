@@ -349,7 +349,7 @@ public sealed class EntryEditingTests(PostgresFixture postgres, MailpitFixture m
         var stored = await _orders.ReadOrdersAsync(db => db.Orders.AsNoTracking().SingleAsync(o => o.Id == OrderId(order), TestContext.Current.CancellationToken));
         var history = NewEntry(stored, null);
         (history.WeaponSource, history.OwnedWeaponModelId, history.OwnedWeaponNumber, history.OwnedWeaponGuideNumber) =
-            (PolvorApp.ComparsaOrders.Entries.WeaponSource.Owned, _orders.Offered.Id, "77-31", "GUIA-HISTORIA");
+            (PolvorApp.ComparsaOrders.Contracts.WeaponSource.Owned, _orders.Offered.Id, "77-31", "GUIA-HISTORIA");
         await _orders.Services.SaveOrdersAsync(history);
         var reloaded = await OrderTestHost.GetOrderAsync(_orders.Admin, OrderId(order));
         var entry = reloaded.GetProperty("entries").EnumerateArray().Single(e => e.GetProperty("id").GetString() == history.Id.ToString());

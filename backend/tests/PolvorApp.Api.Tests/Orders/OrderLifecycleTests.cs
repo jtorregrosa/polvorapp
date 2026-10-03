@@ -161,12 +161,12 @@ public sealed class OrderLifecycleTests(PostgresFixture postgres, MailpitFixture
         {
             var db = scope.ServiceProvider.GetRequiredService<ComparsaOrdersDbContext>();
             var entry = await db.Entries.SingleAsync(e => e.ArquebusierId == borrower.Id, TestContext.Current.CancellationToken);
-            entry.WeaponSource = PolvorApp.ComparsaOrders.Entries.WeaponSource.Loan;
+            entry.WeaponSource = PolvorApp.ComparsaOrders.Contracts.WeaponSource.Loan;
             db.Loans.Add(new PolvorApp.ComparsaOrders.Loans.WeaponLoan
             {
                 Id = Guid.CreateVersion7(),
                 EntryId = entry.Id,
-                LenderKind = PolvorApp.ComparsaOrders.Entries.LenderKind.Arquebusier,
+                LenderKind = PolvorApp.ComparsaOrders.Contracts.LenderKind.Arquebusier,
                 LenderOwnedWeaponId = weapons[0].Id,
                 LenderFirstName = lender.FirstName,
                 LenderLastName = lender.LastName,
@@ -295,7 +295,7 @@ public sealed class OrderLifecycleTests(PostgresFixture postgres, MailpitFixture
         {
             var db = scope.ServiceProvider.GetRequiredService<ComparsaOrdersDbContext>();
             var entry = OrderData.NewEntry(await db.Orders.SingleAsync(TestContext.Current.CancellationToken), arquebusier.Id);
-            (entry.WeaponSource, entry.RentalWeaponModelId) = (PolvorApp.ComparsaOrders.Entries.WeaponSource.Rental, _orders.NotOffered.Id);
+            (entry.WeaponSource, entry.RentalWeaponModelId) = (PolvorApp.ComparsaOrders.Contracts.WeaponSource.Rental, _orders.NotOffered.Id);
             db.Entries.Add(entry);
             await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         }

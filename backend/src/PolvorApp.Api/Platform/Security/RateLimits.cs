@@ -9,10 +9,10 @@ namespace PolvorApp.Api.Platform.Security;
 
 /// <summary>
 /// Rate limits for sign-in and recovery endpoints, per client address (spec: Sign-in with
-/// two-factor authentication; design D6), and for writes that reveal whether a personal identifier
-/// exists, per signed-in user (add-arquebusier-registry D11), and for image and spreadsheet uploads,
-/// per signed-in user (add-comparsa-logos D6, add-registry-import D9), and for order writes, per
-/// signed-in user (add-comparsa-orders). The client address comes from <c>X-Forwarded-For</c>
+/// two-factor authentication; design D6). Per signed-in user: writes that reveal whether a personal
+/// identifier exists (add-arquebusier-registry D11), image and spreadsheet uploads
+/// (add-comparsa-logos D6, add-registry-import D9), order writes (add-comparsa-orders) and export
+/// downloads (add-exports D8). The client address comes from <c>X-Forwarded-For</c>
 /// only when the direct peer is a trusted proxy (<c>ForwardedHeaders__KnownNetworks</c>).
 /// </summary>
 internal static class RateLimits
@@ -25,6 +25,7 @@ internal static class RateLimits
         var imageUploads = Limit(configuration, "RateLimits:ImageUploads:PermitLimit", 20);
         var spreadsheetImports = Limit(configuration, "RateLimits:SpreadsheetImports:PermitLimit", 10);
         var orderWrites = Limit(configuration, "RateLimits:OrderWrites:PermitLimit", 120);
+        var exports = Limit(configuration, "RateLimits:Exports:PermitLimit", 30);
 
         services.AddRateLimiter(options =>
         {
@@ -35,6 +36,7 @@ internal static class RateLimits
             options.AddPolicy(RateLimitPolicies.ImageUploads, context => PerUser(context, imageUploads, TimeSpan.FromMinutes(1)));
             options.AddPolicy(RateLimitPolicies.SpreadsheetImports, context => PerUser(context, spreadsheetImports, TimeSpan.FromMinutes(1)));
             options.AddPolicy(RateLimitPolicies.OrderWrites, context => PerUser(context, orderWrites, TimeSpan.FromMinutes(1)));
+            options.AddPolicy(RateLimitPolicies.Exports, context => PerUser(context, exports, TimeSpan.FromMinutes(1)));
         });
 
         services.Configure<ForwardedHeadersOptions>(options =>

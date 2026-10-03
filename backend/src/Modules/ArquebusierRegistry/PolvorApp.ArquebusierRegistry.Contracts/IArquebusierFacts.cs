@@ -57,19 +57,21 @@ public sealed record ArquebusierFacts(
 
 /// <summary>
 /// The current license: <see cref="Pending"/>, which has no dates, or <see cref="Issued"/>, which has
-/// its expiry date and may have its photos. Closed to these two cases.
+/// its expiry date and may have its photos. Closed to these two cases. Both carry the license
+/// <see cref="Type"/>, which the Arms Authority export lists (add-exports, design D2).
 /// </summary>
 public abstract record ArquebusierLicenseFacts
 {
-    private ArquebusierLicenseFacts()
-    {
-    }
+    private ArquebusierLicenseFacts(LicenseType type) => Type = type;
+
+    /// <summary>The license type (<c>AE</c> or <c>A_PROF</c>).</summary>
+    public LicenseType Type { get; }
 
     /// <summary>Applied for but not issued yet.</summary>
-    public sealed record Pending : ArquebusierLicenseFacts;
+    public sealed record Pending(LicenseType Type) : ArquebusierLicenseFacts(Type);
 
     /// <summary>Issued, valid through <paramref name="ExpiresOn"/> in Europe/Madrid.</summary>
-    public sealed record Issued(DateOnly ExpiresOn, bool HasFrontPhoto, bool HasBackPhoto) : ArquebusierLicenseFacts
+    public sealed record Issued(LicenseType Type, DateOnly ExpiresOn, bool HasFrontPhoto, bool HasBackPhoto) : ArquebusierLicenseFacts(Type)
     {
         /// <summary>The type name only: the expiry date is personal data.</summary>
         public override string ToString() => nameof(Issued);

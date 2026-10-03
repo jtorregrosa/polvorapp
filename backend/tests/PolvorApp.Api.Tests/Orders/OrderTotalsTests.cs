@@ -1,4 +1,5 @@
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.ComparsaOrders.Entries;
 using PolvorApp.ComparsaOrders.Totals;
 using static PolvorApp.Api.Tests.Infrastructure.OrderData;

@@ -53,7 +53,7 @@ public sealed class ArquebusierRosterTests(PostgresFixture postgres) : IAsyncLif
         var first = roster[0];
         Assert.Equal((navarro.Id, comparsa.Id, navarro.NationalId, navarro.FederationId, ArquebusierStatus.Reserve), (first.Id, first.ComparsaId, first.NationalId, first.FederationId, first.Status));
         Assert.Equal((navarro.BirthDate, new DateOnly(2023, 11, 30), true), (first.BirthDate, first.TrainingCompletedOn, first.HasIdPhoto));
-        Assert.Equal(new ArquebusierLicenseFacts.Issued(new DateOnly(2029, 1, 1), false, false), first.License);
+        Assert.Equal(new ArquebusierLicenseFacts.Issued(LicenseType.Ae, new DateOnly(2029, 1, 1), false, false), first.License);
         Assert.Empty(first.Weapons);
         var owned = Assert.Single(roster[1].Weapons);
         Assert.Equal((weapon.Id, nunez.Id, model.Id, "1234", "GUIA-LISTA-1"), (owned.Id, owned.OwnerId, owned.WeaponModelId, owned.WeaponNumber, owned.OwnershipGuideNumber));

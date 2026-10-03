@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using PolvorApp.Api.Tests.Infrastructure;
+using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.IdentityAccess.Contracts;
 using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 
@@ -69,12 +70,12 @@ public sealed class LoanVisibilityTests(PostgresFixture postgres, MailpitFixture
         var (_, weapons) = await _orders.AddArquebusierAsync(_orders.Other.Id, "Antiguo Dueño Sintético", weapons: 1);
         var previousOrder = OrderData.NewOrder(_orders.Previous, _orders.Own.Id);
         var previousEntry = OrderData.NewEntry(previousOrder, null);
-        previousEntry.WeaponSource = PolvorApp.ComparsaOrders.Entries.WeaponSource.Loan;
+        previousEntry.WeaponSource = PolvorApp.ComparsaOrders.Contracts.WeaponSource.Loan;
         var previousLoan = new PolvorApp.ComparsaOrders.Loans.WeaponLoan
         {
             Id = Guid.CreateVersion7(),
             EntryId = previousEntry.Id,
-            LenderKind = PolvorApp.ComparsaOrders.Entries.LenderKind.Arquebusier,
+            LenderKind = PolvorApp.ComparsaOrders.Contracts.LenderKind.Arquebusier,
             LenderOwnedWeaponId = weapons[0].Id,
             LenderComparsaId = _orders.Other.Id,
             CopiedAt = DateTimeOffset.UtcNow,

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.ComparsaOrders.Entries;
 using PolvorApp.ComparsaOrders.Persistence;
 using PolvorApp.FederationCatalog.Contracts;

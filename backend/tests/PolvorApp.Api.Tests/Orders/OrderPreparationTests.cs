@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using PolvorApp.Api.Tests.Infrastructure;
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.ComparsaOrders.Entries;
 using PolvorApp.FestivalEditions.Contracts;
 using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;

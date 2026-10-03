@@ -35,4 +35,10 @@ public static class RateLimitPolicies
     /// order writes, which read a whole roster, busy (add-comparsa-orders, group 4 review).
     /// </summary>
     public const string OrderWrites = "order-writes";
+
+    /// <summary>
+    /// Downloads of exports (Excel and PDF files built from an edition's orders): 30 per minute per
+    /// signed-in user, so a single account cannot keep the document generation busy (add-exports D8).
+    /// </summary>
+    public const string Exports = "exports";
 }

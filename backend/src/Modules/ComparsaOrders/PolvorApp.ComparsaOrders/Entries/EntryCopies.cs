@@ -1,4 +1,5 @@
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.ComplianceInsights.Contracts;
 
 namespace PolvorApp.ComparsaOrders.Entries;
