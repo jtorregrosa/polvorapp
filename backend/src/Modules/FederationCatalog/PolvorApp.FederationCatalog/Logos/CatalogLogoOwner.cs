@@ -4,7 +4,7 @@ using PolvorApp.SharedKernel.Storage;
 
 namespace PolvorApp.FederationCatalog.Logos;
 
-/// <summary>Tells the platform's orphan sweep which stored logos the catalogue still references (design D5).</summary>
+/// <summary>Tells the platform's orphan sweep which stored logos (comparsas' and the Federation's) the catalogue still references (design D5).</summary>
 internal sealed class CatalogLogoOwner(FederationCatalogDbContext db) : IStoredObjectOwner
 {
     public string Prefix => LogoStorage.Prefix;
@@ -15,6 +15,11 @@ internal sealed class CatalogLogoOwner(FederationCatalogDbContext db) : IStoredO
             .Where(c => c.Logo != null && keys.Contains(c.Logo.ObjectKey))
             .Select(c => c.Logo!.ObjectKey)
             .ToListAsync(cancellationToken);
-        return referenced.ToHashSet(StringComparer.Ordinal);
+        // The Federation's logo shares the prefix (add-distribution-planning, design D11).
+        var federation = await db.FederationSettings.AsNoTracking()
+            .Where(s => s.Logo != null && keys.Contains(s.Logo.ObjectKey))
+            .Select(s => s.Logo!.ObjectKey)
+            .ToListAsync(cancellationToken);
+        return referenced.Concat(federation).ToHashSet(StringComparer.Ordinal);
     }
 }

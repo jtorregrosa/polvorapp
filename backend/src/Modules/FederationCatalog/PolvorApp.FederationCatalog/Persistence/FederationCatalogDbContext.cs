@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PolvorApp.FederationCatalog.Assignments;
 using PolvorApp.FederationCatalog.Comparsas;
 using PolvorApp.FederationCatalog.Contracts;
@@ -12,7 +13,8 @@ using PolvorApp.SharedKernel.Persistence;
 namespace PolvorApp.FederationCatalog.Persistence;
 
 /// <summary>
-/// Schema <c>catalog</c>: comparsas, FiringChief assignments and weapon models (design D3). The
+/// Schema <c>catalog</c>: comparsas, FiringChief assignments, weapon models (design D3) and the
+/// Federation's settings with its logo (add-distribution-planning, design D11). The
 /// database constraints back up the API's blocking rules against races.
 /// </summary>
 internal sealed class FederationCatalogDbContext(DbContextOptions<FederationCatalogDbContext> options) : DbContext(options)
@@ -41,6 +43,8 @@ internal sealed class FederationCatalogDbContext(DbContextOptions<FederationCata
 
     public DbSet<WeaponModel> WeaponModels => Set<WeaponModel>();
 
+    public DbSet<FederationSettings> FederationSettings => Set<FederationSettings>();
+
     private static string Pistol => EnumCodes.ToCode(WeaponKind.Pistol);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -50,6 +54,7 @@ internal sealed class FederationCatalogDbContext(DbContextOptions<FederationCata
         MapComparsas(modelBuilder);
         MapAssignments(modelBuilder);
         MapWeaponModels(modelBuilder);
+        MapFederationSettings(modelBuilder);
     }
 
     private static void MapComparsas(ModelBuilder modelBuilder) =>
@@ -64,10 +69,8 @@ internal sealed class FederationCatalogDbContext(DbContextOptions<FederationCata
                 // A logo is all its columns or none (design D1). Its key is derived from its id under
                 // the prefix the orphan sweep owns (LogoStorage.KeyFor), so the sweep never misses one.
                 table.HasCheckConstraint("ck_comparsas_logo_complete", LogoColumnsAllNullOrAllSet());
-                table.HasCheckConstraint(
-                    "ck_comparsas_logo_key",
-                    "logo_object_key IS NULL OR logo_object_key = " + Quote(LogoStorage.Prefix) + " || replace(logo_id::text, '-', '') || '.png'");
-                table.HasCheckConstraint("ck_comparsas_logo_size", "logo_id IS NULL OR (logo_width > 0 AND logo_height > 0 AND logo_size_bytes > 0)");
+                table.HasCheckConstraint("ck_comparsas_logo_key", LogoKeyDerivedFromId);
+                table.HasCheckConstraint("ck_comparsas_logo_size", LogoSizesPositive);
             });
             comparsa.HasKey(c => c.Id);
             comparsa.Property(c => c.Id).ValueGeneratedNever();
@@ -84,16 +87,48 @@ internal sealed class FederationCatalogDbContext(DbContextOptions<FederationCata
             // EF writes only changed columns, so a logo upload and a name edit never clobber each other.
             comparsa.OwnsOne(c => c.Logo, logo =>
             {
-                logo.Property(l => l.Id).HasColumnName("logo_id");
-                logo.Property(l => l.ObjectKey).HasColumnName("logo_object_key").HasMaxLength(200);
-                logo.Property(l => l.Width).HasColumnName("logo_width");
-                logo.Property(l => l.Height).HasColumnName("logo_height");
-                logo.Property(l => l.SizeBytes).HasColumnName("logo_size_bytes");
-                logo.Property(l => l.UploadedAt).HasColumnName("logo_uploaded_at");
+                MapLogoColumns(logo);
                 // The filter is explicit rather than needed: comparsas without a logo are not indexed.
                 logo.HasIndex(l => l.ObjectKey).IsUnique().HasFilter("logo_object_key IS NOT NULL").HasDatabaseName(ComparsaLogoKeyIndex);
             });
         });
+
+    /// <summary>
+    /// One row, created by the migration (design D11): the check constraint keeps it single, so no
+    /// unique index is needed. Its logo follows the comparsa logo rules; the keys are random, so a
+    /// stored image is never shared with a comparsa.
+    /// </summary>
+    private static void MapFederationSettings(ModelBuilder modelBuilder) =>
+        modelBuilder.Entity<FederationSettings>(settings =>
+        {
+            settings.ToTable("federation_settings", table =>
+            {
+                table.HasCheckConstraint("ck_federation_settings_single", "id = " + Logos.FederationSettings.SingletonId);
+                table.HasCheckConstraint("ck_federation_settings_logo_complete", LogoColumnsAllNullOrAllSet());
+                table.HasCheckConstraint("ck_federation_settings_logo_key", LogoKeyDerivedFromId);
+                table.HasCheckConstraint("ck_federation_settings_logo_size", LogoSizesPositive);
+            });
+            settings.HasKey(s => s.Id);
+            settings.Property(s => s.Id).ValueGeneratedNever();
+            settings.OwnsOne(s => s.Logo, MapLogoColumns);
+        });
+
+    private static void MapLogoColumns<TOwner>(OwnedNavigationBuilder<TOwner, ComparsaLogo> logo)
+        where TOwner : class
+    {
+        logo.Property(l => l.Id).HasColumnName("logo_id");
+        logo.Property(l => l.ObjectKey).HasColumnName("logo_object_key").HasMaxLength(200);
+        logo.Property(l => l.Width).HasColumnName("logo_width");
+        logo.Property(l => l.Height).HasColumnName("logo_height");
+        logo.Property(l => l.SizeBytes).HasColumnName("logo_size_bytes");
+        logo.Property(l => l.UploadedAt).HasColumnName("logo_uploaded_at");
+    }
+
+    /// <summary>A logo's key is derived from its id under the prefix the orphan sweep owns (LogoStorage.KeyFor).</summary>
+    private static string LogoKeyDerivedFromId =>
+        "logo_object_key IS NULL OR logo_object_key = " + Quote(LogoStorage.Prefix) + " || replace(logo_id::text, '-', '') || '.png'";
+
+    private const string LogoSizesPositive = "logo_id IS NULL OR (logo_width > 0 AND logo_height > 0 AND logo_size_bytes > 0)";
 
     private static string LogoColumnsAllNullOrAllSet()
     {
