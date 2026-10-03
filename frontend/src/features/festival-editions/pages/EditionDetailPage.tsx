@@ -1,9 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router';
+import { ClipboardList } from 'lucide-react';
+import { Link, useParams } from 'react-router';
 import { useGetEdition } from '@/api/generated/editions/editions';
 import type { EditionResponse } from '@/api/generated/model';
 import { ApiProblemError } from '@/api/http';
 import { AlertBanner, NoticeBanner } from '@/components/app/AlertBanner';
+import { Button } from '@/components/app/Button';
 import { KeyFacts } from '@/components/app/KeyFacts';
 import { PageHeader } from '@/components/app/PageHeader';
 import { RecordHeader } from '@/components/app/RecordHeader';
@@ -36,7 +38,19 @@ function EditionDetail({ edition, isAdmin }: { edition: EditionResponse; isAdmin
         context={t('detail.context')}
         name={t('detail.name', { year: edition.year })}
         statuses={<EditionBadges edition={edition} />}
-        actions={isAdmin ? actions.primary : undefined}
+        actions={
+          <>
+            {edition.status !== 'DRAFT' && (
+              <Button asChild variant="secondary">
+                <Link to={`/editions/${edition.id}/orders`}>
+                  <ClipboardList aria-hidden="true" />
+                  {t('detail.ordersLink')}
+                </Link>
+              </Button>
+            )}
+            {isAdmin && actions.primary}
+          </>
+        }
         moreActions={isAdmin && actions.items.length > 0 ? actions.items : undefined}
         moreActionsRef={actions.moreActionsRef}
       />

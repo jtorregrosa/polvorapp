@@ -2,6 +2,7 @@ import type { ParseKeys } from 'i18next';
 import {
   CalendarDays,
   ChartColumn,
+  ClipboardList,
   Crosshair,
   Flag,
   House,
@@ -29,6 +30,7 @@ export const NAVIGATION: readonly NavigationEntry[] = [
   { to: '/', labelKey: 'nav.home', icon: House },
   { to: '/arquebusiers', labelKey: 'nav.arquebusiers', icon: IdCard, count: 'warnings' },
   { to: '/editions', labelKey: 'nav.editions', icon: CalendarDays },
+  { to: '/orders', labelKey: 'nav.orders', icon: ClipboardList },
   { to: '/statistics', labelKey: 'nav.statistics', icon: ChartColumn },
   { to: '/comparsas', labelKey: 'nav.comparsas', icon: Flag },
   { to: '/weapon-models', labelKey: 'nav.weaponModels', icon: Crosshair, roles: ['ADMIN'] },

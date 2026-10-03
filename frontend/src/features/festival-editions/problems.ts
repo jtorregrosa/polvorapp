@@ -13,6 +13,7 @@ export const EDITIONS_PROBLEM_CODES = [
   'editions.ordersOpen',
   'editions.notInProgress',
   'editions.notDraft',
+  'editions.inUse',
   'editions.tooManyMilestones',
   'editions.milestoneNotFound',
   'editions.busy',

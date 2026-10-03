@@ -1,0 +1,261 @@
+{
+  "overview": {
+    "title": "Pedidos",
+    "titleYear": "Pedidos de {{year}}",
+    "descriptionAdmin": "El estado y los totales del pedido de cada comparsa en la edición.",
+    "descriptionFiringChief": "Los pedidos de tus comparsas en la edición.",
+    "notPrepared": "Sin preparar",
+    "rowTotals": "{{active}} activos, {{reserve}} en reserva, {{powder}} kg de pólvora",
+    "counts": {
+      "title": "Pedidos por estado",
+      "notPrepared": "Sin preparar",
+      "draft": "Borradores",
+      "submitted": "Enviados",
+      "returned": "Devueltos",
+      "validated": "Validados"
+    },
+    "totals": {
+      "title": "Totales de la edición"
+    },
+    "columns": {
+      "comparsa": "Comparsa",
+      "status": "Estado",
+      "totals": "Totales",
+      "action": "Acciones"
+    },
+    "caption": "Pedidos de las comparsas",
+    "empty": "No hay comparsas que mostrar.",
+    "prepare": "Preparar pedido",
+    "prepareFor": "Preparar pedido de {{comparsa}}",
+    "noEdition": {
+      "title": "No hay ninguna edición en curso",
+      "description": "Los pedidos se preparan cuando la Federación pone una edición en curso.",
+      "link": "Ver las ediciones"
+    },
+    "noTotals": "Sin totales"
+  },
+  "order": {
+    "title": "Pedido de {{comparsa}}",
+    "edition": "Fiestas {{year}}",
+    "back": "Pedidos de la edición",
+    "totals": "Totales del pedido",
+    "someone": "la Federación",
+    "readOnly": {
+      "ordersClosed": "Los pedidos están cerrados: ya no puedes modificar este pedido.",
+      "validated": "El pedido está validado: ya no puedes modificarlo."
+    },
+    "returned": "Devuelto por {{name}}",
+    "submittedByAdmin": "{{name}} lo envió en nombre de la comparsa el {{date}}.",
+    "warnings_one": "{{count}} arcabucero activo con avisos",
+    "warnings_other": "{{count}} arcabuceros activos con avisos",
+    "issuesTitle": "Hay líneas que revisar antes de enviar el pedido:",
+    "issue": "{{name}}: {{issues}}",
+    "loading": "Cargando el pedido…",
+    "staleFailed": "Lo que se muestra puede no estar al día.",
+    "toEntries": "Ir a las líneas"
+  },
+  "errors": {
+    "orders": {
+      "notFound": "No se ha encontrado el pedido.",
+      "alreadyPrepared": "El pedido de esta comparsa ya está preparado.",
+      "editionNotStarted": "La edición todavía está en preparación.",
+      "comparsaInactive": "La comparsa está desactivada.",
+      "closed": "Los pedidos están cerrados: ya no se puede modificar.",
+      "validated": "El pedido está validado: ya no se puede modificar.",
+      "invalidTransition": "El pedido ya no está en un estado que lo permita.",
+      "modified": "Otra persona ha cambiado el pedido. Se muestra de nuevo con sus cambios.",
+      "entriesInvalid": "Hay líneas que revisar antes de enviarlo.",
+      "alreadyInEdition": "Este arcabucero ya tiene una línea en esta edición.",
+      "busy": "El pedido está ocupado. Inténtalo de nuevo en unos segundos."
+    },
+    "entries": {
+      "notFound": "No se ha encontrado la línea.",
+      "modified": "Otra persona ha cambiado la línea. Se muestra de nuevo con sus cambios."
+    },
+    "validation": "Revisa los datos marcados.",
+    "generic": "No se ha podido completar. Inténtalo de nuevo."
+  },
+  "validation": {
+    "required": "Este campo es obligatorio",
+    "choice": "Elige una opción",
+    "invalid": "El valor no es válido",
+    "tooLong": "Es demasiado largo",
+    "outOfRange": "Está fuera del rango permitido",
+    "capsType": "Elige el tipo de pistones",
+    "reserve": "Un arcabucero en reserva no lleva pólvora, pistones, arma ni cantimplora",
+    "checkLetter": "La letra del DNI/NIE no corresponde al número",
+    "attestation": "Confirma la declaración para enviar el pedido",
+    "notOwned": "El arma ya no es de este arcabucero",
+    "notOffered": "Este modelo no se alquila en la edición",
+    "ownWeapon": "Es un arma del propio arcabucero: elige «Arma propia»",
+    "notFound": "No se ha encontrado",
+    "inactive": "El modelo está retirado",
+    "lenderRegistered": "Este DNI/NIE es de un arcabucero registrado: búscalo",
+    "lookUpFirst": "Busca primero el propietario por su DNI/NIE"
+  },
+  "totals": {
+    "active": "Activos",
+    "reserve": "En reserva",
+    "powder": "Pólvora",
+    "kg": "{{value}} kg",
+    "caps": "Pistones",
+    "capsValue": "{{normal}} cajas normales, {{small}} pequeñas",
+    "flasks": "Cantimploras de alquiler",
+    "flasksValue": "{{one}} de 1 kg, {{two}} de 2 kg",
+    "loans": "Cesiones",
+    "ownedWeapons": "Armas propias",
+    "withWarnings": "Activos con avisos",
+    "rentalsTitle": "Armas de alquiler por modelo",
+    "model": "Modelo",
+    "rentals": "Alquileres"
+  },
+  "entries": {
+    "caption": "Líneas del pedido",
+    "edit": "Editar",
+    "editFor": "Editar la línea de {{name}}",
+    "columns": {
+      "name": "Arcabucero",
+      "status": "Estado",
+      "powder": "Pólvora",
+      "caps": "Pistones",
+      "weapon": "Arma",
+      "flask": "Cantimplora",
+      "warnings": "Avisos",
+      "action": "Acciones"
+    },
+    "sectionName": "la línea de {{name}}"
+  },
+  "entry": {
+    "firstYear": "Primer año",
+    "notInRegistry": "Ya no está en el registro",
+    "nationalId": "DNI/NIE {{value}}",
+    "federationId": "ID Unión {{value}}",
+    "noCaps": "Sin pistones",
+    "caps": {
+      "NORMAL_one": "{{count}} caja normal",
+      "NORMAL_other": "{{count}} cajas normales",
+      "SMALL_one": "{{count}} caja pequeña",
+      "SMALL_other": "{{count}} cajas pequeñas"
+    },
+    "weapon": {
+      "OWNED": "Propia: {{weapon}}",
+      "RENTAL": "Alquiler: {{model}}",
+      "LOAN": "Cesión de {{lender}} ({{comparsa}})",
+      "LOAN_EXTERNAL": "Cesión de {{lender}} (externo)",
+      "LOAN_MISSING": "Cesión sin propietario",
+      "NONE": "Sin arma",
+      "guide": "guía {{guide}}",
+      "removed": "(ya no está en el registro)"
+    },
+    "flask": {
+      "OWNED": "Propia",
+      "RENTAL_1KG": "Alquiler de 1 kg",
+      "RENTAL_2KG": "Alquiler de 2 kg",
+      "NONE": "Sin cantimplora"
+    }
+  },
+  "issues": {
+    "ownedWeaponMissing": "el arma propia ya no está en el registro",
+    "loanWeaponMissing": "el arma cedida ya no está en el registro",
+    "rentalModelNotOffered": "el modelo de alquiler ya no se ofrece",
+    "unknown": "hay un dato que revisar"
+  },
+  "notInOrder": {
+    "title": "No están en el pedido",
+    "description": "Arcabuceros de la comparsa registrados o trasladados después de preparar el pedido.",
+    "add": "Añadir",
+    "addFor": "Añadir a {{name}}",
+    "added": "{{name}} se ha añadido al pedido."
+  },
+  "lentOut": {
+    "title": "Armas cedidas a otros",
+    "description": "Armas de tus arcabuceros cedidas en esta edición.",
+    "item": "{{weapon}} de {{owner}}, cedida a {{borrower}} ({{comparsa}})"
+  },
+  "entryPanel": {
+    "title": "Línea de {{name}}",
+    "submittedNote": "El pedido está enviado: al guardar vuelve a borrador y habrá que enviarlo de nuevo.",
+    "savedBackToDraft": "Cambios guardados. El pedido ha vuelto a borrador: envíalo de nuevo cuando esté listo.",
+    "status": "Estado en esta edición",
+    "statusOption": {
+      "ACTIVE": "Activo",
+      "RESERVE": "Reserva"
+    },
+    "reserveHint": "No lleva pólvora, pistones, arma ni cantimplora.",
+    "powder": "Pólvora",
+    "capsBoxes": "Cajas de pistones",
+    "capsType": "Tipo de pistones",
+    "capsTypeOption": {
+      "NORMAL": "Normales",
+      "SMALL": "Pequeños"
+    },
+    "weapon": "Arma",
+    "ownedWeapon": "Arma propia",
+    "rentalModel": "Modelo de alquiler",
+    "flask": "Cantimplora",
+    "choose": "Elige…",
+    "source": {
+      "OWNED": "Arma propia",
+      "RENTAL": "Alquiler",
+      "LOAN": "Cesión",
+      "LOAN_HINT": "Un arma de otra persona, registrada o externa.",
+      "NONE": "Sin arma",
+      "NONE_HINT": "Por ejemplo, quien solo porta pólvora."
+    },
+    "reserveNote": "En reserva no lleva pólvora, pistones, arma ni cantimplora: esos datos quedan vacíos."
+  },
+  "loan": {
+    "nationalId": "DNI/NIE del propietario",
+    "nationalIdHint": "Se busca entre los arcabuceros registrados de todas las comparsas.",
+    "lookUp": "Buscar propietario",
+    "change": "Cambiar el propietario",
+    "found": "Encontrado: {{name}}, de {{comparsa}}.",
+    "noWeapons": "No tiene armas propias registradas.",
+    "weapon": "Arma cedida",
+    "notFound": "No hay ningún arcabucero con este DNI/NIE: indica los datos del propietario externo.",
+    "firstName": "Nombre del propietario",
+    "lastName": "Apellidos del propietario",
+    "model": "Modelo del arma",
+    "weaponNumber": "Número del arma",
+    "guideNumber": "Número de la guía de pertenencia",
+    "tooManyLookups": "Has hecho demasiadas búsquedas. Espera un minuto e inténtalo de nuevo.",
+    "searching": "Buscando el propietario…",
+    "modelsFailed": "No se han podido cargar los modelos de arma.",
+    "retry": "Reintentar"
+  },
+  "actions": {
+    "entriesInvalid": "Hay líneas que revisar antes de seguir: {{names}}. Se señalan en el pedido.",
+    "submit": {
+      "label": "Enviar pedido",
+      "adminLabel": "Enviar en nombre de la comparsa",
+      "title": "¿Enviar el pedido de {{comparsa}}?",
+      "adminTitle": "¿Enviar el pedido en nombre de la comparsa?",
+      "description": "La Federación lo revisará. Mientras los pedidos estén abiertos podrás corregirlo; al hacerlo volverá a borrador.",
+      "adminDescription": "Lo envías tú en nombre de la comparsa, sin la declaración del jefe de disparo; constará así en el pedido.",
+      "confirm": "Enviar",
+      "adminConfirm": "Enviar en su nombre",
+      "warnings_one": "{{count}} arcabucero activo tiene avisos pendientes (no impiden el envío):",
+      "warnings_other": "{{count}} arcabuceros activos tienen avisos pendientes (no impiden el envío):",
+      "noWarnings": "Ningún arcabucero activo tiene avisos pendientes.",
+      "attestation": "Declaro que los arcabuceros del pedido cumplen los requisitos de licencia, curso y edad.",
+      "attestationHint": "Marca esta casilla para poder enviar el pedido.",
+      "done": "Pedido enviado."
+    },
+    "validate": {
+      "label": "Validar",
+      "title": "¿Validar el pedido de {{comparsa}}?",
+      "description": "El jefe de disparo ya no podrá modificarlo.",
+      "notSubmitted": "La comparsa no ha enviado este pedido. Al validarlo se cierra tal como está y el jefe de disparo ya no podrá modificarlo.",
+      "confirm": "Validar",
+      "done": "Pedido validado."
+    },
+    "return": {
+      "label": "Devolver",
+      "title": "¿Devolver el pedido de {{comparsa}}?",
+      "description": "El jefe de disparo verá el motivo y podrá corregirlo y enviarlo de nuevo.",
+      "reason": "Motivo de la devolución",
+      "confirm": "Devolver",
+      "done": "Pedido devuelto."
+    }
+  }
+}

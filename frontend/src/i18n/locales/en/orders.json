@@ -1,0 +1,261 @@
+{
+  "overview": {
+    "title": "Orders",
+    "titleYear": "Orders for {{year}}",
+    "descriptionAdmin": "The status and totals of each comparsa’s order in the edition.",
+    "descriptionFiringChief": "Your comparsas’ orders in the edition.",
+    "notPrepared": "Not prepared",
+    "rowTotals": "{{active}} active, {{reserve}} in reserve, {{powder}} kg of powder",
+    "counts": {
+      "title": "Orders by status",
+      "notPrepared": "Not prepared",
+      "draft": "Drafts",
+      "submitted": "Submitted",
+      "returned": "Returned",
+      "validated": "Validated"
+    },
+    "totals": {
+      "title": "Edition totals"
+    },
+    "columns": {
+      "comparsa": "Comparsa",
+      "status": "Status",
+      "totals": "Totals",
+      "action": "Actions"
+    },
+    "caption": "Comparsa orders",
+    "empty": "There are no comparsas to show.",
+    "prepare": "Prepare order",
+    "prepareFor": "Prepare order of {{comparsa}}",
+    "noEdition": {
+      "title": "No edition is in progress",
+      "description": "Orders are prepared once the Federation puts an edition in progress.",
+      "link": "See the editions"
+    },
+    "noTotals": "No totals"
+  },
+  "order": {
+    "title": "Order of {{comparsa}}",
+    "edition": "{{year}} festival",
+    "back": "Orders of the edition",
+    "totals": "Order totals",
+    "someone": "the Federation",
+    "readOnly": {
+      "ordersClosed": "Orders are closed: you can no longer change this order.",
+      "validated": "The order is validated: you can no longer change it."
+    },
+    "returned": "Returned by {{name}}",
+    "submittedByAdmin": "{{name}} submitted it on behalf of the comparsa on {{date}}.",
+    "warnings_one": "{{count}} active arquebusier with warnings",
+    "warnings_other": "{{count}} active arquebusiers with warnings",
+    "issuesTitle": "Some entries need checking before the order is submitted:",
+    "issue": "{{name}}: {{issues}}",
+    "loading": "Loading the order…",
+    "staleFailed": "What is shown may be out of date.",
+    "toEntries": "Go to the entries"
+  },
+  "errors": {
+    "orders": {
+      "notFound": "The order was not found.",
+      "alreadyPrepared": "This comparsa’s order is already prepared.",
+      "editionNotStarted": "The edition is still being prepared.",
+      "comparsaInactive": "The comparsa is deactivated.",
+      "closed": "Orders are closed: it can no longer be changed.",
+      "validated": "The order is validated: it can no longer be changed.",
+      "invalidTransition": "The order is no longer in a state that allows this.",
+      "modified": "Someone else changed the order. It is shown again with their changes.",
+      "entriesInvalid": "Some entries need checking before it is submitted.",
+      "alreadyInEdition": "This arquebusier already has an entry in this edition.",
+      "busy": "The order is busy. Please try again in a few seconds."
+    },
+    "entries": {
+      "notFound": "The entry was not found.",
+      "modified": "Someone else changed the entry. It is shown again with their changes."
+    },
+    "validation": "Check the marked fields.",
+    "generic": "It could not be completed. Please try again."
+  },
+  "validation": {
+    "required": "This field is required",
+    "choice": "Choose an option",
+    "invalid": "The value is not valid",
+    "tooLong": "It is too long",
+    "outOfRange": "It is out of the allowed range",
+    "capsType": "Choose the caps type",
+    "reserve": "A reserve arquebusier takes no powder, caps, weapon or flask",
+    "checkLetter": "The DNI/NIE letter does not match the number",
+    "attestation": "Confirm the statement to submit the order",
+    "notOwned": "The weapon no longer belongs to this arquebusier",
+    "notOffered": "This model is not rented in the edition",
+    "ownWeapon": "It is the arquebusier’s own weapon: choose “Own weapon”",
+    "notFound": "It was not found",
+    "inactive": "The model is retired",
+    "lenderRegistered": "This DNI/NIE belongs to a registered arquebusier: look them up",
+    "lookUpFirst": "Look up the owner by their DNI/NIE first"
+  },
+  "totals": {
+    "active": "Active",
+    "reserve": "In reserve",
+    "powder": "Powder",
+    "kg": "{{value}} kg",
+    "caps": "Caps",
+    "capsValue": "{{normal}} normal boxes, {{small}} small",
+    "flasks": "Rented flasks",
+    "flasksValue": "{{one}} of 1 kg, {{two}} of 2 kg",
+    "loans": "Loans",
+    "ownedWeapons": "Own weapons",
+    "withWarnings": "Active with warnings",
+    "rentalsTitle": "Rented weapons by model",
+    "model": "Model",
+    "rentals": "Rentals"
+  },
+  "entries": {
+    "caption": "Order entries",
+    "edit": "Edit",
+    "editFor": "Edit the entry of {{name}}",
+    "columns": {
+      "name": "Arquebusier",
+      "status": "Status",
+      "powder": "Powder",
+      "caps": "Caps",
+      "weapon": "Weapon",
+      "flask": "Flask",
+      "warnings": "Warnings",
+      "action": "Actions"
+    },
+    "sectionName": "the entry of {{name}}"
+  },
+  "entry": {
+    "firstYear": "First year",
+    "notInRegistry": "No longer in the registry",
+    "nationalId": "DNI/NIE {{value}}",
+    "federationId": "Federation ID {{value}}",
+    "noCaps": "No caps",
+    "caps": {
+      "NORMAL_one": "{{count}} normal box",
+      "NORMAL_other": "{{count}} normal boxes",
+      "SMALL_one": "{{count}} small box",
+      "SMALL_other": "{{count}} small boxes"
+    },
+    "weapon": {
+      "OWNED": "Own: {{weapon}}",
+      "RENTAL": "Rental: {{model}}",
+      "LOAN": "Loan from {{lender}} ({{comparsa}})",
+      "LOAN_EXTERNAL": "Loan from {{lender}} (external)",
+      "LOAN_MISSING": "Loan without an owner",
+      "NONE": "No weapon",
+      "guide": "guide {{guide}}",
+      "removed": "(no longer in the registry)"
+    },
+    "flask": {
+      "OWNED": "Own",
+      "RENTAL_1KG": "1 kg rental",
+      "RENTAL_2KG": "2 kg rental",
+      "NONE": "No flask"
+    }
+  },
+  "issues": {
+    "ownedWeaponMissing": "the own weapon is no longer in the registry",
+    "loanWeaponMissing": "the lent weapon is no longer in the registry",
+    "rentalModelNotOffered": "the rental model is no longer offered",
+    "unknown": "something needs checking"
+  },
+  "notInOrder": {
+    "title": "Not in the order",
+    "description": "Arquebusiers of the comparsa registered or transferred after the order was prepared.",
+    "add": "Add",
+    "addFor": "Add {{name}}",
+    "added": "{{name}} was added to the order."
+  },
+  "lentOut": {
+    "title": "Weapons lent to others",
+    "description": "Your arquebusiers’ weapons lent in this edition.",
+    "item": "{{weapon}} of {{owner}}, lent to {{borrower}} ({{comparsa}})"
+  },
+  "entryPanel": {
+    "title": "Entry of {{name}}",
+    "submittedNote": "The order is submitted: saving sends it back to draft, and it must be submitted again.",
+    "savedBackToDraft": "Changes saved. The order went back to draft: submit it again when it is ready.",
+    "status": "Status in this edition",
+    "statusOption": {
+      "ACTIVE": "Active",
+      "RESERVE": "Reserve"
+    },
+    "reserveHint": "Takes no powder, caps, weapon or flask.",
+    "powder": "Powder",
+    "capsBoxes": "Boxes of caps",
+    "capsType": "Caps type",
+    "capsTypeOption": {
+      "NORMAL": "Normal",
+      "SMALL": "Small"
+    },
+    "weapon": "Weapon",
+    "ownedWeapon": "Own weapon",
+    "rentalModel": "Rental model",
+    "flask": "Flask",
+    "choose": "Choose…",
+    "source": {
+      "OWNED": "Own weapon",
+      "RENTAL": "Rental",
+      "LOAN": "Loan",
+      "LOAN_HINT": "Someone else’s weapon, registered or external.",
+      "NONE": "No weapon",
+      "NONE_HINT": "For example, someone who only carries powder."
+    },
+    "reserveNote": "A reserve takes no powder, caps, weapon or flask: those details stay empty."
+  },
+  "loan": {
+    "nationalId": "Owner’s DNI/NIE",
+    "nationalIdHint": "It is looked up among the registered arquebusiers of every comparsa.",
+    "lookUp": "Look up the owner",
+    "change": "Change the owner",
+    "found": "Found: {{name}}, of {{comparsa}}.",
+    "noWeapons": "They have no own weapons registered.",
+    "weapon": "Lent weapon",
+    "notFound": "No arquebusier has this DNI/NIE: enter the external owner’s details.",
+    "firstName": "Owner’s first name",
+    "lastName": "Owner’s surnames",
+    "model": "Weapon model",
+    "weaponNumber": "Weapon number",
+    "guideNumber": "Ownership guide number",
+    "tooManyLookups": "You have made too many lookups. Wait a minute and try again.",
+    "searching": "Looking up the owner…",
+    "modelsFailed": "The weapon models could not be loaded.",
+    "retry": "Try again"
+  },
+  "actions": {
+    "entriesInvalid": "Some entries need checking first: {{names}}. They are marked in the order.",
+    "submit": {
+      "label": "Submit order",
+      "adminLabel": "Submit on behalf of the comparsa",
+      "title": "Submit the order of {{comparsa}}?",
+      "adminTitle": "Submit the order on behalf of the comparsa?",
+      "description": "The Federation will review it. While orders are open you can still correct it; doing so sends it back to draft.",
+      "adminDescription": "You submit it on behalf of the comparsa, without the firing chief’s statement; the order will say so.",
+      "confirm": "Submit",
+      "adminConfirm": "Submit on their behalf",
+      "warnings_one": "{{count}} active arquebusier has pending warnings (they do not prevent submitting):",
+      "warnings_other": "{{count}} active arquebusiers have pending warnings (they do not prevent submitting):",
+      "noWarnings": "No active arquebusier has pending warnings.",
+      "attestation": "I state that the arquebusiers of the order meet the licence, course and age requirements.",
+      "attestationHint": "Tick this box to be able to submit the order.",
+      "done": "Order submitted."
+    },
+    "validate": {
+      "label": "Validate",
+      "title": "Validate the order of {{comparsa}}?",
+      "description": "The firing chief will no longer be able to change it.",
+      "notSubmitted": "The comparsa did not submit this order. Validating it closes it as it is, and the firing chief will no longer be able to change it.",
+      "confirm": "Validate",
+      "done": "Order validated."
+    },
+    "return": {
+      "label": "Return",
+      "title": "Return the order of {{comparsa}}?",
+      "description": "The firing chief will see the reason and can correct it and submit it again.",
+      "reason": "Reason for returning it",
+      "confirm": "Return",
+      "done": "Order returned."
+    }
+  }
+}

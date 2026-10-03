@@ -19,6 +19,8 @@ export interface ProblemDetails {
   missing?: unknown;
   /** The year of the edition already in progress (`editions.anotherInProgress`); null when unknown. */
   inProgressYear?: unknown;
+  /** The entries that block an order's submission (`orders.entriesInvalid`); check each before use. */
+  entries?: unknown;
 }
 
 /**
