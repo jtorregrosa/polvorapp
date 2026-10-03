@@ -185,6 +185,32 @@ describe('Photos on the detail page (spec: Photo screens, Private photo access)'
     expect(await within(screen.getByRole('dialog')).findByRole('alert')).toHaveTextContent(text);
   });
 
+  it('switches to the locked state when an upload is refused because the registry was locked meanwhile', async () => {
+    let locked = false;
+    detail(() => ({ ...DETAIL_UNO, photos: NO_PHOTOS }));
+    server.use(mock.get('/api/registry/lock', () => HttpResponse.json({ locked, changedAt: null })));
+    interceptUploads(() => {
+      locked = true;
+      return problem(409, 'registry.locked');
+    });
+    await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
+
+    await screen.findByRole('button', { name: 'Añadir foto de carnet' });
+    chooseFile(0);
+    await userEvent.click(await screen.findByRole('button', { name: 'Usar foto' }));
+
+    expect(await within(screen.getByRole('dialog')).findByRole('alert')).toHaveTextContent(
+      'La Federación ha bloqueado el registro: puedes consultarlo, pero no cambiarlo.',
+    );
+    await userEvent.keyboard('{Escape}');
+    expect(
+      await screen.findByText(/Puedes consultar los arcabuceros, pero no cambiarlos/),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: 'Añadir foto de carnet' })).not.toBeInTheDocument();
+    });
+  });
+
   it('refreshes the page when an upload finds the license gone', async () => {
     let current: ArquebusierResponse = { ...DETAIL_UNO, photos: NO_PHOTOS };
     let reads = 0;
