@@ -134,7 +134,7 @@ backend changes run `docker compose --profile seed build api-seed` first.
 
 Seeding runs only in `Development`, `Staging` and `Testing` and never uses real data (SEC-11).
 Outside `Development` and `Testing` each seeder first refuses a database that holds anything it
-would not have created (users, comparsas, weapon models, assignments, arquebusiers or editions), so staging never mixes
+would not have created (users, comparsas, weapon models, assignments, arquebusiers, editions or orders), so staging never mixes
 synthetic and real data (NFR-13).
 Each module registers its own `IDataSeeder`; randomness derives from `SyntheticData.RandomSeed`,
 so every run produces the same data. Seeding is not transactional: after a failed run, reset the
@@ -153,8 +153,8 @@ entered by an Admin in production:
 Weapon models: trabuco (Christian) and arcabuz (Moorish) in every handedness and size, one of them
 inactive ("ARCABUZ MORO ZURDO (PEQUEÑO)"), plus a non-rentable "PISTOLA" without attributes.
 
-The registry seed adds 13 fictional arquebusiers ("Arcabucero Sintético Uno" … "Trece"): five in
-Norte, four in Sur, three in Este and one in the inactive Oeste. Their DNI/NIE are valid but built
+The registry seed adds 14 fictional arquebusiers ("Arcabucero Sintético Uno" … "Arcabucera
+Sintética Catorce"): six in Norte, four in Sur, three in Este and one in the inactive Oeste. Their DNI/NIE are valid but built
 from very low numbers unlikely to be in use (`00000001R`, `X0000005M`…), their emails use `@polvorapp.example`, and
 their license dates are relative to the seed date, so the mix stays the same over time: active and
 reserve, AE and A-PROF licenses that are valid, expired or pending, no license, course done and not
@@ -174,6 +174,23 @@ to the seed date:
 All three have the same invented prices (48.00 € per kg of powder, 3.75 € a caps box, 25.00 € a
 weapon rental, 5.00 € a flask rental). They also offer the seeded trabucos and active arcabuces
 for rental. The current edition has four synthetic milestones and the closed one has one.
+
+The order seed (`add-comparsa-orders`) adds four comparsa orders, copying names, DNI/NIE and
+weapons from the seeded registry:
+
+| Edition | Comparsa | Status | Entries |
+|---|---|---|---|
+| Last year's | Norte | Validated | arquebusiers Uno, Dos and Cuatro (reserve), plus one entry of "Arcabucero Sintético Histórico", no longer in the registry |
+| Last year's | Sur | Validated | Seis, Siete and Ocho (reserve) |
+| Current | Norte | Submitted (attested by Jefa Sintética Dos) | Uno to Cinco and Catorce |
+| Current | Sur | Draft | Seis, Siete and Ocho; Nueve is "not in the order" |
+| Current | Este | not prepared | — |
+
+Together they cover every weapon source (owned, rental, loan, none), every flask option and both
+caps types, reserve entries, an active entry without powder (Dos, a shooter) and one without a
+weapon (Tres, a powder carrier). Cinco borrows Seis's owned weapon, from Sur; Catorce borrows from
+an external owner ("Propietaria Externa Sintética", DNI `00000092T`, guide `SINT-EXT-0001`). Tres,
+Cinco and Catorce have no active entry last year, so they show as first year.
 
 The registry is seeded unlocked. Seeded dates are never refreshed: on a database seeded weeks ago,
 the current edition's order window may already have passed. Reset the database

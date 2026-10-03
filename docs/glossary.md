@@ -84,7 +84,8 @@ equivalent are kept as-is (e.g. `Comparsa`).
 | Número de arma | `weaponNumber` | Engraved on the stock; for rented weapons it is stamped by the rental company (e.g. `37-17`). |
 | Arma propia | `OwnedWeapon` | Weapon owned by an arquebusier, with an ownership guide. |
 | Arma de alquiler | `RentalWeapon` | Weapon rented for an edition, assigned to **exactly one** arquebusier, non-transferable, returned to the company after the festival. |
-| Cesión de arma | `WeaponLoan` | An owner lends their owned weapon to another arquebusier for an edition. Borrower may be from another comparsa. No limit. |
+| Cesión de arma | `WeaponLoan` | A weapon lent to an arquebusier for an edition (`LOAN` entries). The lender is a registered arquebusier of any comparsa (`LenderKind.ARQUEBUSIER`) or an **external owner** who is not in PolvorApp (`LenderKind.EXTERNAL`), with name, DNI/NIE and the weapon's model, number and ownership guide. No limit; one weapon may be lent to several borrowers. |
+| Búsqueda del propietario | lender lookup | The borrower's FiringChief types the owner's DNI/NIE to find a registered lender and their weapons; otherwise they enter an external owner. Rate-limited and audited. |
 
 ## Powder and materials
 
@@ -93,6 +94,8 @@ equivalent are kept as-is (e.g. `Comparsa`).
 | Pólvora | `Powder` | Black powder, ordered **per arquebusier per edition**: 0, 1 or 2 kg. Leftovers are sent to the powder magazine for destruction — **no carryover**. |
 | Pedido | `EditionEntry` | One arquebusier's participation in an edition: status, powder, caps, weapon, flask. |
 | Pedido de comparsa | `ComparsaOrder` | All entries of a comparsa for an edition, submitted by a FiringChief to the Federation. |
+| Declaración responsable | `attestation` (`attested`) | What a FiringChief confirms when submitting an order: the arquebusiers of the order meet the requirements (license, course and legal age), after seeing the pending warnings, which never block. An Admin submitting on the comparsa's behalf does not attest (`submittedByAdmin`). |
+| Primer año | `firstYear` | An arquebusier with no `ACTIVE` entry in an earlier edition. Derived, never stored; unknown until an earlier edition has orders (`data-model.md` §5). |
 | Pistones | `PercussionCaps` | Caps, in boxes, type `NORMAL` or `SMALL`. Ordered through the Federation. |
 | Cantimplora / Polvorera | `PowderFlask` | Container to carry powder; owned or rented (1 kg or 2 kg). Rented flasks are numbered, assigned to one person at powder distribution and returned to the rental company after the acts. |
 | Activo | `ArquebusierStatus.ACTIVE` | Arquebusier who fires. |

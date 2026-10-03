@@ -9,14 +9,14 @@ Every signed-in page renders inside `AppLayout`, whose content uses the width up
 (`max-w-page`) with fixed side margins (`px-gutter`), left-aligned beside the sidebar. Routes
 declare their breadcrumb with a `handle: { breadcrumb: '<common key>' } satisfies RouteHandle`.
 
-| Template      | Structure |
-| ------------- | --------- |
-| **List**      | `PageHeader` (title, description, the primary action such as "Register arquebusier") → optional `StatFilter` counters → `FilterBar` (filters, `SearchField`, announced result count) → `DataTable` (two-line cells, whole-row link, stacked rows on phones), or `EmptyState` when there is nothing yet and `NoMatches` when the filters leave nothing |
-| **Detail**    | `RecordHeader` (photo or mark, context line, the name as `h1`, `StatusBadge`s, frequent actions, "More actions") → `KeyFacts` → `Tabs` or a `SectionGrid` of read-only `SectionCard`s (`DescriptionList` inside) whose "Edit" opens an `EditSheet` |
-| **Form**      | `PageHeader` with back link → `Form` → `FormLayout` (sections, index from 1280 px, help from 1700 px) → `ActionBar` fixed at the bottom, primary action last |
+| Template      | Structure                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **List**      | `PageHeader` (title, description, the primary action such as "Register arquebusier") → optional `StatFilter` counters → `FilterBar` (filters, `SearchField`, announced result count) → `DataTable` (two-line cells, whole-row link, stacked rows on phones), or `EmptyState` when there is nothing yet and `NoMatches` when the filters leave nothing                                                                      |
+| **Detail**    | `RecordHeader` (photo or mark, context line, the name as `h1`, `StatusBadge`s, frequent actions, "More actions") → `KeyFacts` → `Tabs` or a `SectionGrid` of read-only `SectionCard`s (`DescriptionList` inside) whose "Edit" opens an `EditSheet`                                                                                                                                                                         |
+| **Form**      | `PageHeader` with back link → `Form` → `FormLayout` (sections, index from 1280 px, help from 1700 px) → `ActionBar` fixed at the bottom, primary action last                                                                                                                                                                                                                                                               |
 | **Dashboard** | `PageHeader` → `StatCard`s (each linking to its list) → `AlertBanner`s for what needs attention → short tables. The start page is the alerts dashboard: a figure per compliance warning, each linking to the arquebusier list filtered by it. Statistics pages add a `FilterBar` (filters kept in the address) and a `SectionGrid` of `SectionCard`s, each holding a `Breakdown`; per-comparsa figures go in a `DataTable` |
-| **Settings**  | `PageHeader` → a `SectionGrid` of `SectionCard`s, each holding one small form with its own secondary submit (the account page: profile, password, recovery codes, sessions) |
-| **Public**    | `PublicLayout` card: `PageHeader` → notices → `Form` → links ("Forgot your password?"). The card spaces its children; pages add no margins of their own |
+| **Settings**  | `PageHeader` → a `SectionGrid` of `SectionCard`s, each holding one small form with its own secondary submit (the account page: profile, password, recovery codes, sessions)                                                                                                                                                                                                                                                |
+| **Public**    | `PublicLayout` card: `PageHeader` → notices → `Form` → links ("Forgot your password?"). The card spaces its children; pages add no margins of their own                                                                                                                                                                                                                                                                    |
 
 ### Detail pages in read mode
 
@@ -91,6 +91,28 @@ its detail page follows this pattern:
   back to the list with its notice.
 - **Section editing.** Sections are edited in `EditSheet`s. Money uses `MoneyInput`. A panel that
   adds a row, such as "Add milestone", gives `EditSheet` its own `trigger` label and icon.
+
+### Order page (comparsa orders)
+
+A record made of many rows that are edited one by one and never removed (`add-comparsa-orders`)
+uses the detail template this way:
+
+- **Header.** `RecordHeader` with the comparsa's logo, a context link to the edition's orders, the
+  record's status (`order`) and, for the edition in progress, whether orders are open (`orders`).
+- **Why not.** When the user may not edit, an info `AlertBanner` says why (orders closed, order
+  validated) and no edit, add or submit action is shown, rather than disabled ones.
+- **Attention first.** Under the header, in this order: the return reason (warning, kept as typed
+  with its line breaks), who submitted it when an Admin did (info), the number of entries with
+  compliance warnings as a link to the entries (warning; warnings never block) and the entries that
+  block the submission with their reasons in words (error).
+- **Totals.** `KeyFacts` with the computed totals; units in words ("5 kg").
+- **Rows.** A `DataTable` whose row header is "Last name, First name". The DNI/NIE and ID Unión,
+  then the first-year flag or "No longer in the registry", go in the row header's secondary line. Each row has one "Edit" action,
+  named after the person; there is never a remove action. On phones, `mobileRow` stacks the values.
+- **Related lists.** `SectionCard`s for "Not in the order" (each with "Add") and "Weapons lent to
+  others", shown only when they have items.
+- **Refusals.** A write refused because the record changed or orders closed reloads the order and
+  says why; the page then shows its new state.
 
 ## Actions
 
@@ -203,14 +225,14 @@ The form rules follow the GOV.UK Design System (direction "Registro", design D8 
 
 ## Responsive rules (360 to 2560 px)
 
-| Width | What changes |
-|---|---|
-| < 768 px (`md`) | The sidebar is a drawer opened from the top bar; lists become stacked items (`DataTable` `mobileRow`); side panels become bottom sheets; side margins are 16 px. |
-| ≥ 768 px | The sidebar is shown; tables; side margins 28 px. |
-| ≥ 1024 px (`lg`) | Detail sections in two columns. |
-| ≥ 1280 px (`xl`) | Forms get the section index beside them. |
-| ≥ 1700 px (`wide`) | The type steps up; detail sections in three columns; forms get the help column. |
-| > 1680 px of content | The content stops at 1680 px (`max-w-page`), left-aligned; the top bar is aligned with it. |
+| Width                | What changes                                                                                                                                                     |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| < 768 px (`md`)      | The sidebar is a drawer opened from the top bar; lists become stacked items (`DataTable` `mobileRow`); side panels become bottom sheets; side margins are 16 px. |
+| ≥ 768 px             | The sidebar is shown; tables; side margins 28 px.                                                                                                                |
+| ≥ 1024 px (`lg`)     | Detail sections in two columns.                                                                                                                                  |
+| ≥ 1280 px (`xl`)     | Forms get the section index beside them.                                                                                                                         |
+| ≥ 1700 px (`wide`)   | The type steps up; detail sections in three columns; forms get the help column.                                                                                  |
+| > 1680 px of content | The content stops at 1680 px (`max-w-page`), left-aligned; the top bar is aligned with it.                                                                       |
 
 - Usable from **360 px** wide (NFR-01) with no horizontal page scroll; a table wider than its
   container scrolls inside its own focusable region.

@@ -80,6 +80,43 @@
 
 - **UC-10 (create and configure an edition)**: new editions start with the prices and rentable weapon models of the previous edition (if any), all editable. Festival dates and milestone dates are independent of the calendar; window dates (when orders open and close) are a published plan only — they do not automatically open or close orders.
 - **UC-11 (edition lifecycle and orders)**: the edition moves from `DRAFT` (in preparation) to `IN_PROGRESS` (current, one at a time) to `CLOSED`, by hand, one step at a time. Admins also toggle the orders open and closed (the `ordersOpen` flag), as often as needed; reopening after a review is the corrections window. The registry lock (independent of the edition) is also toggled by Admins.
+- **UC-12 (prepare the comparsa order)**, change `add-comparsa-orders`:
+  - A FiringChief prepares the order while the orders are open; an Admin at any time once the
+    edition has started. Preparing creates one entry per arquebusier of the comparsa, `ACTIVE` and
+    `RESERVE` alike.
+  - Each entry is pre-filled from the arquebusier's latest earlier entry: powder, caps, flask and
+    the weapon source. An owned weapon is kept only while still owned, and a rental model only while
+    still offered. Loans are never copied, and nothing is carried over (BR-11).
+  - Arquebusiers registered or transferred in later are listed as "not in the order" and added by
+    hand. Nothing changes an order by itself.
+  - The entry status starts as the registry status and is independent afterwards. An `ACTIVE`
+    entry may have no powder (a shooter, such as a comparsa captain) or no weapon (a powder carrier).
+  - Entries are never removed by hand. Deleting an arquebusier while the orders are open removes
+    their entry of the edition in progress after a warning; every other entry stays as history.
+- **UC-13 (weapon loan)**, change `add-comparsa-orders`: the borrower's FiringChief sets the entry's
+  weapon source to "loan" and types the owner's DNI/NIE. A registered owner, of any comparsa, is
+  found by an exact match and one of their owned weapons is chosen; someone outside PolvorApp is
+  typed in (name, surnames, DNI/NIE, weapon model, number and ownership guide). There is no limit,
+  and one weapon may be lent to several arquebusiers. The lender's FiringChiefs see the loans of
+  their arquebusiers' weapons with the borrower's name and comparsa only.
+- **UC-14 (submit the order)**, change `add-comparsa-orders`:
+  - The FiringChief submits a `DRAFT` or `RETURNED` order with the attestation, seeing the
+    `ACTIVE` entries with compliance warnings; warnings never block. Entries that are inconsistent
+    with the registry or the edition (a weapon no longer owned, a model no longer offered) do.
+  - Editing a `SUBMITTED` order while the orders are open sends it back to `DRAFT`, to be
+    submitted again. A `VALIDATED` order is read-only for FiringChiefs; so is every order once the
+    orders are closed.
+- **UC-15 (review orders)**, change `add-comparsa-orders`: an Admin validates a `SUBMITTED` order,
+  or one never submitted (`DRAFT` or `RETURNED`, to close the open ones), and returns a `SUBMITTED`
+  or `VALIDATED` order with a reason the FiringChief reads. An Admin may also submit on the
+  comparsa's behalf, without the attestation (recorded as an Admin submission), and edits any order
+  at any time without changing its status.
+- **UC-16 (orders dashboard)**, change `add-comparsa-orders`: for an edition (the current one by
+  default), each comparsa with its order status, or "not prepared", and its totals: `ACTIVE` and
+  `RESERVE` entries, powder, caps by type, weapon rentals by model, flask rentals by size, loans,
+  owned weapons and, for the edition in progress, `ACTIVE` entries with warnings. Admins see every
+  active comparsa, the counts by status and the edition totals; FiringChiefs see their comparsas
+  only. Totals are computed, never stored.
 - On distribution day the **FiringChief validates the identity** of their arquebusiers; nobody signs.
   The only paper document is the proxy authorisation (UC-19), for the exceptional case.
 - Today the Federation records flask assignments with a laptop and a spreadsheet; UC-20 printable
