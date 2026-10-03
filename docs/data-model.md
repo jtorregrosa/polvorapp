@@ -119,22 +119,38 @@ Federation labels such as "ARCABUZ CRISTIANO" do not follow Q-07 strictly; Q-53)
 
 **RegistrySettings** — a single row holding the registry lock state (`locked` boolean, `lockedChangedAt` timestamptz). When locked, FiringChief writes to the registry are refused (`409 registry.locked`); Admins keep writing. The lock is independent of editions and is toggled by Admins.
 
-**ComparsaOrder** — `edition`, `comparsa`, `status` (`DRAFT` | `SUBMITTED` | `RETURNED` | `VALIDATED`), `submittedBy`, `submittedAt`, `attestation` (FiringChief confirms their arquebusiers meet the requirements), `returnReason`. Billing summary derived from entries × `EditionPrices`.
+**ComparsaOrder** (change `add-comparsa-orders`) — `edition` (with its `year` copied), `comparsa`, `status` (`DRAFT` | `SUBMITTED` | `RETURNED` | `VALIDATED`), `preparedAt`/`preparedBy`, `submittedAt`/`submittedBy`, `attested` (a FiringChief confirms their arquebusiers meet the requirements) or `submittedByAdmin` (an Admin submitted it on the comparsa's behalf, without attestation), `reviewedAt`/`reviewedBy`, `returnReason` (1–500 characters, while returned). At most one per comparsa and edition (blocking). A comparsa without an order is "not prepared" (not stored). Orders are never deleted. Billing summary derived from entries × `EditionPrices` (#11).
 
-**EditionEntry** (one per arquebusier per edition, created from the registry)
+**EditionEntry** (one per arquebusier per edition, at most one, created when the order is prepared or the arquebusier is added)
 | Field | Values |
 |---|---|
-| `status` | snapshot of the arquebusier status (`ACTIVE` \| `RESERVE`) for history |
-| `powderKg` | 0 \| 1 \| 2 (RESERVE ⇒ 0) |
-| `capsBoxes`, `capsType` | integer, `NORMAL` \| `SMALL` |
+| `arquebusier` | link to the registry; null once the arquebusier is deleted |
+| `status` | `ACTIVE` \| `RESERVE` for this edition; starts as the registry status and is independent afterwards |
+| `powderKg` | 0 \| 1 \| 2 |
+| `capsBoxes`, `capsType` | 0–99, `NORMAL` \| `SMALL` (type exactly when there are boxes) |
 | `weaponSource` | `OWNED` \| `RENTAL` \| `LOAN` \| `NONE` |
-| `ownedWeapon` | if `OWNED` |
-| `rentalModel` | if `RENTAL` (must be available in the edition) |
-| `rentalWeapon` | unit assigned at distribution (weaponNumber) |
+| `ownedWeapon` | if `OWNED`: one of the arquebusier's owned weapons; null once it leaves the registry |
+| `rentalModel` | if `RENTAL`: a model offered for rental in the edition (BR-07) |
 | `flask` | `OWNED` \| `RENTAL_1KG` \| `RENTAL_2KG` \| `NONE` |
-| `rentalFlaskNumber` | numbered unit assigned at powder distribution |
+| history copy | `firstName`, `lastName`, `nationalId`, `federationId`, and for `OWNED` the weapon's model, `weaponNumber` and `ownershipGuideNumber` |
 
-**WeaponLoan** — `edition`, `ownedWeapon` (lender = owner), `borrowerEntry`. Borrower may be from another comparsa.
+An `ACTIVE` entry may have no powder or no weapon: some arquebusiers only carry powder and others
+only fire, such as the comparsa captains. `rentalWeapon` and `rentalFlaskNumber` (units assigned at
+distribution) arrive with #13 and UC-21.
+
+The **history copy** is refreshed from the registry when the entry is created and saved, and when
+its order is submitted or validated, while the links exist. Screens show the live registry data
+while it exists, and the copy afterwards, so entries keep reading correctly as the edition's
+history (design D3 of `add-comparsa-orders`).
+
+**WeaponLoan** — `borrowerEntry` (one loan per entry with weapon source `LOAN`) and a lender of one
+of two kinds:
+- `ARQUEBUSIER`: a registered arquebusier of any comparsa and one of their owned weapons;
+- `EXTERNAL`: an owner who is not in PolvorApp.
+
+Both kinds store the lender's `firstName`, `lastName`, `nationalId` (and comparsa, if registered)
+and the weapon's model, `weaponNumber` and `ownershipGuideNumber`. They are typed by hand for an
+external owner and copied for a registered one. An owned weapon may be lent to several borrowers.
 
 **RentalWeapon** — `edition`, `model`, `weaponNumber`, `assignedEntry`. Return is handled by the rental company (out of scope).
 
@@ -167,16 +183,16 @@ accountability and dispute resolution).
 | BR-02 | `nationalId` and `federationId` are unique across the whole Federation. | Block |
 | BR-03 | License `expiresOn` defaults to `issuedOn + 5 years` (AE) or `+ 1 year` (A-PROF). | Default, editable |
 | BR-04 | An ACTIVE entry should have: valid license at festival dates, course done, legal age (18). In the registry the same rules are evaluated today, in Europe/Madrid, for `ACTIVE` and `RESERVE` arquebusiers, as compliance warnings (`add-compliance-insights`); edition entries are evaluated on the festival dates in #10. | **Warning** — the FiringChief is accountable and attests on submission |
-| BR-05 | `powderKg` ∈ {0, 1, 2} per edition. RESERVE arquebusiers have 0 kg and no rentals. | Block |
+| BR-05 | `powderKg` ∈ {0, 1, 2} per edition. A RESERVE entry has no powder, caps, weapon or flask. An ACTIVE entry may have no powder or no weapon (powder carriers, shooters such as the comparsa captains). | Block |
 | BR-06 | A PickupProxy must have an entry (ACTIVE or RESERVE) in the same edition; per the current form, in the same comparsa. | Block |
 | BR-07 | A rental model must be available in the edition. Pistols are never rentable. | Block |
 | BR-08 | A rental weapon is assigned to exactly one entry and is non-transferable. | Block |
-| BR-09 | A weapon loan requires an OwnedWeapon; the borrower may belong to any comparsa. No limit on loans. | — |
+| BR-09 | A weapon loan comes from an OwnedWeapon of an arquebusier of any comparsa, or from an external owner who is not in PolvorApp (with their name, DNI/NIE and the weapon's model, number and ownership guide). No limit on loans. | Block (data rules) |
 | BR-10 | The **registry lock** (independent of editions) blocks FiringChief writes to the registry; Admins always write. FiringChiefs can edit orders only while the orders of the current edition are open; otherwise read-only. Admins can always edit orders (exceptional cases). | Block |
 | BR-11 | No powder carryover between editions. | — |
 | BR-12 | FiringChiefs only see and edit their own comparsa (except loans, where the borrower's name is visible). | Block |
 | BR-13 | A transfer moves the arquebusier to the new comparsa for future editions only. | — |
-| BR-14 | Deleting an arquebusier (left the Federation) erases personal data and photos (the images right after the deletion, or by the hourly orphan sweep if that fails); past edition entries are anonymised so totals stay correct. | — |
+| BR-14 | Deleting an arquebusier (left the Federation) erases their registry data, owned weapons and photos (the images right after the deletion, or by the hourly orphan sweep if that fails). While the orders of the edition in progress are open, their entry in it is removed, after a confirmation that says so. Every other entry (past editions, and the edition in progress once its orders are closed) is kept as history with its copy of the identity and weapon data; it is anonymised only on a GDPR erasure request (UC-26). | — |
 
 ## 4. Arquebusier badge (UC-30)
 
@@ -204,7 +220,14 @@ Derived document — nothing new is stored. Current badge (reference photo in `s
 ## 5. Derived data (never stored)
 
 Age, next birthday, license expiry in months, license status, statistics (age brackets, gender,
-course, owned weapons, first year), "first year" flag (= no entry in previous editions).
+course, owned weapons, first year), "first year" flag.
+
+**First year** (UC-07, `add-comparsa-orders`): an arquebusier is in their first year in an edition
+when they have no `ACTIVE` entry in an edition with an earlier year (a `RESERVE` entry does not
+count; entries no longer linked to the registry are ignored). The flag is **known** only once an
+earlier edition has at least one comparsa order; before that PolvorApp has no history and the flag
+is neither shown nor counted. It is shown on each order entry (for the order's edition) and on the
+arquebusier detail (for the edition in progress), and the statistics count it by gender.
 
 **Compliance warnings** (`ComplianceWarning`, BR-04, `add-compliance-insights`), derived on a reference
 date (today in Europe/Madrid for the registry) and returned in this order:
@@ -221,4 +244,3 @@ date (today in Europe/Madrid for the registry) and returned in this order:
 | `LICENSE_PHOTOS_MISSING` | The license is issued and lacks its `frontPhoto`, its `backPhoto` or both |
 
 At most one license warning applies. Statistics age brackets: under 25, 25–34, 35–44, 45 or older.
-The "first year" statistic arrives with edition entries (#10).

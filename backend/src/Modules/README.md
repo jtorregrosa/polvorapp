@@ -81,6 +81,13 @@ reference fails even before any of its types is used.
   upper-cased ownership guide) with a check constraint, instead of a generated key column.
   The referencing module still implements the owner's veto contract (e.g. `ICatalogUsage`), so
   the normal path never relies on the exception. No code queries the other schema.
+- **References that must outlive their target** (from `add-comparsa-orders`, design D3) use
+  `ON DELETE SET NULL` instead. PostgreSQL then nulls the link in the same transaction as the
+  owner's deletion, which never fails on a constraint because of it. It can still wait for row
+  locks held by the referencing module, which ends as a retryable 503 after the lock timeout. The referencing module keeps its own copy
+  of what it needs (e.g. an edition entry's name, national ID and weapon data) and treats a null
+  link as "no longer there". Its copy columns are nullable only so that a GDPR erasure can blank
+  them. Example: `orders.edition_entries.arquebusier_id` → `registry.arquebusiers`.
 - **Shared field validation**: `SharedKernel.Validation.InputFields` (trimmed NFC text without
   hidden characters, coded enums) and `SharedKernel.Time.FederationCalendar.Today` (the date in
   Europe/Madrid for "not in the future" and "expired" rules).

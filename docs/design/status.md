@@ -41,6 +41,12 @@ neutral pill with the raw code and a development-only console warning.
 | `IN_PROGRESS` | success | CirclePlay | En curso | En curs | In progress |
 | `CLOSED` | muted | Archive | Cerrada | Tancada | Closed |
 
+## `participation`
+
+| Value | Tone | Icon | es-ES | ca-ES-valencia | en |
+|---|---|---|---|---|---|
+| `FIRST_YEAR` | info | Sparkles | Primer año | Primer any | First year |
+
 ## `orders`
 
 | Value | Tone | Icon | es-ES | ca-ES-valencia | en |
