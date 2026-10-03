@@ -1,0 +1,25 @@
+sheet: PolvorApp
+A1: Text bold Alquiler de armas y cantimploras · Fiestas 2031
+A2: Text bold PROVISIONAL: formato pendiente de la plantilla del destinatario. No lo envíes como definitivo.
+A3: Text Definición rental-company, versión provisional-1
+A5: Text bold Apellidos y nombre
+B5: Text bold DNI/NIE
+C5: Text bold Comparsa
+D5: Text bold Modelo de arma
+E5: Text bold Cantimplora
+A6: Text Sintético Cinco, Arcabucero
+B6: Text 00000005X
+C6: Text Comparsa Sintética Este
+D6: Text TRABUCO CRISTIANO DIESTRO
+A7: Text Sintética Uno, Arcabucera
+B7: Text 00000001R
+C7: Text Comparsa Sintética Norte
+E7: Text 2 kg
+A8: Text Sintético Dos, Arcabucero
+B8: Text 00000002X
+C8: Text Comparsa Sintética Norte
+D8: Text ARCABUZ MORO DIESTRO
+E8: Text 1 kg
+merged: A2:E2
+frozen rows: 5
+auto-filter: A5:E8

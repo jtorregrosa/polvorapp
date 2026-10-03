@@ -1,0 +1,17 @@
+--- page 1 (landscape) ---
+Pedido de Comparsa Sintética Norte · Fiestas 2031
+PROVISIONAL: formato pendiente de la plantilla del destinatario. No lo envíes como definitivo.
+Definición comparsa-list, versión provisional-1
+Apellidos y nombre DNI/NIE ID Unión Estado Pólvora (kg) Cajas de Tipo de pistones Arma Cantimplora
+pistones
+Sintética Uno, Arcabucera 00000001R 100001 Activo 2 3 Normales Propia: TRABUCO 2 kg
+CRISTIANO DIESTRO 8-21
+Sintético Cuatro, 00000004X 100004 Reserva 0 0 Sin arma Sin cantimplora
+Arcabucero
+Sintético Dos, Arcabucero 00000002X 100002 Activo 1 1 Pequeños Alquiler: ARCABUZ MORO 1 kg
+DIESTRO
+Sintético Tres, Arcabucero 00000003X 100003 Activo 2 0 Cesión: ARCABUZ MORO Sin cantimplora
+DIESTRO 3-25, cedida por
+Externo Sintético, Presta
+Total 5 4
+15/02/2031 · 1 / 1

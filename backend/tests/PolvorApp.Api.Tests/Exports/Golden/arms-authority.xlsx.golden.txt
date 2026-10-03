@@ -1,0 +1,46 @@
+sheet: PolvorApp
+A1: Text bold Relación de arcabuceros y armas · Fiestas 2031
+A2: Text bold PROVISIONAL: formato pendiente de la plantilla del destinatario. No lo envíes como definitivo.
+A3: Text Definición arms-authority, versión provisional-1
+A5: Text bold Apellidos y nombre
+B5: Text bold DNI/NIE
+C5: Text bold Comparsa
+D5: Text bold Licencia
+E5: Text bold Caducidad
+F5: Text bold Arma
+G5: Text bold Número de arma
+H5: Text bold Guía de pertenencia
+I5: Text bold Procedencia
+J5: Text bold Cedente
+K5: Text bold DNI/NIE del cedente
+A6: Text Sintético Cinco, Arcabucero
+B6: Text 00000005X
+C6: Text Comparsa Sintética Este
+F6: Text TRABUCO CRISTIANO DIESTRO
+I6: Text Alquiler
+A7: Text Sintética Uno, Arcabucera
+B7: Text 00000001R
+C7: Text Comparsa Sintética Norte
+D7: Text AE
+E7: DateTime [dd/mm/yyyy] 2033-05-31
+F7: Text TRABUCO CRISTIANO DIESTRO
+G7: Text 8-21
+H7: Text GUIA-SINT-8
+I7: Text Propia
+A8: Text Sintético Dos, Arcabucero
+B8: Text 00000002X
+C8: Text Comparsa Sintética Norte
+F8: Text ARCABUZ MORO DIESTRO
+I8: Text Alquiler
+A9: Text Sintético Tres, Arcabucero
+B9: Text 00000003X
+C9: Text Comparsa Sintética Norte
+F9: Text ARCABUZ MORO DIESTRO
+G9: Text 3-25
+H9: Text GUIA-SINT-EXT
+I9: Text Cesión
+J9: Text Externo Sintético, Presta
+K9: Text 00000007F
+merged: A2:K2
+frozen rows: 5
+auto-filter: A5:K9

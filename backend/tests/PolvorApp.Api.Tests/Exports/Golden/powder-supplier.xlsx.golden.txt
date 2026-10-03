@@ -1,0 +1,23 @@
+sheet: PolvorApp
+A1: Text bold Pedido de pólvora y pistones · Fiestas 2031
+A2: Text bold PROVISIONAL: formato pendiente de la plantilla del destinatario. No lo envíes como definitivo.
+A3: Text Definición powder-supplier, versión provisional-1
+A5: Text bold Comparsa
+B5: Text bold Pólvora (kg)
+C5: Text bold Cajas de pistones normales
+D5: Text bold Cajas de pistones pequeños
+A6: Text Comparsa Sintética Este
+B6: Number [0] 1
+C6: Number [0] 2
+D6: Number [0] 0
+A7: Text Comparsa Sintética Norte
+B7: Number [0] 5
+C7: Number [0] 3
+D7: Number [0] 1
+A8: Text bold Total
+B8: Number [0] bold 6
+C8: Number [0] bold 5
+D8: Number [0] bold 1
+merged: A2:D2
+frozen rows: 5
+auto-filter: A5:D7

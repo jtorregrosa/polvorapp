@@ -1,0 +1,17 @@
+--- page 1 (landscape) ---
+Relación de arcabuceros y armas · Fiestas 2031
+PROVISIONAL: formato pendiente de la plantilla del destinatario. No lo envíes como definitivo.
+Definición arms-authority, versión provisional-1
+Apellidos y DNI/NIE Comparsa Licencia Caducidad Arma Número de arma Guía de Procedencia Cedente DNI/NIE del
+nombre pertenencia cedente
+Sintético Cinco, 00000005X Comparsa TRABUCO Alquiler
+Arcabucero Sintética Este CRISTIANO
+DIESTRO
+Sintética Uno, 00000001R Comparsa AE 31/05/2033 TRABUCO 8-21 GUIA-SINT-8 Propia
+Arcabucera Sintética Norte CRISTIANO
+DIESTRO
+Sintético Dos, 00000002X Comparsa ARCABUZ MORO Alquiler
+Arcabucero Sintética Norte DIESTRO
+Sintético Tres, 00000003X Comparsa ARCABUZ MORO 3-25 GUIA-SINT-EXT Cesión Externo Sintético, 00000007F
+Arcabucero Sintética Norte DIESTRO Presta
+15/02/2031 · 1 / 1

@@ -1,0 +1,12 @@
+--- page 1 (portrait) ---
+Alquiler de armas y cantimploras · Fiestas 2031
+PROVISIONAL: formato pendiente de la plantilla del destinatario. No lo envíes como definitivo.
+Definición rental-company, versión provisional-1
+Apellidos y nombre DNI/NIE Comparsa Modelo de arma Cantimplora
+Sintético Cinco, 00000005X Comparsa Sintética Este TRABUCO CRISTIANO
+Arcabucero DIESTRO
+Sintética Uno, 00000001R Comparsa Sintética 2 kg
+Arcabucera Norte
+Sintético Dos, 00000002X Comparsa Sintética ARCABUZ MORO 1 kg
+Arcabucero Norte DIESTRO
+15/02/2031 · 1 / 1
