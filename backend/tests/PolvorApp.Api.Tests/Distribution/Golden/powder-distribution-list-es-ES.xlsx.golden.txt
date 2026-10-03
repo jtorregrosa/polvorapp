@@ -1,0 +1,51 @@
+sheet: PolvorApp
+A1: Text bold Reparto de pólvora — Fiestas 2031
+A2: Text bold Día: 18/04/2031 · Lugar: Paraje Sintético
+A3: Text bold Numeración válida para esta impresión: si los datos cambian, otra impresión puede numerar distinto.
+A4: Text powder-distribution-list, versión 1
+A6: Text bold Nº
+B6: Text bold Turno
+C6: Text bold Comparsa
+D6: Text bold Apellidos y nombre
+E6: Text bold DNI/NIE
+F6: Text bold Kg
+G6: Text bold Cantimplora
+H6: Text bold Nº cantimplora
+I6: Text bold Trazabilidad 1
+J6: Text bold Trazabilidad 2
+K6: Text bold Autorizado
+L6: Text bold DNI/NIE autorizado
+A7: Number [0] 1
+B7: Text 09:00
+C7: Text Comparsa Sintética Norte
+D7: Text Abad Sintética, Ana
+E7: Text 00000001R
+F7: Number [0] 2
+G7: Text Alquiler 2 kg
+K7: Text Reserva Sintética, Carla
+L7: Text 00000003A
+A8: Number [0] 2
+B8: Text 09:00
+C8: Text Comparsa Sintética Norte
+D8: Text Zamora Sintético, Bruno
+E8: Text 00000002W
+F8: Number [0] 1
+G8: Text Propia
+A9: Number [0] 3
+B9: Text 09:30
+C9: Text Comparsa Sintética Sur
+D9: Text Bernabeu Sintético, Dani
+E9: Text 00000004G
+F9: Number [0] 1
+G9: Text Ninguna
+K9: Text Zamora Sintético, Bruno
+L9: Text 00000002W
+A10: Number [0] 4
+C10: Text Comparsa Sintética Este
+D10: Text Climent Sintética, Eva
+E10: Text 00000005M
+F10: Number [0] 2
+G10: Text Alquiler 1 kg
+merged: A2:L2, A3:L3
+frozen rows: 6
+auto-filter: A6:L10

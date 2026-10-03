@@ -1,0 +1,16 @@
+--- page 1 (landscape) ---
+Powder distribution — Festival 2031
+Day: 18/04/2031 · Place: Paraje Sintético
+Numbering valid for this print: if the data changes, another print may number differently.
+powder-distribution-list, version 1
+No. Slot Comparsa Last name, DNI/NIE Kg Flask Flask no. Traceability 1 Traceability 2 Proxy Proxy DNI/NIE
+first name
+1 09:00 Comparsa Abad Sintética, 00000001R 2 Rented 2 kg Reserva 00000003A
+Sintética Norte Ana Sintética, Carla
+2 09:00 Comparsa Zamora 00000002W 1 Own
+Sintética Norte Sintético, Bruno
+3 09:30 Comparsa Bernabeu 00000004G 1 None Zamora 00000002W
+Sintética Sur Sintético, Dani Sintético, Bruno
+4 Comparsa Climent 00000005M 2 Rented 1 kg
+Sintética Este Sintética, Eva
+10/04/2031 · 1 / 1
