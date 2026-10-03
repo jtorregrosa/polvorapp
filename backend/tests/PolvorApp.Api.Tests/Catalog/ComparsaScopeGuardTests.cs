@@ -54,6 +54,7 @@ public sealed partial class ComparsaScopeGuardTests(PostgresFixture postgres, Ma
         Assert.Contains(new GuardedRoute("GET", "/api/comparsas/{id:guid}/logo", AdminOnly: false), routes);
         Assert.Contains(new GuardedRoute("PUT", "/api/comparsas/{id:guid}/logo", AdminOnly: true) { Multipart = true }, routes);
         Assert.Contains(new GuardedRoute("GET", "/api/exports/editions/{editionId:guid}/comparsas/{comparsaId:guid}/{format}", AdminOnly: false), routes);
+        Assert.Contains(new GuardedRoute("GET", "/api/distribution/editions/{editionId:guid}/comparsas/{comparsaId:guid}/proxy-candidates", AdminOnly: false), routes);
         foreach (var route in routes)
         {
             var refused = await StatusAsync(outsiderClient, route, values);

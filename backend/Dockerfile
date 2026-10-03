@@ -25,6 +25,8 @@ COPY src/Modules/Billing/PolvorApp.Billing/PolvorApp.Billing.csproj src/Modules/
 COPY src/Modules/Billing/PolvorApp.Billing.Contracts/PolvorApp.Billing.Contracts.csproj src/Modules/Billing/PolvorApp.Billing.Contracts/
 COPY src/Modules/Exports/PolvorApp.Exports/PolvorApp.Exports.csproj src/Modules/Exports/PolvorApp.Exports/
 COPY src/Modules/Exports/PolvorApp.Exports.Contracts/PolvorApp.Exports.Contracts.csproj src/Modules/Exports/PolvorApp.Exports.Contracts/
+COPY src/Modules/Distribution/PolvorApp.Distribution/PolvorApp.Distribution.csproj src/Modules/Distribution/PolvorApp.Distribution/
+COPY src/Modules/Distribution/PolvorApp.Distribution.Contracts/PolvorApp.Distribution.Contracts.csproj src/Modules/Distribution/PolvorApp.Distribution.Contracts/
 RUN dotnet restore src/PolvorApp.Api/PolvorApp.Api.csproj
 
 COPY src/ src/

@@ -14,6 +14,7 @@ using PolvorApp.AuditPrivacy;
 using PolvorApp.Billing;
 using PolvorApp.ComparsaOrders;
 using PolvorApp.ComplianceInsights;
+using PolvorApp.Distribution;
 using PolvorApp.Exports;
 using PolvorApp.FederationCatalog;
 using PolvorApp.FestivalEditions;
@@ -47,7 +48,7 @@ builder.Services.AddOpenApi(options => options
     .AddCodesOnlyEnums());
 
 // Modules are registered explicitly, one per capability (ADR-0001).
-builder.Services.AddModules(builder.Configuration, new AuditPrivacyModule(), new IdentityAccessModule(), new FederationCatalogModule(), new ArquebusierRegistryModule(), new ComplianceInsightsModule(), new FestivalEditionsModule(), new ComparsaOrdersModule(), new BillingModule(), new ExportsModule());
+builder.Services.AddModules(builder.Configuration, new AuditPrivacyModule(), new IdentityAccessModule(), new FederationCatalogModule(), new ArquebusierRegistryModule(), new ComplianceInsightsModule(), new FestivalEditionsModule(), new ComparsaOrdersModule(), new BillingModule(), new ExportsModule(), new DistributionModule());
 
 var app = builder.Build();
 

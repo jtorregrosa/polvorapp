@@ -28,6 +28,10 @@
     <Project Path="src/Modules/ComplianceInsights/PolvorApp.ComplianceInsights.Contracts/PolvorApp.ComplianceInsights.Contracts.csproj" />
     <Project Path="src/Modules/ComplianceInsights/PolvorApp.ComplianceInsights/PolvorApp.ComplianceInsights.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/Distribution/">
+    <Project Path="src/Modules/Distribution/PolvorApp.Distribution.Contracts/PolvorApp.Distribution.Contracts.csproj" />
+    <Project Path="src/Modules/Distribution/PolvorApp.Distribution/PolvorApp.Distribution.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/Exports/">
     <Project Path="src/Modules/Exports/PolvorApp.Exports.Contracts/PolvorApp.Exports.Contracts.csproj" />
     <Project Path="src/Modules/Exports/PolvorApp.Exports/PolvorApp.Exports.csproj" />

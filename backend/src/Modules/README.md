@@ -109,7 +109,8 @@ reference fails even before any of its types is used.
   (`registry/photos/<uuid>.jpg`): a key never contains or derives from personal data. Logs carry
   keys and sizes only. Prefixes in use:
   - `registry/photos/` (arquebusier photos, JPEG);
-  - `catalog/logos/` (comparsa logos, PNG with transparency; `add-comparsa-logos`).
+  - `catalog/logos/` (comparsa logos, PNG with transparency; `add-comparsa-logos`; and the Federation
+    logo, `add-distribution-planning`).
 - **Uploads** are read with `SharedKernel.Http.ImageUploads`: one `file` part of a
   `multipart/form-data` body, read in memory, with the endpoint's request size limit set to
   `ImageUploads.MaxRequestBytes`. Uploads that decode an image use a per-user rate limit
@@ -191,3 +192,33 @@ reference fails even before any of its types is used.
   PDF writer render. A recipient's real template changes only its definition and golden files.
 - **Personal data in files**: definitions hold only the columns their recipient needs (SEC-06);
   files are generated per request, never stored, and audited with `IAuditLog` before they are sent.
+
+## Conventions shared by modules (from `add-distribution-planning`)
+
+- **Documents of other modules**: a module that prints a document builds its content itself — a
+  `DocumentTable` (Excel and PDF) or a `DocumentForm` (one PDF page to sign) from
+  `Exports.Contracts` — and renders it with `IDocumentRenderer`, which reuses the exports' writers,
+  fonts and QuestPDF settings. The module still checks who may have the file, audits it with
+  `IAuditLog` before returning it, and never stores it. `DocumentColumn.ForHandwriting` marks a column
+  left empty to be filled in on paper. File names are built with `SharedKernel.Text.FileSlug` from
+  names that are not personal data.
+- **Reading another module's entries**: `ComparsaOrders.Contracts.IEditionEntries` returns
+  `EditionEntryFacts` (the entry, its order, edition, comparsa and order status, what it collects
+  and the identity copy) for one comparsa's order or by id. Like every read contract it applies no
+  scope: the caller enforces BR-12.
+- **Run-time assets that must never be committed**: the Federation's logo is uploaded by an Admin
+  into the private storage (`/api/federation-logo`), through the same `LogoUploadFlow` as comparsa
+  logos, and read by document modules with `ICatalogDirectory.ReadFederationLogoAsync`. A module
+  printing it treats `StorageUnavailableException` as a failed document (`503`), never as a missing
+  logo; null means none was uploaded. The repository is public, so no crest or brand asset of the
+  Federation is ever added to it, its seed or its tests.
+- **Single-row settings**: a table whose one row the migration inserts and a check constraint keeps
+  single (`catalog.federation_settings`, `id = 1`), locked with `FOR NO KEY UPDATE` for changes; no
+  unique index or upsert is needed.
+- **Dependent rows across schemas** use `ON DELETE CASCADE`: a row that means nothing without its
+  target goes with it in the same transaction. Example: `distribution.pickup_proxies.holder_entry_id`
+  and `proxy_entry_id` → `orders.edition_entries`. Entries are removed only by an arquebusier's
+  deletion while the orders are open (BR-14), which the registry audits with the removed entry ids,
+  so the cascade needs no audit entry of its own. A database test asserts the key, its delete rule
+  and the cascade. Use it only when keeping the row would be wrong; `SET NULL` with a copy is the
+  default for history.
