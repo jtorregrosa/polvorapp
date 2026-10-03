@@ -5933,6 +5933,932 @@
           }
         ]
       }
+    },
+    "/api/comparsa-orders": {
+      "post": {
+        "tags": [
+          "ComparsaOrders"
+        ],
+        "summary": "Prepares the order of a comparsa for an edition, with one pre-filled entry per arquebusier.",
+        "operationId": "PrepareComparsaOrder",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrepareOrderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/comparsa-orders/{id}/submit": {
+      "post": {
+        "tags": [
+          "ComparsaOrders"
+        ],
+        "summary": "Submits a draft or returned order: a FiringChief with the attestation while the orders are open, an Admin on the comparsa's behalf.",
+        "operationId": "SubmitComparsaOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitOrderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/comparsa-orders/lender-lookup": {
+      "post": {
+        "tags": [
+          "ComparsaOrders"
+        ],
+        "summary": "Finds a registered lender by an exact DNI/NIE, with their weapons (no guides); audited.",
+        "operationId": "LookUpLender",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LenderLookupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LenderLookupResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/comparsa-orders/overview": {
+      "get": {
+        "tags": [
+          "ComparsaOrders"
+        ],
+        "summary": "The orders of an edition (the current one by default): each comparsa's status and totals; for Admins also the counts and edition totals.",
+        "operationId": "GetComparsaOrdersOverview",
+        "parameters": [
+          {
+            "name": "editionId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverviewResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/comparsa-orders/{id}": {
+      "get": {
+        "tags": [
+          "ComparsaOrders"
+        ],
+        "summary": "One order of the caller's comparsas, with its entries and the arquebusiers not in it.",
+        "operationId": "GetComparsaOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/comparsa-orders/{id}/entries": {
+      "post": {
+        "tags": [
+          "ComparsaOrders"
+        ],
+        "summary": "Adds a pre-filled entry for an arquebusier of the comparsa who has none in the edition; returns the order.",
+        "operationId": "AddEditionEntry",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddEntryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/comparsa-orders/{id}/entries/{entryId}": {
+      "put": {
+        "tags": [
+          "ComparsaOrders"
+        ],
+        "summary": "Replaces the values and the loan of an entry, if its version is still current; returns the order.",
+        "operationId": "UpdateEditionEntry",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "entryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditEntryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/comparsa-orders/{id}/validate": {
+      "post": {
+        "tags": [
+          "ComparsaOrders"
+        ],
+        "summary": "Validates a submitted order, or closes one the comparsa never submitted (Admins).",
+        "operationId": "ValidateComparsaOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateOrderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/comparsa-orders/{id}/return": {
+      "post": {
+        "tags": [
+          "ComparsaOrders"
+        ],
+        "summary": "Returns a submitted or validated order with a reason (Admins).",
+        "operationId": "ReturnComparsaOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnOrderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -5993,6 +6919,21 @@
           "recoveryCodesLeft": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "AddEntryRequest": {
+        "required": [
+          "arquebusierId"
+        ],
+        "type": "object",
+        "properties": {
+          "arquebusierId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },
@@ -6247,7 +7188,9 @@
           "photos",
           "version",
           "age",
-          "warnings"
+          "warnings",
+          "firstYear",
+          "deletionImpact"
         ],
         "type": "object",
         "properties": {
@@ -6339,6 +7282,15 @@
             "items": {
               "$ref": "#/components/schemas/ComplianceWarning"
             }
+          },
+          "firstYear": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "deletionImpact": {
+            "$ref": "#/components/schemas/DeletionImpactResponse"
           }
         }
       },
@@ -6461,6 +7413,12 @@
             "type": "string"
           }
         }
+      },
+      "CapsType": {
+        "enum": [
+          "NORMAL",
+          "SMALL"
+        ]
       },
       "ChangeEditionStatusRequest": {
         "required": [
@@ -6638,6 +7596,7 @@
           "course",
           "licenses",
           "ownedWeapons",
+          "firstYear",
           "comparsas"
         ],
         "type": "object",
@@ -6671,6 +7630,16 @@
           },
           "ownedWeapons": {
             "$ref": "#/components/schemas/OwnedWeaponCounts"
+          },
+          "firstYear": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FirstYearCounts"
+              }
+            ]
           },
           "comparsas": {
             "type": "array",
@@ -6779,6 +7748,148 @@
               {
                 "$ref": "#/components/schemas/EditionResponse"
               }
+            ]
+          }
+        }
+      },
+      "DeletionEntryResponse": {
+        "required": [
+          "editionYear",
+          "comparsaId",
+          "comparsaName",
+          "orderStatus",
+          "willBeRemoved"
+        ],
+        "type": "object",
+        "properties": {
+          "editionYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "comparsaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "comparsaName": {
+            "type": "string"
+          },
+          "orderStatus": {
+            "$ref": "#/components/schemas/OrderStatus"
+          },
+          "willBeRemoved": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DeletionImpactResponse": {
+        "required": [
+          "currentEntry",
+          "lentWeapons",
+          "hasPastEntries"
+        ],
+        "type": "object",
+        "properties": {
+          "currentEntry": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/DeletionEntryResponse"
+              }
+            ]
+          },
+          "lentWeapons": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPastEntries": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EditEntryRequest": {
+        "required": [
+          "version",
+          "status",
+          "powderKg",
+          "capsBoxes",
+          "capsType",
+          "weaponSource",
+          "ownedWeaponId",
+          "rentalWeaponModelId",
+          "loan",
+          "flask"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "uint32"
+          },
+          "status": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "powderKg": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "capsBoxes": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "capsType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "weaponSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ownedWeaponId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "rentalWeaponModelId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "loan": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/LoanRequest"
+              }
+            ]
+          },
+          "flask": {
+            "type": [
+              "null",
+              "string"
             ]
           }
         }
@@ -7082,6 +8193,384 @@
           }
         }
       },
+      "EntryArquebusierResponse": {
+        "required": [
+          "id",
+          "firstName",
+          "lastName",
+          "nationalId",
+          "federationId",
+          "inRegistry"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "firstName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "nationalId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "federationId": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "inRegistry": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EntryLoanResponse": {
+        "required": [
+          "lenderKind",
+          "lenderFirstName",
+          "lenderLastName",
+          "lenderComparsaName",
+          "ownedWeaponId",
+          "weaponModel",
+          "weaponNumber",
+          "ownershipGuideNumber",
+          "externalNationalId",
+          "weaponRemoved"
+        ],
+        "type": "object",
+        "properties": {
+          "lenderKind": {
+            "$ref": "#/components/schemas/LenderKind"
+          },
+          "lenderFirstName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lenderLastName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lenderComparsaName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ownedWeaponId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "weaponModel": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/WeaponModelReference"
+              }
+            ]
+          },
+          "weaponNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ownershipGuideNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "externalNationalId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "weaponRemoved": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EntryOwnedWeaponResponse": {
+        "required": [
+          "id",
+          "weaponModelId",
+          "modelLabel",
+          "weaponNumber",
+          "ownershipGuideNumber",
+          "removed"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "weaponModelId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "modelLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "weaponNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ownershipGuideNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "removed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EntryResponse": {
+        "required": [
+          "id",
+          "version",
+          "arquebusier",
+          "status",
+          "powderKg",
+          "capsBoxes",
+          "capsType",
+          "weaponSource",
+          "ownedWeapon",
+          "rentalWeaponModel",
+          "loan",
+          "flask",
+          "warnings",
+          "issues",
+          "firstYear",
+          "ownedWeapons"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer",
+            "format": "uint32"
+          },
+          "arquebusier": {
+            "$ref": "#/components/schemas/EntryArquebusierResponse"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ArquebusierStatus"
+          },
+          "powderKg": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "capsBoxes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "capsType": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CapsType"
+              }
+            ]
+          },
+          "weaponSource": {
+            "$ref": "#/components/schemas/WeaponSource"
+          },
+          "ownedWeapon": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EntryOwnedWeaponResponse"
+              }
+            ]
+          },
+          "rentalWeaponModel": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/WeaponModelReference"
+              }
+            ]
+          },
+          "loan": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EntryLoanResponse"
+              }
+            ]
+          },
+          "flask": {
+            "$ref": "#/components/schemas/FlaskOption"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComplianceWarning"
+            }
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "firstYear": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "ownedWeapons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntryWeaponResponse"
+            }
+          }
+        }
+      },
+      "EntryWeaponResponse": {
+        "required": [
+          "id",
+          "weaponModelId",
+          "modelLabel",
+          "weaponNumber",
+          "removed"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "weaponModelId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "modelLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "weaponNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "removed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ExternalLenderRequest": {
+        "required": [
+          "firstName",
+          "lastName",
+          "nationalId",
+          "weaponModelId",
+          "weaponNumber",
+          "ownershipGuideNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "nationalId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "weaponModelId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "weaponNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ownershipGuideNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "FiringChiefResponse": {
         "required": [
           "userId",
@@ -7105,6 +8594,29 @@
             "$ref": "#/components/schemas/UserStatus"
           }
         }
+      },
+      "FirstYearCounts": {
+        "required": [
+          "firstYear",
+          "notFirstYear"
+        ],
+        "type": "object",
+        "properties": {
+          "firstYear": {
+            "$ref": "#/components/schemas/GenderCounts"
+          },
+          "notFirstYear": {
+            "$ref": "#/components/schemas/GenderCounts"
+          }
+        }
+      },
+      "FlaskOption": {
+        "enum": [
+          "OWNED",
+          "RENTAL_1KG",
+          "RENTAL_2KG",
+          "NONE"
+        ]
       },
       "ForgotPasswordRequest": {
         "required": [
@@ -7203,6 +8715,156 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "LenderKind": {
+        "enum": [
+          "ARQUEBUSIER",
+          "EXTERNAL"
+        ]
+      },
+      "LenderLookupRequest": {
+        "required": [
+          "nationalId"
+        ],
+        "type": "object",
+        "properties": {
+          "nationalId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "LenderLookupResponse": {
+        "required": [
+          "registered",
+          "lender"
+        ],
+        "type": "object",
+        "properties": {
+          "registered": {
+            "type": "boolean"
+          },
+          "lender": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/LenderResponse"
+              }
+            ]
+          }
+        }
+      },
+      "LenderResponse": {
+        "required": [
+          "firstName",
+          "lastName",
+          "comparsaName",
+          "weapons"
+        ],
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "comparsaName": {
+            "type": "string"
+          },
+          "weapons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LenderWeaponResponse"
+            }
+          }
+        }
+      },
+      "LenderWeaponResponse": {
+        "required": [
+          "id",
+          "weaponModel",
+          "weaponNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "weaponModel": {
+            "$ref": "#/components/schemas/WeaponModelReference"
+          },
+          "weaponNumber": {
+            "type": "string"
+          }
+        }
+      },
+      "LentOutResponse": {
+        "required": [
+          "loanId",
+          "weaponModel",
+          "weaponNumber",
+          "lenderFirstName",
+          "lenderLastName",
+          "borrowerFirstName",
+          "borrowerLastName",
+          "borrowerComparsaName"
+        ],
+        "type": "object",
+        "properties": {
+          "loanId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "weaponModel": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/WeaponModelReference"
+              }
+            ]
+          },
+          "weaponNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lenderFirstName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lenderLastName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "borrowerFirstName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "borrowerLastName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "borrowerComparsaName": {
+            "type": "string"
           }
         }
       },
@@ -7322,6 +8984,32 @@
           "A_PROF"
         ]
       },
+      "LoanRequest": {
+        "required": [
+          "ownedWeaponId",
+          "external"
+        ],
+        "type": "object",
+        "properties": {
+          "ownedWeaponId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "external": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ExternalLenderRequest"
+              }
+            ]
+          }
+        }
+      },
       "LoginRequest": {
         "required": [
           "email",
@@ -7356,6 +9044,439 @@
         "properties": {
           "file": {
             "$ref": "#/components/schemas/IFormFile"
+          }
+        }
+      },
+      "ModelCountResponse": {
+        "required": [
+          "weaponModel",
+          "count"
+        ],
+        "type": "object",
+        "properties": {
+          "weaponModel": {
+            "$ref": "#/components/schemas/WeaponModelReference"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "NotInOrderResponse": {
+        "required": [
+          "arquebusierId",
+          "firstName",
+          "lastName",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "arquebusierId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ArquebusierStatus"
+          }
+        }
+      },
+      "OrderComparsaResponse": {
+        "required": [
+          "id",
+          "name",
+          "side"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "side": {
+            "$ref": "#/components/schemas/Side"
+          }
+        }
+      },
+      "OrderEditionResponse": {
+        "required": [
+          "id",
+          "year",
+          "status",
+          "ordersOpen"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "year": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EditionStatus"
+          },
+          "ordersOpen": {
+            "type": "boolean"
+          }
+        }
+      },
+      "OrderResponse": {
+        "required": [
+          "id",
+          "version",
+          "status",
+          "edition",
+          "comparsa",
+          "preparedAt",
+          "submission",
+          "review",
+          "canEdit",
+          "readOnlyReason",
+          "entries",
+          "notInOrder",
+          "lentOut",
+          "totals",
+          "offeredModels"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer",
+            "format": "uint32"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderStatus"
+          },
+          "edition": {
+            "$ref": "#/components/schemas/OrderEditionResponse"
+          },
+          "comparsa": {
+            "$ref": "#/components/schemas/OrderComparsaResponse"
+          },
+          "preparedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "submission": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OrderSubmissionResponse"
+              }
+            ]
+          },
+          "review": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OrderReviewResponse"
+              }
+            ]
+          },
+          "canEdit": {
+            "type": "boolean"
+          },
+          "readOnlyReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntryResponse"
+            }
+          },
+          "notInOrder": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotInOrderResponse"
+            }
+          },
+          "lentOut": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LentOutResponse"
+            }
+          },
+          "totals": {
+            "$ref": "#/components/schemas/OrderTotalsResponse"
+          },
+          "offeredModels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WeaponModelReference"
+            }
+          }
+        }
+      },
+      "OrderReviewResponse": {
+        "required": [
+          "at",
+          "byName",
+          "returnReason"
+        ],
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "byName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "returnReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "OrderStatus": {
+        "enum": [
+          "DRAFT",
+          "SUBMITTED",
+          "RETURNED",
+          "VALIDATED"
+        ]
+      },
+      "OrderSubmissionResponse": {
+        "required": [
+          "at",
+          "byName",
+          "attested",
+          "byAdmin"
+        ],
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "byName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "attested": {
+            "type": "boolean"
+          },
+          "byAdmin": {
+            "type": "boolean"
+          }
+        }
+      },
+      "OrderTotalsResponse": {
+        "required": [
+          "active",
+          "reserve",
+          "powderKg",
+          "normalCapsBoxes",
+          "smallCapsBoxes",
+          "weaponRentals",
+          "flaskRentals1Kg",
+          "flaskRentals2Kg",
+          "loans",
+          "ownedWeapons",
+          "entriesWithWarnings"
+        ],
+        "type": "object",
+        "properties": {
+          "active": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "reserve": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "powderKg": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "normalCapsBoxes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "smallCapsBoxes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "weaponRentals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModelCountResponse"
+            }
+          },
+          "flaskRentals1Kg": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "flaskRentals2Kg": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "loans": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ownedWeapons": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "entriesWithWarnings": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "OverviewResponse": {
+        "required": [
+          "edition",
+          "rows",
+          "statusCounts",
+          "editionTotals"
+        ],
+        "type": "object",
+        "properties": {
+          "edition": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OrderEditionResponse"
+              }
+            ]
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverviewRowResponse"
+            }
+          },
+          "statusCounts": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OverviewStatusCountsResponse"
+              }
+            ]
+          },
+          "editionTotals": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OrderTotalsResponse"
+              }
+            ]
+          }
+        }
+      },
+      "OverviewRowResponse": {
+        "required": [
+          "comparsa",
+          "orderId",
+          "status",
+          "totals",
+          "canPrepare"
+        ],
+        "type": "object",
+        "properties": {
+          "comparsa": {
+            "$ref": "#/components/schemas/OrderComparsaResponse"
+          },
+          "orderId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "status": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OrderStatus"
+              }
+            ]
+          },
+          "totals": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/OrderTotalsResponse"
+              }
+            ]
+          },
+          "canPrepare": {
+            "type": "boolean"
+          }
+        }
+      },
+      "OverviewStatusCountsResponse": {
+        "required": [
+          "notPrepared",
+          "draft",
+          "submitted",
+          "returned",
+          "validated"
+        ],
+        "type": "object",
+        "properties": {
+          "notPrepared": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "draft": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "submitted": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "returned": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "validated": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -7448,6 +9569,29 @@
         "properties": {
           "file": {
             "$ref": "#/components/schemas/IFormFile"
+          }
+        }
+      },
+      "PrepareOrderRequest": {
+        "required": [
+          "editionId",
+          "comparsaId"
+        ],
+        "type": "object",
+        "properties": {
+          "editionId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "comparsaId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },
@@ -7679,6 +9823,28 @@
           }
         }
       },
+      "ReturnOrderRequest": {
+        "required": [
+          "version",
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "uint32"
+          },
+          "reason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "SecondFactorRequest": {
         "required": [
           "code",
@@ -7746,6 +9912,28 @@
       "Stream": {
         "type": "string",
         "format": "binary"
+      },
+      "SubmitOrderRequest": {
+        "required": [
+          "version",
+          "attestation"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "uint32"
+          },
+          "attestation": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          }
+        }
       },
       "SystemInfoResponse": {
         "required": [
@@ -8072,6 +10260,21 @@
           "DEACTIVATED"
         ]
       },
+      "ValidateOrderRequest": {
+        "required": [
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "uint32"
+          }
+        }
+      },
       "WarningCountResponse": {
         "required": [
           "code",
@@ -8108,6 +10311,22 @@
           "count": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "WeaponModelReference": {
+        "required": [
+          "id",
+          "label"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "label": {
+            "type": "string"
           }
         }
       },
@@ -8287,6 +10506,14 @@
           "NORMAL",
           "SMALL"
         ]
+      },
+      "WeaponSource": {
+        "enum": [
+          "OWNED",
+          "RENTAL",
+          "LOAN",
+          "NONE"
+        ]
       }
     },
     "securitySchemes": {
@@ -8331,6 +10558,9 @@
     },
     {
       "name": "Editions"
+    },
+    {
+      "name": "ComparsaOrders"
     }
   ]
 }

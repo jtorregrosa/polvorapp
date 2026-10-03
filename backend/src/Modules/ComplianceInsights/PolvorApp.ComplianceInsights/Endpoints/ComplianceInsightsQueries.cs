@@ -1,7 +1,9 @@
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.ComplianceInsights.Contracts;
 using PolvorApp.ComplianceInsights.Statistics;
 using PolvorApp.FederationCatalog.Contracts;
+using PolvorApp.FestivalEditions.Contracts;
 using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.SharedKernel.Text;
 
@@ -10,9 +12,15 @@ namespace PolvorApp.ComplianceInsights.Endpoints;
 /// <summary>
 /// The insights of the caller's scope (design D5): every figure is computed in memory from the
 /// scoped, evaluated facts, about 800 rows at most. Each breakdown puts every arquebusier in exactly
-/// one category, through exhaustive switches, so the breakdowns always add up to the total.
+/// one category, through exhaustive switches, so the breakdowns always add up to the total. The
+/// first-year set comes from the comparsa orders, by id, and leaves this class only as counts.
 /// </summary>
-internal sealed class ComplianceInsightsQueries(IComparsaScope scope, ScopedFacts scopedFacts, ICatalogDirectory catalog)
+internal sealed class ComplianceInsightsQueries(
+    IComparsaScope scope,
+    ScopedFacts scopedFacts,
+    ICatalogDirectory catalog,
+    IEditionDirectory editions,
+    IParticipationHistory participation)
 {
     public async Task<ComplianceSummaryResponse> SummaryAsync(CancellationToken cancellationToken)
     {
@@ -60,6 +68,7 @@ internal sealed class ComplianceInsightsQueries(IComparsaScope scope, ScopedFact
                 licenses.GetValueOrDefault(LicenseState.Pending),
                 licenses.GetValueOrDefault(LicenseState.None)),
             await OwnedWeaponsOf(evaluated, cancellationToken),
+            await FirstYearOf(evaluated, cancellationToken),
             comparsaId is null && SeesSeveralComparsas(access) ? await ComparsaRowsAsync(evaluated, cancellationToken) : []);
     }
 
@@ -78,6 +87,22 @@ internal sealed class ComplianceInsightsQueries(IComparsaScope scope, ScopedFact
             GendersOf(evaluated.Where(e => e.Facts.OwnedWeaponModelIds.Count > 0)),
             GendersOf(evaluated.Where(e => e.Facts.OwnedWeaponModelIds.Count == 0)),
             [.. Enum.GetValues<WeaponKind>().Select(kind => new WeaponKindCount(kind, byKind.GetValueOrDefault(kind)))]);
+    }
+
+    /// <summary>The first-year counts in the edition in progress, or null when they are not known (UC-07).</summary>
+    private async Task<FirstYearCounts?> FirstYearOf(List<EvaluatedFacts> evaluated, CancellationToken cancellationToken)
+    {
+        if (await editions.GetCurrentAsync(cancellationToken) is not { } current)
+        {
+            return null;
+        }
+
+        var result = await participation.FirstYearAsync(current.Year, [.. evaluated.Select(e => e.Facts.ArquebusierId)], cancellationToken);
+        return result.Known
+            ? new FirstYearCounts(
+                GendersOf(evaluated.Where(e => result.FirstYearIds.Contains(e.Facts.ArquebusierId))),
+                GendersOf(evaluated.Where(e => !result.FirstYearIds.Contains(e.Facts.ArquebusierId))))
+            : null;
     }
 
     private async Task<IReadOnlyList<ComparsaStatisticsResponse>> ComparsaRowsAsync(List<EvaluatedFacts> evaluated, CancellationToken cancellationToken)

@@ -361,6 +361,10 @@ public sealed class ComplianceStatisticsTests(PostgresFixture postgres, MailpitF
                 case "$.ageBrackets[].bracket" or "$.ownedWeapons.byKind[].kind":
                     Assert.Contains(leaf.Value.GetString(), codes);
                     break;
+                case "$.firstYear":
+                    // Unknown without orders (add-comparsa-orders); its counts are numbers like any other.
+                    Assert.Equal(JsonValueKind.Null, leaf.Value.ValueKind);
+                    break;
                 default:
                     Assert.True(leaf.Value.ValueKind == JsonValueKind.Number, $"{leaf.Path} is not a count.");
                     break;

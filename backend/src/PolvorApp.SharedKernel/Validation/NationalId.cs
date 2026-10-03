@@ -1,14 +1,14 @@
 using System.Globalization;
-using PolvorApp.SharedKernel.Validation;
 
-namespace PolvorApp.ArquebusierRegistry.NationalIds;
+namespace PolvorApp.SharedKernel.Validation;
 
 /// <summary>
 /// DNI/NIE validation (BR-01, design D4). The frontend mirrors this rule; both run the shared
 /// vectors in <c>contracts/test-vectors/national-ids.json</c>. Only ASCII is accepted, so look-alike
-/// letters from other scripts and full-width digits are rejected rather than folded.
+/// letters from other scripts and full-width digits are rejected rather than folded. Shared by the
+/// registry and the orders' external lenders (add-comparsa-orders, research notes).
 /// </summary>
-internal static class NationalId
+public static class NationalId
 {
     public const string Required = InputFields.Required;
     public const string Invalid = InputFields.Invalid;

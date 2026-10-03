@@ -35,6 +35,9 @@ public sealed class DeletingCatalogDirectory
 
     private sealed class DeletingDirectory(ICatalogDirectory inner, IServiceProvider services, DeletingCatalogDirectory owner) : ICatalogDirectory
     {
+        public Task<IReadOnlyList<ComparsaSummary>> ListActiveComparsasAsync(CancellationToken cancellationToken) =>
+            inner.ListActiveComparsasAsync(cancellationToken);
+
         public async Task<ComparsaSummary?> FindComparsaAsync(Guid comparsaId, CancellationToken cancellationToken)
         {
             var comparsa = await inner.FindComparsaAsync(comparsaId, cancellationToken);

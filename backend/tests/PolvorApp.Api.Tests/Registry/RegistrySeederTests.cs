@@ -9,7 +9,6 @@ using PolvorApp.Api.Platform.Seeding;
 using PolvorApp.Api.Tests.Infrastructure;
 using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ArquebusierRegistry.Insights;
-using PolvorApp.ArquebusierRegistry.NationalIds;
 using PolvorApp.ArquebusierRegistry.Persistence;
 using PolvorApp.ArquebusierRegistry.Seeding;
 using PolvorApp.ComplianceInsights;
@@ -24,6 +23,7 @@ using PolvorApp.IdentityAccess.Users;
 using PolvorApp.SharedKernel.Images;
 using PolvorApp.SharedKernel.Storage;
 using PolvorApp.SharedKernel.Time;
+using PolvorApp.SharedKernel.Validation;
 using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 
 namespace PolvorApp.Api.Tests.Registry;

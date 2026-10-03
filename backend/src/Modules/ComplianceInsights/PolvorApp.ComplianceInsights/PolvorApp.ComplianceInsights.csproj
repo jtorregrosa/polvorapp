@@ -16,7 +16,9 @@
     <ProjectReference Include="..\..\..\PolvorApp.SharedKernel\PolvorApp.SharedKernel.csproj" />
     <ProjectReference Include="..\PolvorApp.ComplianceInsights.Contracts\PolvorApp.ComplianceInsights.Contracts.csproj" />
     <ProjectReference Include="..\..\ArquebusierRegistry\PolvorApp.ArquebusierRegistry.Contracts\PolvorApp.ArquebusierRegistry.Contracts.csproj" />
+    <ProjectReference Include="..\..\ComparsaOrders\PolvorApp.ComparsaOrders.Contracts\PolvorApp.ComparsaOrders.Contracts.csproj" />
     <ProjectReference Include="..\..\FederationCatalog\PolvorApp.FederationCatalog.Contracts\PolvorApp.FederationCatalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\FestivalEditions\PolvorApp.FestivalEditions.Contracts\PolvorApp.FestivalEditions.Contracts.csproj" />
     <ProjectReference Include="..\..\IdentityAccess\PolvorApp.IdentityAccess.Contracts\PolvorApp.IdentityAccess.Contracts.csproj" />
   </ItemGroup>
 

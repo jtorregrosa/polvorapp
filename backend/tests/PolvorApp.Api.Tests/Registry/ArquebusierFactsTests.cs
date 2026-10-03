@@ -117,7 +117,7 @@ public sealed class ArquebusierFactsTests(PostgresFixture postgres, MailpitFixtu
     public void Facts_print_no_personal_value()
     {
         var license = new ArquebusierLicenseFacts.Issued(new DateOnly(2029, 3, 10), HasFrontPhoto: true, HasBackPhoto: true);
-        var facts = new ArquebusierFacts(Guid.NewGuid(), ArquebusierStatus.Active, Gender.Male, new DateOnly(1990, 5, 1), license, null, HasIdPhoto: false, []);
+        var facts = new ArquebusierFacts(Guid.NewGuid(), Guid.NewGuid(), ArquebusierStatus.Active, Gender.Male, new DateOnly(1990, 5, 1), license, null, HasIdPhoto: false, []);
 
         Assert.DoesNotContain("1990", facts.ToString(), StringComparison.Ordinal);
         Assert.DoesNotContain("2029", license.ToString(), StringComparison.Ordinal);

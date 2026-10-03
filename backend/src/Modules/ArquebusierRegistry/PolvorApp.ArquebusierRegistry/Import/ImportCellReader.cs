@@ -95,7 +95,7 @@ internal static partial class ImportCellReader
     {
         ArgumentNullException.ThrowIfNull(row);
         var cells = new Cells(row, new Dictionary<string, string>(StringComparer.Ordinal));
-        var nationalId = NationalIds.NationalId.Parse(cells.NationalId()).Value;
+        var nationalId = NationalId.Parse(cells.NationalId()).Value;
         var federationId = cells.WholeNumber(ImportColumn.FederationId) is { } number and >= 1 and <= RegistryInput.MaxFederationId ? number : (int?)null;
         return (nationalId, federationId);
     }

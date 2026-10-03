@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ArquebusierRegistry.Persistence;
 using PolvorApp.ArquebusierRegistry.Photos;
@@ -22,7 +23,8 @@ internal sealed class ArquebusierAdministration(
     IAuditTrail trail,
     TimeProvider time,
     RegistryWriteGuard guard,
-    PhotoObjects photoObjects)
+    PhotoObjects photoObjects,
+    IEnumerable<IArquebusierDeletionParticipant> deletionParticipants)
 {
     public const string EntityType = "Arquebusier";
 
@@ -184,8 +186,11 @@ internal sealed class ArquebusierAdministration(
 
     /// <summary>
     /// Deletes an arquebusier who left the Federation, with their owned weapons and photos (UC-05,
-    /// BR-14). The audit entry keeps only the counts of weapons and photos removed, so no personal data
-    /// remains. #10 extends this with the anonymisation of past edition entries.
+    /// BR-14). The audit entry keeps only counts and ids, never personal data. Edition entries are not
+    /// erased here: the deletion participants remove the entry of the edition in progress while its
+    /// orders are open, and every other entry keeps its own copy of the name, national ID and weapon as
+    /// history through the orders' <c>ON DELETE SET NULL</c> keys, until a GDPR erasure request (#15;
+    /// add-comparsa-orders, design D3).
     /// </summary>
     public async Task<(RegistryOutcome Outcome, Arquebusier? Arquebusier)> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
@@ -200,12 +205,21 @@ internal sealed class ArquebusierAdministration(
             }
 
             var arquebusier = await db.Arquebusiers.SingleAsync(a => a.Id == id, cancellationToken);
-            var ownedWeaponCount = await db.OwnedWeapons.CountAsync(w => w.ArquebusierId == id, cancellationToken);
+            var ownedWeaponIds = await db.OwnedWeapons.Where(w => w.ArquebusierId == id).Select(w => w.Id).ToListAsync(cancellationToken);
             var photoKeys = await db.Photos.Where(p => p.ArquebusierId == id).Select(p => p.ObjectKey).ToListAsync(cancellationToken);
 
-            // The owned weapons and the photo references go with the row (ON DELETE CASCADE).
+            // Other modules act inside this transaction, after the row lock and before the removal
+            // (add-comparsa-orders, design D3): orders remove the entry of the edition in progress.
+            var effects = new List<ArquebusierDeletionEffect>();
+            foreach (var participant in deletionParticipants)
+            {
+                effects.Add(await participant.OnDeletingAsync(id, ownedWeaponIds, transaction.GetDbTransaction(), cancellationToken));
+            }
+
+            // The owned weapons and the photo references go with the row (ON DELETE CASCADE); the
+            // orders' links to them are nulled by their ON DELETE SET NULL keys.
             db.Arquebusiers.Remove(arquebusier);
-            Record("ArquebusierDeleted", arquebusier, new { ownedWeaponCount, photoCount = photoKeys.Count });
+            Record("ArquebusierDeleted", arquebusier, DeletionData(ownedWeaponIds.Count, photoKeys.Count, effects));
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             erasedImages = photoKeys;
@@ -215,6 +229,15 @@ internal sealed class ArquebusierAdministration(
         // The images go after the commit (BR-14); a failure is left to the orphan sweep (design D2).
         await photoObjects.DeleteAsync(erasedImages);
         return result;
+    }
+
+    /// <summary>The deletion's audit data: counts, plus the ids of the edition entries removed with it (no personal data).</summary>
+    private static object DeletionData(int ownedWeaponCount, int photoCount, IReadOnlyList<ArquebusierDeletionEffect> effects)
+    {
+        List<Guid> removedEntryIds = [.. effects.SelectMany(e => e.RemovedEntryIds)];
+        return removedEntryIds.Count == 0
+            ? new { ownedWeaponCount, photoCount }
+            : new { ownedWeaponCount, photoCount, removedEntryIds, orderIds = effects.SelectMany(e => e.AffectedOrderIds).Distinct().ToList() };
     }
 
     /// <summary>The names of the fields an edit changes, in a stable order; the values are never recorded (D7).</summary>

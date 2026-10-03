@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Public contract of the comparsa-orders module: the order status and the participation history
+       that the registry and the compliance insights read (change add-comparsa-orders, design D5). -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\PolvorApp.SharedKernel\PolvorApp.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -16,6 +16,10 @@
     <Project Path="src/Modules/AuditPrivacy/PolvorApp.AuditPrivacy.Contracts/PolvorApp.AuditPrivacy.Contracts.csproj" />
     <Project Path="src/Modules/AuditPrivacy/PolvorApp.AuditPrivacy/PolvorApp.AuditPrivacy.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/ComparsaOrders/">
+    <Project Path="src/Modules/ComparsaOrders/PolvorApp.ComparsaOrders.Contracts/PolvorApp.ComparsaOrders.Contracts.csproj" />
+    <Project Path="src/Modules/ComparsaOrders/PolvorApp.ComparsaOrders/PolvorApp.ComparsaOrders.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/ComplianceInsights/">
     <Project Path="src/Modules/ComplianceInsights/PolvorApp.ComplianceInsights.Contracts/PolvorApp.ComplianceInsights.Contracts.csproj" />
     <Project Path="src/Modules/ComplianceInsights/PolvorApp.ComplianceInsights/PolvorApp.ComplianceInsights.csproj" />

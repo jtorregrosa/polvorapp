@@ -28,6 +28,10 @@ internal sealed record WarningCountResponse(ComplianceWarning Code, int Count);
 /// <param name="Course">Training course done and not done, by gender.</param>
 /// <param name="Licenses">Arquebusiers in each license state.</param>
 /// <param name="OwnedWeapons">Arquebusiers with and without an owned weapon, and weapons by kind.</param>
+/// <param name="FirstYear">
+/// Arquebusiers in and not in their first year in the edition in progress, by gender; null when there
+/// is no edition in progress or no earlier edition has orders (add-comparsa-orders).
+/// </param>
 /// <param name="Comparsas">One row per comparsa with arquebusiers, sorted by name; empty with a comparsa filter or a single comparsa in scope.</param>
 internal sealed record ComplianceStatisticsResponse(
     int Total,
@@ -38,6 +42,7 @@ internal sealed record ComplianceStatisticsResponse(
     CourseCounts Course,
     LicenseStateCounts Licenses,
     OwnedWeaponCounts OwnedWeapons,
+    FirstYearCounts? FirstYear,
     IReadOnlyList<ComparsaStatisticsResponse> Comparsas);
 
 /// <summary>Counts by gender.</summary>
@@ -69,6 +74,11 @@ internal sealed record LicenseStateCounts(int Valid, int Expiring, int Expired, 
 /// <param name="WithoutWeapon">Arquebusiers without any, by gender.</param>
 /// <param name="ByKind">Owned weapons of each kind, every kind included.</param>
 internal sealed record OwnedWeaponCounts(GenderCounts WithWeapon, GenderCounts WithoutWeapon, IReadOnlyList<WeaponKindCount> ByKind);
+
+/// <summary>The first year in the edition in progress (UC-07), by gender.</summary>
+/// <param name="FirstYear">Without an <c>ACTIVE</c> entry in an earlier edition.</param>
+/// <param name="NotFirstYear">With one.</param>
+internal sealed record FirstYearCounts(GenderCounts FirstYear, GenderCounts NotFirstYear);
 
 /// <summary>Owned weapons of a kind.</summary>
 /// <param name="Kind">The weapon kind.</param>

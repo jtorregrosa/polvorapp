@@ -22,6 +22,9 @@ internal enum EditionOutcome
     OrdersOpen,
     NotInProgress,
     NotDraft,
+
+    /// <summary>A draft edition that other modules' records reference, e.g. comparsa orders.</summary>
+    InUse,
     TooManyMilestones,
     MilestoneNotFound,
 
@@ -41,6 +44,7 @@ internal static class EditionProblems
     public const string OrdersOpen = "editions.ordersOpen";
     public const string NotInProgress = "editions.notInProgress";
     public const string NotDraft = "editions.notDraft";
+    public const string InUse = "editions.inUse";
     public const string TooManyMilestones = "editions.tooManyMilestones";
     public const string MilestoneNotFound = "editions.milestoneNotFound";
     public const string Busy = "editions.busy";
@@ -66,6 +70,7 @@ internal static class EditionProblems
         EditionOutcome.OrdersOpen => ProblemResults.Conflict(OrdersOpen),
         EditionOutcome.NotInProgress => ProblemResults.Conflict(NotInProgress),
         EditionOutcome.NotDraft => ProblemResults.Conflict(NotDraft),
+        EditionOutcome.InUse => ProblemResults.Conflict(InUse),
         EditionOutcome.TooManyMilestones => ProblemResults.Conflict(TooManyMilestones),
         EditionOutcome.MilestoneNotFound => ProblemResults.NotFound(MilestoneNotFound),
         EditionOutcome.Busy => ProblemResults.Problem(StatusCodes.Status503ServiceUnavailable, Busy),
