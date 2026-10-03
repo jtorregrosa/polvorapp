@@ -38,9 +38,12 @@ export function Button({
   asChild,
   onClick,
   className,
+  'aria-label': ariaLabel,
   ...props
 }: ButtonProps) {
   const { t } = useTranslation('ui');
+  // An aria-label replaces the content, so the pending words must join it to be heard.
+  const label = pending && ariaLabel ? `${ariaLabel}, ${t('button.pending')}` : ariaLabel;
 
   if (asChild) {
     return (
@@ -50,6 +53,7 @@ export function Button({
         asChild
         onClick={onClick}
         className={className}
+        aria-label={ariaLabel}
         {...props}
       >
         {children}
@@ -64,6 +68,7 @@ export function Button({
       disabled={disabled}
       aria-disabled={pending || undefined}
       aria-busy={pending || undefined}
+      aria-label={label}
       className={cn('aria-disabled:cursor-progress aria-disabled:opacity-50', className)}
       onClick={(event) => {
         if (pending) {

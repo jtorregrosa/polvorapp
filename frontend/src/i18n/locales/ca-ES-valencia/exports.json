@@ -1,0 +1,65 @@
+{
+  "page": {
+    "title": "Exportacions de {{year}}",
+    "description": "Els fitxers per al proveïdor de pólvora, l'empresa de lloguer i la Intervenció d'Armes, i la llista de cada comparsa.",
+    "back": "Comandes de {{year}}",
+    "link": "Exportacions",
+    "backToOrders": "Comandes"
+  },
+  "provisional": {
+    "title": "Formats provisionals",
+    "body": "Les plantilles dels destinataris encara no han arribat. Revisa els fitxers abans d'enviar-los: no són definitius."
+  },
+  "missing": {
+    "title": "Comparses sense comanda validada",
+    "body_one": "Esta comparsa no s'inclourà en les exportacions per als destinataris:",
+    "body_other": "Estes {{count}} comparses no s'inclouran en les exportacions per als destinataris:",
+    "item": "{{comparsa}} ({{status}})",
+    "status": {
+      "NOT_PREPARED": "sense preparar",
+      "DRAFT": "en esborrany",
+      "SUBMITTED": "enviada",
+      "RETURNED": "tornada"
+    }
+  },
+  "recipients": {
+    "powder-supplier": {
+      "title": "Proveïdor de pólvora",
+      "description": "Pólvora i caixes de pistons per comparsa i en total. Sense dades personals."
+    },
+    "rental-company": {
+      "title": "Empresa de lloguer",
+      "description": "Qui lloga una arma o una cantimplora: nom, DNI/NIE, comparsa, model i grandària."
+    },
+    "arms-authority": {
+      "title": "Intervenció d'Armes",
+      "description": "Cada arcabusser actiu amb arma: llicència, arma, número, guia de pertinença i cedent."
+    }
+  },
+  "comparsas": {
+    "title": "Llistes de les comparses",
+    "description": "La comanda de cada comparsa. Mentre no està validada, la llista és un esborrany.",
+    "empty": "Cap comparsa no ha preparat encara la seua comanda."
+  },
+  "download": {
+    "excel": "Excel",
+    "pdf": "PDF",
+    "excelFor": "Descarrega {{what}} en Excel",
+    "pdfFor": "Descarrega {{what}} en PDF",
+    "listOf": "la llista de {{comparsa}}",
+    "draftListOf": "la llista de {{comparsa}} (esborrany)",
+    "saved": "Descarregat: {{name}}",
+    "failedTitle": "No s'ha descarregat {{what}}"
+  },
+  "errors": {
+    "notPrepared": "La comparsa no ha preparat la seua comanda.",
+    "tooMany": "Has descarregat massa fitxers seguits. Espera un minut i torna-ho a intentar.",
+    "auditUnavailable": "No s'ha pogut registrar la descàrrega, així que no s'ha generat el fitxer. Torna-ho a intentar d'ací a uns minuts.",
+    "failed": "Torna-ho a intentar."
+  },
+  "order": {
+    "title": "Llista de la comanda",
+    "draft": "És un esborrany: la comanda encara no està validada i pot canviar.",
+    "final": "La comanda està validada per la Unió."
+  }
+}

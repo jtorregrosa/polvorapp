@@ -113,6 +113,24 @@ describe('OrdersOverviewPage (spec: Orders screens, Order totals and dashboard (
     expect(screen.getAllByText('Importe:').length).toBeGreaterThan(0);
   });
 
+  it('links an Admin to the exports of the edition (spec: Exports screens)', async () => {
+    overview(ADMIN_OVERVIEW);
+    await renderApp('/orders', { session: SYNTHETIC_ADMIN });
+
+    expect(await screen.findByRole('link', { name: 'Exportaciones' })).toHaveAttribute(
+      'href',
+      `/editions/${ADMIN_OVERVIEW.edition?.id}/exports`,
+    );
+  });
+
+  it('shows a FiringChief no link to the exports', async () => {
+    overview(CHIEF_OVERVIEW);
+    await renderApp('/orders', { session: SYNTHETIC_FIRING_CHIEF });
+
+    await screen.findByRole('table', { name: 'Pedidos de las comparsas' });
+    expect(screen.queryByRole('link', { name: 'Exportaciones' })).not.toBeInTheDocument();
+  });
+
   it('lists a FiringChief’s comparsas with "Prepare order", without Federation figures', async () => {
     overview(CHIEF_OVERVIEW);
     await renderApp('/orders', { session: SYNTHETIC_FIRING_CHIEF });

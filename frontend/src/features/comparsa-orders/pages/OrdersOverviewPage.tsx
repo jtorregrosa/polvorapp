@@ -203,6 +203,7 @@ function EditionTotals({ totals }: { totals: OrderTotalsResponse }) {
 export function OrdersOverviewPage() {
   const { t } = useTranslation('orders');
   const { t: tBilling } = useTranslation('billing');
+  const { t: tExports } = useTranslation('exports');
   const { editionId } = useParams();
   const session = useSession();
   const isAdmin = session.account?.role === 'ADMIN';
@@ -310,7 +311,18 @@ export function OrdersOverviewPage() {
       <PageHeader
         title={edition ? t('overview.titleYear', { year: edition.year }) : t('overview.title')}
         description={isAdmin ? t('overview.descriptionAdmin') : t('overview.descriptionFiringChief')}
-        actions={edition && <EditionBadges edition={edition} />}
+        actions={
+          edition && (
+            <>
+              <EditionBadges edition={edition} />
+              {isAdmin && (
+                <Button asChild variant="secondary" size="sm">
+                  <Link to={`/editions/${edition.id}/exports`}>{tExports('page.link')}</Link>
+                </Button>
+              )}
+            </>
+          )
+        }
       />
       {failure && failure.editionId === edition?.id && (
         <AlertBanner severity="error" focusOnMount>

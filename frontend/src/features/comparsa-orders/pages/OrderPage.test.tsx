@@ -254,6 +254,40 @@ describe('OrderPage (spec: Orders screens)', () => {
     expect(await within(section).findByRole('cell', { name: /^445,00\s€$/ })).toBeInTheDocument();
   });
 
+  it('offers the order list as a draft while the order is not validated (spec: Exports screens)', async () => {
+    await open();
+
+    const list = screen.getByRole('region', { name: 'Lista del pedido' });
+    expect(list).toHaveTextContent('Es un borrador');
+    expect(
+      within(list).getByRole('button', {
+        name: 'Descargar la lista de Comparsa Sintética Norte (borrador) en Excel',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(list).getByRole('button', {
+        name: 'Descargar la lista de Comparsa Sintética Norte (borrador) en PDF',
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('offers a FiringChief the list of their order but no recipient export', async () => {
+    await open(NORTE_ORDER, SYNTHETIC_FIRING_CHIEF);
+
+    expect(screen.getByRole('region', { name: 'Lista del pedido' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Intervención de Armas/ })).not.toBeInTheDocument();
+  });
+
+  it('offers the final order list once validated', async () => {
+    await open({ ...NORTE_ORDER, status: 'VALIDATED', canEdit: false, readOnlyReason: 'validated' });
+
+    const list = screen.getByRole('region', { name: 'Lista del pedido' });
+    expect(list).toHaveTextContent('El pedido está validado por la Unión.');
+    expect(
+      within(list).getByRole('button', { name: 'Descargar la lista de Comparsa Sintética Norte en Excel' }),
+    ).toBeInTheDocument();
+  });
+
   it('shows the billing of a read-only past order', async () => {
     await open({
       ...NORTE_ORDER,
