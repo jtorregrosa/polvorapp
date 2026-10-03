@@ -196,6 +196,17 @@ test('a FiringChief submits, the Admin returns it, she fixes and resubmits, and 
     await expect(chief.getByText('El pedido está validado: ya no puedes modificarlo.')).toBeVisible();
     await expect(chief.getByRole('button', { name: /^Editar/ })).toHaveCount(0);
     await expect(chief.getByRole('region', { name: 'Resumen de pago' })).toContainText('Definitivo');
+    // The list is final now (add-exports): no longer a draft.
+    const list = chief.getByRole('region', { name: 'Lista del pedido' });
+    await expect(list).toContainText('El pedido está validado por la Unión.');
+    await expect(list).not.toContainText('Es un borrador');
+    const download = chief.waitForEvent('download');
+    await list
+      .getByRole('button', { name: /^Descargar la lista de Comparsa Sintética Norte en Excel/ })
+      .click();
+    expect((await download).suggestedFilename()).toMatch(
+      /^polvorapp-\d{4}-comparsa-list-comparsa-sintetica-norte-provisional\.xlsx$/,
+    );
   } finally {
     await context.close();
   }
