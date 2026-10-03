@@ -143,4 +143,6 @@ export const DETAIL_UNO: ArquebusierResponse = {
   version: 7,
   age: 36,
   warnings: ['ID_PHOTO_MISSING', 'LICENSE_PHOTOS_MISSING'],
+  firstYear: null,
+  deletionImpact: { currentEntry: null, lentWeapons: 0, hasPastEntries: false },
 };

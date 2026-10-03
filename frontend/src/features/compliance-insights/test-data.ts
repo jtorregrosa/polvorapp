@@ -94,6 +94,7 @@ export const STATISTICS: ComplianceStatisticsResponse = {
       { kind: 'PISTOL', count: 1 },
     ],
   },
+  firstYear: { firstYear: genders(2, 1, 0), notFirstYear: genders(5, 3, 1) },
   comparsas: [
     {
       comparsaId: NORTE.id,
@@ -131,5 +132,6 @@ export const STATISTICS_EMPTY: ComplianceStatisticsResponse = {
     withoutWeapon: genders(0, 0, 0),
     byKind: STATISTICS.ownedWeapons.byKind.map((kind) => ({ ...kind, count: 0 })),
   },
+  firstYear: { firstYear: genders(0, 0, 0), notFirstYear: genders(0, 0, 0) },
   comparsas: [],
 };

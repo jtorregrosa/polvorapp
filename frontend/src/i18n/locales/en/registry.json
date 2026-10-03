@@ -211,7 +211,18 @@
     "confirmDescription": "This cannot be undone: their details and owned weapons are erased.",
     "reserveHint": "If they only stop firing, set their record to Reserve instead: their details are kept. If they come back after the record is deleted, it has to be registered again from scratch.",
     "confirm": "Delete",
-    "deleted": "{{name}} has been deleted from the registry."
+    "deleted": "{{name}} has been deleted from the registry.",
+    "currentEntry": "Their entry will be deleted from the {{year}} order of {{comparsa}}, which is {{status}}.",
+    "currentEntryKept": "Their entry in the {{year}} order of {{comparsa}} is kept as history: orders are closed.",
+    "orderStatus": {
+      "DRAFT": "a draft",
+      "SUBMITTED": "submitted",
+      "RETURNED": "returned",
+      "VALIDATED": "validated"
+    },
+    "lentWeapons_one": "{{count}} of their weapons is lent in this edition: the borrower’s order will show it is no longer in the registry.",
+    "lentWeapons_other": "{{count}} of their weapons are lent in this edition: the borrowers’ orders will show they are no longer in the registry.",
+    "historyKept": "Their entries of earlier editions are kept as history."
   },
   "gender": {
     "MALE": "Male",

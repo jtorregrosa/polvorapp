@@ -62,6 +62,27 @@ describe('StatisticsPage (spec: Statistics screen)', () => {
     ]);
   });
 
+  it('shows the first-year arquebusiers by gender, with shares', async () => {
+    statistics();
+    await renderApp('/statistics', { session: SYNTHETIC_ADMIN });
+
+    const table = await screen.findByRole('table', { name: 'Primer año por género' });
+    expect(rowTexts(table, 'En su primer año')).toEqual(['1', '2', '0', '3', '25 %']);
+    expect(rowTexts(table, 'No es su primer año')).toEqual(['3', '5', '1', '9', '75 %']);
+  });
+
+  it('says the first-year figures come once an earlier edition has orders, instead of zeros', async () => {
+    statistics(() => HttpResponse.json({ ...STATISTICS, firstYear: null }));
+    await renderApp('/statistics', { session: SYNTHETIC_ADMIN });
+
+    expect(
+      await screen.findByText(
+        'Las cifras de primer año estarán disponibles cuando una edición anterior tenga pedidos.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('table', { name: 'Primer año por género' })).not.toBeInTheDocument();
+  });
+
   it('keeps the comparsa and status filters in the address and asks the API for them', async () => {
     const user = userEvent.setup();
     const queries = statistics();

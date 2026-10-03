@@ -211,7 +211,18 @@
     "confirmDescription": "No se puede deshacer: se borran sus datos y sus armas propias.",
     "reserveHint": "Si solo deja de disparar, pasa su ficha a Reserva: así se conservan sus datos. Si vuelve más adelante después de eliminarla, habrá que registrarla de nuevo desde cero.",
     "confirm": "Eliminar",
-    "deleted": "{{name}} se ha eliminado del registro."
+    "deleted": "{{name}} se ha eliminado del registro.",
+    "currentEntry": "Su línea se eliminará del pedido de {{year}} de {{comparsa}}, que está {{status}}.",
+    "currentEntryKept": "Su línea del pedido de {{year}} de {{comparsa}} se conserva como histórico: los pedidos están cerrados.",
+    "orderStatus": {
+      "DRAFT": "en borrador",
+      "SUBMITTED": "enviado",
+      "RETURNED": "devuelto",
+      "VALIDATED": "validado"
+    },
+    "lentWeapons_one": "{{count}} arma suya está cedida en esta edición: el pedido de quien la lleva mostrará que el arma ya no está en el registro.",
+    "lentWeapons_other": "{{count}} armas suyas están cedidas en esta edición: los pedidos de quienes las llevan mostrarán que las armas ya no están en el registro.",
+    "historyKept": "Sus líneas de ediciones anteriores se conservan como histórico."
   },
   "gender": {
     "MALE": "Hombre",

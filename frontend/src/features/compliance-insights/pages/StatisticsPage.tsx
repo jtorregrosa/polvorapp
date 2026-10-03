@@ -88,6 +88,31 @@ function Report({ statistics }: { statistics: ComplianceStatisticsResponse }) {
           showRowTotal
         />
       </SectionCard>
+      <SectionCard title={t('statistics.firstYear.title')}>
+        {statistics.firstYear ? (
+          <Breakdown
+            title={t('statistics.firstYear.table')}
+            categoryLabel={t('statistics.firstYear.category')}
+            columns={genderColumns}
+            rows={[
+              {
+                id: 'firstYear',
+                label: t('statistics.firstYear.firstYear'),
+                counts: countsOf(statistics.firstYear.firstYear),
+              },
+              {
+                id: 'notFirstYear',
+                label: t('statistics.firstYear.notFirstYear'),
+                counts: countsOf(statistics.firstYear.notFirstYear),
+              },
+            ]}
+            total={total}
+            showRowTotal
+          />
+        ) : (
+          <p className="text-body text-muted-foreground">{t('statistics.firstYear.unknown')}</p>
+        )}
+      </SectionCard>
       <SectionCard title={t('statistics.licenses.title')}>
         <Breakdown
           title={t('statistics.licenses.table')}
