@@ -1,0 +1,18 @@
+--- page 1 (landscape) ---
+Order of Comparsa Sintética Norte · Festival 2031
+DRAFT: the order is submitted and not validated yet; it may change.
+PROVISIONAL: format pending the recipient's template. Do not send it as final.
+Definition comparsa-list, version provisional-1
+Surnames and name DNI/NIE Federation Status Powder (kg) Caps boxes Caps type Weapon Flask
+ID
+Sintética Uno, Arcabucera 00000001R 100001 Active 2 3 Normal Owned: TRABUCO 2 kg
+CRISTIANO DIESTRO 8-21
+Sintético Cuatro, 00000004X 100004 Reserve 0 0 No weapon No flask
+Arcabucero
+Sintético Dos, Arcabucero 00000002X 100002 Active 1 1 Small Rental: ARCABUZ MORO 1 kg
+DIESTRO
+Sintético Tres, Arcabucero 00000003X 100003 Active 2 0 Loan: ARCABUZ MORO No flask
+DIESTRO 3-25, lent by
+Externo Sintético, Presta
+Total 5 4
+15/02/2031 · 1 / 1

@@ -41,20 +41,27 @@ public sealed partial class ComparsaScopeGuardTests(PostgresFixture postgres, Ma
             Assert.Equal(HttpStatusCode.OK, logo.StatusCode);
         }
 
+        // The comparsa list export (add-exports) reads the comparsa's order of an edition in progress.
+        var edition = OrderData.NewEdition(2031, FestivalEditions.Contracts.EditionStatus.InProgress);
+        await host.Services.SaveEditionsAsync(edition);
+        await host.Services.SaveOrdersAsync(OrderData.NewOrder(edition, own.Id));
+        var values = new RouteValues(own.Id, owner.Id, edition.Id);
+
         var routes = ComparsaRoutes(host.Services.GetRequiredService<EndpointDataSource>());
 
         Assert.Contains(new GuardedRoute("GET", "/api/comparsas/{id:guid}", AdminOnly: false), routes);
         Assert.Contains(new GuardedRoute("PUT", "/api/comparsas/{id:guid}/firing-chiefs/{userId:guid}", AdminOnly: true), routes);
         Assert.Contains(new GuardedRoute("GET", "/api/comparsas/{id:guid}/logo", AdminOnly: false), routes);
         Assert.Contains(new GuardedRoute("PUT", "/api/comparsas/{id:guid}/logo", AdminOnly: true) { Multipart = true }, routes);
+        Assert.Contains(new GuardedRoute("GET", "/api/exports/editions/{editionId:guid}/comparsas/{comparsaId:guid}/{format}", AdminOnly: false), routes);
         foreach (var route in routes)
         {
-            var refused = await StatusAsync(outsiderClient, route, own.Id, owner.Id);
+            var refused = await StatusAsync(outsiderClient, route, values);
             Assert.True(refused is HttpStatusCode.Forbidden or HttpStatusCode.NotFound, $"{route} answered {(int)refused} to a FiringChief of another comparsa.");
 
             // Positive control. A route that validates a body before the scope may answer 400 here:
             // the guard then fails, erring on the safe side, until it is taught a valid body.
-            var reached = await StatusAsync(ownerClient, route, own.Id, owner.Id);
+            var reached = await StatusAsync(ownerClient, route, values);
             Assert.True(route.AdminOnly ? reached == HttpStatusCode.Forbidden : (int)reached is >= 200 and < 300, $"{route} answered {(int)reached} to its own FiringChief.");
         }
     }
@@ -76,7 +83,7 @@ public sealed partial class ComparsaScopeGuardTests(PostgresFixture postgres, Ma
     [Fact]
     public void The_guard_refuses_to_guess_an_unknown_route_parameter()
     {
-        var error = Assert.Throws<InvalidOperationException>(() => PathOf(new GuardedRoute("GET", "/api/comparsas/{id}/members/{memberId}", false), Guid.Empty, Guid.Empty));
+        var error = Assert.Throws<InvalidOperationException>(() => PathOf(new GuardedRoute("GET", "/api/comparsas/{id}/members/{memberId}", false), new RouteValues(Guid.Empty, Guid.Empty, Guid.Empty)));
 
         Assert.Contains("memberId", error.Message, StringComparison.Ordinal);
     }
@@ -94,17 +101,19 @@ public sealed partial class ComparsaScopeGuardTests(PostgresFixture postgres, Ma
             }))
             .Distinct()];
 
-    private static string PathOf(GuardedRoute route, Guid comparsaId, Guid userId) =>
+    private static string PathOf(GuardedRoute route, RouteValues values) =>
         RouteParameter().Replace(route.Template, match => match.Groups["name"].Value switch
         {
-            "id" or "comparsaId" => comparsaId.ToString(),
-            "userId" => userId.ToString(),
+            "id" or "comparsaId" => values.ComparsaId.ToString(),
+            "userId" => values.UserId.ToString(),
+            "editionId" => values.EditionId.ToString(),
+            "format" => "xlsx",
             var other => throw new InvalidOperationException($"Teach the guard a value for route parameter '{other}' in {route.Template}."),
         });
 
-    private static async Task<HttpStatusCode> StatusAsync(HttpClient client, GuardedRoute route, Guid comparsaId, Guid userId)
+    private static async Task<HttpStatusCode> StatusAsync(HttpClient client, GuardedRoute route, RouteValues values)
     {
-        using var request = new HttpRequestMessage(new HttpMethod(route.Method), PathOf(route, comparsaId, userId));
+        using var request = new HttpRequestMessage(new HttpMethod(route.Method), PathOf(route, values));
         if (route.Multipart)
         {
             request.Content = new MultipartFormDataContent { { new ByteArrayContent(TestImages.Png(800, 400)), "file", "image.png" } };
@@ -133,6 +142,9 @@ public sealed partial class ComparsaScopeGuardTests(PostgresFixture postgres, Ma
 
     [GeneratedRegex(@"\{(?<name>\w+)(:[^}]*)?\}")]
     private static partial Regex RouteParameter();
+
+    /// <summary>The values the guard puts in the route parameters it knows.</summary>
+    private sealed record RouteValues(Guid ComparsaId, Guid UserId, Guid EditionId);
 
     /// <summary>A route to probe; <see cref="Multipart"/> routes are sent an image upload instead of JSON.</summary>
     private sealed record GuardedRoute(string Method, string Template, bool AdminOnly)

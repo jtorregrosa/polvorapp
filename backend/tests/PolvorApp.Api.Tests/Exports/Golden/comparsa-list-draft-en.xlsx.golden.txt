@@ -1,0 +1,54 @@
+sheet: PolvorApp
+A1: Text bold Order of Comparsa Sintética Norte · Festival 2031
+A2: Text bold DRAFT: the order is submitted and not validated yet; it may change.
+A3: Text bold PROVISIONAL: format pending the recipient's template. Do not send it as final.
+A4: Text Definition comparsa-list, version provisional-1
+A6: Text bold Surnames and name
+B6: Text bold DNI/NIE
+C6: Text bold Federation ID
+D6: Text bold Status
+E6: Text bold Powder (kg)
+F6: Text bold Caps boxes
+G6: Text bold Caps type
+H6: Text bold Weapon
+I6: Text bold Flask
+A7: Text Sintética Uno, Arcabucera
+B7: Text 00000001R
+C7: Number [0] 100001
+D7: Text Active
+E7: Number [0] 2
+F7: Number [0] 3
+G7: Text Normal
+H7: Text Owned: TRABUCO CRISTIANO DIESTRO 8-21
+I7: Text 2 kg
+A8: Text Sintético Cuatro, Arcabucero
+B8: Text 00000004X
+C8: Number [0] 100004
+D8: Text Reserve
+E8: Number [0] 0
+F8: Number [0] 0
+H8: Text No weapon
+I8: Text No flask
+A9: Text Sintético Dos, Arcabucero
+B9: Text 00000002X
+C9: Number [0] 100002
+D9: Text Active
+E9: Number [0] 1
+F9: Number [0] 1
+G9: Text Small
+H9: Text Rental: ARCABUZ MORO DIESTRO
+I9: Text 1 kg
+A10: Text Sintético Tres, Arcabucero
+B10: Text 00000003X
+C10: Number [0] 100003
+D10: Text Active
+E10: Number [0] 2
+F10: Number [0] 0
+H10: Text Loan: ARCABUZ MORO DIESTRO 3-25, lent by Externo Sintético, Presta
+I10: Text No flask
+A11: Text bold Total
+E11: Number [0] bold 5
+F11: Number [0] bold 4
+merged: A2:I2, A3:I3
+frozen rows: 6
+auto-filter: A6:I10

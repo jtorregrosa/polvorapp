@@ -29,6 +29,7 @@
     <ProjectReference Include="..\Modules\Billing\PolvorApp.Billing\PolvorApp.Billing.csproj" />
     <ProjectReference Include="..\Modules\ComparsaOrders\PolvorApp.ComparsaOrders\PolvorApp.ComparsaOrders.csproj" />
     <ProjectReference Include="..\Modules\ComplianceInsights\PolvorApp.ComplianceInsights\PolvorApp.ComplianceInsights.csproj" />
+    <ProjectReference Include="..\Modules\Exports\PolvorApp.Exports\PolvorApp.Exports.csproj" />
     <ProjectReference Include="..\Modules\FederationCatalog\PolvorApp.FederationCatalog\PolvorApp.FederationCatalog.csproj" />
     <ProjectReference Include="..\Modules\FestivalEditions\PolvorApp.FestivalEditions\PolvorApp.FestivalEditions.csproj" />
     <ProjectReference Include="..\Modules\IdentityAccess\PolvorApp.IdentityAccess\PolvorApp.IdentityAccess.csproj" />
