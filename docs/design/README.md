@@ -73,6 +73,7 @@ theme). Every composite has stories there.
 | `LinkCard`               | A shortcut to a section, e.g. on the start page                                                                                                                                                                                                         |
 | `StatCard`               | A key figure on a dashboard, optionally a link: then the whole card shows the focus ring and a chevron marks it as a link                                                                                                                               |
 | `Breakdown`              | Counts with each row's share as text and a bar that repeats it visually (hidden from assistive technology) for dashboards and statistics; several count columns (e.g. by gender) and a row total; its table scrolls in its own focusable region                                              |
+| `AmountTable`            | Money lines (concept, quantity, unit price, amount) with the total as the table footer, for the billing summary; values come formatted; a missing price shows a dash and "No price" for screen readers; below `sm` quantity and price move under the concept so the table keeps two columns |
 | `ComparsaLogo`           | A comparsa's logo, or a flag placeholder, on the light `logo-tile` in both themes (`sm` 32 px rows, `md` 40 px sidebar, `lg` 64 px record header); decorative by default because the name is beside it; a logo that fails to load shows the placeholder |
 
 **Detail pages**

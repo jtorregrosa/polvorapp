@@ -119,7 +119,20 @@ Federation labels such as "ARCABUZ CRISTIANO" do not follow Q-07 strictly; Q-53)
 
 **RegistrySettings** — a single row holding the registry lock state (`locked` boolean, `lockedChangedAt` timestamptz). When locked, FiringChief writes to the registry are refused (`409 registry.locked`); Admins keep writing. The lock is independent of editions and is toggled by Admins.
 
-**ComparsaOrder** (change `add-comparsa-orders`) — `edition` (with its `year` copied), `comparsa`, `status` (`DRAFT` | `SUBMITTED` | `RETURNED` | `VALIDATED`), `preparedAt`/`preparedBy`, `submittedAt`/`submittedBy`, `attested` (a FiringChief confirms their arquebusiers meet the requirements) or `submittedByAdmin` (an Admin submitted it on the comparsa's behalf, without attestation), `reviewedAt`/`reviewedBy`, `returnReason` (1–500 characters, while returned). At most one per comparsa and edition (blocking). A comparsa without an order is "not prepared" (not stored). Orders are never deleted. Billing summary derived from entries × `EditionPrices` (#11).
+**ComparsaOrder** (change `add-comparsa-orders`) — `edition` (with its `year` copied), `comparsa`, `status` (`DRAFT` | `SUBMITTED` | `RETURNED` | `VALIDATED`), `preparedAt`/`preparedBy`, `submittedAt`/`submittedBy`, `attested` (a FiringChief confirms their arquebusiers meet the requirements) or `submittedByAdmin` (an Admin submitted it on the comparsa's behalf, without attestation), `reviewedAt`/`reviewedBy`, `returnReason` (1–500 characters, while returned). At most one per comparsa and edition (blocking). A comparsa without an order is "not prepared" (not stored). Orders are never deleted.
+
+**BillingSummary** (change `add-billing-summary`, UC-28; derived, never stored) — what a comparsa owes
+the Federation for its order: four lines, each `quantity × unit price = amount`, and their total.
+Powder is the entries' `powderKg` at `powderPerKg`; caps are the boxes of both types at `capsBox`;
+weapon rentals are the `RENTAL` entries of any model at `weaponRental`; flask rentals are the 1 kg
+and 2 kg rented flasks at `flaskRental`. Owned weapons, loans, owned flasks and `RESERVE` entries
+are never charged. It always uses the order's current entries and the edition's current prices,
+so a price change moves every summary of the edition. It is **provisional** until the order is
+`VALIDATED` and **final** while it is. A line whose price is not set (only in an edition moved
+back to draft) has no amount, and the summary then has no total and names the missing prices.
+Admins also see the edition billing: the prepared orders' quantities summed and priced once, final
+only when there is at least one prepared order and every one is validated. Payments are out of
+scope.
 
 **EditionEntry** (one per arquebusier per edition, at most one, created when the order is prepared or the arquebusier is added)
 | Field | Values |
