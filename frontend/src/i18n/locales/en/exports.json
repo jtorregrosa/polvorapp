@@ -1,0 +1,65 @@
+{
+  "page": {
+    "title": "Exports of {{year}}",
+    "description": "The files for the powder supplier, the rental company and the Arms Authority, and each comparsa's list.",
+    "back": "Orders of {{year}}",
+    "link": "Exports",
+    "backToOrders": "Orders"
+  },
+  "provisional": {
+    "title": "Provisional formats",
+    "body": "The recipients' templates have not arrived yet. Check the files before sending them: they are not final."
+  },
+  "missing": {
+    "title": "Comparsas without a validated order",
+    "body_one": "This comparsa will not be in the exports for the recipients:",
+    "body_other": "These {{count}} comparsas will not be in the exports for the recipients:",
+    "item": "{{comparsa}} ({{status}})",
+    "status": {
+      "NOT_PREPARED": "not prepared",
+      "DRAFT": "draft",
+      "SUBMITTED": "submitted",
+      "RETURNED": "returned"
+    }
+  },
+  "recipients": {
+    "powder-supplier": {
+      "title": "Powder supplier",
+      "description": "Powder and caps boxes per comparsa and in total. No personal data."
+    },
+    "rental-company": {
+      "title": "Rental company",
+      "description": "Who rents a weapon or a flask: name, DNI/NIE, comparsa, model and size."
+    },
+    "arms-authority": {
+      "title": "Arms Authority",
+      "description": "Each active arquebusier with a weapon: licence, weapon, number, ownership guide and lender."
+    }
+  },
+  "comparsas": {
+    "title": "Comparsa lists",
+    "description": "Each comparsa's order. Until it is validated, the list is a draft.",
+    "empty": "No comparsa has prepared its order yet."
+  },
+  "download": {
+    "excel": "Excel",
+    "pdf": "PDF",
+    "excelFor": "Download {{what}} as Excel",
+    "pdfFor": "Download {{what}} as PDF",
+    "listOf": "the list of {{comparsa}}",
+    "draftListOf": "the list of {{comparsa}} (draft)",
+    "saved": "Downloaded: {{name}}",
+    "failedTitle": "{{what}} was not downloaded"
+  },
+  "errors": {
+    "notPrepared": "The comparsa has not prepared its order.",
+    "tooMany": "You have downloaded too many files in a row. Wait a minute and try again.",
+    "auditUnavailable": "The download could not be recorded, so the file was not generated. Try again in a few minutes.",
+    "failed": "Try again."
+  },
+  "order": {
+    "title": "Order list",
+    "draft": "It is a draft: the order is not validated yet and may change.",
+    "final": "The order is validated by the Federation."
+  }
+}

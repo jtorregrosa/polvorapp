@@ -1,0 +1,65 @@
+{
+  "page": {
+    "title": "Exportaciones de {{year}}",
+    "description": "Los ficheros para el proveedor de pólvora, la empresa de alquiler y la Intervención de Armas, y la lista de cada comparsa.",
+    "back": "Pedidos de {{year}}",
+    "link": "Exportaciones",
+    "backToOrders": "Pedidos"
+  },
+  "provisional": {
+    "title": "Formatos provisionales",
+    "body": "Las plantillas de los destinatarios aún no han llegado. Revisa los ficheros antes de enviarlos: no son definitivos."
+  },
+  "missing": {
+    "title": "Comparsas sin pedido validado",
+    "body_one": "Esta comparsa no se incluirá en las exportaciones para los destinatarios:",
+    "body_other": "Estas {{count}} comparsas no se incluirán en las exportaciones para los destinatarios:",
+    "item": "{{comparsa}} ({{status}})",
+    "status": {
+      "NOT_PREPARED": "sin preparar",
+      "DRAFT": "en borrador",
+      "SUBMITTED": "enviado",
+      "RETURNED": "devuelto"
+    }
+  },
+  "recipients": {
+    "powder-supplier": {
+      "title": "Proveedor de pólvora",
+      "description": "Pólvora y cajas de pistones por comparsa y en total. Sin datos personales."
+    },
+    "rental-company": {
+      "title": "Empresa de alquiler",
+      "description": "Quién alquila un arma o una cantimplora: nombre, DNI/NIE, comparsa, modelo y tamaño."
+    },
+    "arms-authority": {
+      "title": "Intervención de Armas",
+      "description": "Cada arcabucero activo con arma: licencia, arma, número, guía de pertenencia y cedente."
+    }
+  },
+  "comparsas": {
+    "title": "Listas de las comparsas",
+    "description": "El pedido de cada comparsa. Mientras no está validado, la lista es un borrador.",
+    "empty": "Ninguna comparsa ha preparado su pedido todavía."
+  },
+  "download": {
+    "excel": "Excel",
+    "pdf": "PDF",
+    "excelFor": "Descargar {{what}} en Excel",
+    "pdfFor": "Descargar {{what}} en PDF",
+    "listOf": "la lista de {{comparsa}}",
+    "draftListOf": "la lista de {{comparsa}} (borrador)",
+    "saved": "Descargado: {{name}}",
+    "failedTitle": "No se ha descargado {{what}}"
+  },
+  "errors": {
+    "notPrepared": "La comparsa no ha preparado su pedido.",
+    "tooMany": "Has descargado demasiados ficheros seguidos. Espera un minuto y vuelve a intentarlo.",
+    "auditUnavailable": "No se ha podido registrar la descarga, así que no se ha generado el fichero. Inténtalo de nuevo en unos minutos.",
+    "failed": "Inténtalo de nuevo."
+  },
+  "order": {
+    "title": "Lista del pedido",
+    "draft": "Es un borrador: el pedido aún no está validado y puede cambiar.",
+    "final": "El pedido está validado por la Unión."
+  }
+}

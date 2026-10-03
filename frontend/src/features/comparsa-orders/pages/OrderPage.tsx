@@ -4,6 +4,7 @@ import { Fragment, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 import { useGetComparsa } from '@/api/generated/comparsas/comparsas';
+import { getDownloadComparsaListUrl } from '@/api/generated/exports/exports';
 import { useAddEditionEntry, useGetComparsaOrder } from '@/api/generated/comparsa-orders/comparsa-orders';
 import type { ComparsaResponse, EntryResponse, OrderResponse } from '@/api/generated/model';
 import { ApiProblemError } from '@/api/http';
@@ -17,6 +18,7 @@ import { RecordHeader } from '@/components/app/RecordHeader';
 import { SectionCard } from '@/components/app/SectionCard';
 import { StatusBadge } from '@/components/app/StatusBadge';
 import { BillingSummarySection } from '@/features/billing/components/BillingSummarySection';
+import { DownloadButtons } from '@/features/exports/components/DownloadButtons';
 import { LoadFailure } from '@/features/arquebusier-registry/components/LoadFailure';
 import { useSession } from '@/features/identity-access/session';
 import { logoUrl } from '@/features/federation-catalog/logos';
@@ -31,6 +33,26 @@ import { needsReload, problemCode, problemMessage } from '../problems';
 import { orderChanged, reloadOrder } from '../queries';
 
 const ENTRIES_ID = 'entries';
+
+/**
+ * The order's list as Excel and PDF (spec: Exports screens), for every user who sees the order: a
+ * draft until the Federation validates it.
+ */
+function OrderList({ order }: { order: OrderResponse }) {
+  const { t } = useTranslation('exports');
+  const draft = order.status !== 'VALIDATED';
+  return (
+    <SectionCard title={t('order.title')} description={t(draft ? 'order.draft' : 'order.final')} span="full">
+      <DownloadButtons
+        what={t(draft ? 'download.draftListOf' : 'download.listOf', { comparsa: order.comparsa.name })}
+        urls={{
+          xlsx: getDownloadComparsaListUrl(order.edition.id, order.comparsa.id, 'xlsx'),
+          pdf: getDownloadComparsaListUrl(order.edition.id, order.comparsa.id, 'pdf'),
+        }}
+      />
+    </SectionCard>
+  );
+}
 
 /** The order's totals at a glance (UC-16). */
 function OrderTotals({ order }: { order: OrderResponse }) {
@@ -319,6 +341,7 @@ export function OrderPage() {
       <OrderMessages order={order} />
       <OrderTotals order={order} />
       <BillingSummarySection billing={order.billing} />
+      <OrderList order={order} />
       <section
         id={ENTRIES_ID}
         aria-labelledby={`${ENTRIES_ID}-title`}

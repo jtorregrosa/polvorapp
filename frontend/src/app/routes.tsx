@@ -28,6 +28,7 @@ import { DashboardPage } from '@/features/compliance-insights/pages/DashboardPag
 import { EditionCreatePage } from '@/features/festival-editions/pages/EditionCreatePage';
 import { EditionDetailPage } from '@/features/festival-editions/pages/EditionDetailPage';
 import { EditionsPage } from '@/features/festival-editions/pages/EditionsPage';
+import { ExportsPage } from '@/features/exports/pages/ExportsPage';
 import { OrderPage } from '@/features/comparsa-orders/pages/OrderPage';
 import { OrdersOverviewPage } from '@/features/comparsa-orders/pages/OrdersOverviewPage';
 import { StatisticsPage } from '@/features/compliance-insights/pages/StatisticsPage';
@@ -148,6 +149,11 @@ export const appRoutes: RouteObject[] = [
                     path: 'arquebusiers/import',
                     Component: ArquebusierImportPage,
                     handle: { breadcrumb: 'nav.arquebusiers' } satisfies RouteHandle,
+                  },
+                  {
+                    path: 'editions/:editionId/exports',
+                    Component: ExportsPage,
+                    handle: { breadcrumb: 'nav.orders' } satisfies RouteHandle,
                   },
                   {
                     path: 'editions/new',
