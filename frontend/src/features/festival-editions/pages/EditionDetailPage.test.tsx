@@ -437,6 +437,84 @@ describe('EditionActions (spec: Editions screens, design D10)', () => {
     expect(await moreAction(user, 'Volver a preparación')).not.toHaveAttribute('aria-disabled');
   });
 
+  it.each([
+    ['Cerrar edición', '¿Cerrar la edición 2031?', 'CLOSED', 'Edición 2031 cerrada.'],
+    [
+      'Volver a preparación',
+      '¿Volver a preparar la edición 2031?',
+      'DRAFT',
+      'Edición 2031 de nuevo en preparación.',
+    ],
+  ])(
+    'moves the current edition with "%s" after confirming, with its version',
+    async (action, title, status, done) => {
+      const user = userEvent.setup();
+      const closedOrders = { ...CURRENT_2031, ordersOpen: false };
+      const details = editionDetails(closedOrders);
+      const { bodies, resolver } = recordBodies(() => {
+        details.set({ status: status as EditionResponse['status'], version: closedOrders.version + 1 });
+        return HttpResponse.json({ ...closedOrders, status });
+      });
+      server.use(mock.post(`/api/editions/${CURRENT_2031.id}/status`, resolver));
+      await asAdmin(closedOrders);
+
+      await user.click(await moreAction(user, action));
+      const dialog = await screen.findByRole('alertdialog', { name: title });
+      await user.click(within(dialog).getByRole('button', { name: action }));
+
+      await expectSaved(done);
+      expect(bodies).toEqual([{ status, version: closedOrders.version }]);
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Más acciones' })).toHaveFocus();
+      });
+    },
+  );
+
+  it('deletes a draft after confirming and returns to the list', async () => {
+    const user = userEvent.setup();
+    editionDetails(DRAFT_2032);
+    let deletions = 0;
+    server.use(
+      mock.delete(`/api/editions/${DRAFT_2032.id}`, () => {
+        deletions += 1;
+        return new HttpResponse(null, { status: 204 });
+      }),
+      mock.get('/api/editions', () => HttpResponse.json([CURRENT_2031, CLOSED_2030])),
+    );
+    const app = await asAdmin(DRAFT_2032);
+
+    await user.click(await moreAction(user, 'Eliminar edición'));
+    const dialog = await screen.findByRole('alertdialog', { name: '¿Eliminar la edición 2032?' });
+    expect(dialog).toHaveTextContent('No se puede deshacer');
+    await user.click(within(dialog).getByRole('button', { name: 'Eliminar edición' }));
+
+    await waitFor(() => {
+      expect(app.location()).toBe('/editions');
+    });
+    expect(await screen.findByText('Edición 2032 eliminada.')).toBeInTheDocument();
+    expect(deletions).toBe(1);
+  });
+
+  it('says so and reloads when the edition changed before the orders move', async () => {
+    const user = userEvent.setup();
+    const details = editionDetails(CURRENT_2031);
+    server.use(
+      mock.post(`/api/editions/${CURRENT_2031.id}/orders`, () => {
+        details.set({ ordersOpen: false, version: CURRENT_2031.version + 1 });
+        return problem(409, 'editions.modified');
+      }),
+    );
+    await asAdmin(CURRENT_2031);
+
+    await user.click(await screen.findByRole('button', { name: 'Cerrar pedidos' }));
+    const dialog = await screen.findByRole('alertdialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Cerrar pedidos' }));
+
+    expect(await within(dialog).findByText(/Otra persona ha cambiado la edición/)).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    expect(await screen.findByRole('button', { name: 'Abrir pedidos' })).toBeInTheDocument();
+  });
+
   it('reopens a closed edition from "More actions"', async () => {
     const user = userEvent.setup();
     editionDetails(CLOSED_2030);
