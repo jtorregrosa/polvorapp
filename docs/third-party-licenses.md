@@ -12,8 +12,9 @@ PostgreSQL License. Transitive dependencies are covered by CI dependency review.
 
 | Component | License | Used for | Assessment |
 |---|---|---|---|
-| QuestPDF (planned, #12/#13) | [QuestPDF Community License v3.0](https://www.questpdf.com/license/community.html) (effective 2026-07-06) | Server-side PDF generation (ADR-0008) | **Acceptable.** Free for "charitable organisations, academic institutions, and open-source projects" and for businesses under USD 1,000,000 annual gross revenue. The Federation is a private non-profit association well under the threshold, and PolvorApp is open source. Not eligible: public-sector entities and publicly traded companies — a deployment operated by a public body (e.g. a town council) would need a paid license. Re-check on every major QuestPDF upgrade. Checked 2026-09-30. |
+| QuestPDF 2026.9.1 (in use since #12, `add-exports`) | [QuestPDF Community License v3.0](https://www.questpdf.com/license/community.html) (effective 2026-07-06) | Server-side PDF generation (ADR-0008) | **Acceptable.** Free for "charitable organisations, academic institutions, and open-source projects" and for businesses under USD 1,000,000 annual gross revenue. The Federation is a private non-profit association well under the threshold, and PolvorApp is open source. Not eligible: public-sector entities and publicly traded companies — a deployment operated by a public body (e.g. a town council) would need a paid license. Re-check on every major QuestPDF upgrade. Checked 2026-09-30; still the Community License v3.0 on 2026-10-03. The code sets `Settings.License = LicenseType.Community` (`PolvorApp.Exports/Writers/PdfSetup.cs`). |
 | Bricolage Grotesque, Geist and Geist Mono fonts via `@fontsource-variable/bricolage-grotesque`, `@fontsource-variable/geist` and `@fontsource-variable/geist-mono` | [SIL Open Font License 1.1](https://openfontlicense.org/open-font-license-official-text/) | Display, UI and identifier typefaces, self-hosted (redesign-design-system, ADR-0013; they replace Inter) | **Acceptable.** OFL allows use, embedding and redistribution in software, including commercial; the fonts may not be sold on their own. Redistributed copies must carry the copyright notice and licence text, so the build ships them at `/licenses/bricolage-grotesque-OFL.txt`, `/licenses/geist-OFL.txt` and `/licenses/geist-mono-OFL.txt` (`frontend/public/licenses/`). Shipped unmodified. Checked 2026-10-01. |
+| Geist (`Geist-Regular.ttf`, `Geist-Bold.ttf`) from the `geist` npm package 1.7.2, embedded in the backend | [SIL Open Font License 1.1](https://openfontlicense.org/open-font-license-official-text/) | The PDF exports' font (`add-exports`, design D4): the runtime image has no system fonts | **Acceptable.** Same license as the frontend's Geist. Embedded unmodified as resources of `PolvorApp.Exports`, with the copyright notice and license text next to them (`Fonts/Geist-OFL.txt`, copied to the build output). Checked 2026-10-03. |
 | MinIO via `cgr.dev/chainguard/minio` | [AGPL-3.0](https://github.com/minio/minio/blob/master/LICENSE) | Local development S3 emulator only (ADR-0005/0006) | **Acceptable.** Runs unmodified as a separate container in local/CI environments; not distributed with PolvorApp nor linked into it. Production uses any S3-compatible provider. Checked 2026-09-30. |
 
 ## Data files
@@ -49,11 +50,13 @@ PostgreSQL License. Transitive dependencies are covered by CI dependency review.
 | `AWSSDK.S3` | Apache-2.0 | runtime (object storage, ADR-0005) |
 | `Npgsql` | PostgreSQL | runtime |
 | `Npgsql.EntityFrameworkCore.PostgreSQL` | PostgreSQL | runtime |
+| `QuestPDF` | QuestPDF Community License v3.0 (see above) | runtime (PDF exports, ADR-0008) |
 | `SkiaSharp`, `SkiaSharp.NativeAssets.Linux.NoDependencies` | MIT (bundled native Skia: BSD-3-Clause; FreeType: FreeType License) | runtime (photo processing, ADR-0005) |
 | `dotnet-ef` (local tool) | MIT | build |
 | `coverlet.MTP` | MIT | test |
 | `Microsoft.AspNetCore.Mvc.Testing` | MIT | test |
 | `Microsoft.Extensions.TimeProvider.Testing` | MIT | test |
+| `PdfPig` | Apache-2.0 | test (reads the PDF exports' text for the golden-file tests) |
 | `Testcontainers.Minio` | MIT | test |
 | `Testcontainers.PostgreSql` | MIT | test |
 | `xunit.v3` | Apache-2.0 | test |

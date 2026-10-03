@@ -124,6 +124,12 @@
   prices, never frozen; they are provisional until the order is validated. The summary is shown on
   the order page and in the orders overview (each comparsa's amount, and for Admins the edition
   billing). There is no download: exports come with UC-17.
+- **UC-17 (exports)**, change `add-exports` (maintainer decisions): Admins download the powder
+  supplier, rental company and Arms Authority files of an edition, as Excel and PDF, from the
+  `VALIDATED` orders only; the exports page warns which comparsas are not validated yet, without
+  blocking. Each comparsa's list is available to Admins and its FiringChiefs for an order in any
+  status, as a draft until the order is validated. The layouts are provisional until the
+  recipients' templates arrive (Q-44). Sending the files is up to the Federation.
 - On distribution day the **FiringChief validates the identity** of their arquebusiers; nobody signs.
   The only paper document is the proxy authorisation (UC-19), for the exceptional case.
 - Today the Federation records flask assignments with a laptop and a spreadsheet; UC-20 printable
