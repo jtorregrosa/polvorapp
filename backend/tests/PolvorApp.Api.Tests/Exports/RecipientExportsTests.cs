@@ -1,5 +1,6 @@
 using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ComparsaOrders.Contracts;
+using PolvorApp.Exports.Contracts;
 using PolvorApp.Exports.Definitions;
 using static PolvorApp.Api.Tests.Exports.ExportFixtures;
 
@@ -100,7 +101,7 @@ public sealed class RecipientExportsTests
         Assert.Equal(
             ["Apellidos y nombre", "DNI/NIE", "Comparsa", "Licencia", "Caducidad", "Arma", "Número de arma", "Guía de pertenencia", "Procedencia", "Cedente", "DNI/NIE del cedente"],
             Headers(table));
-        Assert.Equal(ExportCellType.Date, table.Columns[4].Type);
+        Assert.Equal(DocumentCellType.Date, table.Columns[4].Type);
         Assert.Equal(
             [
                 "Alquila, Arcabucero | 00000005M | Comparsa Sintética Norte |  |  | ARCABUZ MORO DIESTRO |  |  | Alquiler |  | ",

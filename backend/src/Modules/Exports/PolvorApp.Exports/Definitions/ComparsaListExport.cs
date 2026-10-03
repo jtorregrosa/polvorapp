@@ -1,4 +1,5 @@
 using PolvorApp.ComparsaOrders.Contracts;
+using PolvorApp.Exports.Contracts;
 
 namespace PolvorApp.Exports.Definitions;
 
@@ -18,7 +19,7 @@ internal sealed class ComparsaListExport : IExportDefinition
 
     /// <param name="data">Exactly one order: the comparsa's.</param>
     /// <param name="texts">The user's language.</param>
-    public ExportTable Build(ExportData data, ExportTexts texts)
+    public DocumentTable Build(ExportData data, ExportTexts texts)
     {
         ArgumentNullException.ThrowIfNull(data);
         ArgumentNullException.ThrowIfNull(texts);
@@ -29,21 +30,21 @@ internal sealed class ComparsaListExport : IExportDefinition
         OrderStatus? draft = order.Status == OrderStatus.Validated ? null : order.Status;
         var entries = ExportRows.Of(data);
         var rows = entries.Select(row => Row(row, data, texts)).ToList();
-        return new ExportTable(
+        return new DocumentTable(
             ExportRows.FileStem(data.EditionYear, Name, Provisional, comparsa, draft is not null),
             texts.Format(texts.ComparsaListTitle, data.EditionYear, comparsa),
             ExportRows.Notices(texts, Provisional, draft),
             texts.Format(texts.VersionLine, Name, Version),
             [
-                new(texts.Name, ExportCellType.Text),
-                new(texts.NationalId, ExportCellType.Text),
-                new(texts.FederationId, ExportCellType.Integer),
-                new(texts.Status, ExportCellType.Text),
-                new(texts.PowderKg, ExportCellType.Integer),
-                new(texts.CapsBoxes, ExportCellType.Integer),
-                new(texts.CapsKind, ExportCellType.Text),
-                new(texts.Weapon, ExportCellType.Text),
-                new(texts.Flask, ExportCellType.Text),
+                new(texts.Name, DocumentCellType.Text),
+                new(texts.NationalId, DocumentCellType.Text),
+                new(texts.FederationId, DocumentCellType.Number),
+                new(texts.Status, DocumentCellType.Text),
+                new(texts.PowderKg, DocumentCellType.Number),
+                new(texts.CapsBoxes, DocumentCellType.Number),
+                new(texts.CapsKind, DocumentCellType.Text),
+                new(texts.Weapon, DocumentCellType.Text),
+                new(texts.Flask, DocumentCellType.Text),
             ],
             rows,
             [texts.Total, null, null, null, entries.Sum(r => r.Entry.PowderKg), entries.Sum(r => r.Entry.CapsBoxes), null, null, null]);

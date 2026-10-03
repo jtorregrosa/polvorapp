@@ -56,6 +56,7 @@ public sealed class ComparsaOrdersModule : IModule
         // Read by the registry and the compliance insights (design D5).
         services.AddScoped<IParticipationHistory, ParticipationHistory>();
         services.AddScoped<IOrderExports, OrderExports>();
+        services.AddScoped<IEditionEntries, EditionEntries>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder endpoints) => endpoints.MapOrderEndpoints();

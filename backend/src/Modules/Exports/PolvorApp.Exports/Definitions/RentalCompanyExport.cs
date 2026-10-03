@@ -1,4 +1,5 @@
 using PolvorApp.ComparsaOrders.Contracts;
+using PolvorApp.Exports.Contracts;
 
 namespace PolvorApp.Exports.Definitions;
 
@@ -16,7 +17,7 @@ internal sealed class RentalCompanyExport : IExportDefinition
 
     public ExportAudience Audience => ExportAudience.Recipient;
 
-    public ExportTable Build(ExportData data, ExportTexts texts)
+    public DocumentTable Build(ExportData data, ExportTexts texts)
     {
         ArgumentNullException.ThrowIfNull(data);
         ArgumentNullException.ThrowIfNull(texts);
@@ -31,17 +32,17 @@ internal sealed class RentalCompanyExport : IExportDefinition
                 row.Entry.Flask is FlaskOption.Rental1Kg or FlaskOption.Rental2Kg ? texts.Flasks[row.Entry.Flask] : null,
             ])
             .ToList();
-        return new ExportTable(
+        return new DocumentTable(
             ExportRows.FileStem(data.EditionYear, Name, Provisional),
             texts.Format(texts.RentalCompanyTitle, data.EditionYear),
             ExportRows.Notices(texts, Provisional),
             texts.Format(texts.VersionLine, Name, Version),
             [
-                new(texts.Name, ExportCellType.Text),
-                new(texts.NationalId, ExportCellType.Text),
-                new(texts.Comparsa, ExportCellType.Text),
-                new(texts.WeaponModel, ExportCellType.Text),
-                new(texts.Flask, ExportCellType.Text),
+                new(texts.Name, DocumentCellType.Text),
+                new(texts.NationalId, DocumentCellType.Text),
+                new(texts.Comparsa, DocumentCellType.Text),
+                new(texts.WeaponModel, DocumentCellType.Text),
+                new(texts.Flask, DocumentCellType.Text),
             ],
             rows,
             null);

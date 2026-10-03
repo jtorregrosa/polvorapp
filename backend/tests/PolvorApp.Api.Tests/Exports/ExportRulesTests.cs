@@ -1,7 +1,9 @@
 using System.Globalization;
 using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ComparsaOrders.Contracts;
+using PolvorApp.Exports.Contracts;
 using PolvorApp.Exports.Definitions;
+using PolvorApp.SharedKernel.Text;
 using static PolvorApp.Api.Tests.Exports.ExportFixtures;
 
 namespace PolvorApp.Api.Tests.Exports;
@@ -14,8 +16,8 @@ public sealed class ExportRulesTests
     [Fact]
     public void A_row_with_the_wrong_number_of_cells_is_refused()
     {
-        var error = Assert.Throws<InvalidOperationException>(() => new ExportTable(
-            "stem", "title", [], "version", [new("Nombre", ExportCellType.Text)], [["Secreto Sintético", 1]], null));
+        var error = Assert.Throws<InvalidOperationException>(() => new DocumentTable(
+            "stem", "title", [], "version", [new("Nombre", DocumentCellType.Text)], [["Secreto Sintético", 1]], null));
 
         Assert.DoesNotContain("Secreto", error.Message, StringComparison.Ordinal);
     }
@@ -23,8 +25,8 @@ public sealed class ExportRulesTests
     [Fact]
     public void A_cell_of_the_wrong_type_is_refused_naming_the_column_not_the_value()
     {
-        var error = Assert.Throws<InvalidOperationException>(() => new ExportTable(
-            "stem", "title", [], "version", [new("Nombre", ExportCellType.Text), new("Pólvora", ExportCellType.Integer)], [["Ana", "Secreto"]], null));
+        var error = Assert.Throws<InvalidOperationException>(() => new DocumentTable(
+            "stem", "title", [], "version", [new("Nombre", DocumentCellType.Text), new("Pólvora", DocumentCellType.Number)], [["Ana", "Secreto"]], null));
 
         Assert.Contains("Pólvora", error.Message, StringComparison.Ordinal);
         Assert.DoesNotContain("Secreto", error.Message, StringComparison.Ordinal);
@@ -32,7 +34,7 @@ public sealed class ExportRulesTests
 
     [Fact]
     public void The_total_rows_label_may_stand_in_a_number_column() =>
-        Assert.NotNull(new ExportTable("stem", "title", [], "version", [new("Kg", ExportCellType.Integer)], [[2]], ["Total"]));
+        Assert.NotNull(new DocumentTable("stem", "title", [], "version", [new("Kg", DocumentCellType.Number)], [[2]], ["Total"]));
 
     [Theory]
     [MemberData(nameof(Languages))]
@@ -63,7 +65,7 @@ public sealed class ExportRulesTests
     [InlineData("Cristians d'Aragó", "cristians-d-arago")]
     [InlineData("Ñ  Moros  Nuevos!", "n-moros-nuevos")]
     [InlineData("Col·la", "col-la")]
-    public void Slugs_keep_ascii_letters_and_digits(string name, string slug) => Assert.Equal(slug, ExportRows.Slug(name));
+    public void Slugs_keep_ascii_letters_and_digits(string name, string slug) => Assert.Equal(slug, FileSlug.Of(name));
 
     [Fact]
     public void A_name_without_letters_still_gives_a_file_name() =>

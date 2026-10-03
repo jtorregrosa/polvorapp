@@ -1,10 +1,11 @@
 using ClosedXML.Excel;
+using PolvorApp.Exports.Contracts;
 using PolvorApp.Exports.Definitions;
 
 namespace PolvorApp.Exports.Writers;
 
 /// <summary>
-/// Writes an <see cref="ExportTable"/> as one worksheet (spec: Excel and PDF; design D4): the title,
+/// Writes a <see cref="DocumentTable"/> as one worksheet (spec: Excel and PDF; design D4): the title,
 /// the notices and the version line, then the table with a bold, frozen, filterable header row, typed
 /// cells and a bold total row. Every text cell is a string, never a formula, and text that a
 /// spreadsheet could run as a formula when re-saved (a leading <c>=</c>, <c>+</c>, <c>-</c>,
@@ -19,10 +20,10 @@ internal static class XlsxExportWriter
 
     private const string SheetName = "PolvorApp";
     private const string DateFormat = "dd/mm/yyyy";
-    private const string IntegerFormat = "0";
+    private const string WholeNumberFormat = "0";
     private const int MaxColumnWidth = 48;
 
-    public static byte[] Write(ExportTable table)
+    public static byte[] Write(DocumentTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
         using var workbook = new XLWorkbook();
@@ -83,7 +84,7 @@ internal static class XlsxExportWriter
         return stream.ToArray();
     }
 
-    private static void WriteRow(IXLWorksheet sheet, int row, IReadOnlyList<ExportColumn> columns, IReadOnlyList<object?> cells, bool bold)
+    private static void WriteRow(IXLWorksheet sheet, int row, IReadOnlyList<DocumentColumn> columns, IReadOnlyList<object?> cells, bool bold)
     {
         for (var c = 0; c < cells.Count; c++)
         {
@@ -94,7 +95,7 @@ internal static class XlsxExportWriter
                     break;
                 case int number:
                     cell.Value = number;
-                    cell.Style.NumberFormat.Format = IntegerFormat;
+                    cell.Style.NumberFormat.Format = WholeNumberFormat;
                     break;
                 case DateOnly date:
                     cell.Value = date.ToDateTime(TimeOnly.MinValue);
@@ -120,12 +121,12 @@ internal static class XlsxExportWriter
     private static XLCellValue Text(string text) =>
         text.Length > 0 && text[0] is '=' or '+' or '-' or '@' or '\t' or '\r' or '\'' ? "''" + text : text;
 
-    private static double Width(ExportColumn column)
+    private static double Width(DocumentColumn column)
     {
         var byType = column.Type switch
         {
-            ExportCellType.Integer => 12,
-            ExportCellType.Date => 13,
+            DocumentCellType.Number => 12,
+            DocumentCellType.Date => 13,
             _ => 28,
         };
         return Math.Min(MaxColumnWidth, Math.Max(byType, column.Header.Length + 2));

@@ -1,5 +1,6 @@
 using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ComparsaOrders.Contracts;
+using PolvorApp.Exports.Contracts;
 using PolvorApp.Exports.Definitions;
 
 namespace PolvorApp.Api.Tests.Exports;
@@ -42,7 +43,7 @@ internal static class ExportFixtures
         new(id, Norte, "Arcabucera", lastName, "00000002W", 100002, ArquebusierStatus.Active, new DateOnly(1990, 1, 1), license, null, true, weapons);
 
     /// <summary>The rows as text, one line per row, cells joined by " | " (dates as yyyy-MM-dd, empty for null).</summary>
-    public static string[] Lines(ExportTable table) => [.. table.Rows.Select(Line)];
+    public static string[] Lines(DocumentTable table) => [.. table.Rows.Select(Line)];
 
     public static string Line(IReadOnlyList<object?> cells) => string.Join(" | ", cells.Select(cell => cell switch
     {
@@ -51,5 +52,5 @@ internal static class ExportFixtures
         _ => Convert.ToString(cell, System.Globalization.CultureInfo.InvariantCulture),
     }));
 
-    public static string[] Headers(ExportTable table) => [.. table.Columns.Select(c => c.Header)];
+    public static string[] Headers(DocumentTable table) => [.. table.Columns.Select(c => c.Header)];
 }

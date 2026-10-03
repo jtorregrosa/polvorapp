@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using PolvorApp.Exports.Contracts;
 using PolvorApp.Exports.Definitions;
 using PolvorApp.Exports.Endpoints;
 using PolvorApp.Exports.Writers;
@@ -13,6 +14,7 @@ namespace PolvorApp.Exports;
 /// Capability exports (UC-17; SEC-05, SEC-06; ADR-0008): the files the Federation sends to the powder
 /// supplier, the rental company and the Arms Authority, and each comparsa's list, as Excel and PDF.
 /// It owns definitions and writers, not data: no schema, no migrations (change add-exports, design D1).
+/// Other modules render their documents through <see cref="IDocumentRenderer"/> (add-distribution-planning).
 /// </summary>
 public sealed class ExportsModule : IModule
 {
@@ -27,6 +29,7 @@ public sealed class ExportsModule : IModule
         services.AddSingleton<IExportDefinition, ComparsaListExport>();
         services.AddScoped<ExportDataLoader>();
         services.AddScoped<ExportService>();
+        services.AddSingleton<IDocumentRenderer, DocumentRenderer>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder endpoints) => endpoints.MapExportEndpoints();
