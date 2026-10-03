@@ -73,7 +73,10 @@ public sealed class DeletingCatalogDirectory
         public Task<IReadOnlyList<WeaponModelSummary>> FindWeaponModelsAsync(IReadOnlyCollection<Guid> weaponModelIds, CancellationToken cancellationToken) =>
             inner.FindWeaponModelsAsync(weaponModelIds, cancellationToken);
 
-        public Task<ComparsaLogoImage?> ReadComparsaLogoAsync(Guid comparsaId, CancellationToken cancellationToken) =>
+        public Task<LogoImage?> ReadComparsaLogoAsync(Guid comparsaId, CancellationToken cancellationToken) =>
             inner.ReadComparsaLogoAsync(comparsaId, cancellationToken);
+
+        public Task<LogoImage?> ReadFederationLogoAsync(CancellationToken cancellationToken) =>
+            inner.ReadFederationLogoAsync(cancellationToken);
     }
 }

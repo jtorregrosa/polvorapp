@@ -46,7 +46,7 @@ public sealed class ComparsaLogoDirectoryTests(PostgresFixture postgres, Mailpit
         return (bitmap.Width, bitmap.Height);
     }
 
-    private async Task<ComparsaLogoImage?> ReadAsync(Guid comparsaId)
+    private async Task<LogoImage?> ReadAsync(Guid comparsaId)
     {
         await using var scope = _host.Services.CreateAsyncScope();
         return await scope.ServiceProvider.GetRequiredService<ICatalogDirectory>().ReadComparsaLogoAsync(comparsaId, TestContext.Current.CancellationToken);

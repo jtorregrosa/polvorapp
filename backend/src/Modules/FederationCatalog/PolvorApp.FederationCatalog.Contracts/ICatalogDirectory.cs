@@ -19,11 +19,14 @@ public sealed record ComparsaSummary(Guid Id, string Name, Side Side, bool Activ
 public sealed record WeaponModelSummary(
     Guid Id, WeaponKind Kind, Side? Side, Handedness? Handedness, WeaponSize? Size, string Label, bool Active, bool Rentable);
 
-/// <summary>A comparsa's logo for other modules, e.g. to print it in a document (change add-comparsa-logos, design D6).</summary>
+/// <summary>
+/// A comparsa's logo or the Federation's, for other modules, e.g. to print it in a document (change
+/// add-comparsa-logos, design D6; add-distribution-planning, design D11).
+/// </summary>
 /// <param name="Png">The whole image, PNG-encoded with its transparency.</param>
 /// <param name="Width">Width in pixels, at most 1024.</param>
 /// <param name="Height">Height in pixels, at most 1024.</param>
-public sealed record ComparsaLogoImage(ReadOnlyMemory<byte> Png, int Width, int Height);
+public sealed record LogoImage(ReadOnlyMemory<byte> Png, int Width, int Height);
 
 /// <summary>
 /// Read-only lookup of comparsas and weapon models for other modules, e.g. to validate and show
@@ -53,5 +56,12 @@ public interface ICatalogDirectory
     /// <c>StorageUnavailableException</c> when the storage cannot be reached; a document can then
     /// fall back to a placeholder.
     /// </summary>
-    Task<ComparsaLogoImage?> ReadComparsaLogoAsync(Guid comparsaId, CancellationToken cancellationToken);
+    Task<LogoImage?> ReadComparsaLogoAsync(Guid comparsaId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The Federation's logo for documents (add-distribution-planning, design D11), or null until an Admin
+    /// uploads it. Throws <c>StorageUnavailableException</c> when the storage cannot be reached: the
+    /// document then fails rather than print without it (spec: Federation logo).
+    /// </summary>
+    Task<LogoImage?> ReadFederationLogoAsync(CancellationToken cancellationToken);
 }

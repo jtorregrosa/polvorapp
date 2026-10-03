@@ -20,7 +20,8 @@ namespace PolvorApp.FederationCatalog;
 
 /// <summary>
 /// Capability federation-catalog (UC-24 catalogue, BR-07, BR-12): comparsas, FiringChief
-/// assignments that feed the comparsa scope, and the weapon model catalogue.
+/// assignments that feed the comparsa scope, the weapon model catalogue, and the Federation's logo for
+/// documents (add-distribution-planning).
 /// </summary>
 public sealed class FederationCatalogModule : IModule
 {
@@ -36,6 +37,8 @@ public sealed class FederationCatalogModule : IModule
         services.AddScoped<AssignmentAdministration>();
         services.AddScoped<WeaponModelAdministration>();
         services.AddScoped<ComparsaLogoAdministration>();
+        services.AddScoped<FederationLogoAdministration>();
+        services.AddScoped<LogoUploadFlow>();
         services.AddScoped<LogoObjects>();
         services.AddScoped<LogoReader>();
         services.AddScoped<IStoredObjectOwner, CatalogLogoOwner>();
@@ -52,5 +55,6 @@ public sealed class FederationCatalogModule : IModule
         endpoints.MapAssignmentEndpoints();
         endpoints.MapWeaponModelEndpoints();
         endpoints.MapLogoEndpoints();
+        endpoints.MapFederationLogoEndpoints();
     }
 }

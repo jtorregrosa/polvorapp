@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using PolvorApp.FederationCatalog.Comparsas;
+using PolvorApp.FederationCatalog.Logos;
 using PolvorApp.FederationCatalog.WeaponModels;
 
 namespace PolvorApp.FederationCatalog.Persistence;
@@ -39,6 +40,14 @@ internal static class CatalogLocks
     /// <summary>For a deletion of a weapon model; see <see cref="LockComparsaForDeleteAsync"/>.</summary>
     public static Task<WeaponModel?> LockWeaponModelForDeleteAsync(this FederationCatalogDbContext db, Guid id, CancellationToken cancellationToken) =>
         LockAsync(db, db.WeaponModels.FromSql($"SELECT * FROM catalog.weapon_models WHERE id = {id} FOR UPDATE"), cancellationToken);
+
+    /// <summary>
+    /// The Federation's settings row, for a logo change (add-distribution-planning, design D11): a
+    /// concurrent change waits and then applies on top. The row always exists (the migration creates it).
+    /// </summary>
+    public static async Task<FederationSettings> LockFederationSettingsAsync(this FederationCatalogDbContext db, CancellationToken cancellationToken) =>
+        await LockAsync(db, db.FederationSettings.FromSql($"SELECT * FROM catalog.federation_settings WHERE id = {FederationSettings.SingletonId} FOR NO KEY UPDATE"), cancellationToken)
+        ?? throw new InvalidOperationException("The Federation settings row is missing; run the migrations.");
 
     /// <summary>
     /// Whether <paramref name="exception"/> is a lock wait that hit the 5 s timeout, or the database

@@ -55,7 +55,7 @@ internal sealed class CatalogDirectory(FederationCatalogDbContext db, LogoReader
     }
 
     /// <summary>Applies no scope, like the rest of the directory: callers acting for a user apply BR-12 themselves.</summary>
-    public async Task<ComparsaLogoImage?> ReadComparsaLogoAsync(Guid comparsaId, CancellationToken cancellationToken)
+    public async Task<LogoImage?> ReadComparsaLogoAsync(Guid comparsaId, CancellationToken cancellationToken)
     {
         // A reference without an image is logged by the reader: worth an alert, not a failed document.
         var (_, logo, image) = await reader.OpenAsync(db.Comparsas.Where(c => c.Id == comparsaId), cancellationToken);
@@ -66,7 +66,21 @@ internal sealed class CatalogDirectory(FederationCatalogDbContext db, LogoReader
 
         await using (image)
         {
-            return new ComparsaLogoImage(await LogoReader.ReadAllAsync(image, logo.SizeBytes, cancellationToken), logo.Width, logo.Height);
+            return new LogoImage(await LogoReader.ReadAllAsync(image, logo.SizeBytes, cancellationToken), logo.Width, logo.Height);
+        }
+    }
+
+    public async Task<LogoImage?> ReadFederationLogoAsync(CancellationToken cancellationToken)
+    {
+        var (_, logo, image) = await reader.OpenAsync(db.FederationSettings, cancellationToken);
+        if (image is null || logo is null)
+        {
+            return null;
+        }
+
+        await using (image)
+        {
+            return new LogoImage(await LogoReader.ReadAllAsync(image, logo.SizeBytes, cancellationToken), logo.Width, logo.Height);
         }
     }
 }
