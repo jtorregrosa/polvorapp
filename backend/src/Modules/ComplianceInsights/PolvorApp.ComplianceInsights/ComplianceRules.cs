@@ -18,11 +18,33 @@ internal sealed class ComplianceRules : IComplianceRules
     public IReadOnlyList<ComplianceWarning> Evaluate(ComplianceFacts facts, DateOnly referenceDate)
     {
         ArgumentNullException.ThrowIfNull(facts);
+        return Warnings(facts, LicenseWarning(facts.License, referenceDate, withExpiring: true), referenceDate);
+    }
 
+    /// <summary>Entries of an edition (add-comparsa-orders, design D7): the license through the last day, the age on the first.</summary>
+    public IReadOnlyList<ComplianceWarning> EvaluateForFestival(ComplianceFacts facts, DateOnly startsOn, DateOnly endsOn)
+    {
+        ArgumentNullException.ThrowIfNull(facts);
+        return Warnings(facts, LicenseWarning(facts.License, endsOn, withExpiring: false), startsOn);
+    }
+
+    /// <summary>
+    /// Whole years; a birthday on 29 February falls on 28 February in other years. A birth date after
+    /// the reference date gives a negative age, which counts as under age.
+    /// </summary>
+    public int AgeOn(DateOnly birthDate, DateOnly referenceDate)
+    {
+        var age = referenceDate.Year - birthDate.Year;
+        return birthDate.AddYears(age) > referenceDate ? age - 1 : age;
+    }
+
+    /// <summary>The warnings in rule order, given the license warning and the date the age is taken on.</summary>
+    private ComplianceWarning[] Warnings(ComplianceFacts facts, ComplianceWarning? license, DateOnly ageDate)
+    {
         var warnings = new List<ComplianceWarning>(capacity: 4);
-        if (LicenseWarning(facts.License, referenceDate) is { } license)
+        if (license is { } licenseWarning)
         {
-            warnings.Add(license);
+            warnings.Add(licenseWarning);
         }
 
         if (facts.TrainingCompletedOn is null)
@@ -30,7 +52,7 @@ internal sealed class ComplianceRules : IComplianceRules
             warnings.Add(ComplianceWarning.CourseMissing);
         }
 
-        if (AgeOn(facts.BirthDate, referenceDate) < LegalAge)
+        if (AgeOn(facts.BirthDate, ageDate) < LegalAge)
         {
             warnings.Add(ComplianceWarning.UnderAge);
         }
@@ -49,22 +71,15 @@ internal sealed class ComplianceRules : IComplianceRules
     }
 
     /// <summary>
-    /// Whole years; a birthday on 29 February falls on 28 February in other years. A birth date after
-    /// the reference date gives a negative age, which counts as under age.
+    /// At most one license warning; valid through the expiry day, like the license status. The
+    /// festival evaluation leaves out "expiring soon" (<paramref name="withExpiring"/> false).
     /// </summary>
-    public int AgeOn(DateOnly birthDate, DateOnly referenceDate)
-    {
-        var age = referenceDate.Year - birthDate.Year;
-        return birthDate.AddYears(age) > referenceDate ? age - 1 : age;
-    }
-
-    /// <summary>At most one license warning; valid through the expiry day, like the license status.</summary>
-    private static ComplianceWarning? LicenseWarning(ComplianceLicense? license, DateOnly referenceDate) => license switch
+    private static ComplianceWarning? LicenseWarning(ComplianceLicense? license, DateOnly referenceDate, bool withExpiring) => license switch
     {
         null => ComplianceWarning.LicenseMissing,
         ComplianceLicense.Pending => ComplianceWarning.LicensePending,
         ComplianceLicense.Issued issued when referenceDate > issued.ExpiresOn => ComplianceWarning.LicenseExpired,
-        ComplianceLicense.Issued issued when issued.ExpiresOn < referenceDate.AddMonths(ExpiringWindowMonths) => ComplianceWarning.LicenseExpiring,
+        ComplianceLicense.Issued issued when withExpiring && issued.ExpiresOn < referenceDate.AddMonths(ExpiringWindowMonths) => ComplianceWarning.LicenseExpiring,
         ComplianceLicense.Issued => null,
         _ => throw new InvalidOperationException($"Unknown license shape {license.GetType().Name}."),
     };

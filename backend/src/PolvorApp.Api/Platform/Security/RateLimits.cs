@@ -11,7 +11,8 @@ namespace PolvorApp.Api.Platform.Security;
 /// Rate limits for sign-in and recovery endpoints, per client address (spec: Sign-in with
 /// two-factor authentication; design D6), and for writes that reveal whether a personal identifier
 /// exists, per signed-in user (add-arquebusier-registry D11), and for image and spreadsheet uploads,
-/// per signed-in user (add-comparsa-logos D6, add-registry-import D9). The client address comes from <c>X-Forwarded-For</c>
+/// per signed-in user (add-comparsa-logos D6, add-registry-import D9), and for order writes, per
+/// signed-in user (add-comparsa-orders). The client address comes from <c>X-Forwarded-For</c>
 /// only when the direct peer is a trusted proxy (<c>ForwardedHeaders__KnownNetworks</c>).
 /// </summary>
 internal static class RateLimits
@@ -23,6 +24,7 @@ internal static class RateLimits
         var personalDataWrites = Limit(configuration, "RateLimits:PersonalDataWrites:PermitLimit", 60);
         var imageUploads = Limit(configuration, "RateLimits:ImageUploads:PermitLimit", 20);
         var spreadsheetImports = Limit(configuration, "RateLimits:SpreadsheetImports:PermitLimit", 10);
+        var orderWrites = Limit(configuration, "RateLimits:OrderWrites:PermitLimit", 120);
 
         services.AddRateLimiter(options =>
         {
@@ -32,6 +34,7 @@ internal static class RateLimits
             options.AddPolicy(RateLimitPolicies.PersonalDataWrites, context => PerUser(context, personalDataWrites, TimeSpan.FromMinutes(1)));
             options.AddPolicy(RateLimitPolicies.ImageUploads, context => PerUser(context, imageUploads, TimeSpan.FromMinutes(1)));
             options.AddPolicy(RateLimitPolicies.SpreadsheetImports, context => PerUser(context, spreadsheetImports, TimeSpan.FromMinutes(1)));
+            options.AddPolicy(RateLimitPolicies.OrderWrites, context => PerUser(context, orderWrites, TimeSpan.FromMinutes(1)));
         });
 
         services.Configure<ForwardedHeadersOptions>(options =>

@@ -1,6 +1,5 @@
 using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ArquebusierRegistry.Licenses;
-using PolvorApp.ArquebusierRegistry.NationalIds;
 using PolvorApp.SharedKernel.Validation;
 
 namespace PolvorApp.ArquebusierRegistry.Arquebusiers;

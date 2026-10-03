@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PolvorApp.Api.Tests.Infrastructure;
 using PolvorApp.ArquebusierRegistry.Persistence;
 using PolvorApp.AuditPrivacy.Persistence;
+using PolvorApp.ComparsaOrders.Persistence;
 using PolvorApp.FederationCatalog.Persistence;
 using PolvorApp.FestivalEditions.Persistence;
 using PolvorApp.IdentityAccess.Persistence;
@@ -23,5 +24,6 @@ public sealed class ModelDriftTests
         Assert.False(scope.ServiceProvider.GetRequiredService<FederationCatalogDbContext>().Database.HasPendingModelChanges(), nameof(FederationCatalogDbContext));
         Assert.False(scope.ServiceProvider.GetRequiredService<ArquebusierRegistryDbContext>().Database.HasPendingModelChanges(), nameof(ArquebusierRegistryDbContext));
         Assert.False(scope.ServiceProvider.GetRequiredService<FestivalEditionsDbContext>().Database.HasPendingModelChanges(), nameof(FestivalEditionsDbContext));
+        Assert.False(scope.ServiceProvider.GetRequiredService<ComparsaOrdersDbContext>().Database.HasPendingModelChanges(), nameof(ComparsaOrdersDbContext));
     }
 }

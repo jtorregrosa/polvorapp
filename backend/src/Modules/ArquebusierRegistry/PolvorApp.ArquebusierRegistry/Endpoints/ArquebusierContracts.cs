@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using PolvorApp.ArquebusierRegistry.Arquebusiers;
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.ComplianceInsights.Contracts;
 using PolvorApp.FederationCatalog.Contracts;
 
@@ -124,6 +125,11 @@ internal sealed record OwnedWeaponResponse(Guid Id, WeaponModelSummary Model, st
 /// <param name="Version">Version to send back when editing.</param>
 /// <param name="Age">Whole years on today's date in Europe/Madrid; derived, never stored.</param>
 /// <param name="Warnings">Compliance warnings (BR-04) on today's date, in rule order; empty when there is none.</param>
+/// <param name="FirstYear">
+/// Whether they are in their first year in the edition in progress (UC-07); null without one, or while
+/// no earlier edition has orders.
+/// </param>
+/// <param name="DeletionImpact">What deleting them would do to the orders, for the delete confirmation.</param>
 internal sealed record ArquebusierResponse(
     Guid Id,
     Guid ComparsaId,
@@ -144,7 +150,23 @@ internal sealed record ArquebusierResponse(
     ArquebusierPhotosResponse Photos,
     uint Version,
     int Age,
-    IReadOnlyList<ComplianceWarning> Warnings);
+    IReadOnlyList<ComplianceWarning> Warnings,
+    bool? FirstYear,
+    DeletionImpactResponse DeletionImpact);
+
+/// <summary>What deleting an arquebusier does to the orders (spec: Deleting an arquebusier (UC-05, BR-14)).</summary>
+/// <param name="CurrentEntry">Their entry in the edition in progress, or null.</param>
+/// <param name="LentWeapons">How many of their owned weapons are lent in the edition in progress; those loans will show the weapon as removed.</param>
+/// <param name="HasPastEntries">Whether entries of other editions stay as history.</param>
+internal sealed record DeletionImpactResponse(DeletionEntryResponse? CurrentEntry, int LentWeapons, bool HasPastEntries);
+
+/// <summary>The arquebusier's entry in the edition in progress.</summary>
+/// <param name="EditionYear">The edition's year.</param>
+/// <param name="ComparsaId">The comparsa whose order holds it.</param>
+/// <param name="ComparsaName">That comparsa's name.</param>
+/// <param name="OrderStatus">The order's status.</param>
+/// <param name="WillBeRemoved">True while the orders are open: the deletion removes it. Otherwise it stays as history.</param>
+internal sealed record DeletionEntryResponse(int EditionYear, Guid ComparsaId, string ComparsaName, OrderStatus OrderStatus, bool WillBeRemoved);
 
 /// <summary>The photos an arquebusier has (spec: Private photo access); null when there is none of a kind.</summary>
 /// <param name="Id">ID photo (<c>idPhoto</c>).</param>

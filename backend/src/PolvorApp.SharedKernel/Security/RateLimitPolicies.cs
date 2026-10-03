@@ -10,8 +10,9 @@ public static class RateLimitPolicies
     public const string AuthEmail = "auth-email";
 
     /// <summary>
-    /// Writes that answer whether a personal identifier exists (registry registration and edits): 60 per
-    /// minute per signed-in user, so duplicate probing cannot run at full speed (add-arquebusier-registry D11).
+    /// Requests that reveal whether a personal identifier exists (registry registration and edits, and the
+    /// orders' lender lookup): 60 per minute per signed-in user, so probing cannot run at full speed
+    /// (add-arquebusier-registry D11, add-comparsa-orders D9).
     /// </summary>
     public const string PersonalDataWrites = "personal-data-writes";
 
@@ -27,4 +28,11 @@ public static class RateLimitPolicies
     /// (add-registry-import D9).
     /// </summary>
     public const string SpreadsheetImports = "spreadsheet-imports";
+
+    /// <summary>
+    /// Writes to comparsa orders (preparation, entries, loans, submission, review): 120 per minute per
+    /// signed-in user, enough to edit an order entry after entry, while a single account cannot keep the
+    /// order writes, which read a whole roster, busy (add-comparsa-orders, group 4 review).
+    /// </summary>
+    public const string OrderWrites = "order-writes";
 }

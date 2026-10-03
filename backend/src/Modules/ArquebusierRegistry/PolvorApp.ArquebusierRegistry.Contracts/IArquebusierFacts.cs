@@ -25,9 +25,13 @@ public interface IArquebusierFacts
 }
 
 /// <summary>
-/// One arquebusier as seen by the insights: no identifier, name, national ID, federation ID or
-/// contact data. Its text form prints no value, because the birth date and gender are personal data.
+/// One arquebusier as seen by the insights: no name, national ID, federation ID or contact data. Its
+/// text form prints no value, because the birth date and gender are personal data.
 /// </summary>
+/// <param name="ArquebusierId">
+/// The arquebusier, only to join server-side sets such as the first-year rule (add-comparsa-orders,
+/// design D5); never returned to a client.
+/// </param>
 /// <param name="ComparsaId">The current comparsa.</param>
 /// <param name="Status">Active or Reserve.</param>
 /// <param name="Gender">Gender, for equality reports only.</param>
@@ -37,6 +41,7 @@ public interface IArquebusierFacts
 /// <param name="HasIdPhoto">Whether the arquebusier has an ID photo.</param>
 /// <param name="OwnedWeaponModelIds">The catalogue model of each owned weapon, one entry per weapon.</param>
 public sealed record ArquebusierFacts(
+    Guid ArquebusierId,
     Guid ComparsaId,
     ArquebusierStatus Status,
     Gender Gender,

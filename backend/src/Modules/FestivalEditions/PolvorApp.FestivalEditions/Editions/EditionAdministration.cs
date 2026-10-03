@@ -14,9 +14,17 @@ namespace PolvorApp.FestivalEditions.Editions;
 /// a no-op records nothing (design D3, D9). Status and orders are in <see cref="EditionLifecycle"/>.
 /// </summary>
 internal sealed class EditionAdministration(
-    FestivalEditionsDbContext db, ICatalogDirectory catalog, IAuditTrail trail, EditionWriteGuard guard, TimeProvider time)
+    FestivalEditionsDbContext db,
+    ICatalogDirectory catalog,
+    IEnumerable<IEditionUsage> usages,
+    IAuditTrail trail,
+    EditionWriteGuard guard,
+    TimeProvider time)
 {
     public const string EntityType = "FestivalEdition";
+
+    /// <summary>The orders' foreign key to an edition (add-comparsa-orders, design D2).</summary>
+    private const string OrdersEditionForeignKey = "fk_comparsa_orders_edition";
 
     /// <summary>Creates a draft with the prices and still-rentable models of the latest earlier edition (design D5).</summary>
     public Task<EditionWrite> CreateAsync(int year, DateOnly festivalStartsOn, DateOnly festivalEndsOn, CancellationToken cancellationToken) =>
@@ -144,6 +152,16 @@ internal sealed class EditionAdministration(
                 return EditionWrite.Failed(EditionOutcome.NotDraft);
             }
 
+            // Asked under the row lock: a preparation reads the edition FOR SHARE, so it either
+            // committed before this lock (and is seen) or waits behind it (add-comparsa-orders, D4).
+            foreach (var usage in usages)
+            {
+                if (await usage.IsEditionInUseAsync(id, cancellationToken))
+                {
+                    return EditionWrite.Failed(EditionOutcome.InUse);
+                }
+            }
+
             var modelIds = await db.EditionWeaponModels.Where(m => m.EditionId == id).Select(m => m.WeaponModelId).ToListAsync(cancellationToken);
             var milestoneCount = await db.Milestones.CountAsync(m => m.EditionId == id, cancellationToken);
             db.Editions.Remove(edition);
@@ -159,7 +177,18 @@ internal sealed class EditionAdministration(
                 weaponModelIds = modelIds,
                 milestoneCount,
             });
-            await db.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await db.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateException exception) when (EditionProblems.IsForeignKeyViolation(exception, OrdersEditionForeignKey))
+            {
+                // A reference the vetoes did not report; the database is the authority.
+                db.ChangeTracker.Clear();
+                guard.LostRace(id, OrdersEditionForeignKey);
+                return EditionWrite.Failed(EditionOutcome.InUse);
+            }
+
             await transaction.CommitAsync(cancellationToken);
             return EditionWrite.Done(edition);
         });

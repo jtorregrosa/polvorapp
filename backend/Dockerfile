@@ -19,6 +19,8 @@ COPY src/Modules/ComplianceInsights/PolvorApp.ComplianceInsights/PolvorApp.Compl
 COPY src/Modules/ComplianceInsights/PolvorApp.ComplianceInsights.Contracts/PolvorApp.ComplianceInsights.Contracts.csproj src/Modules/ComplianceInsights/PolvorApp.ComplianceInsights.Contracts/
 COPY src/Modules/FestivalEditions/PolvorApp.FestivalEditions/PolvorApp.FestivalEditions.csproj src/Modules/FestivalEditions/PolvorApp.FestivalEditions/
 COPY src/Modules/FestivalEditions/PolvorApp.FestivalEditions.Contracts/PolvorApp.FestivalEditions.Contracts.csproj src/Modules/FestivalEditions/PolvorApp.FestivalEditions.Contracts/
+COPY src/Modules/ComparsaOrders/PolvorApp.ComparsaOrders/PolvorApp.ComparsaOrders.csproj src/Modules/ComparsaOrders/PolvorApp.ComparsaOrders/
+COPY src/Modules/ComparsaOrders/PolvorApp.ComparsaOrders.Contracts/PolvorApp.ComparsaOrders.Contracts.csproj src/Modules/ComparsaOrders/PolvorApp.ComparsaOrders.Contracts/
 RUN dotnet restore src/PolvorApp.Api/PolvorApp.Api.csproj
 
 COPY src/ src/

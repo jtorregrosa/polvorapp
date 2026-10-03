@@ -28,6 +28,12 @@ internal sealed class CatalogDirectory(FederationCatalogDbContext db, LogoReader
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<ComparsaSummary>> ListActiveComparsasAsync(CancellationToken cancellationToken) =>
+        await db.Comparsas.AsNoTracking()
+            .Where(c => c.Active)
+            .Select(c => new ComparsaSummary(c.Id, c.Name, c.Side, c.Active))
+            .ToListAsync(cancellationToken);
+
     public Task<WeaponModelSummary?> FindWeaponModelAsync(Guid weaponModelId, CancellationToken cancellationToken) =>
         db.WeaponModels.AsNoTracking()
             .Where(m => m.Id == weaponModelId)

@@ -39,6 +39,9 @@ public interface ICatalogDirectory
     /// <summary>The comparsas that exist among <paramref name="comparsaIds"/>, each once and in no particular order.</summary>
     Task<IReadOnlyList<ComparsaSummary>> FindComparsasAsync(IReadOnlyCollection<Guid> comparsaIds, CancellationToken cancellationToken);
 
+    /// <summary>The active comparsas, in no particular order (e.g. the comparsas expected to order; add-comparsa-orders).</summary>
+    Task<IReadOnlyList<ComparsaSummary>> ListActiveComparsasAsync(CancellationToken cancellationToken);
+
     /// <summary>The weapon model, or null when none has that id.</summary>
     Task<WeaponModelSummary?> FindWeaponModelAsync(Guid weaponModelId, CancellationToken cancellationToken);
 

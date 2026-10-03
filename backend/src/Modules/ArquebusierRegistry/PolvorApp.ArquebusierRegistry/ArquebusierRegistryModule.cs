@@ -55,6 +55,9 @@ public sealed class ArquebusierRegistryModule : IModule
 
         // Read contract for the compliance insights (design D3).
         services.AddScoped<IArquebusierFacts, RegistryArquebusierFacts>();
+
+        // Read contract for comparsa orders (add-comparsa-orders, design D5).
+        services.AddScoped<IArquebusierRoster, RegistryArquebusierRoster>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder endpoints)

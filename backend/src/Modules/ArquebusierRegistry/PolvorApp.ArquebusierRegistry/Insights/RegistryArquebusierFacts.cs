@@ -7,7 +7,7 @@ namespace PolvorApp.ArquebusierRegistry.Insights;
 /// <summary>
 /// The registry side of <see cref="IArquebusierFacts"/> (design D3): one projection of the
 /// arquebusiers with a flag per photo kind, and one query for their owned weapons' models. Names,
-/// identifiers and contact data are never selected.
+/// national and federation IDs and contact data are never selected.
 /// </summary>
 internal sealed class RegistryArquebusierFacts(ArquebusierRegistryDbContext db) : IArquebusierFacts
 {
@@ -55,16 +55,17 @@ internal sealed class RegistryArquebusierFacts(ArquebusierRegistryDbContext db) 
             .ToLookup(w => w.ArquebusierId, w => w.WeaponModelId);
 
         return [.. rows.Select(a => new ArquebusierFacts(
-            a.ComparsaId,
-            a.Status,
-            a.Gender,
-            a.BirthDate,
-            RegistryCompliance.LicenseOf(
+            ArquebusierId: a.Id,
+            ComparsaId: a.ComparsaId,
+            Status: a.Status,
+            Gender: a.Gender,
+            BirthDate: a.BirthDate,
+            License: RegistryCompliance.LicenseOf(
                 a.Id,
                 new LicenseColumns(a.LicenseType, a.LicensePending, a.LicenseExpiresOn),
                 new PhotoFlags(a.HasIdPhoto, a.HasFrontPhoto, a.HasBackPhoto)),
-            a.TrainingCompletedOn,
-            a.HasIdPhoto,
-            [.. models[a.Id]]))];
+            TrainingCompletedOn: a.TrainingCompletedOn,
+            HasIdPhoto: a.HasIdPhoto,
+            OwnedWeaponModelIds: [.. models[a.Id]]))];
     }
 }

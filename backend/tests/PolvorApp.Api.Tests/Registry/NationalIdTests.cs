@@ -1,5 +1,5 @@
 using System.Text.Json;
-using PolvorApp.ArquebusierRegistry.NationalIds;
+using PolvorApp.SharedKernel.Validation;
 
 namespace PolvorApp.Api.Tests.Registry;
 

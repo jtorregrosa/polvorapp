@@ -10,6 +10,14 @@ public interface IComplianceRules
     /// <summary>The warnings of <paramref name="facts"/> on <paramref name="referenceDate"/>, in rule order.</summary>
     IReadOnlyList<ComplianceWarning> Evaluate(ComplianceFacts facts, DateOnly referenceDate);
 
+    /// <summary>
+    /// The warnings of an <c>ACTIVE</c> edition entry, in rule order (add-comparsa-orders, design D7):
+    /// the license must be valid through <paramref name="endsOn"/>, the age is taken on
+    /// <paramref name="startsOn"/>, and <see cref="ComplianceWarning.LicenseExpiring"/> never applies,
+    /// because an expiry after the festival does not affect the order.
+    /// </summary>
+    IReadOnlyList<ComplianceWarning> EvaluateForFestival(ComplianceFacts facts, DateOnly startsOn, DateOnly endsOn);
+
     /// <summary>Whole years from <paramref name="birthDate"/> to <paramref name="referenceDate"/>.</summary>
     int AgeOn(DateOnly birthDate, DateOnly referenceDate);
 }
