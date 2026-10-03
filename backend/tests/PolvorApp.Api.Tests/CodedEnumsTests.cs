@@ -25,6 +25,8 @@ public sealed class CodedEnumsTests
         Assert.Contains(enums, type => type.Name == "LicenseType");
         Assert.Contains(enums, type => type.Name == "LicenseStatus");
         Assert.Contains(enums, type => type.Name == "ComplianceWarning");
+        Assert.Contains(enums, type => type.Name == "BillingConcept");
+        Assert.Contains(enums, type => type.Name == "BillingState");
         foreach (var type in enums)
         {
             var all = typeof(EnumCodes).GetMethod(nameof(EnumCodes.All))!.MakeGenericMethod(type);

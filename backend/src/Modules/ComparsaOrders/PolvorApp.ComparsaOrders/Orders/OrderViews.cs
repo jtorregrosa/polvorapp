@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.Billing.Contracts;
 using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.ComparsaOrders.Endpoints;
 using PolvorApp.ComparsaOrders.Entries;
@@ -27,7 +28,8 @@ internal sealed class OrderViews(
     IArquebusierRoster roster,
     IComplianceRules rules,
     IUserDirectory users,
-    IParticipationHistory participation)
+    IParticipationHistory participation,
+    IBillingCalculator billing)
 {
     /// <summary>The order as the caller may see it, or null.</summary>
     public async Task<OrderResponse?> FindAsync(Guid orderId, CancellationToken cancellationToken)
@@ -81,6 +83,7 @@ internal sealed class OrderViews(
             .ToList();
         var lentOut = await LentOutAsync(order, comparsaRoster, cancellationToken);
         var (canEdit, readOnlyReason) = Editable(order, edition);
+        var totals = OrderTotals.Of(entries, entryResponses.Where(e => e.Warnings.Count > 0).Select(e => e.Id).ToHashSet());
 
         return new OrderResponse(
             order.Id,
@@ -100,13 +103,13 @@ internal sealed class OrderViews(
             entryResponses,
             notInOrder,
             lentOut,
-            OrderTotalsResponse.From(
-                OrderTotals.Of(entries, entryResponses.Where(e => e.Warnings.Count > 0).Select(e => e.Id).ToHashSet()),
-                models),
+            OrderTotalsResponse.From(totals, models),
             [.. edition.OfferedWeaponModelIds
                 .Select(id => new WeaponModelReference(id, Label(models, id)))
                 .OrderBy(m => m.Label, SpanishOrder.Names)
-                .ThenBy(m => m.Id)]);
+                .ThenBy(m => m.Id)],
+            BillingSummaryResponse.From(billing.Summarise(
+                BillingMapping.QuantitiesOf(totals), BillingMapping.PricesOf(edition.Prices), BillingMapping.StateOfOrder(order.Status))));
     }
 
     /// <summary>

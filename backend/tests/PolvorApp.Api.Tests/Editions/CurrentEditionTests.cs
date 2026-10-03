@@ -63,6 +63,22 @@ public sealed class CurrentEditionTests(PostgresFixture postgres, MailpitFixture
     }
 
     [Fact]
+    public async Task Other_modules_read_the_prices_of_an_edition()
+    {
+        var (complete, _) = await _admin.CreateCompleteEditionAsync(2031);
+        await _host.SetStateAsync(complete, EditionStatus.InProgress);
+        var (draft, _) = await _admin.CreateEditionAsync(2030); // no earlier edition to copy prices from
+
+        var current = await DirectoryAsync(d => d.GetCurrentAsync(TestContext.Current.CancellationToken));
+        var found = await DirectoryAsync(d => d.FindAsync(complete, TestContext.Current.CancellationToken));
+        var unpriced = await DirectoryAsync(d => d.FindAsync(draft, TestContext.Current.CancellationToken));
+
+        Assert.Equal(CompletePrices, current!.Prices);
+        Assert.Equal(CompletePrices, found!.Prices);
+        Assert.Equal(EditionPrices.None, unpriced!.Prices);
+    }
+
+    [Fact]
     public async Task Models_no_longer_rentable_are_not_offered_to_other_modules()
     {
         var (id, _) = await _admin.CreateEditionAsync(2031);

@@ -1,4 +1,5 @@
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.Billing.Contracts;
 using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.ComparsaOrders.Entries;
 using PolvorApp.ComplianceInsights.Contracts;
@@ -124,6 +125,7 @@ internal static class ReadOnlyReasons
 /// <param name="LentOut">Owned weapons of the comparsa's arquebusiers lent in the edition (BR-12 exception).</param>
 /// <param name="Totals">The order's totals.</param>
 /// <param name="OfferedModels">The models offered for rental in the edition now (BR-07), by label: the entry panel's rental choices.</param>
+/// <param name="Billing">What the comparsa owes for the order at the edition's current prices (UC-28).</param>
 internal sealed record OrderResponse(
     Guid Id,
     uint Version,
@@ -139,7 +141,8 @@ internal sealed record OrderResponse(
     IReadOnlyList<NotInOrderResponse> NotInOrder,
     IReadOnlyList<LentOutResponse> LentOut,
     OrderTotalsResponse Totals,
-    IReadOnlyList<WeaponModelReference> OfferedModels);
+    IReadOnlyList<WeaponModelReference> OfferedModels,
+    BillingSummaryResponse Billing);
 
 /// <summary>
 /// An owned weapon of the comparsa's arquebusiers lent in the edition, as the lender's comparsa sees it
@@ -364,13 +367,44 @@ internal sealed record OrderTotalsResponse(
         totals.EntriesWithWarnings);
 }
 
+/// <summary>One line of a billing summary (spec: Billing summary of an order (UC-28)).</summary>
+/// <param name="Concept">What is charged.</param>
+/// <param name="Quantity">How many units.</param>
+/// <param name="UnitPrice">The edition's price in euros with two decimals; null when not set.</param>
+/// <param name="Amount">Quantity × unit price in euros with two decimals; null when the price is not set.</param>
+internal sealed record BillingLineResponse(BillingConcept Concept, int Quantity, decimal? UnitPrice, decimal? Amount);
+
+/// <summary>What a comparsa owes the Federation for one or several orders (glossary: <c>BillingSummary</c>).</summary>
+/// <param name="Lines">Powder, caps, weapon rentals and flask rentals, in that order.</param>
+/// <param name="Total">The sum of the amounts in euros with two decimals; null when a price is missing.</param>
+/// <param name="State">Provisional until the order, or every order, is validated.</param>
+/// <param name="MissingPrices">The concepts whose price is not set, in line order.</param>
+internal sealed record BillingSummaryResponse(
+    IReadOnlyList<BillingLineResponse> Lines,
+    decimal? Total,
+    BillingState State,
+    IReadOnlyList<BillingConcept> MissingPrices)
+{
+    public static BillingSummaryResponse From(BillingSummary summary)
+    {
+        ArgumentNullException.ThrowIfNull(summary);
+        return new(
+            [.. summary.Lines.Select(l => new BillingLineResponse(l.Concept, l.Quantity, l.UnitPrice, l.Amount))],
+            summary.Total,
+            summary.State,
+            summary.MissingPrices);
+    }
+}
+
 /// <summary>One comparsa in the orders overview.</summary>
 /// <param name="Comparsa">The comparsa.</param>
 /// <param name="OrderId">Its order in the edition; null when not prepared.</param>
 /// <param name="Status">The order's status; null when not prepared.</param>
 /// <param name="Totals">The order's totals; null when not prepared.</param>
 /// <param name="CanPrepare">Whether the caller may prepare its order now.</param>
-internal sealed record OverviewRowResponse(OrderComparsaResponse Comparsa, Guid? OrderId, OrderStatus? Status, OrderTotalsResponse? Totals, bool CanPrepare);
+/// <param name="Billing">What the comparsa owes for the order (UC-28); null when not prepared.</param>
+internal sealed record OverviewRowResponse(
+    OrderComparsaResponse Comparsa, Guid? OrderId, OrderStatus? Status, OrderTotalsResponse? Totals, bool CanPrepare, BillingSummaryResponse? Billing);
 
 /// <summary>How many comparsas have their order in each status, "not prepared" included (Admins).</summary>
 /// <param name="NotPrepared">Comparsas without an order.</param>
@@ -385,8 +419,10 @@ internal sealed record OverviewStatusCountsResponse(int NotPrepared, int Draft, 
 /// <param name="Rows">The comparsas, by name in Spanish order.</param>
 /// <param name="StatusCounts">Admins only.</param>
 /// <param name="EditionTotals">The totals of every order of the edition; Admins only.</param>
+/// <param name="EditionBilling">What every prepared order of the edition owes together (spec: Edition billing (Admins)); Admins only.</param>
 internal sealed record OverviewResponse(
     OrderEditionResponse? Edition,
     IReadOnlyList<OverviewRowResponse> Rows,
     OverviewStatusCountsResponse? StatusCounts,
-    OrderTotalsResponse? EditionTotals);
+    OrderTotalsResponse? EditionTotals,
+    BillingSummaryResponse? EditionBilling);

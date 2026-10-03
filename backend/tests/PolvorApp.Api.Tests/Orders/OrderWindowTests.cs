@@ -110,6 +110,38 @@ public sealed class OrderWindowTests(PostgresFixture postgres, MailpitFixture ma
     }
 
     [Fact]
+    public async Task The_locking_read_carries_the_prices()
+    {
+        await using var host = await IdentityTestHost.StartAsync(postgres, mailpit);
+        using var admin = await host.SignInAsync(await host.CreateUserAsync("admin.ventana.precios@example.test", UserRole.Admin));
+        var id = await OpenEditionAsync(host, admin);
+        await using var scope = host.Services.CreateAsyncScope();
+        var orders = scope.ServiceProvider.GetRequiredService<ComparsaOrdersDbContext>();
+        await using var transaction = await orders.BeginWriteAsync(TestContext.Current.CancellationToken);
+
+        var snapshot = await scope.ServiceProvider.GetRequiredService<IEditionDirectory>()
+            .ReadForOrderWriteAsync(id, transaction.GetDbTransaction(), TestContext.Current.CancellationToken);
+
+        Assert.Equal(EditionData.CompletePrices, snapshot!.Prices);
+    }
+
+    [Fact]
+    public async Task The_locking_read_of_an_unpriced_draft_has_no_prices()
+    {
+        await using var host = await IdentityTestHost.StartAsync(postgres, mailpit);
+        using var admin = await host.SignInAsync(await host.CreateUserAsync("admin.ventana.sin.precios@example.test", UserRole.Admin));
+        var (id, _) = await admin.CreateEditionAsync(2031);
+        await using var scope = host.Services.CreateAsyncScope();
+        var orders = scope.ServiceProvider.GetRequiredService<ComparsaOrdersDbContext>();
+        await using var transaction = await orders.BeginWriteAsync(TestContext.Current.CancellationToken);
+
+        var snapshot = await scope.ServiceProvider.GetRequiredService<IEditionDirectory>()
+            .ReadForOrderWriteAsync(id, transaction.GetDbTransaction(), TestContext.Current.CancellationToken);
+
+        Assert.Equal(EditionPrices.None, snapshot!.Prices);
+    }
+
+    [Fact]
     public async Task An_unknown_edition_reads_as_null()
     {
         await using var host = await IdentityTestHost.StartAsync(postgres, mailpit);

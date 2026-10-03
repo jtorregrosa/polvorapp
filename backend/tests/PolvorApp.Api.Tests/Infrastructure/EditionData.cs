@@ -11,6 +11,9 @@ namespace PolvorApp.Api.Tests.Infrastructure;
 public static class EditionData
 {
     /// <summary>A complete edition body: festival dates, order window and prices for <paramref name="year"/>.</summary>
+    /// <summary>The prices <see cref="CompleteBody"/> sets with the default caps box price.</summary>
+    public static readonly PolvorApp.FestivalEditions.Contracts.EditionPrices CompletePrices = new(55.00m, 4.50m, 30.00m, 6.00m);
+
     public static object CompleteBody(int year, uint version, decimal capsBox = 4.50m) => new
     {
         festivalStartsOn = $"{year}-04-22",

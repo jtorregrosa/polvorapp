@@ -1,3 +1,4 @@
+using PolvorApp.FestivalEditions.Contracts;
 using PolvorApp.SharedKernel.Validation;
 
 namespace PolvorApp.FestivalEditions.Editions;
@@ -12,15 +13,6 @@ internal sealed record EditionFields(
     string? OrdersOpenOn,
     string? OrdersCloseOn,
     PriceFields? Prices);
-
-/// <summary>Validated prices (<c>EditionPrices</c>); each is optional while the edition is a draft.</summary>
-internal sealed record EditionPrices(decimal? PowderPerKg, decimal? CapsBox, decimal? WeaponRental, decimal? FlaskRental)
-{
-    public static readonly EditionPrices None = new(null, null, null, null);
-
-    public static EditionPrices Of(FestivalEdition edition) =>
-        new(edition.PowderPerKg, edition.CapsBox, edition.WeaponRental, edition.FlaskRental);
-}
 
 /// <summary>Validated edition fields, ready to store.</summary>
 internal sealed record EditionInput(

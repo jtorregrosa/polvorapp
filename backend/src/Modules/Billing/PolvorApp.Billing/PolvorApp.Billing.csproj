@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>PolvorApp.Billing</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PolvorApp.Api.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\PolvorApp.SharedKernel\PolvorApp.SharedKernel.csproj" />
+    <ProjectReference Include="..\PolvorApp.Billing.Contracts\PolvorApp.Billing.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

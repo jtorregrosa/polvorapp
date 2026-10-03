@@ -13,6 +13,7 @@ namespace PolvorApp.FestivalEditions.Contracts;
 /// <param name="FestivalStartsOn">First festival day: the reference date of the entries' age warning (BR-04; add-comparsa-orders, design D7).</param>
 /// <param name="FestivalEndsOn">Last festival day: the license of an entry must be valid through it (BR-04).</param>
 /// <param name="OfferedWeaponModelIds">Models offered for rental: in the edition's set, active and rentable (BR-07).</param>
+/// <param name="Prices">The edition's current prices, which billing applies to its orders (add-billing-summary, design D2).</param>
 public sealed record EditionSnapshot(
     Guid Id,
     int Year,
@@ -20,7 +21,8 @@ public sealed record EditionSnapshot(
     bool OrdersOpen,
     DateOnly FestivalStartsOn,
     DateOnly FestivalEndsOn,
-    IReadOnlyList<Guid> OfferedWeaponModelIds);
+    IReadOnlyList<Guid> OfferedWeaponModelIds,
+    EditionPrices Prices);
 
 /// <summary>
 /// Read-only lookup of festival editions for other modules, e.g. comparsa orders (#10). It applies no

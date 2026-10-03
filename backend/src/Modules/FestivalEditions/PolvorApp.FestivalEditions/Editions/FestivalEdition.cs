@@ -42,6 +42,9 @@ internal sealed class FestivalEdition
 
     public DateTimeOffset? StatusChangedAt { get; set; }
 
+    /// <summary>The four stored prices together, as other modules read them (add-billing-summary, design D2).</summary>
+    public EditionPrices GetPrices() => new(PowderPerKg, CapsBox, WeaponRental, FlaskRental);
+
     /// <summary>PostgreSQL <c>xmin</c>: an edit or move based on an outdated version is refused.</summary>
     public uint Version { get; set; }
 }
