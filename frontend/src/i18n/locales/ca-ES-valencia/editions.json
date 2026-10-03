@@ -49,6 +49,7 @@
       "CLOSES": "Les comandes es tanquen el {{date}}"
     },
     "orders": "Comandes",
+    "ordersLink": "Mostra les comandes",
     "ordersEditable": "Els caps de tir poden editar les comandes",
     "ordersReadOnly": "Les comandes són de només lectura per als caps de tir",
     "draftNotice": "Edició en preparació: els caps de tir no la veuen fins que s'inicie.",
@@ -195,6 +196,7 @@
       "ordersOpen": "Les comandes estan obertes. Tanca-les abans.",
       "notInProgress": "Només l'edició en curs pot obrir comandes.",
       "notDraft": "Només es pot eliminar una edició en preparació.",
+      "inUse": "L'edició té comandes de comparses i no es pot eliminar.",
       "tooManyMilestones": "Una edició pot tindre 50 fites com a màxim.",
       "milestoneNotFound": "Esta fita ja no existix.",
       "busy": "L'edició està ocupada amb un altre canvi. Torna a intentar-ho d'ací a uns segons."

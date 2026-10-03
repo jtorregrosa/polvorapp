@@ -13,6 +13,7 @@ import caCommon from './locales/ca-ES-valencia/common.json';
 import caEditions from './locales/ca-ES-valencia/editions.json';
 import caIdentity from './locales/ca-ES-valencia/identity.json';
 import caInsights from './locales/ca-ES-valencia/insights.json';
+import caOrders from './locales/ca-ES-valencia/orders.json';
 import caRegistry from './locales/ca-ES-valencia/registry.json';
 import caUi from './locales/ca-ES-valencia/ui.json';
 import enCatalog from './locales/en/catalog.json';
@@ -20,6 +21,7 @@ import enCommon from './locales/en/common.json';
 import enEditions from './locales/en/editions.json';
 import enIdentity from './locales/en/identity.json';
 import enInsights from './locales/en/insights.json';
+import enOrders from './locales/en/orders.json';
 import enRegistry from './locales/en/registry.json';
 import enUi from './locales/en/ui.json';
 import esCatalog from './locales/es-ES/catalog.json';
@@ -27,6 +29,7 @@ import esCommon from './locales/es-ES/common.json';
 import esEditions from './locales/es-ES/editions.json';
 import esIdentity from './locales/es-ES/identity.json';
 import esInsights from './locales/es-ES/insights.json';
+import esOrders from './locales/es-ES/orders.json';
 import esRegistry from './locales/es-ES/registry.json';
 import esUi from './locales/es-ES/ui.json';
 
@@ -41,6 +44,7 @@ export const resources = {
     registry: esRegistry,
     insights: esInsights,
     editions: esEditions,
+    orders: esOrders,
   },
   'ca-ES-valencia': {
     common: caCommon,
@@ -50,6 +54,7 @@ export const resources = {
     registry: caRegistry,
     insights: caInsights,
     editions: caEditions,
+    orders: caOrders,
   },
   en: {
     common: enCommon,
@@ -59,6 +64,7 @@ export const resources = {
     registry: enRegistry,
     insights: enInsights,
     editions: enEditions,
+    orders: enOrders,
   },
 } as const satisfies Record<
   Language,
@@ -70,6 +76,7 @@ export const resources = {
     registry: object;
     insights: object;
     editions: object;
+    orders: object;
   }
 >;
 

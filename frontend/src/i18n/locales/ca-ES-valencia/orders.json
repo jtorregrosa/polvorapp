@@ -1,0 +1,261 @@
+{
+  "overview": {
+    "title": "Comandes",
+    "titleYear": "Comandes de {{year}}",
+    "descriptionAdmin": "L’estat i els totals de la comanda de cada comparsa en l’edició.",
+    "descriptionFiringChief": "Les comandes de les teues comparses en l’edició.",
+    "notPrepared": "Sense preparar",
+    "rowTotals": "{{active}} actius, {{reserve}} en reserva, {{powder}} kg de pólvora",
+    "counts": {
+      "title": "Comandes per estat",
+      "notPrepared": "Sense preparar",
+      "draft": "Esborranys",
+      "submitted": "Enviades",
+      "returned": "Retornades",
+      "validated": "Validades"
+    },
+    "totals": {
+      "title": "Totals de l’edició"
+    },
+    "columns": {
+      "comparsa": "Comparsa",
+      "status": "Estat",
+      "totals": "Totals",
+      "action": "Accions"
+    },
+    "caption": "Comandes de les comparses",
+    "empty": "No hi ha comparses per a mostrar.",
+    "prepare": "Prepara la comanda",
+    "prepareFor": "Prepara la comanda de {{comparsa}}",
+    "noEdition": {
+      "title": "No hi ha cap edició en curs",
+      "description": "Les comandes es preparen quan la Federació posa una edició en curs.",
+      "link": "Mostra les edicions"
+    },
+    "noTotals": "Sense totals"
+  },
+  "order": {
+    "title": "Comanda de {{comparsa}}",
+    "edition": "Festes {{year}}",
+    "back": "Comandes de l’edició",
+    "totals": "Totals de la comanda",
+    "someone": "la Federació",
+    "readOnly": {
+      "ordersClosed": "Les comandes estan tancades: ja no pots modificar esta comanda.",
+      "validated": "La comanda està validada: ja no pots modificar-la."
+    },
+    "returned": "Retornada per {{name}}",
+    "submittedByAdmin": "{{name}} la va enviar en nom de la comparsa el {{date}}.",
+    "warnings_one": "{{count}} arcabusser actiu amb avisos",
+    "warnings_other": "{{count}} arcabussers actius amb avisos",
+    "issuesTitle": "Hi ha línies que cal revisar abans d’enviar la comanda:",
+    "issue": "{{name}}: {{issues}}",
+    "loading": "S’està carregant la comanda…",
+    "staleFailed": "El que es mostra pot no estar al dia.",
+    "toEntries": "Ves a les línies"
+  },
+  "errors": {
+    "orders": {
+      "notFound": "No s’ha trobat la comanda.",
+      "alreadyPrepared": "La comanda d’esta comparsa ja està preparada.",
+      "editionNotStarted": "L’edició encara està en preparació.",
+      "comparsaInactive": "La comparsa està desactivada.",
+      "closed": "Les comandes estan tancades: ja no es pot modificar.",
+      "validated": "La comanda està validada: ja no es pot modificar.",
+      "invalidTransition": "La comanda ja no està en un estat que ho permeta.",
+      "modified": "Una altra persona ha canviat la comanda. Es mostra de nou amb els seus canvis.",
+      "entriesInvalid": "Hi ha línies que cal revisar abans d’enviar-la.",
+      "alreadyInEdition": "Este arcabusser ja té una línia en esta edició.",
+      "busy": "La comanda està ocupada. Torna-ho a provar d’ací a uns segons."
+    },
+    "entries": {
+      "notFound": "No s’ha trobat la línia.",
+      "modified": "Una altra persona ha canviat la línia. Es mostra de nou amb els seus canvis."
+    },
+    "validation": "Revisa les dades marcades.",
+    "generic": "No s’ha pogut completar. Torna-ho a provar."
+  },
+  "validation": {
+    "required": "Este camp és obligatori",
+    "choice": "Tria una opció",
+    "invalid": "El valor no és vàlid",
+    "tooLong": "És massa llarg",
+    "outOfRange": "Està fora del rang permés",
+    "capsType": "Tria el tipus de pistons",
+    "reserve": "Un arcabusser en reserva no porta pólvora, pistons, arma ni cantimplora",
+    "checkLetter": "La lletra del DNI/NIE no correspon al número",
+    "attestation": "Confirma la declaració per a enviar la comanda",
+    "notOwned": "L’arma ja no és d’este arcabusser",
+    "notOffered": "Este model no es lloga en l’edició",
+    "ownWeapon": "És una arma del mateix arcabusser: tria «Arma pròpia»",
+    "notFound": "No s’ha trobat",
+    "inactive": "El model està retirat",
+    "lenderRegistered": "Este DNI/NIE és d’un arcabusser registrat: busca’l",
+    "lookUpFirst": "Busca primer el propietari pel seu DNI/NIE"
+  },
+  "totals": {
+    "active": "Actius",
+    "reserve": "En reserva",
+    "powder": "Pólvora",
+    "kg": "{{value}} kg",
+    "caps": "Pistons",
+    "capsValue": "{{normal}} caixes normals, {{small}} xicotetes",
+    "flasks": "Cantimplores de lloguer",
+    "flasksValue": "{{one}} d’1 kg, {{two}} de 2 kg",
+    "loans": "Cessions",
+    "ownedWeapons": "Armes pròpies",
+    "withWarnings": "Actius amb avisos",
+    "rentalsTitle": "Armes de lloguer per model",
+    "model": "Model",
+    "rentals": "Lloguers"
+  },
+  "entries": {
+    "caption": "Línies de la comanda",
+    "edit": "Edita",
+    "editFor": "Edita la línia de {{name}}",
+    "columns": {
+      "name": "Arcabusser",
+      "status": "Estat",
+      "powder": "Pólvora",
+      "caps": "Pistons",
+      "weapon": "Arma",
+      "flask": "Cantimplora",
+      "warnings": "Avisos",
+      "action": "Accions"
+    },
+    "sectionName": "la línia de {{name}}"
+  },
+  "entry": {
+    "firstYear": "Primer any",
+    "notInRegistry": "Ja no està en el registre",
+    "nationalId": "DNI/NIE {{value}}",
+    "federationId": "ID Unió {{value}}",
+    "noCaps": "Sense pistons",
+    "caps": {
+      "NORMAL_one": "{{count}} caixa normal",
+      "NORMAL_other": "{{count}} caixes normals",
+      "SMALL_one": "{{count}} caixa xicoteta",
+      "SMALL_other": "{{count}} caixes xicotetes"
+    },
+    "weapon": {
+      "OWNED": "Pròpia: {{weapon}}",
+      "RENTAL": "Lloguer: {{model}}",
+      "LOAN": "Cessió de {{lender}} ({{comparsa}})",
+      "LOAN_EXTERNAL": "Cessió de {{lender}} (extern)",
+      "LOAN_MISSING": "Cessió sense propietari",
+      "NONE": "Sense arma",
+      "guide": "guia {{guide}}",
+      "removed": "(ja no està en el registre)"
+    },
+    "flask": {
+      "OWNED": "Pròpia",
+      "RENTAL_1KG": "Lloguer d’1 kg",
+      "RENTAL_2KG": "Lloguer de 2 kg",
+      "NONE": "Sense cantimplora"
+    }
+  },
+  "issues": {
+    "ownedWeaponMissing": "l’arma pròpia ja no està en el registre",
+    "loanWeaponMissing": "l’arma cedida ja no està en el registre",
+    "rentalModelNotOffered": "el model de lloguer ja no s’oferix",
+    "unknown": "hi ha una dada per revisar"
+  },
+  "notInOrder": {
+    "title": "No estan en la comanda",
+    "description": "Arcabussers de la comparsa registrats o traslladats després de preparar la comanda.",
+    "add": "Afig",
+    "addFor": "Afig {{name}}",
+    "added": "{{name}} s’ha afegit a la comanda."
+  },
+  "lentOut": {
+    "title": "Armes cedides a altres",
+    "description": "Armes dels teus arcabussers cedides en esta edició.",
+    "item": "{{weapon}} de {{owner}}, cedida a {{borrower}} ({{comparsa}})"
+  },
+  "entryPanel": {
+    "title": "Línia de {{name}}",
+    "submittedNote": "La comanda està enviada: en desar torna a esborrany i caldrà enviar-la de nou.",
+    "savedBackToDraft": "Canvis desats. La comanda ha tornat a esborrany: envia-la de nou quan estiga llesta.",
+    "status": "Estat en esta edició",
+    "statusOption": {
+      "ACTIVE": "Actiu",
+      "RESERVE": "Reserva"
+    },
+    "reserveHint": "No porta pólvora, pistons, arma ni cantimplora.",
+    "powder": "Pólvora",
+    "capsBoxes": "Caixes de pistons",
+    "capsType": "Tipus de pistons",
+    "capsTypeOption": {
+      "NORMAL": "Normals",
+      "SMALL": "Xicotets"
+    },
+    "weapon": "Arma",
+    "ownedWeapon": "Arma pròpia",
+    "rentalModel": "Model de lloguer",
+    "flask": "Cantimplora",
+    "choose": "Tria…",
+    "source": {
+      "OWNED": "Arma pròpia",
+      "RENTAL": "Lloguer",
+      "LOAN": "Cessió",
+      "LOAN_HINT": "Una arma d’una altra persona, registrada o externa.",
+      "NONE": "Sense arma",
+      "NONE_HINT": "Per exemple, qui només porta pólvora."
+    },
+    "reserveNote": "En reserva no porta pólvora, pistons, arma ni cantimplora: eixes dades queden buides."
+  },
+  "loan": {
+    "nationalId": "DNI/NIE del propietari",
+    "nationalIdHint": "Es busca entre els arcabussers registrats de totes les comparses.",
+    "lookUp": "Busca el propietari",
+    "change": "Canvia el propietari",
+    "found": "Trobat: {{name}}, de {{comparsa}}.",
+    "noWeapons": "No té armes pròpies registrades.",
+    "weapon": "Arma cedida",
+    "notFound": "No hi ha cap arcabusser amb este DNI/NIE: indica les dades del propietari extern.",
+    "firstName": "Nom del propietari",
+    "lastName": "Cognoms del propietari",
+    "model": "Model de l’arma",
+    "weaponNumber": "Número de l’arma",
+    "guideNumber": "Número de la guia de pertinença",
+    "tooManyLookups": "Has fet massa cerques. Espera un minut i torna-ho a provar.",
+    "searching": "S’està buscant el propietari…",
+    "modelsFailed": "No s’han pogut carregar els models d’arma.",
+    "retry": "Torna-ho a provar"
+  },
+  "actions": {
+    "entriesInvalid": "Hi ha línies que cal revisar abans de continuar: {{names}}. S’assenyalen en la comanda.",
+    "submit": {
+      "label": "Envia la comanda",
+      "adminLabel": "Envia en nom de la comparsa",
+      "title": "Vols enviar la comanda de {{comparsa}}?",
+      "adminTitle": "Vols enviar la comanda en nom de la comparsa?",
+      "description": "La Federació la revisarà. Mentre les comandes estiguen obertes podràs corregir-la; en fer-ho tornarà a esborrany.",
+      "adminDescription": "L’envies tu en nom de la comparsa, sense la declaració del cap de disparada; constarà així en la comanda.",
+      "confirm": "Envia",
+      "adminConfirm": "Envia en nom seu",
+      "warnings_one": "{{count}} arcabusser actiu té avisos pendents (no impedixen l’enviament):",
+      "warnings_other": "{{count}} arcabussers actius tenen avisos pendents (no impedixen l’enviament):",
+      "noWarnings": "Cap arcabusser actiu té avisos pendents.",
+      "attestation": "Declare que els arcabussers de la comanda complixen els requisits de llicència, curs i edat.",
+      "attestationHint": "Marca esta casella per a poder enviar la comanda.",
+      "done": "Comanda enviada."
+    },
+    "validate": {
+      "label": "Valida",
+      "title": "Vols validar la comanda de {{comparsa}}?",
+      "description": "El cap de disparada ja no podrà modificar-la.",
+      "notSubmitted": "La comparsa no ha enviat esta comanda. En validar-la es tanca tal com està i el cap de disparada ja no podrà modificar-la.",
+      "confirm": "Valida",
+      "done": "Comanda validada."
+    },
+    "return": {
+      "label": "Retorna",
+      "title": "Vols retornar la comanda de {{comparsa}}?",
+      "description": "El cap de disparada veurà el motiu i podrà corregir-la i enviar-la de nou.",
+      "reason": "Motiu de la devolució",
+      "confirm": "Retorna",
+      "done": "Comanda retornada."
+    }
+  }
+}

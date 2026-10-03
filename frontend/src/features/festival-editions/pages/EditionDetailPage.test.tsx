@@ -92,6 +92,27 @@ describe('EditionDetailPage in read mode (spec: Editions screens)', () => {
     expect(screen.queryByRole('button', { name: 'Añadir hito' })).not.toBeInTheDocument();
   });
 
+  it.each([
+    ['an Admin', SYNTHETIC_ADMIN],
+    ['a FiringChief', SYNTHETIC_FIRING_CHIEF],
+  ])('links a started edition to its orders for %s', async (_who, session) => {
+    editionDetails(CLOSED_2030);
+    await renderApp(`/editions/${CLOSED_2030.id}`, { session });
+
+    expect(await screen.findByRole('link', { name: 'Ver los pedidos' })).toHaveAttribute(
+      'href',
+      `/editions/${CLOSED_2030.id}/orders`,
+    );
+  });
+
+  it('offers no orders link for a draft', async () => {
+    editionDetails(DRAFT_2032);
+    await asAdmin(DRAFT_2032);
+
+    await screen.findByRole('heading', { level: 1, name: 'Fiestas 2032' });
+    expect(screen.queryByRole('link', { name: 'Ver los pedidos' })).not.toBeInTheDocument();
+  });
+
   it('shows the not-found page for a draft hidden from the caller', async () => {
     server.use(mock.get(`/api/editions/${DRAFT_2032.id}`, () => problem(404, 'editions.notFound')));
     await renderApp(`/editions/${DRAFT_2032.id}`, { session: SYNTHETIC_FIRING_CHIEF });
@@ -493,6 +514,22 @@ describe('EditionActions (spec: Editions screens, design D10)', () => {
     });
     expect(await screen.findByText('Edición 2032 eliminada.')).toBeInTheDocument();
     expect(deletions).toBe(1);
+  });
+
+  it('explains that a draft with comparsa orders cannot be deleted', async () => {
+    const user = userEvent.setup();
+    editionDetails(DRAFT_2032);
+    server.use(mock.delete(`/api/editions/${DRAFT_2032.id}`, () => problem(409, 'editions.inUse')));
+    const app = await asAdmin(DRAFT_2032);
+
+    await user.click(await moreAction(user, 'Eliminar edición'));
+    const dialog = await screen.findByRole('alertdialog', { name: '¿Eliminar la edición 2032?' });
+    await user.click(within(dialog).getByRole('button', { name: 'Eliminar edición' }));
+
+    expect(
+      await within(dialog).findByText(/tiene pedidos de comparsas y no se puede eliminar/),
+    ).toBeInTheDocument();
+    expect(app.location()).toBe(`/editions/${DRAFT_2032.id}`);
   });
 
   it('says so and reloads when the edition changed before the orders move', async () => {
