@@ -76,7 +76,7 @@ public sealed class OrdersPersonalDataTests(PostgresFixture postgres, MailpitFix
     {
         var order = await OrderAsync(2030, EditionStatus.Closed, OrderStatus.Validated);
         var borrower = NewEntry(order, null);
-        borrower.WeaponSource = WeaponSource.Loan;
+        (borrower.WeaponSource, borrower.FirstName, borrower.LastName) = (WeaponSource.Loan, "Prestataria", "Sintética Receptora");
         var lenderId = RegistryData.NextIdentity().NationalId;
         var loan = new WeaponLoan
         {
@@ -102,6 +102,9 @@ public sealed class OrdersPersonalDataTests(PostgresFixture postgres, MailpitFix
         var sheet = Assert.Single(parts.SelectMany(p => p.Sheets));
         Assert.Equal("lenderLoans", sheet.Code);
         Assert.DoesNotContain(borrower.NationalId, sheet.Rows.SelectMany(r => r).OfType<string>());
+        // The other party appears by role only: neither the borrower's DNI/NIE nor their names (SEC-06).
+        Assert.DoesNotContain(sheet.Rows.SelectMany(r => r).OfType<string>(), value =>
+            value.Contains(borrower.LastName!, StringComparison.Ordinal) || value.Contains(borrower.FirstName!, StringComparison.Ordinal));
         Assert.Equal(1, result!.Counts["loansAnonymised"]);
         var erased = await LoanAsync(loan.Id);
         Assert.Equal((null, null, null, null, _model.Id), (erased.LenderFirstName, erased.LenderNationalId, erased.WeaponNumber, erased.OwnershipGuideNumber, erased.WeaponModelId));

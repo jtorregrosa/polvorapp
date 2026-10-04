@@ -96,6 +96,27 @@ public sealed class AuditPurgeTests(PostgresFixture postgres) : IAsyncLifetime
         Assert.Equal(DBNull.Value, await ScalarAsync("SELECT actor_user_id FROM audit.audit_entries WHERE action = 'AuditEntriesPurged'"));
     }
 
+    /// <summary>Every security code of the catalogue (design D2) is kept a year, not five.</summary>
+    [Theory]
+    [InlineData("SignedIn")]
+    [InlineData("SignInFailed")]
+    [InlineData("LockedOut")]
+    [InlineData("RecoveryCodeUsed")]
+    [InlineData("PasswordResetRequested")]
+    [InlineData("AdminBootstrapRefused")]
+    [InlineData("LoanLenderLookedUp")]
+    [InlineData("PersonLookedUp")]
+    public async Task Each_security_event_goes_after_a_year(string action)
+    {
+        await InsertAsync(action, Now.AddDays(-366));
+        await InsertAsync(action, Now.AddDays(-300));
+
+        var result = await PurgeAsync();
+
+        Assert.Equal((1, 0), (result.Security, result.Standard));
+        Assert.Equal(new[] { "AuditEntriesPurged", action }.Order(StringComparer.Ordinal), await ActionsAsync());
+    }
+
     [Fact]
     public async Task An_entry_exactly_at_the_cut_off_is_kept()
     {

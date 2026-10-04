@@ -128,6 +128,27 @@ describe('User privacy requests (spec: GDPR request screens)', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Usuario borrado' })).toBeInTheDocument();
   });
 
+  it('says when the user was already erased by someone else', async () => {
+    const user = userEvent.setup();
+    userDetails(CHIEF);
+    server.use(
+      mock.post(`/api/privacy/users/${CHIEF.id}/erasure`, () => problem(409, 'privacy.alreadyErased')),
+    );
+    await asAdmin(`/users/${CHIEF.id}`);
+
+    await moreAction(user, 'Borrar datos personales');
+    const dialog = await screen.findByRole('alertdialog');
+    await user.type(
+      within(dialog).getByRole('textbox', { name: 'Referencia de la solicitud' }),
+      'REQ-2030-12',
+    );
+    await user.click(within(dialog).getByRole('button', { name: 'Borrar' }));
+
+    expect(
+      await within(dialog).findByText('Los datos de este usuario ya están borrados.'),
+    ).toBeInTheDocument();
+  });
+
   it('shows a refusal in the dialog, e.g. the caller erasing themselves', async () => {
     const user = userEvent.setup();
     userDetails(CHIEF);
