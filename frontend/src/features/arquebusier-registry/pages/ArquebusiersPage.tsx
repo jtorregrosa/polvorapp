@@ -1,5 +1,5 @@
 import { FileUp, IdCard, Plus } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { useListArquebusiers } from '@/api/generated/arquebusiers/arquebusiers';
@@ -7,13 +7,15 @@ import { useListComparsas } from '@/api/generated/comparsas/comparsas';
 import type { ArquebusierRowResponse, ComparsaResponse, ListArquebusiersParams } from '@/api/generated/model';
 import { NoticeBanner } from '@/components/app/AlertBanner';
 import { Button } from '@/components/app/Button';
-import { DataTable } from '@/components/app/DataTable';
+import { DataTable, type RowSelection } from '@/components/app/DataTable';
 import { EmptyState } from '@/components/app/EmptyState';
 import { FilterBar, NoMatches } from '@/components/app/FilterBar';
 import { FilterSelect } from '@/components/app/FilterSelect';
 import { PageHeader } from '@/components/app/PageHeader';
 import { SearchField } from '@/components/app/SearchField';
 import { StatFilter } from '@/components/app/StatFilter';
+import { BadgeSheet } from '@/features/badges/components/BadgeSheet';
+import { MAX_BADGES } from '@/features/badges/batch';
 import { useSession } from '@/features/identity-access/session';
 import { useNotice } from '@/lib/notices';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
@@ -40,16 +42,78 @@ function useSettled(text: string): string {
   return settled;
 }
 
+/** The Admin's badge selection (spec: Badge screens): the selected rows, kept across filters and pages. */
+interface BadgeSelection {
+  rows: readonly ArquebusierRowResponse[];
+  change: (selection: RowSelection) => void;
+  remove: (ids: readonly string[]) => void;
+  clear: () => void;
+}
+
 interface ListProps {
   rows: readonly ArquebusierRowResponse[];
   loaded: boolean;
   loading: boolean;
   comparsas: readonly ComparsaResponse[];
   filters: ReturnType<typeof useArquebusierFilters>;
+  /** Admins only. */
+  selection?: BadgeSelection;
+}
+
+const rowLabel = (row: ArquebusierRowResponse) => `${row.lastName}, ${row.firstName}`;
+
+/** The table's selection props for Admins; none for FiringChiefs. */
+function selectionProps(selection: BadgeSelection | undefined):
+  | {
+      rowSelection: RowSelection;
+      onRowSelectionChange: (next: RowSelection) => void;
+      getRowLabel: typeof rowLabel;
+    }
+  | Record<string, never> {
+  if (!selection) return {};
+  return {
+    rowSelection: Object.fromEntries(selection.rows.map((row) => [row.id, true])),
+    onRowSelectionChange: selection.change,
+    getRowLabel: rowLabel,
+  };
+}
+
+/** How many are selected, "Clear", and "Print badges" for them, refused beyond {@link MAX_BADGES}. */
+function SelectionBar({ selection }: { selection: BadgeSelection }) {
+  const { t } = useTranslation('badges');
+  const count = selection.rows.length;
+  const tooMany = count > MAX_BADGES;
+  const reasonId = useId();
+  return (
+    <section
+      aria-label={t('selection.label')}
+      className="flex flex-col gap-2 rounded-lg border bg-surface-2 px-4 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between"
+    >
+      <div className="flex flex-col gap-1">
+        <p className="font-medium">{t('selection.count', { count })}</p>
+        {/* Always rendered, so the limit is announced the moment it is passed. */}
+        <p id={reasonId} aria-live="polite" className="text-help text-muted-foreground empty:hidden">
+          {tooMany ? t('selection.limit', { max: MAX_BADGES }) : ''}
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <Button type="button" variant="secondary" size="sm" onClick={selection.clear}>
+          {t('selection.clear')}
+        </Button>
+        <BadgeSheet
+          batch={{ kind: 'selection', arquebusierIds: selection.rows.map((row) => row.id) }}
+          rows={selection.rows}
+          onUnknownIds={selection.remove}
+          disabled={tooMany}
+          disabledReasonId={reasonId}
+        />
+      </div>
+    </section>
+  );
 }
 
 /** The counters, the filter bar and the table (or "nothing matches") of the list template. */
-function ArquebusierList({ rows, loaded, loading, comparsas, filters }: ListProps) {
+function ArquebusierList({ rows, loaded, loading, comparsas, filters, selection }: ListProps) {
   const { t } = useTranslation(['registry', 'ui']);
   const { columns, mobileRow } = useArquebusierColumns();
   const { status, license, warning, searchTerm } = filters;
@@ -107,6 +171,7 @@ function ArquebusierList({ rows, loaded, loading, comparsas, filters }: ListProp
         }
         resultText={resultText}
       />
+      {selection && selection.rows.length > 0 && <SelectionBar selection={selection} />}
       {loaded && shown.length === 0 ? (
         <NoMatches title={t('arquebusiers.noMatches')} onClear={filters.clearFilters} />
       ) : (
@@ -119,6 +184,7 @@ function ArquebusierList({ rows, loaded, loading, comparsas, filters }: ListProp
           mobileRow={mobileRow}
           isLoading={loading}
           emptyText={t('arquebusiers.noMatches')}
+          {...selectionProps(selection)}
         />
       )}
     </>
@@ -156,6 +222,22 @@ export function ArquebusiersPage() {
     [arquebusiers.data],
   );
 
+  const selection = useBadgeSelection(rows, arquebusiers.isSuccess, comparsaId);
+  const comparsaName = comparsaList.find((comparsa) => comparsa.id === comparsaId)?.name;
+  // Spec "Badge screens": the whole comparsa when the list shows one and nothing is selected.
+  const comparsaBadges = isAdmin &&
+    comparsaId &&
+    comparsaName &&
+    rows.length > 0 &&
+    selection.rows.length === 0 && (
+      <BadgeSheet
+        batch={{ kind: 'comparsa', comparsaId, comparsaName }}
+        rows={rows}
+        context={comparsaName}
+        onUnknownIds={selection.remove}
+      />
+    );
+
   const [notice] = useNotice();
   const unassigned = !isAdmin && comparsas.isSuccess && comparsaList.length === 0;
   const lock = useRegistryLock();
@@ -191,6 +273,7 @@ export function ArquebusiersPage() {
           !unassigned && (
             <>
               <RegistryLockAction lock={lock} />
+              {comparsaBadges}
               {importAction}
               {registerAction}
             </>
@@ -230,8 +313,52 @@ export function ArquebusiersPage() {
           loading={arquebusiers.isPending}
           comparsas={comparsaList}
           filters={filters}
+          selection={isAdmin ? selection : undefined}
         />
       )}
     </>
   );
+}
+
+/**
+ * The badge selection, kept in this page only (it is cleared when the user leaves the list): the
+ * selected rows survive filters and paging, take the latest data of rows still listed, and drop the
+ * rows the registry no longer has — gone from the whole list, or from the comparsa being shown.
+ */
+function useBadgeSelection(
+  rows: readonly ArquebusierRowResponse[],
+  loaded: boolean,
+  comparsaId: string,
+): BadgeSelection {
+  const [stored, setStored] = useState<ReadonlyMap<string, ArquebusierRowResponse>>(() => new Map());
+  const listed = useMemo(() => new Map(rows.map((row) => [row.id, row])), [rows]);
+  const selected = useMemo(
+    () =>
+      [...stored.values()]
+        .map((row) => listed.get(row.id) ?? row)
+        .filter(
+          (row) => !loaded || listed.has(row.id) || (comparsaId !== '' && row.comparsaId !== comparsaId),
+        ),
+    [stored, listed, loaded, comparsaId],
+  );
+  return {
+    rows: selected,
+    change: (next) => {
+      setStored((current) => {
+        const kept = new Map<string, ArquebusierRowResponse>();
+        for (const [id, isSelected] of Object.entries(next)) {
+          if (!isSelected) continue;
+          const row = listed.get(id) ?? current.get(id);
+          if (row) kept.set(id, row);
+        }
+        return kept;
+      });
+    },
+    remove: (ids) => {
+      setStored((current) => new Map([...current].filter(([id]) => !ids.includes(id))));
+    },
+    clear: () => {
+      setStored(new Map());
+    },
+  };
 }

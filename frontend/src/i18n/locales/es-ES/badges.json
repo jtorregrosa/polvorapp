@@ -1,0 +1,51 @@
+{
+  "action": "Imprimir carnets",
+  "actionContext": "de {{comparsa}}",
+  "sheet": {
+    "title": "Imprimir carnets",
+    "description": "Una hoja A4 de 10 carnets de tamaño tarjeta, con marcas de corte.",
+    "batchComparsa_one": "{{count}} arcabucero de {{comparsa}}, activos y en reserva",
+    "batchComparsa_other": "{{count}} arcabuceros de {{comparsa}}, activos y en reserva",
+    "batchSelection_one": "{{count}} arcabucero seleccionado",
+    "batchSelection_other": "{{count}} arcabuceros seleccionados",
+    "language": "Idioma de las etiquetas",
+    "languageHint": "Los nombres y la comparsa no se traducen.",
+    "languages": {
+      "es-ES": "Español",
+      "ca-ES-valencia": "Valenciano",
+      "en": "Inglés"
+    },
+    "incompleteTitle": "Algunos carnets saldrán incompletos",
+    "noPhoto_one": "{{count}} sin foto de carnet: saldrá el marco vacío para pegarla.",
+    "noPhoto_other": "{{count}} sin foto de carnet: saldrá el marco vacío para pegarla.",
+    "noLicense_one": "{{count}} sin licencia emitida: la fecha de caducidad saldrá en blanco.",
+    "noLicense_other": "{{count}} sin licencia emitida: la fecha de caducidad saldrá en blanco.",
+    "noLogo": "No se ha subido el logo de la Federación: los carnets saldrán sin él.",
+    "printNote": "Imprime a escala 100 % (tamaño real, sin «ajustar a la página») en cartulina y recorta por las marcas.",
+    "download": "Descargar PDF",
+    "saved": "Archivo guardado: {{name}}",
+    "failedTitle": "No se han podido generar los carnets"
+  },
+  "selection": {
+    "label": "Selección",
+    "count_one": "{{count}} seleccionado",
+    "count_other": "{{count}} seleccionados",
+    "clear": "Quitar la selección",
+    "limit": "Un PDF admite como máximo {{max}} carnets: quita algunos de la selección.",
+    "removed_one": "{{count}} arcabucero ya no está en el registro: se quitará de la selección al cerrar.",
+    "removed_other": "{{count}} arcabuceros ya no están en el registro: se quitarán de la selección al cerrar."
+  },
+  "errors": {
+    "notFound": "La comparsa ya no existe.",
+    "nothingToPrint": "La comparsa no tiene arcabuceros.",
+    "tooMany": "Un PDF admite como máximo 200 carnets. Imprime una selección.",
+    "photoUnreadable": "No se puede leer la foto de carnet de: {{names}}. Vuelve a subirla o quítalos de la selección.",
+    "photoUnreadableCount_one": "No se puede leer la foto de carnet de {{count}} arcabucero. Vuelve a subirla o quítalo de la selección.",
+    "photoUnreadableCount_other": "No se puede leer la foto de carnet de {{count}} arcabuceros. Vuelve a subirlas o quítalos de la selección.",
+    "busy": "Se están generando otros carnets. Inténtalo de nuevo en unos segundos.",
+    "auditUnavailable": "No se ha podido registrar la descarga. Inténtalo de nuevo.",
+    "storageUnavailable": "No se pueden leer las fotos ni el logo ahora mismo. Inténtalo de nuevo.",
+    "tooManyRequests": "Has descargado muchos documentos seguidos. Espera un minuto.",
+    "failed": "Inténtalo de nuevo."
+  }
+}

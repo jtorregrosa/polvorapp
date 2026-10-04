@@ -12,6 +12,7 @@ import caAudit from './locales/ca-ES-valencia/audit.json';
 import caBilling from './locales/ca-ES-valencia/billing.json';
 import caCatalog from './locales/ca-ES-valencia/catalog.json';
 import caDistribution from './locales/ca-ES-valencia/distribution.json';
+import caBadges from './locales/ca-ES-valencia/badges.json';
 import caExports from './locales/ca-ES-valencia/exports.json';
 import caCommon from './locales/ca-ES-valencia/common.json';
 import caEditions from './locales/ca-ES-valencia/editions.json';
@@ -26,6 +27,7 @@ import enAudit from './locales/en/audit.json';
 import enBilling from './locales/en/billing.json';
 import enCatalog from './locales/en/catalog.json';
 import enDistribution from './locales/en/distribution.json';
+import enBadges from './locales/en/badges.json';
 import enExports from './locales/en/exports.json';
 import enCommon from './locales/en/common.json';
 import enEditions from './locales/en/editions.json';
@@ -40,6 +42,7 @@ import esAudit from './locales/es-ES/audit.json';
 import esBilling from './locales/es-ES/billing.json';
 import esCatalog from './locales/es-ES/catalog.json';
 import esDistribution from './locales/es-ES/distribution.json';
+import esBadges from './locales/es-ES/badges.json';
 import esExports from './locales/es-ES/exports.json';
 import esCommon from './locales/es-ES/common.json';
 import esEditions from './locales/es-ES/editions.json';
@@ -66,6 +69,7 @@ export const resources = {
     billing: esBilling,
     exports: esExports,
     distribution: esDistribution,
+    badges: esBadges,
     notifications: esNotifications,
     audit: esAudit,
     privacy: esPrivacy,
@@ -82,6 +86,7 @@ export const resources = {
     billing: caBilling,
     exports: caExports,
     distribution: caDistribution,
+    badges: caBadges,
     notifications: caNotifications,
     audit: caAudit,
     privacy: caPrivacy,
@@ -98,6 +103,7 @@ export const resources = {
     billing: enBilling,
     exports: enExports,
     distribution: enDistribution,
+    badges: enBadges,
     notifications: enNotifications,
     audit: enAudit,
     privacy: enPrivacy,
@@ -116,6 +122,7 @@ export const resources = {
     billing: object;
     exports: object;
     distribution: object;
+    badges: object;
     notifications: object;
     audit: object;
     privacy: object;

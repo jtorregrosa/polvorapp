@@ -1,0 +1,51 @@
+{
+  "action": "Imprimir carnets",
+  "actionContext": "de {{comparsa}}",
+  "sheet": {
+    "title": "Imprimir carnets",
+    "description": "Un full A4 de 10 carnets de grandària targeta, amb marques de tall.",
+    "batchComparsa_one": "{{count}} arcabusser de {{comparsa}}, actius i en reserva",
+    "batchComparsa_other": "{{count}} arcabussers de {{comparsa}}, actius i en reserva",
+    "batchSelection_one": "{{count}} arcabusser seleccionat",
+    "batchSelection_other": "{{count}} arcabussers seleccionats",
+    "language": "Idioma de les etiquetes",
+    "languageHint": "Els noms i la comparsa no es traduïxen.",
+    "languages": {
+      "es-ES": "Castellà",
+      "ca-ES-valencia": "Valencià",
+      "en": "Anglés"
+    },
+    "incompleteTitle": "Alguns carnets eixiran incomplets",
+    "noPhoto_one": "{{count}} sense foto de carnet: eixirà el marc buit per a apegar-la.",
+    "noPhoto_other": "{{count}} sense foto de carnet: eixirà el marc buit per a apegar-la.",
+    "noLicense_one": "{{count}} sense llicència emesa: la data de caducitat eixirà en blanc.",
+    "noLicense_other": "{{count}} sense llicència emesa: la data de caducitat eixirà en blanc.",
+    "noLogo": "No s'ha pujat el logo de la Federació: els carnets eixiran sense ell.",
+    "printNote": "Imprimix a escala 100 % (grandària real, sense «ajustar a la pàgina») en cartolina i retalla per les marques.",
+    "download": "Descarregar PDF",
+    "saved": "Arxiu guardat: {{name}}",
+    "failedTitle": "No s'han pogut generar els carnets"
+  },
+  "selection": {
+    "label": "Selecció",
+    "count_one": "{{count}} seleccionat",
+    "count_other": "{{count}} seleccionats",
+    "clear": "Llevar la selecció",
+    "limit": "Un PDF admet com a màxim {{max}} carnets: lleva'n alguns de la selecció.",
+    "removed_one": "{{count}} arcabusser ja no està en el registre: es llevarà de la selecció en tancar.",
+    "removed_other": "{{count}} arcabussers ja no estan en el registre: es llevaran de la selecció en tancar."
+  },
+  "errors": {
+    "notFound": "La comparsa ja no existix.",
+    "nothingToPrint": "La comparsa no té arcabussers.",
+    "tooMany": "Un PDF admet com a màxim 200 carnets. Imprimix una selecció.",
+    "photoUnreadable": "No es pot llegir la foto de carnet de: {{names}}. Torna a pujar-la o lleva'ls de la selecció.",
+    "photoUnreadableCount_one": "No es pot llegir la foto de carnet de {{count}} arcabusser. Torna a pujar-la o lleva'l de la selecció.",
+    "photoUnreadableCount_other": "No es pot llegir la foto de carnet de {{count}} arcabussers. Torna a pujar-les o lleva'ls de la selecció.",
+    "busy": "S'estan generant altres carnets. Torna-ho a intentar d'ací a uns segons.",
+    "auditUnavailable": "No s'ha pogut registrar la descàrrega. Torna-ho a intentar.",
+    "storageUnavailable": "Ara mateix no es poden llegir les fotos ni el logo. Torna-ho a intentar.",
+    "tooManyRequests": "Has descarregat molts documents seguits. Espera un minut.",
+    "failed": "Torna-ho a intentar."
+  }
+}

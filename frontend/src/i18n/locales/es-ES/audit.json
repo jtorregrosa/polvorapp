@@ -69,6 +69,7 @@
     "ArquebusierUpdated": "Arcabucero modificado",
     "ArquebusiersImported": "Arcabuceros importados",
     "AuditEntriesPurged": "Registros de auditoría caducados eliminados",
+    "BadgesDownloaded": "Carnets descargados",
     "CalendarMilestoneAdded": "Hito del calendario añadido",
     "CalendarMilestoneRemoved": "Hito del calendario quitado",
     "CalendarMilestoneUpdated": "Hito del calendario modificado",
@@ -141,6 +142,7 @@
   "entityTypes": {
     "Arquebusier": "Arcabucero",
     "AuditTrail": "Registro de auditoría",
+    "Badges": "Carnets",
     "CalendarMilestone": "Hito del calendario",
     "Comparsa": "Comparsa",
     "ComparsaOrder": "Pedido",
