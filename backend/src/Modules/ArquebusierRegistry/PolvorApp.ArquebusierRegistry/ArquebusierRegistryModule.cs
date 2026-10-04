@@ -49,6 +49,8 @@ public sealed class ArquebusierRegistryModule : IModule
         services.AddScoped<OwnedWeaponAdministration>();
         services.AddScoped<ArquebusierPhotoAdministration>();
         services.AddScoped<PhotoObjects>();
+        services.AddScoped<PhotoReader>();
+        services.AddScoped<IIdPhotoReader, RegistryIdPhotoReader>();
 
         // One of possibly several owners the platform's orphan sweep asks (design D2): added, never replaced.
         services.AddScoped<IStoredObjectOwner, RegistryPhotoOwner>();
