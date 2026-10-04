@@ -392,6 +392,11 @@ partial date in Safari (macOS and iOS) is a manual release check. Journeys that 
 invite one through the UI, read the link from Mailpit's API and enrol with a computed TOTP code
 (`e2e/identity.ts`), so runs never collide on a code.
 
+Locally the suite runs on 4 workers, whatever the machine's cores: the one compose stack is the
+limit, and more workers make pages (Firefox first) time out before they settle. Set `E2E_WORKERS`
+to change it. The notifications journey starts `docker compose run ... send-notifications` from
+Node, so `docker` must be on the `PATH` that Node sees (PowerShell and a normal terminal have it).
+
 ## i18n workflow
 
 1. Add the key to `frontend/src/i18n/locales/es-ES/<namespace>.json`, then to `ca-ES-valencia`
