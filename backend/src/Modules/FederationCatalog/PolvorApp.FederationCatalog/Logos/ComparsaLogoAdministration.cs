@@ -40,7 +40,7 @@ internal sealed class ComparsaLogoAdministration(
 
             var replaced = comparsa.Logo?.ObjectKey;
             comparsa.Logo = logo;
-            Record("ComparsaLogoUploaded", comparsaId, new { replaced = replaced is not null });
+            Record(FederationCatalogAuditActions.ComparsaLogoUploaded, comparsaId, new { replaced = replaced is not null });
             return new LogoSwap(true, replaced);
         }, cancellationToken);
 
@@ -84,7 +84,7 @@ internal sealed class ComparsaLogoAdministration(
 
             removedKey = logo.ObjectKey;
             comparsa.Logo = null;
-            Record("ComparsaLogoRemoved", comparsaId);
+            Record(FederationCatalogAuditActions.ComparsaLogoRemoved, comparsaId);
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
         }

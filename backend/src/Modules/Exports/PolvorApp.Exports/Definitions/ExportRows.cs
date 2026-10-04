@@ -29,13 +29,14 @@ internal static class ExportRows
     /// <summary>
     /// The entries of the orders with their person, sorted by comparsa and then by last and first
     /// name in Spanish order. The person comes from the registry while the arquebusier is in it, as
-    /// the order page shows it, and from the entry's copy otherwise.
+    /// the order page shows it, and from the entry's copy otherwise. Entries erased on a GDPR request
+    /// are left out (spec: Erased entries in exports); totals read the orders' entries instead.
     /// </summary>
     public static List<ExportRow> Of(ExportData data)
     {
         ArgumentNullException.ThrowIfNull(data);
         return [.. data.Orders
-            .SelectMany(order => order.Entries.Select(entry => Row(entry, Comparsa(data, order.ComparsaId), data)))
+            .SelectMany(order => order.Entries.Where(entry => !entry.Erased).Select(entry => Row(entry, Comparsa(data, order.ComparsaId), data)))
             .OrderBy(row => row.Comparsa, SpanishOrder.Names)
             .ThenBy(row => row.LastName ?? string.Empty, SpanishOrder.Names)
             .ThenBy(row => row.FirstName ?? string.Empty, SpanishOrder.Names)

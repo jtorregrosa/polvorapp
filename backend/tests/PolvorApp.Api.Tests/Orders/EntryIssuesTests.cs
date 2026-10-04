@@ -64,6 +64,15 @@ public sealed class EntryIssuesTests
     }
 
     [Fact]
+    public void An_erased_entry_never_blocks_even_with_a_rental_model_no_longer_offered()
+    {
+        var entry = Entry(arquebusierId: null);
+        (entry.WeaponSource, entry.RentalWeaponModelId, entry.ErasedAt) = (WeaponSource.Rental, Guid.CreateVersion7(), DateTimeOffset.UtcNow);
+
+        Assert.Empty(EntryIssues.Of(entry, loan: null, OfferedModels));
+    }
+
+    [Fact]
     public void An_offered_rental_has_no_issue()
     {
         var entry = Entry(Guid.CreateVersion7());

@@ -110,6 +110,729 @@
         ]
       }
     },
+    "/api/audit-entries": {
+      "get": {
+        "tags": [
+          "Audit"
+        ],
+        "summary": "Audit entries, newest first, one page at a time, optionally filtered.",
+        "operationId": "ListAuditEntries",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actorUserId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "comparsaId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entityType",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entityId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditPageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/audit-entries/actions": {
+      "get": {
+        "tags": [
+          "Audit"
+        ],
+        "summary": "Every audit action code and the entity type it is recorded under.",
+        "operationId": "ListAuditActions",
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuditActionResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/privacy/people/lookup": {
+      "post": {
+        "tags": [
+          "Privacy"
+        ],
+        "summary": "What PolvorApp holds about a person, by DNI/NIE.",
+        "operationId": "LookUpPerson",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonLookupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonLookupResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/privacy/people/export": {
+      "post": {
+        "tags": [
+          "Privacy"
+        ],
+        "summary": "A ZIP with the person's data and photos.",
+        "operationId": "ExportPersonData",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stream"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/privacy/people/erasure": {
+      "post": {
+        "tags": [
+          "Privacy"
+        ],
+        "summary": "Erases everything held about the person.",
+        "operationId": "ErasePersonData",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErasureResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/privacy/users/{id}/export": {
+      "post": {
+        "tags": [
+          "Privacy"
+        ],
+        "summary": "A ZIP with the user's data.",
+        "operationId": "ExportUserData",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stream"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/privacy/users/{id}/erasure": {
+      "post": {
+        "tags": [
+          "Privacy"
+        ],
+        "summary": "Erases the user's data; the user stays, anonymised, as ERASED.",
+        "operationId": "EraseUserData",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErasureResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
     "/api/auth/login": {
       "post": {
         "tags": [
@@ -9050,6 +9773,245 @@
           "RESERVE"
         ]
       },
+      "AuditActionResponse": {
+        "required": [
+          "code",
+          "entityType"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "enum": [
+              "AdminBootstrapRefused",
+              "ArquebusierDeleted",
+              "ArquebusierPhotoRemoved",
+              "ArquebusierPhotoUploaded",
+              "ArquebusierRegistered",
+              "ArquebusierTransferred",
+              "ArquebusierUpdated",
+              "ArquebusiersImported",
+              "AuditEntriesPurged",
+              "CalendarMilestoneAdded",
+              "CalendarMilestoneRemoved",
+              "CalendarMilestoneUpdated",
+              "ComparsaCreated",
+              "ComparsaDeactivated",
+              "ComparsaDeleted",
+              "ComparsaLogoRemoved",
+              "ComparsaLogoUploaded",
+              "ComparsaOrderPrepared",
+              "ComparsaOrderReturned",
+              "ComparsaOrderSubmitted",
+              "ComparsaOrderValidated",
+              "ComparsaReactivated",
+              "ComparsaUpdated",
+              "DistributionDeleted",
+              "DistributionDocumentDownloaded",
+              "DistributionEdited",
+              "DistributionPlanned",
+              "DistributionSlotsChanged",
+              "EditionCreated",
+              "EditionDeleted",
+              "EditionEntryAdded",
+              "EditionEntryUpdated",
+              "EditionOrdersClosed",
+              "EditionOrdersOpened",
+              "EditionStatusChanged",
+              "EditionUpdated",
+              "EditionWeaponModelsChanged",
+              "ExportDownloaded",
+              "FederationLogoRemoved",
+              "FederationLogoUploaded",
+              "FiringChiefAssigned",
+              "FiringChiefUnassigned",
+              "InvitationAccepted",
+              "InvitationResent",
+              "LoanLenderLookedUp",
+              "LocaleChanged",
+              "LockedOut",
+              "NotificationPreferencesChanged",
+              "OwnedWeaponAdded",
+              "OwnedWeaponRemoved",
+              "OwnedWeaponUpdated",
+              "PasswordChanged",
+              "PasswordReset",
+              "PasswordResetRequested",
+              "PersonLookedUp",
+              "PersonalDataErased",
+              "PersonalDataExported",
+              "PickupProxyAuthorised",
+              "PickupProxyRemoved",
+              "RecoveryCodeUsed",
+              "RecoveryCodesRegenerated",
+              "RegistryLocked",
+              "RegistryUnlocked",
+              "SignInFailed",
+              "SignedIn",
+              "SignedOutEverywhere",
+              "TwoFactorEnrolled",
+              "TwoFactorReset",
+              "UserDeactivated",
+              "UserInvited",
+              "UserReactivated",
+              "UserUpdated",
+              "WeaponModelCreated",
+              "WeaponModelDeactivated",
+              "WeaponModelDeleted",
+              "WeaponModelReactivated",
+              "WeaponModelUpdated"
+            ],
+            "type": "string"
+          },
+          "entityType": {
+            "enum": [
+              "Arquebusier",
+              "AuditTrail",
+              "CalendarMilestone",
+              "Comparsa",
+              "ComparsaOrder",
+              "Distribution",
+              "DistributionDocument",
+              "EditionEntry",
+              "Export",
+              "FederationSettings",
+              "FestivalEdition",
+              "FiringChiefAssignment",
+              "OwnedWeapon",
+              "PersonalDataRequest",
+              "PickupProxy",
+              "Registry",
+              "User",
+              "WeaponLoan",
+              "WeaponModel"
+            ],
+            "type": "string"
+          }
+        }
+      },
+      "AuditActorResponse": {
+        "required": [
+          "id",
+          "name",
+          "erased"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "erased": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AuditEntryResponse": {
+        "required": [
+          "id",
+          "occurredAt",
+          "action",
+          "entityType",
+          "entityId",
+          "recordExists",
+          "comparsaId",
+          "comparsaName",
+          "traceId",
+          "actor",
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "action": {
+            "type": "string"
+          },
+          "entityType": {
+            "type": "string"
+          },
+          "entityId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "recordExists": {
+            "type": "boolean"
+          },
+          "comparsaId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "comparsaName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "traceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "actor": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AuditActorResponse"
+              }
+            ]
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/JsonElement"
+              }
+            ]
+          }
+        }
+      },
+      "AuditPageResponse": {
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuditEntryResponse"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "BillingConcept": {
         "enum": [
           "POWDER",
@@ -10168,7 +11130,8 @@
           "weaponNumber",
           "ownershipGuideNumber",
           "externalNationalId",
-          "weaponRemoved"
+          "weaponRemoved",
+          "lenderErased"
         ],
         "type": "object",
         "properties": {
@@ -10229,6 +11192,9 @@
             ]
           },
           "weaponRemoved": {
+            "type": "boolean"
+          },
+          "lenderErased": {
             "type": "boolean"
           }
         }
@@ -10298,7 +11264,8 @@
           "warnings",
           "issues",
           "firstYear",
-          "ownedWeapons"
+          "ownedWeapons",
+          "erased"
         ],
         "type": "object",
         "properties": {
@@ -10393,6 +11360,9 @@
             "items": {
               "$ref": "#/components/schemas/EntryWeaponResponse"
             }
+          },
+          "erased": {
+            "type": "boolean"
           }
         }
       },
@@ -10434,6 +11404,53 @@
           },
           "removed": {
             "type": "boolean"
+          }
+        }
+      },
+      "ErasureResponse": {
+        "required": [
+          "counts",
+          "filesPending"
+        ],
+        "type": "object",
+        "properties": {
+          "counts": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "filesPending": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ErasureWarningResponse": {
+        "required": [
+          "kind",
+          "editionYear",
+          "comparsaName",
+          "orderStatus"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "editionYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "comparsaName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "orderStatus": {
+            "type": "string"
           }
         }
       },
@@ -10695,11 +11712,29 @@
           }
         }
       },
+      "JsonElement": { },
       "LenderKind": {
         "enum": [
           "ARQUEBUSIER",
           "EXTERNAL"
         ]
+      },
+      "LenderLoansSummary": {
+        "required": [
+          "editionYear",
+          "loans"
+        ],
+        "type": "object",
+        "properties": {
+          "editionYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "loans": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
       },
       "LenderLookupRequest": {
         "required": [
@@ -10792,7 +11827,8 @@
           "lenderLastName",
           "borrowerFirstName",
           "borrowerLastName",
-          "borrowerComparsaName"
+          "borrowerComparsaName",
+          "borrowerErased"
         ],
         "type": "object",
         "properties": {
@@ -10842,6 +11878,9 @@
           },
           "borrowerComparsaName": {
             "type": "string"
+          },
+          "borrowerErased": {
+            "type": "boolean"
           }
         }
       },
@@ -11666,6 +12705,130 @@
           }
         }
       },
+      "PersonEntryResponse": {
+        "required": [
+          "editionYear",
+          "editionStatus",
+          "ordersOpen",
+          "comparsaName",
+          "orderStatus",
+          "erased"
+        ],
+        "type": "object",
+        "properties": {
+          "editionYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "editionStatus": {
+            "type": "string"
+          },
+          "ordersOpen": {
+            "type": "boolean"
+          },
+          "comparsaName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "orderStatus": {
+            "type": "string"
+          },
+          "erased": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PersonLookupRequest": {
+        "required": [
+          "nationalId"
+        ],
+        "type": "object",
+        "properties": {
+          "nationalId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reference": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "PersonLookupResponse": {
+        "required": [
+          "found",
+          "registry",
+          "entries",
+          "lenderLoans",
+          "pickupProxies",
+          "warnings"
+        ],
+        "type": "object",
+        "properties": {
+          "found": {
+            "type": "boolean"
+          },
+          "registry": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RegistryRecordResponse"
+              }
+            ]
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersonEntryResponse"
+            }
+          },
+          "lenderLoans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LenderLoansSummary"
+            }
+          },
+          "pickupProxies": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErasureWarningResponse"
+            }
+          }
+        }
+      },
+      "PersonRequest": {
+        "required": [
+          "nationalId",
+          "reference"
+        ],
+        "type": "object",
+        "properties": {
+          "nationalId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reference": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "PhotoUploadForm": {
         "required": [
           "file"
@@ -12083,6 +13246,47 @@
               "string"
             ],
             "format": "date-time"
+          }
+        }
+      },
+      "RegistryRecordResponse": {
+        "required": [
+          "arquebusierId",
+          "firstName",
+          "lastName",
+          "comparsaName",
+          "status",
+          "ownedWeapons",
+          "photos"
+        ],
+        "type": "object",
+        "properties": {
+          "arquebusierId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "comparsaName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "ownedWeapons": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "photos": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -12548,6 +13752,20 @@
           }
         }
       },
+      "UserRequest": {
+        "required": [
+          "reference"
+        ],
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "UserResponse": {
         "required": [
           "id",
@@ -12607,7 +13825,8 @@
         "enum": [
           "INVITED",
           "ACTIVE",
-          "DEACTIVATED"
+          "DEACTIVATED",
+          "ERASED"
         ]
       },
       "ValidateOrderRequest": {
@@ -12884,6 +14103,12 @@
     },
     {
       "name": "FiringChiefAssignments"
+    },
+    {
+      "name": "Audit"
+    },
+    {
+      "name": "Privacy"
     },
     {
       "name": "Account"

@@ -2,14 +2,17 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using PolvorApp.AuditPrivacy.Contracts;
 using PolvorApp.Distribution.Days;
 using PolvorApp.Distribution.Documents;
 using PolvorApp.Distribution.Endpoints;
 using PolvorApp.Distribution.Persistence;
+using PolvorApp.Distribution.Privacy;
 using PolvorApp.Distribution.Proxies;
 using PolvorApp.Distribution.Seeding;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.FestivalEditions.Contracts;
+using PolvorApp.SharedKernel.Auditing;
 using PolvorApp.SharedKernel.Modules;
 using PolvorApp.SharedKernel.Persistence;
 using PolvorApp.SharedKernel.Seeding;
@@ -28,6 +31,7 @@ public sealed class DistributionModule : IModule
 
     public void AddServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddAuditActions(DistributionAuditActions.All);
         services.AddHttpContextAccessor();
         services.TryAddSingleton(TimeProvider.System);
         services.AddModuleDbContext<DistributionDbContext>(DistributionDbContext.Schema, MigrationOrder);
@@ -37,6 +41,7 @@ public sealed class DistributionModule : IModule
         services.AddScoped<DistributionViews>();
         services.AddScoped<ProxyAdministration>();
         services.AddScoped<ProxyViews>();
+        services.AddScoped<IPersonalDataParticipant, DistributionPersonalData>();
         services.AddScoped<DistributionDocuments>();
         services.AddScoped<IDataSeeder, DistributionSeeder>();
 

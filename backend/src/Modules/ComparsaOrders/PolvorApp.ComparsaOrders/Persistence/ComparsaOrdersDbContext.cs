@@ -53,6 +53,8 @@ internal sealed class ComparsaOrdersDbContext(DbContextOptions<ComparsaOrdersDbC
 
     /// <summary>An entry linked to the registry holds its identity copy (design D3).</summary>
     public const string CopyCheck = "ck_edition_entries_copy";
+    public const string ErasedEntryCheck = "ck_edition_entries_erased";
+    public const string ErasedLoanCheck = "ck_weapon_loans_erased";
 
     /// <summary>A return reason exactly while the order is returned.</summary>
     public const string ReturnReasonCheck = "ck_comparsa_orders_return_reason";
@@ -136,6 +138,10 @@ internal sealed class ComparsaOrdersDbContext(DbContextOptions<ComparsaOrdersDbC
                     "arquebusier_id IS NULL OR (first_name IS NOT NULL AND last_name IS NOT NULL AND national_id IS NOT NULL AND federation_id IS NOT NULL)");
                 table.HasCheckConstraint(CapsTypeCheck, "(caps_boxes = 0) = (caps_type IS NULL)");
                 table.HasCheckConstraint(
+                    ErasedEntryCheck,
+                    "erased_at IS NULL OR (arquebusier_id IS NULL AND first_name IS NULL AND last_name IS NULL AND national_id IS NULL"
+                    + " AND federation_id IS NULL AND owned_weapon_number IS NULL AND owned_weapon_guide_number IS NULL)");
+                table.HasCheckConstraint(
                     ReserveCheck,
                     "status <> " + Code(ArquebusierStatus.Reserve)
                     + " OR (powder_kg = 0 AND caps_boxes = 0 AND weapon_source = " + Code(WeaponSource.None) + " AND flask = " + Code(FlaskOption.None) + ")");
@@ -174,6 +180,9 @@ internal sealed class ComparsaOrdersDbContext(DbContextOptions<ComparsaOrdersDbC
             entry.HasIndex(e => e.OwnedWeaponId).HasFilter("owned_weapon_id IS NOT NULL");
             entry.HasIndex(e => e.RentalWeaponModelId).HasFilter("rental_weapon_model_id IS NOT NULL");
             entry.HasIndex(e => e.OwnedWeaponModelId).HasFilter("owned_weapon_model_id IS NOT NULL");
+
+            // GDPR requests find a person's copies by DNI/NIE (add-audit-privacy, design D7).
+            entry.HasIndex(e => e.NationalId).HasFilter("national_id IS NOT NULL");
         });
 
     private static void MapLoans(ModelBuilder modelBuilder) =>
@@ -188,6 +197,10 @@ internal sealed class ComparsaOrdersDbContext(DbContextOptions<ComparsaOrdersDbC
                 table.HasCheckConstraint(
                     RegisteredLoanCheck,
                     "lender_kind <> " + Code(LenderKind.Arquebusier) + " OR lender_comparsa_id IS NOT NULL");
+                table.HasCheckConstraint(
+                    ErasedLoanCheck,
+                    "erased_at IS NULL OR (lender_owned_weapon_id IS NULL AND lender_first_name IS NULL AND lender_last_name IS NULL"
+                    + " AND lender_national_id IS NULL AND weapon_number IS NULL AND ownership_guide_number IS NULL)");
             });
             loan.HasKey(l => l.Id);
             loan.Property(l => l.Id).ValueGeneratedNever();
@@ -206,6 +219,9 @@ internal sealed class ComparsaOrdersDbContext(DbContextOptions<ComparsaOrdersDbC
             // The catalogue deletes check these.
             loan.HasIndex(l => l.WeaponModelId).HasFilter("weapon_model_id IS NOT NULL");
             loan.HasIndex(l => l.LenderComparsaId).HasFilter("lender_comparsa_id IS NOT NULL");
+
+            // GDPR requests find a lender's copies by DNI/NIE (add-audit-privacy, design D7).
+            loan.HasIndex(l => l.LenderNationalId).HasFilter("lender_national_id IS NOT NULL");
         });
 
     private static string Code<TEnum>(TEnum value)

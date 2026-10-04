@@ -1,6 +1,8 @@
 using System.Net;
 using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
 using PolvorApp.Api.Tests.Infrastructure;
+using PolvorApp.SharedKernel.Auditing;
 
 namespace PolvorApp.Api.Tests;
 
@@ -114,6 +116,22 @@ public sealed class OpenApiDocumentTests(PostgresFixture postgres)
         using var document = await DocumentAsync();
 
         Assert.DoesNotContain(Operations(document), o => o.Name.StartsWith("DELETE /api/users", StringComparison.Ordinal));
+    }
+
+    /// <summary>Design D2 (add-audit-privacy): the catalogue is in the contract, so the generated client lists every code.</summary>
+    [Fact]
+    public async Task The_audit_action_catalogue_lists_every_declared_code_and_entity_type()
+    {
+        await using var factory = new ApiFactory(postgres.ConnectionString);
+        var declared = factory.Services.GetServices<IAuditActionSource>().SelectMany(s => s.Actions).ToList();
+        using var document = await DocumentAsync();
+
+        var properties = document.RootElement.GetProperty("components").GetProperty("schemas").GetProperty("AuditActionResponse").GetProperty("properties");
+        string[] Enum(string name) => [.. properties.GetProperty(name).GetProperty("enum").EnumerateArray().Select(v => v.GetString()!)];
+
+        Assert.Equal(declared.Select(a => a.Code).Order(StringComparer.Ordinal), Enum("code"));
+        Assert.Equal(declared.Select(a => a.EntityType).Distinct().Order(StringComparer.Ordinal), Enum("entityType"));
+        Assert.Contains("PersonalDataErased", Enum("code"));
     }
 
     private async Task<JsonDocument> DocumentAsync()

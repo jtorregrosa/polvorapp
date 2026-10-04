@@ -119,7 +119,7 @@ internal sealed class ArquebusierAdministration(
                 : [];
             db.Photos.RemoveRange(licensePhotos);
             Apply(arquebusier, input);
-            Record("ArquebusierUpdated", arquebusier, licensePhotos.Count == 0
+            Record(ArquebusierRegistryAuditActions.ArquebusierUpdated, arquebusier, licensePhotos.Count == 0
                 ? new { changedFields }
                 : (object)new { changedFields, removedPhotos = licensePhotos.Select(p => EnumCodes.ToCode(p.Kind)).Order(StringComparer.Ordinal).ToList() });
             var outcome = await SaveAsync(id, versioned: true, cancellationToken);
@@ -172,7 +172,7 @@ internal sealed class ArquebusierAdministration(
             }
 
             // Recorded under the previous comparsa, with both ids, before the move.
-            Record("ArquebusierTransferred", arquebusier, new { fromComparsaId = arquebusier.ComparsaId, toComparsaId = targetComparsaId });
+            Record(ArquebusierRegistryAuditActions.ArquebusierTransferred, arquebusier, new { fromComparsaId = arquebusier.ComparsaId, toComparsaId = targetComparsaId });
             arquebusier.ComparsaId = targetComparsaId;
             var outcome = await SaveAsync(id, versioned: true, cancellationToken);
             if (outcome != RegistryOutcome.Done)
@@ -194,50 +194,84 @@ internal sealed class ArquebusierAdministration(
     /// </summary>
     public async Task<(RegistryOutcome Outcome, Arquebusier? Arquebusier)> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        List<string> erasedImages = [];
+        IReadOnlyList<string> erasedImages = [];
         var result = await guard.RunAsync<Arquebusier>(nameof(DeleteAsync), id, null, async () =>
         {
             var access = await scope.GetAccessAsync(cancellationToken);
             await using var transaction = await guard.BeginWriteAsync(cancellationToken);
-            if (!await db.LockArquebusierForUpdateAsync(id, access, cancellationToken))
+            var deletion = await DeleteCoreAsync(id, access, transaction.GetDbTransaction(), gdprErasure: false, cancellationToken);
+            if (deletion is null)
             {
                 return (RegistryOutcome.ArquebusierNotFound, null);
             }
 
-            var arquebusier = await db.Arquebusiers.SingleAsync(a => a.Id == id, cancellationToken);
-            var ownedWeaponIds = await db.OwnedWeapons.Where(w => w.ArquebusierId == id).Select(w => w.Id).ToListAsync(cancellationToken);
-            var photoKeys = await db.Photos.Where(p => p.ArquebusierId == id).Select(p => p.ObjectKey).ToListAsync(cancellationToken);
-
-            // Other modules act inside this transaction, after the row lock and before the removal
-            // (add-comparsa-orders, design D3): orders remove the entry of the edition in progress.
-            var effects = new List<ArquebusierDeletionEffect>();
-            foreach (var participant in deletionParticipants)
-            {
-                effects.Add(await participant.OnDeletingAsync(id, ownedWeaponIds, transaction.GetDbTransaction(), cancellationToken));
-            }
-
-            // The owned weapons and the photo references go with the row (ON DELETE CASCADE); the
-            // orders' links to them are nulled by their ON DELETE SET NULL keys.
-            db.Arquebusiers.Remove(arquebusier);
-            Record("ArquebusierDeleted", arquebusier, DeletionData(ownedWeaponIds.Count, photoKeys.Count, effects));
-            await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
-            erasedImages = photoKeys;
-            return (RegistryOutcome.Done, arquebusier);
+            erasedImages = deletion.PhotoKeys;
+            return (RegistryOutcome.Done, deletion.Arquebusier);
         });
 
         // The images go after the commit (BR-14); a failure is left to the orphan sweep (design D2).
-        await photoObjects.DeleteAsync(erasedImages);
+        await photoObjects.DeleteAsync([.. erasedImages]);
         return result;
     }
 
-    /// <summary>The deletion's audit data: counts, plus the ids of the edition entries removed with it (no personal data).</summary>
-    private static object DeletionData(int ownedWeaponCount, int photoCount, IReadOnlyList<ArquebusierDeletionEffect> effects)
+    /// <summary>
+    /// The deletion itself, on <paramref name="transaction"/>, which this context already runs in: the
+    /// endpoint's own transaction, or a GDPR erasure's (add-audit-privacy, design D6), which then deletes
+    /// the returned photo images after its commit. Null when the arquebusier does not exist or is
+    /// outside <paramref name="access"/>; nothing is committed here.
+    /// </summary>
+    internal async Task<ArquebusierDeletion?> DeleteCoreAsync(
+        Guid id, ComparsaAccess access, System.Data.Common.DbTransaction transaction, bool gdprErasure, CancellationToken cancellationToken)
     {
+        if (!await db.LockArquebusierForUpdateAsync(id, access, cancellationToken))
+        {
+            return null;
+        }
+
+        var arquebusier = await db.Arquebusiers.SingleAsync(a => a.Id == id, cancellationToken);
+        var ownedWeaponIds = await db.OwnedWeapons.Where(w => w.ArquebusierId == id).Select(w => w.Id).ToListAsync(cancellationToken);
+        var photoKeys = await db.Photos.Where(p => p.ArquebusierId == id).Select(p => p.ObjectKey).ToListAsync(cancellationToken);
+
+        // Other modules act inside this transaction, after the row lock and before the removal
+        // (add-comparsa-orders, design D3): orders remove the entry of the edition in progress.
+        var effects = new List<ArquebusierDeletionEffect>();
+        foreach (var participant in deletionParticipants)
+        {
+            effects.Add(await participant.OnDeletingAsync(id, ownedWeaponIds, transaction, cancellationToken));
+        }
+
+        // The owned weapons and the photo references go with the row (ON DELETE CASCADE); the
+        // orders' links to them are nulled by their ON DELETE SET NULL keys.
+        db.Arquebusiers.Remove(arquebusier);
+        Record(
+            ArquebusierRegistryAuditActions.ArquebusierDeleted,
+            arquebusier,
+            DeletionData(ownedWeaponIds.Count, photoKeys.Count, effects, gdprErasure));
+        await db.SaveChangesAsync(cancellationToken);
+        return new ArquebusierDeletion(arquebusier, ownedWeaponIds, photoKeys);
+    }
+
+    /// <summary>
+    /// The deletion's audit data: counts, the ids of the edition entries removed with it, and whether a
+    /// GDPR erasure caused it (no personal data).
+    /// </summary>
+    private static Dictionary<string, object?> DeletionData(int ownedWeaponCount, int photoCount, IReadOnlyList<ArquebusierDeletionEffect> effects, bool gdprErasure)
+    {
+        var data = new Dictionary<string, object?> { ["ownedWeaponCount"] = ownedWeaponCount, ["photoCount"] = photoCount };
+        if (gdprErasure)
+        {
+            data["source"] = "gdprErasure";
+        }
+
         List<Guid> removedEntryIds = [.. effects.SelectMany(e => e.RemovedEntryIds)];
-        return removedEntryIds.Count == 0
-            ? new { ownedWeaponCount, photoCount }
-            : new { ownedWeaponCount, photoCount, removedEntryIds, orderIds = effects.SelectMany(e => e.AffectedOrderIds).Distinct().ToList() };
+        if (removedEntryIds.Count > 0)
+        {
+            data["removedEntryIds"] = removedEntryIds;
+            data["orderIds"] = effects.SelectMany(e => e.AffectedOrderIds).Distinct().ToList();
+        }
+
+        return data;
     }
 
     /// <summary>The names of the fields an edit changes, in a stable order; the values are never recorded (D7).</summary>
@@ -354,3 +388,6 @@ internal sealed class ArquebusierAdministration(
     private void Record(string action, Arquebusier arquebusier, object? data = null) =>
         trail.Record(db, new AuditRecord(action, EntityType, arquebusier.Id.ToString(), data, ComparsaId: arquebusier.ComparsaId));
 }
+
+/// <summary>What a deletion removed: the arquebusier, their owned weapons and the photo images to erase after the commit.</summary>
+internal sealed record ArquebusierDeletion(Arquebusier Arquebusier, IReadOnlyList<Guid> OwnedWeaponIds, IReadOnlyList<string> PhotoKeys);

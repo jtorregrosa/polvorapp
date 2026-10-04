@@ -58,7 +58,7 @@ internal sealed class DistributionDayAdministration(
                 UpdatedAt = now,
             };
             db.Days.Add(day);
-            Record("DistributionPlanned", day, new { editionId, type = EnumCodes.ToCode(type), date = Iso(input.Date), input.Location });
+            Record(DistributionAuditActions.DistributionPlanned, day, new { editionId, type = EnumCodes.ToCode(type), date = Iso(input.Date), input.Location });
             try
             {
                 await db.SaveChangesAsync(cancellationToken);
@@ -103,7 +103,7 @@ internal sealed class DistributionDayAdministration(
             }
 
             (day.Date, day.Location, day.UpdatedAt) = (input.Date, input.Location, time.GetUtcNow());
-            Record("DistributionEdited", day, new
+            Record(DistributionAuditActions.DistributionEdited, day, new
             {
                 day.EditionId,
                 previous = changed.ToDictionary(c => c.Key, c => c.Value.Previous, StringComparer.Ordinal),
@@ -124,7 +124,7 @@ internal sealed class DistributionDayAdministration(
             }
 
             db.Days.Remove(day!);
-            Record("DistributionDeleted", day!, new
+            Record(DistributionAuditActions.DistributionDeleted, day!, new
             {
                 day!.EditionId,
                 type = EnumCodes.ToCode(day.Type),
@@ -178,7 +178,7 @@ internal sealed class DistributionDayAdministration(
             // Marked modified even when the clock has not moved, or EF would skip the update.
             day.UpdatedAt = time.GetUtcNow();
             db.Entry(day).Property(d => d.UpdatedAt).IsModified = true;
-            Record("DistributionSlotsChanged", day, new { day.EditionId, type = EnumCodes.ToCode(day.Type), changes = diff.Changes });
+            Record(DistributionAuditActions.DistributionSlotsChanged, day, new { day.EditionId, type = EnumCodes.ToCode(day.Type), changes = diff.Changes });
             return await SaveAsync(day, transaction, cancellationToken, slots);
         });
 

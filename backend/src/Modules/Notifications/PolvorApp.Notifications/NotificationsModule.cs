@@ -4,14 +4,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using PolvorApp.AuditPrivacy.Contracts;
 using PolvorApp.Notifications.Contracts;
 using PolvorApp.Notifications.Emails;
 using PolvorApp.Notifications.Endpoints;
 using PolvorApp.Notifications.Persistence;
 using PolvorApp.Notifications.Preferences;
+using PolvorApp.Notifications.Privacy;
 using PolvorApp.Notifications.Scheduling;
 using PolvorApp.Notifications.Seeding;
 using PolvorApp.Notifications.Sending;
+using PolvorApp.SharedKernel.Auditing;
 using PolvorApp.SharedKernel.Modules;
 using PolvorApp.SharedKernel.Persistence;
 using PolvorApp.SharedKernel.Seeding;
@@ -36,6 +39,7 @@ public sealed class NotificationsModule : IModule
 
     public void AddServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddAuditActions(NotificationsAuditActions.All);
         services.AddHttpContextAccessor();
         services.TryAddSingleton(TimeProvider.System);
         services.AddModuleDbContext<NotificationsDbContext>(NotificationsDbContext.Schema, MigrationOrder);
@@ -51,6 +55,7 @@ public sealed class NotificationsModule : IModule
         services.AddSingleton<INotificationOutbox, NotificationOutbox>();
         services.AddSingleton<NotificationEmails>();
         services.AddScoped<NotificationPreferences>();
+        services.AddScoped<IPersonalDataParticipant, NotificationsPersonalData>();
         services.AddScoped<IDataSeeder, NotificationSeeder>();
 
         services.AddScoped<EventExpander>();

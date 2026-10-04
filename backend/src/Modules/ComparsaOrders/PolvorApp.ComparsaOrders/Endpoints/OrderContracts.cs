@@ -156,6 +156,7 @@ internal sealed record OrderResponse(
 /// <param name="BorrowerFirstName">The borrower's first name.</param>
 /// <param name="BorrowerLastName">The borrower's last name.</param>
 /// <param name="BorrowerComparsaName">The comparsa whose order has the borrower's entry.</param>
+/// <param name="BorrowerErased">True once the borrower was erased on a GDPR request: no name.</param>
 internal sealed record LentOutResponse(
     Guid LoanId,
     WeaponModelReference? WeaponModel,
@@ -164,7 +165,8 @@ internal sealed record LentOutResponse(
     string? LenderLastName,
     string? BorrowerFirstName,
     string? BorrowerLastName,
-    string BorrowerComparsaName);
+    string BorrowerComparsaName,
+    bool BorrowerErased);
 
 /// <summary>The arquebusier of an entry: their current registry data, or the entry's copy once they left it.</summary>
 /// <param name="Id">The arquebusier, while they are in the registry.</param>
@@ -227,6 +229,7 @@ internal sealed record WeaponModelReference(Guid Id, string Label);
 /// The arquebusier's owned weapons now, oldest first, without their ownership guides: the entry
 /// panel's owned-weapon choices. Empty once they left the registry.
 /// </param>
+/// <param name="Erased">True once the person was erased on a GDPR request: no identity, read-only.</param>
 internal sealed record EntryResponse(
     Guid Id,
     uint Version,
@@ -243,7 +246,8 @@ internal sealed record EntryResponse(
     IReadOnlyList<ComplianceWarning> Warnings,
     IReadOnlyList<string> Issues,
     bool? FirstYear,
-    IReadOnlyList<EntryWeaponResponse> OwnedWeapons);
+    IReadOnlyList<EntryWeaponResponse> OwnedWeapons,
+    bool Erased);
 
 /// <summary>
 /// The loan of a <c>LOAN</c> entry, as the borrower's comparsa sees it (BR-12 exception): the lender's
@@ -260,6 +264,7 @@ internal sealed record EntryResponse(
 /// <param name="OwnershipGuideNumber">An external owner's ownership guide.</param>
 /// <param name="ExternalNationalId">An external owner's DNI or NIE, as typed by the borrower's comparsa.</param>
 /// <param name="WeaponRemoved">True once a registered lender's weapon left the registry.</param>
+/// <param name="LenderErased">True once the lender was erased on a GDPR request: the loan shows only the model.</param>
 internal sealed record EntryLoanResponse(
     LenderKind LenderKind,
     string? LenderFirstName,
@@ -270,7 +275,8 @@ internal sealed record EntryLoanResponse(
     string? WeaponNumber,
     string? OwnershipGuideNumber,
     string? ExternalNationalId,
-    bool WeaponRemoved);
+    bool WeaponRemoved,
+    bool LenderErased);
 
 /// <summary>An arquebusier of the comparsa who has no entry in the edition.</summary>
 /// <param name="ArquebusierId">The arquebusier.</param>

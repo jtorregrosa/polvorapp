@@ -28,10 +28,10 @@ internal sealed class UserDirectory(IdentityAccessDbContext db) : IUserDirectory
     {
         // Projected in SQL: credentials and security data are never loaded, let alone returned.
         var rows = await users.AsNoTracking()
-            .Select(u => new { u.Id, u.Name, u.Email, u.Role, u.Active, HasPassword = u.PasswordHash != null, u.Locale })
+            .Select(u => new { u.Id, u.Name, u.Email, u.Role, u.Active, HasPassword = u.PasswordHash != null, Erased = u.ErasedAt != null, u.Locale })
             .ToListAsync(cancellationToken);
 
         // Email is a required column (IdentityAccessDbContext), so it is never null here.
-        return rows.Select(u => new UserSummary(u.Id, u.Name, u.Email!, u.Role, User.DeriveStatus(u.Active, u.HasPassword), u.Locale)).ToList();
+        return rows.Select(u => new UserSummary(u.Id, u.Name, u.Email!, u.Role, User.DeriveStatus(u.Active, u.HasPassword, u.Erased), u.Locale)).ToList();
     }
 }

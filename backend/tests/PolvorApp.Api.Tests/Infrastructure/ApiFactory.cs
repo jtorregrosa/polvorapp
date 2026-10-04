@@ -66,6 +66,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         // forward) would delete the photos of every other test. Sweeper tests enable it themselves.
         ["Storage:SweepEnabled"] = "false",
         ["Notifications:Enabled"] = "false",
+        ["Audit:PurgeEnabled"] = "false",
     };
 
     public CapturingLoggerProvider Logs { get; } = new();

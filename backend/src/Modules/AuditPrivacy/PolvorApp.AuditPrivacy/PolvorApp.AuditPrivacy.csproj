@@ -19,6 +19,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\PolvorApp.SharedKernel\PolvorApp.SharedKernel.csproj" />
     <ProjectReference Include="..\PolvorApp.AuditPrivacy.Contracts\PolvorApp.AuditPrivacy.Contracts.csproj" />
+    <ProjectReference Include="..\..\Exports\PolvorApp.Exports.Contracts\PolvorApp.Exports.Contracts.csproj" />
+    <ProjectReference Include="..\..\FederationCatalog\PolvorApp.FederationCatalog.Contracts\PolvorApp.FederationCatalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\IdentityAccess\PolvorApp.IdentityAccess.Contracts\PolvorApp.IdentityAccess.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

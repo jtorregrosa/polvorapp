@@ -95,7 +95,7 @@ internal sealed partial class ExportService(
             await auditLog.RecordAsync(
                 new AuditRecord(
                     AuditAction,
-                    "Export",
+                    ExportsAuditActions.ExportEntityType,
                     definition.Name,
                     new
                     {

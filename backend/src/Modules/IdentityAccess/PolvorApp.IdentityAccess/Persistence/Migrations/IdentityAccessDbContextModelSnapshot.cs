@@ -161,6 +161,10 @@ namespace PolvorApp.IdentityAccess.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("email_confirmed");
 
+                    b.Property<DateTimeOffset?>("ErasedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("erased_at");
+
                     b.Property<DateTimeOffset?>("LastSignInAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_sign_in_at");
@@ -287,19 +291,22 @@ namespace PolvorApp.IdentityAccess.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_audit_entries");
 
-                    b.HasIndex("OccurredAt")
-                        .HasDatabaseName("ix_audit_entries_occurred_at");
+                    b.HasIndex("OccurredAt", "Id")
+                        .HasDatabaseName("ix_audit_entries_occurred_at_id");
 
-                    b.HasIndex("ActorUserId", "OccurredAt")
-                        .HasDatabaseName("ix_audit_entries_actor_user_id_occurred_at")
+                    b.HasIndex("Action", "OccurredAt", "Id")
+                        .HasDatabaseName("ix_audit_entries_action_occurred_at_id");
+
+                    b.HasIndex("ActorUserId", "OccurredAt", "Id")
+                        .HasDatabaseName("ix_audit_entries_actor_user_id_occurred_at_id")
                         .HasFilter("actor_user_id IS NOT NULL");
 
-                    b.HasIndex("ComparsaId", "OccurredAt")
-                        .HasDatabaseName("ix_audit_entries_comparsa_id_occurred_at")
+                    b.HasIndex("ComparsaId", "OccurredAt", "Id")
+                        .HasDatabaseName("ix_audit_entries_comparsa_id_occurred_at_id")
                         .HasFilter("comparsa_id IS NOT NULL");
 
-                    b.HasIndex("EntityType", "EntityId")
-                        .HasDatabaseName("ix_audit_entries_entity_type_entity_id");
+                    b.HasIndex("EntityType", "EntityId", "OccurredAt", "Id")
+                        .HasDatabaseName("ix_audit_entries_entity_type_entity_id_occurred_at_id");
 
                     b.ToTable("audit_entries", "audit", t =>
                         {

@@ -99,7 +99,8 @@ internal sealed partial class ProxyViews(
             return null;
         }
 
-        var order = await entries.ListAsync(editionId, comparsaId, cancellationToken);
+        // An erased person is neither holder nor proxy, so the page never offers them.
+        var order = (await entries.ListAsync(editionId, comparsaId, cancellationToken)).Where(e => !e.Erased).ToList();
         var people = await PeopleAsync(order, cancellationToken);
         var references = await ReferencesAsync(edition, cancellationToken);
         var proxies = await db.Proxies.AsNoTracking().Where(p => p.EditionId == editionId && p.ComparsaId == comparsaId)

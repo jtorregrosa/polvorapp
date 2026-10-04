@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PolvorApp.ArquebusierRegistry.Contracts;
+using PolvorApp.AuditPrivacy.Contracts;
 using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.ComparsaOrders.Endpoints;
 using PolvorApp.ComparsaOrders.Entries;
@@ -10,10 +11,12 @@ using PolvorApp.ComparsaOrders.History;
 using PolvorApp.ComparsaOrders.Loans;
 using PolvorApp.ComparsaOrders.Orders;
 using PolvorApp.ComparsaOrders.Persistence;
+using PolvorApp.ComparsaOrders.Privacy;
 using PolvorApp.ComparsaOrders.Seeding;
 using PolvorApp.ComparsaOrders.Totals;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.FestivalEditions.Contracts;
+using PolvorApp.SharedKernel.Auditing;
 using PolvorApp.SharedKernel.Modules;
 using PolvorApp.SharedKernel.Persistence;
 using PolvorApp.SharedKernel.Seeding;
@@ -31,10 +34,13 @@ public sealed class ComparsaOrdersModule : IModule
 
     public void AddServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddAuditActions(ComparsaOrdersAuditActions.All);
+        services.AddAuditRecordResolver<ComparsaOrdersDbContext, Orders.ComparsaOrder>(OrderAdministration.EntityType);
         services.AddHttpContextAccessor();
         services.TryAddSingleton(TimeProvider.System);
         services.AddModuleDbContext<ComparsaOrdersDbContext>(ComparsaOrdersDbContext.Schema, MigrationOrder);
         services.AddScoped<OrderWriteGuard>();
+        services.AddScoped<IPersonalDataParticipant, OrdersPersonalData>();
         services.AddScoped<OrderGate>();
         services.AddScoped<OrderAdministration>();
         services.AddScoped<OrderViews>();

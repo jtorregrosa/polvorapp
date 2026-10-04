@@ -40,7 +40,7 @@ internal sealed class AssignmentAdministration(
         var rejection = user switch
         {
             { Role: not UserRole.FiringChief } => CatalogOutcome.NotFiringChief,
-            { Status: UserStatus.Deactivated } => CatalogOutcome.UserDeactivated,
+            { Status: UserStatus.Deactivated or UserStatus.Erased } => CatalogOutcome.UserDeactivated,
             _ when !comparsa.Active => CatalogOutcome.ComparsaInactive,
             _ => (CatalogOutcome?)null,
         };
@@ -50,7 +50,7 @@ internal sealed class AssignmentAdministration(
         }
 
         db.Assignments.Add(new FiringChiefAssignment { ComparsaId = comparsaId, UserId = userId, AssignedAt = time.GetUtcNow() });
-        Record("FiringChiefAssigned", comparsaId, userId);
+        Record(FederationCatalogAuditActions.FiringChiefAssigned, comparsaId, userId);
         try
         {
             await db.SaveChangesAsync(cancellationToken);
@@ -90,7 +90,7 @@ internal sealed class AssignmentAdministration(
         }
 
         db.Assignments.Remove(assignment);
-        Record("FiringChiefUnassigned", comparsaId, userId);
+        Record(FederationCatalogAuditActions.FiringChiefUnassigned, comparsaId, userId);
         try
         {
             await db.SaveChangesAsync(cancellationToken);

@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Sheet.registry" xml:space="preserve">
+    <value>Ficha</value>
+  </data>
+  <data name="Sheet.ownedWeapons" xml:space="preserve">
+    <value>Armas propias</value>
+  </data>
+  <data name="Sheet.entries" xml:space="preserve">
+    <value>Participaciones</value>
+  </data>
+  <data name="Sheet.lenderLoans" xml:space="preserve">
+    <value>Préstamos como propietario</value>
+  </data>
+  <data name="Sheet.pickupProxies" xml:space="preserve">
+    <value>Autorizaciones de recogida</value>
+  </data>
+  <data name="Sheet.profile" xml:space="preserve">
+    <value>Perfil</value>
+  </data>
+  <data name="Sheet.assignments" xml:space="preserve">
+    <value>Comparsas asignadas</value>
+  </data>
+  <data name="Sheet.notificationPreferences" xml:space="preserve">
+    <value>Preferencias de avisos</value>
+  </data>
+  <data name="Sheet.notificationDeliveries" xml:space="preserve">
+    <value>Avisos enviados</value>
+  </data>
+  <data name="Sheet.activity" xml:space="preserve">
+    <value>Actividad</value>
+  </data>
+  <data name="Sheet.about" xml:space="preserve">
+    <value>Sobre estos datos</value>
+  </data>
+  <data name="Column.nationalId" xml:space="preserve">
+    <value>DNI/NIE</value>
+  </data>
+  <data name="Column.federationId" xml:space="preserve">
+    <value>N.º de federado</value>
+  </data>
+  <data name="Column.firstName" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="Column.lastName" xml:space="preserve">
+    <value>Apellidos</value>
+  </data>
+  <data name="Column.birthDate" xml:space="preserve">
+    <value>Fecha de nacimiento</value>
+  </data>
+  <data name="Column.email" xml:space="preserve">
+    <value>Correo electrónico</value>
+  </data>
+  <data name="Column.phone" xml:space="preserve">
+    <value>Teléfono</value>
+  </data>
+  <data name="Column.gender" xml:space="preserve">
+    <value>Sexo</value>
+  </data>
+  <data name="Column.status" xml:space="preserve">
+    <value>Estado</value>
+  </data>
+  <data name="Column.comparsa" xml:space="preserve">
+    <value>Comparsa</value>
+  </data>
+  <data name="Column.trainingCompletedOn" xml:space="preserve">
+    <value>Fecha del curso</value>
+  </data>
+  <data name="Column.licenseType" xml:space="preserve">
+    <value>Tipo de licencia</value>
+  </data>
+  <data name="Column.licensePending" xml:space="preserve">
+    <value>Licencia en trámite</value>
+  </data>
+  <data name="Column.licenseIssuedOn" xml:space="preserve">
+    <value>Expedición de la licencia</value>
+  </data>
+  <data name="Column.licenseExpiresOn" xml:space="preserve">
+    <value>Caducidad de la licencia</value>
+  </data>
+  <data name="Column.registeredAt" xml:space="preserve">
+    <value>Alta en PolvorApp</value>
+  </data>
+  <data name="Column.weaponModel" xml:space="preserve">
+    <value>Modelo de arma</value>
+  </data>
+  <data name="Column.weaponNumber" xml:space="preserve">
+    <value>N.º de arma</value>
+  </data>
+  <data name="Column.ownershipGuideNumber" xml:space="preserve">
+    <value>Guía de pertenencia</value>
+  </data>
+  <data name="Column.edition" xml:space="preserve">
+    <value>Edición</value>
+  </data>
+  <data name="Column.powderKg" xml:space="preserve">
+    <value>Pólvora (kg)</value>
+  </data>
+  <data name="Column.capsBoxes" xml:space="preserve">
+    <value>Cajas de pistones</value>
+  </data>
+  <data name="Column.capsType" xml:space="preserve">
+    <value>Tipo de pistón</value>
+  </data>
+  <data name="Column.weaponSource" xml:space="preserve">
+    <value>Origen del arma</value>
+  </data>
+  <data name="Column.flask" xml:space="preserve">
+    <value>Frasco</value>
+  </data>
+  <data name="Column.rentalModel" xml:space="preserve">
+    <value>Modelo alquilado</value>
+  </data>
+  <data name="Column.ownedWeaponModel" xml:space="preserve">
+    <value>Modelo del arma propia</value>
+  </data>
+  <data name="Column.ownedWeaponNumber" xml:space="preserve">
+    <value>N.º del arma propia</value>
+  </data>
+  <data name="Column.ownedWeaponGuideNumber" xml:space="preserve">
+    <value>Guía del arma propia</value>
+  </data>
+  <data name="Column.loanLender" xml:space="preserve">
+    <value>Préstamo de</value>
+  </data>
+  <data name="Column.loanWeaponModel" xml:space="preserve">
+    <value>Modelo prestado</value>
+  </data>
+  <data name="Column.erased" xml:space="preserve">
+    <value>Borrada</value>
+  </data>
+  <data name="Column.type" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="Column.role" xml:space="preserve">
+    <value>Papel</value>
+  </data>
+  <data name="Column.participation" xml:space="preserve">
+    <value>Participación</value>
+  </data>
+  <data name="Column.name" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="Column.language" xml:space="preserve">
+    <value>Idioma</value>
+  </data>
+  <data name="Column.createdAt" xml:space="preserve">
+    <value>Creación</value>
+  </data>
+  <data name="Column.lastSignInAt" xml:space="preserve">
+    <value>Último acceso</value>
+  </data>
+  <data name="Column.twoFactorEnabled" xml:space="preserve">
+    <value>Doble factor activado</value>
+  </data>
+  <data name="Column.assignedAt" xml:space="preserve">
+    <value>Asignación</value>
+  </data>
+  <data name="Column.kind" xml:space="preserve">
+    <value>Tipo de aviso</value>
+  </data>
+  <data name="Column.on" xml:space="preserve">
+    <value>Activado</value>
+  </data>
+  <data name="Column.template" xml:space="preserve">
+    <value>Plantilla</value>
+  </data>
+  <data name="Column.attempts" xml:space="preserve">
+    <value>Intentos</value>
+  </data>
+  <data name="Column.sentAt" xml:space="preserve">
+    <value>Envío</value>
+  </data>
+  <data name="Column.occurredAt" xml:space="preserve">
+    <value>Fecha y hora</value>
+  </data>
+  <data name="Column.action" xml:space="preserve">
+    <value>Acción</value>
+  </data>
+  <data name="Column.entityType" xml:space="preserve">
+    <value>Tipo de registro</value>
+  </data>
+  <data name="Column.entityId" xml:space="preserve">
+    <value>Registro</value>
+  </data>
+  <data name="Column.item" xml:space="preserve">
+    <value>Apartado</value>
+  </data>
+  <data name="Column.value" xml:space="preserve">
+    <value>Contenido</value>
+  </data>
+  <data name="About.Controller" xml:space="preserve">
+    <value>Responsable del tratamiento</value>
+  </data>
+  <data name="About.ControllerValue" xml:space="preserve">
+    <value>Unión de Comparsas «Ber-Largas» (ver la cláusula de protección de datos)</value>
+  </data>
+  <data name="About.Purposes" xml:space="preserve">
+    <value>Finalidades</value>
+  </data>
+  <data name="About.PurposesValue" xml:space="preserve">
+    <value>Gestión de los arcabuceros de las fiestas de Moros y Cristianos: registro, licencias, pedidos de pólvora y armas, distribución y listados para la Intervención de Armas.</value>
+  </data>
+  <data name="About.Recipients" xml:space="preserve">
+    <value>Destinatarios</value>
+  </data>
+  <data name="About.RecipientsValue" xml:space="preserve">
+    <value>Proveedor de pólvora, empresa de alquiler de armas e Intervención de Armas (Guardia Civil), solo con los datos que cada uno necesita.</value>
+  </data>
+  <data name="About.Retention" xml:space="preserve">
+    <value>Conservación</value>
+  </data>
+  <data name="About.RetentionValue" xml:space="preserve">
+    <value>La ficha se conserva mientras se pertenece a la Federación; las participaciones de ediciones pasadas se conservan como historia; el registro de auditoría, 5 años (los accesos, 1 año).</value>
+  </data>
+  <data name="About.Rights" xml:space="preserve">
+    <value>Derechos</value>
+  </data>
+  <data name="About.RightsValue" xml:space="preserve">
+    <value>Puede solicitar a la Federación el acceso, la rectificación o la supresión de sus datos, según la cláusula de protección de datos.</value>
+  </data>
+  <data name="About.Reference" xml:space="preserve">
+    <value>Referencia de la solicitud</value>
+  </data>
+  <data name="About.GeneratedAt" xml:space="preserve">
+    <value>Fecha de generación</value>
+  </data>
+  <data name="About.Note" xml:space="preserve">
+    <value>Aviso</value>
+  </data>
+  <data name="Note.missingPhoto" xml:space="preserve">
+    <value>No se ha encontrado el archivo de la foto «{0}»: el registro existe pero la imagen no está disponible.</value>
+  </data>
+  <data name="Note.activityCapped" xml:space="preserve">
+    <value>La hoja de actividad muestra solo las 100 000 entradas más recientes.</value>
+  </data>
+  <data name="Value.holder" xml:space="preserve">
+    <value>Titular</value>
+  </data>
+  <data name="Value.proxy" xml:space="preserve">
+    <value>Autorizado</value>
+  </data>
+</root>

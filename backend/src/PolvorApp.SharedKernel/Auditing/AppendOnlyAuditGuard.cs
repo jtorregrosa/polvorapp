@@ -6,8 +6,9 @@ namespace PolvorApp.SharedKernel.Auditing;
 /// <summary>
 /// Refuses to save a modified or deleted <see cref="AuditEntry"/> (spec: Audit trail is
 /// append-only). It only sees the change tracker: bulk <c>ExecuteUpdate</c>/<c>ExecuteDelete</c>
-/// and raw SQL bypass it, so an architecture test forbids them on the audit trail. A database-level
-/// guard (trigger or low-privilege runtime role) is decided with GDPR erasure (UC-26) in change #15.
+/// and raw SQL bypass it, so an architecture test forbids them on the audit trail, and a database
+/// trigger refuses them outside the audit module's maintenance transactions (add-audit-privacy,
+/// design D4).
 /// </summary>
 public sealed class AppendOnlyAuditGuard : SaveChangesInterceptor
 {

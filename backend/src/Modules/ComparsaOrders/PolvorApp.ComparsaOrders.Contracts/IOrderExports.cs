@@ -46,6 +46,10 @@ public sealed record ExportedOrder(Guid OrderId, Guid ComparsaId, OrderStatus St
 /// <param name="Person">The copy of the arquebusier's identity.</param>
 /// <param name="OwnedWeapon">The copy of the owned weapon, for <see cref="WeaponSource.Owned"/>.</param>
 /// <param name="Loan">The loan, for <see cref="WeaponSource.Loan"/>.</param>
+/// <param name="Erased">
+/// True once the person was erased on a GDPR request (add-audit-privacy): lists of people leave the
+/// entry out, totals still count it.
+/// </param>
 public sealed record ExportedEntry(
     Guid EntryId,
     Guid? ArquebusierId,
@@ -59,7 +63,8 @@ public sealed record ExportedEntry(
     FlaskOption Flask,
     ExportedPerson Person,
     ExportedWeapon? OwnedWeapon,
-    ExportedLoan? Loan)
+    ExportedLoan? Loan,
+    bool Erased = false)
 {
     /// <summary>The type name only.</summary>
     public override string ToString() => nameof(ExportedEntry);

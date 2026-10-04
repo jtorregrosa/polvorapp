@@ -78,7 +78,8 @@ internal static class DistributionLists
         return new BuiltList(table, counts.WithoutLicense, counts.WithoutEntry, counts.Erased);
     }
 
-    private static bool Collects(ExportedEntry entry, DistributionType type) => entry.IsActive && type switch
+    // An erased person collects nothing on a list (spec: Erased entries in distribution).
+    private static bool Collects(ExportedEntry entry, DistributionType type) => entry.IsActive && !entry.Erased && type switch
     {
         DistributionType.Powder => entry.PowderKg > 0,
         DistributionType.Weapons => entry.WeaponSource == WeaponSource.Rental,
@@ -155,7 +156,8 @@ internal static class DistributionLists
             return null;
         }
 
-        if (!entries.TryGetValue(proxyEntryId, out var proxy))
+        // A proxy erased after it was authorised (a race with the erasure) counts as missing.
+        if (!entries.TryGetValue(proxyEntryId, out var proxy) || proxy.Entry.Erased)
         {
             counts.WithoutEntry++;
             return null;

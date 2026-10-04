@@ -41,4 +41,10 @@ public static class RateLimitPolicies
     /// signed-in user, so a single account cannot keep the document generation busy (add-exports D8).
     /// </summary>
     public const string Exports = "exports";
+
+    /// <summary>
+    /// GDPR requests (person lookup, personal data export and erasure): 10 per minute per signed-in
+    /// Admin, so a lookup by DNI/NIE cannot be used to probe the registry at speed (add-audit-privacy D11).
+    /// </summary>
+    public const string Privacy = "privacy";
 }

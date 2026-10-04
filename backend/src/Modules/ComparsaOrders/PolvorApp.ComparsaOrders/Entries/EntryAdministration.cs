@@ -52,7 +52,7 @@ internal sealed class EntryAdministration(
             var entry = EntryHistory.NewEntry(order, arquebusier, previous.GetValueOrDefault(arquebusier.Id), edition.OfferedWeaponModelIds.ToHashSet(), now);
             db.Entries.Add(entry);
             var statusChange = Touch(order, now);
-            Record("EditionEntryAdded", entry, order, new { orderId = order.Id, arquebusierId, orderStatus = statusChange });
+            Record(ComparsaOrdersAuditActions.EditionEntryAdded, entry, order, new { orderId = order.Id, arquebusierId, orderStatus = statusChange });
             return Change.Saved;
         }, cancellationToken);
 
@@ -73,11 +73,24 @@ internal sealed class EntryAdministration(
                 return Change.Failed(OrderOutcome.EntryModified);
             }
 
+            // An erased person's entry is history only (spec: Erased entries).
+            if (entry.ErasedAt is not null)
+            {
+                return Change.Failed(OrderOutcome.EntryErased);
+            }
+
             var arquebusier = await LiveArquebusierAsync(entry, cancellationToken);
             var (input, errors) = EntryInput.Read(fields, await ContextAsync(entry, arquebusier, edition, cancellationToken));
             if (input is null)
             {
                 return new Change(OrderOutcome.Invalid, errors);
+            }
+
+            // A loan whose lender was erased cannot be edited; changing the weapon source drops it.
+            if (input.Values.WeaponSource == WeaponSource.Loan
+                && await db.Loans.AnyAsync(l => l.EntryId == entry.Id && l.ErasedAt != null, cancellationToken))
+            {
+                return Change.Failed(OrderOutcome.EntryErased);
             }
 
             var now = time.GetUtcNow();
@@ -101,7 +114,7 @@ internal sealed class EntryAdministration(
 
             RefreshCopy(entry, arquebusier, now);
             var statusChange = Touch(order, now);
-            Record("EditionEntryUpdated", entry, order, new { orderId = order.Id, fields = changed, orderStatus = statusChange });
+            Record(ComparsaOrdersAuditActions.EditionEntryUpdated, entry, order, new { orderId = order.Id, fields = changed, orderStatus = statusChange });
             return Change.Saved;
         }, cancellationToken);
 

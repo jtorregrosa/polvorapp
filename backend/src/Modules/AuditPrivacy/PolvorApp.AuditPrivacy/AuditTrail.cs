@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using PolvorApp.AuditPrivacy.Viewer;
 using PolvorApp.SharedKernel.Auditing;
 using PolvorApp.SharedKernel.Diagnostics;
 
@@ -15,16 +16,35 @@ namespace PolvorApp.AuditPrivacy;
 /// Fills time, actor and correlation id of an audit entry (design D3) and keeps attacker-supplied
 /// values (e.g. an attempted sign-in email) from breaking the caller's save: every string, key and
 /// identifier loses NUL characters and lone surrogates (PostgreSQL rejects both) and is capped, and
-/// oversized data is replaced by a marker that still names its properties.
+/// oversized data is replaced by a marker that still names its properties. An action that no module
+/// declares in the audit action catalogue is a programming error (add-audit-privacy, design D2).
 /// </summary>
-internal sealed partial class AuditTrail(
-    IHttpContextAccessor httpContextAccessor, TimeProvider timeProvider, ILogger<AuditTrail> logger) : IAuditTrail
+internal sealed partial class AuditTrail : IAuditTrail
 {
     public const int MaxCodeLength = 100;
     public const int MaxStringLength = 512;
     public const int MaxDataLength = 16 * 1024;
 
     private static readonly JsonSerializerOptions DataJson = new(JsonSerializerDefaults.Web);
+
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly TimeProvider _timeProvider;
+    private readonly ILogger<AuditTrail> _logger;
+    private readonly AuditActionCatalog? _catalog;
+
+    /// <summary>The host's trail: it records only the actions declared in <paramref name="catalog"/>.</summary>
+    public AuditTrail(
+        IHttpContextAccessor httpContextAccessor, TimeProvider timeProvider, ILogger<AuditTrail> logger, AuditActionCatalog catalog)
+        : this(httpContextAccessor, timeProvider, logger) =>
+        _catalog = catalog;
+
+    /// <summary>A trail without a catalogue, accepting any action: tests of the recording itself.</summary>
+    internal AuditTrail(IHttpContextAccessor httpContextAccessor, TimeProvider timeProvider, ILogger<AuditTrail> logger)
+    {
+        _httpContextAccessor = httpContextAccessor;
+        _timeProvider = timeProvider;
+        _logger = logger;
+    }
 
     public void Record(DbContext context, AuditRecord record)
     {
@@ -38,9 +58,14 @@ internal sealed partial class AuditTrail(
 
         RequireCode(record.Action, nameof(record.Action));
         RequireCode(record.EntityType, nameof(record.EntityType));
+        if (_catalog is not null && !_catalog.Declares(record.Action, record.EntityType))
+        {
+            throw new InvalidOperationException(
+                $"The audit action '{record.Action}' on '{record.EntityType}' is not declared; add it to its module's audit actions.");
+        }
 
-        var httpContext = httpContextAccessor.HttpContext;
-        var now = timeProvider.GetUtcNow();
+        var httpContext = _httpContextAccessor.HttpContext;
+        var now = _timeProvider.GetUtcNow();
         context.Add(new AuditEntry
         {
             Id = Guid.CreateVersion7(now),
@@ -116,7 +141,7 @@ internal sealed partial class AuditTrail(
             return json;
         }
 
-        LogDataTruncated(logger, record.Action, record.EntityType, json.Length);
+        LogDataTruncated(_logger, record.Action, record.EntityType, json.Length);
         var marker = new JsonObject { ["truncated"] = true, ["originalLength"] = json.Length };
         if (node is JsonObject obj)
         {

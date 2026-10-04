@@ -118,7 +118,10 @@ internal static class XlsxExportWriter
     /// file is re-saved as CSV. ClosedXML turns one leading apostrophe into Excel's hidden quote
     /// prefix, so two are written and one remains in the value.
     /// </summary>
-    private static XLCellValue Text(string text) =>
+    private static XLCellValue Text(string text) => Neutralised(text);
+
+    /// <summary>The neutralised value of a text cell, shared with <see cref="XlsxWorkbookWriter"/>.</summary>
+    internal static string Neutralised(string text) =>
         text.Length > 0 && text[0] is '=' or '+' or '-' or '@' or '\t' or '\r' or '\'' ? "''" + text : text;
 
     private static double Width(DocumentColumn column)

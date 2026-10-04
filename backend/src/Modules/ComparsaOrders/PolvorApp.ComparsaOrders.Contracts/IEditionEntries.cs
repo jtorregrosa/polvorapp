@@ -1,3 +1,4 @@
+using System.Data.Common;
 namespace PolvorApp.ComparsaOrders.Contracts;
 
 /// <summary>
@@ -28,6 +29,19 @@ public interface IEditionEntries
     /// without an order is absent (not prepared). For links and reminders (add-notifications, design D9).
     /// </summary>
     Task<IReadOnlyList<OrderSummary>> ListOrdersAsync(Guid editionId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The ids of a person's entries in every edition, found by the copy's DNI/NIE or through the
+    /// registered arquebusier with it, e.g. for a GDPR request (add-audit-privacy, design D5).
+    /// </summary>
+    Task<IReadOnlyList<Guid>> ListEntryIdsOfPersonAsync(string normalisedNationalId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Locks the entries <c>FOR SHARE</c> on the caller's <paramref name="transaction"/> and tells whether
+    /// any of them was erased on a GDPR request: an erasure of them waits until the caller commits, and
+    /// one committed before is seen (add-audit-privacy, design D7). Unknown ids are ignored.
+    /// </summary>
+    Task<bool> AnyErasedForWriteAsync(IReadOnlyCollection<Guid> entryIds, DbTransaction transaction, CancellationToken cancellationToken);
 }
 
 /// <summary>A comparsa's order in an edition, without its entries.</summary>
@@ -49,6 +63,7 @@ public sealed record OrderSummary(Guid OrderId, Guid ComparsaId, OrderStatus Sta
 /// <param name="RentalWeaponModelId">The rented model, for <see cref="WeaponSource.Rental"/>.</param>
 /// <param name="Flask">The flask.</param>
 /// <param name="Copy">The entry's copy of the arquebusier's identity (spec: Entry history (BR-14)).</param>
+/// <param name="Erased">True once the person was erased on a GDPR request: never a pickup holder or proxy.</param>
 public sealed record EditionEntryFacts(
     Guid EntryId,
     Guid OrderId,
@@ -61,7 +76,8 @@ public sealed record EditionEntryFacts(
     WeaponSource WeaponSource,
     Guid? RentalWeaponModelId,
     FlaskOption Flask,
-    ExportedPerson Copy)
+    ExportedPerson Copy,
+    bool Erased = false)
 {
     /// <summary>The type name only: the copy is personal data.</summary>
     public override string ToString() => nameof(EditionEntryFacts);

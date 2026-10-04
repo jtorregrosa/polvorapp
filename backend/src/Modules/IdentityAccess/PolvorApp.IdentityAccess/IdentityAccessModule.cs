@@ -4,12 +4,15 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using PolvorApp.AuditPrivacy.Contracts;
 using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.IdentityAccess.Emails;
 using PolvorApp.IdentityAccess.Endpoints;
 using PolvorApp.IdentityAccess.Persistence;
+using PolvorApp.IdentityAccess.Privacy;
 using PolvorApp.IdentityAccess.Security;
 using PolvorApp.IdentityAccess.Users;
+using PolvorApp.SharedKernel.Auditing;
 using PolvorApp.SharedKernel.Modules;
 using PolvorApp.SharedKernel.Persistence;
 using PolvorApp.SharedKernel.Seeding;
@@ -27,6 +30,8 @@ public sealed class IdentityAccessModule : IModule
 
     public void AddServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddAuditActions(IdentityAccessAuditActions.All);
+        services.AddAuditRecordResolver<IdentityAccessDbContext, Users.User>(Security.SecurityEvents.EntityType);
         services.AddHttpContextAccessor();
         services.TryAddSingleton(TimeProvider.System);
         services.AddModuleDbContext<IdentityAccessDbContext>(IdentityAccessDbContext.Schema, MigrationOrder);
@@ -41,6 +46,7 @@ public sealed class IdentityAccessModule : IModule
         services.AddScoped<ICurrentUser, CurrentUser>();
         services.AddScoped<IComparsaScope, ComparsaScope>();
         services.AddScoped<IUserDirectory, UserDirectory>();
+        services.AddScoped<IPersonalDataParticipant, IdentityPersonalData>();
         services.TryAddScoped<IFiringChiefAssignmentSource, NoFiringChiefAssignments>();
     }
 

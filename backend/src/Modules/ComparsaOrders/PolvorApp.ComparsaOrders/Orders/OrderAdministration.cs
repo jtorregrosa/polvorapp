@@ -101,7 +101,7 @@ internal sealed class OrderAdministration(
         db.Orders.Add(order);
         db.Entries.AddRange(entries);
         trail.Record(db, new AuditRecord(
-            "ComparsaOrderPrepared",
+            ComparsaOrdersAuditActions.ComparsaOrderPrepared,
             EntityType,
             order.Id.ToString(),
             new { editionId = edition.Id, entryCount = entries.Count },

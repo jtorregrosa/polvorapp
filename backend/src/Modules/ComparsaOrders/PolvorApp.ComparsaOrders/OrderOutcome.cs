@@ -26,6 +26,9 @@ internal enum OrderOutcome
     EntryNotFound,
     EntryModified,
 
+    /// <summary>The entry, or the lender of its loan, was erased on a GDPR request: it can no longer be edited (409).</summary>
+    EntryErased,
+
     /// <summary>A row lock waited too long, a deadlock, or a lost race on an entry index; retryable.</summary>
     Busy,
 }
@@ -45,6 +48,7 @@ internal static class OrderProblems
     public const string AlreadyInEdition = "orders.alreadyInEdition";
     public const string EntryNotFound = "entries.notFound";
     public const string EntryModified = "entries.modified";
+    public const string EntryErased = "orders.entryErased";
     public const string Busy = "orders.busy";
 
     /// <summary>The problem for <paramref name="outcome"/>; <paramref name="extra"/> carries e.g. the invalid <c>entries</c>.</summary>
@@ -62,6 +66,7 @@ internal static class OrderProblems
         OrderOutcome.AlreadyInEdition => ProblemResults.Conflict(AlreadyInEdition),
         OrderOutcome.EntryNotFound => ProblemResults.NotFound(EntryNotFound),
         OrderOutcome.EntryModified => ProblemResults.Conflict(EntryModified),
+        OrderOutcome.EntryErased => ProblemResults.Conflict(EntryErased),
         OrderOutcome.Busy => ProblemResults.Problem(StatusCodes.Status503ServiceUnavailable, Busy),
         _ => throw new ArgumentOutOfRangeException(nameof(outcome), outcome, "Not a problem outcome."),
     };

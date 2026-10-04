@@ -47,7 +47,7 @@ internal sealed class EditionLifecycle(
             var previous = edition.Status;
             edition.Status = to;
             edition.StatusChangedAt = time.GetUtcNow();
-            Record("EditionStatusChanged", edition, new { previous, current = to });
+            Record(FestivalEditionsAuditActions.EditionStatusChanged, edition, new { previous, current = to });
             try
             {
                 await db.SaveChangesAsync(cancellationToken);
@@ -93,7 +93,7 @@ internal sealed class EditionLifecycle(
             }
 
             edition.OrdersOpen = open;
-            Record(open ? "EditionOrdersOpened" : "EditionOrdersClosed", edition);
+            Record(open ? FestivalEditionsAuditActions.EditionOrdersOpened : FestivalEditionsAuditActions.EditionOrdersClosed, edition);
             notifications.Record(db, open ? NotificationEvent.OrdersOpened(edition.Id) : NotificationEvent.OrdersClosed(edition.Id));
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);

@@ -16,7 +16,8 @@ namespace PolvorApp.Distribution.Proxies;
 /// Registers and removes pickup proxies (spec: Pickup proxies, Who may manage pickup proxies; design D4,
 /// D5, D8). The reads through other modules' contracts (entries, registry) happen before the write's
 /// transaction, so a write never holds two connections. Inside it: the edition <c>FOR SHARE</c>, then
-/// the comparsa's proxy lock — taken before any insert or delete of a proxy — then the absence and
+/// the comparsa's proxy lock — taken before any insert or delete of a proxy — then, on a registration, the
+/// two entries <c>FOR SHARE</c> against a GDPR erasure, then the absence and
 /// uniqueness rules on this module's own table. FiringChiefs act on their comparsas while the edition is
 /// in progress; Admins on any comparsa of an edition that is not a draft.
 /// </summary>
@@ -84,7 +85,7 @@ internal sealed class ProxyAdministration(
             : (Invalid(Operation, "proxyEntryId", ProxyRules.LicenseInvalid, holderEntryId), null);
     }
 
-    /// <summary>The edition rule again under its share lock, the comparsa's lock, the absence and uniqueness rules, then the insert.</summary>
+    /// <summary>The edition rule again under its share lock, the comparsa's lock, the entries not erased, the absence and uniqueness rules, then the insert.</summary>
     private async Task<DistributionResult<PickupProxy>> WriteAsync(EditionEntryFacts holder, Guid proxyEntryId, DistributionType type, CancellationToken cancellationToken)
     {
         await using var transaction = await db.BeginWriteAsync(cancellationToken);
@@ -94,6 +95,13 @@ internal sealed class ProxyAdministration(
         }
 
         await db.LockProxiesAsync(holder.EditionId, holder.ComparsaId, cancellationToken);
+        // The two entries locked against a GDPR erasure (design D7): one committed meanwhile is seen
+        // here, and one after waits, then removes this proxy with the person's others.
+        if (await entries.AnyErasedForWriteAsync([holder.EntryId, proxyEntryId], db.Database.CurrentTransaction!.GetDbTransaction(), cancellationToken))
+        {
+            return Invalid(nameof(RegisterAsync), "proxyEntryId", ProxyRules.EntryErased, holder.EntryId);
+        }
+
         var related = await db.Proxies.Where(p => p.Type == type
                 && (p.HolderEntryId == holder.EntryId || p.HolderEntryId == proxyEntryId || p.ProxyEntryId == holder.EntryId))
             .Select(p => new { p.HolderEntryId, p.ProxyEntryId })
@@ -119,7 +127,7 @@ internal sealed class ProxyAdministration(
             CreatedAt = now,
         };
         db.Proxies.Add(created);
-        Record("PickupProxyAuthorised", created);
+        Record(DistributionAuditActions.PickupProxyAuthorised, created);
         return await SaveAsync(created, transaction, cancellationToken);
     }
 
@@ -182,7 +190,7 @@ internal sealed class ProxyAdministration(
             }
 
             db.Proxies.Remove(proxy);
-            Record("PickupProxyRemoved", proxy);
+            Record(DistributionAuditActions.PickupProxyRemoved, proxy);
             try
             {
                 await db.SaveChangesAsync(cancellationToken);

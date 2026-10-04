@@ -2,15 +2,18 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using PolvorApp.AuditPrivacy.Contracts;
 using PolvorApp.FederationCatalog.Assignments;
 using PolvorApp.FederationCatalog.Comparsas;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.FederationCatalog.Endpoints;
 using PolvorApp.FederationCatalog.Logos;
 using PolvorApp.FederationCatalog.Persistence;
+using PolvorApp.FederationCatalog.Privacy;
 using PolvorApp.FederationCatalog.Seeding;
 using PolvorApp.FederationCatalog.WeaponModels;
 using PolvorApp.IdentityAccess.Contracts;
+using PolvorApp.SharedKernel.Auditing;
 using PolvorApp.SharedKernel.Modules;
 using PolvorApp.SharedKernel.Persistence;
 using PolvorApp.SharedKernel.Seeding;
@@ -30,11 +33,15 @@ public sealed class FederationCatalogModule : IModule
 
     public void AddServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddAuditActions(FederationCatalogAuditActions.All);
+        services.AddAuditRecordResolver<FederationCatalogDbContext, Comparsas.Comparsa>(ComparsaAdministration.EntityType);
+        services.AddAuditRecordResolver<FederationCatalogDbContext, WeaponModels.WeaponModel>(WeaponModelAdministration.EntityType);
         services.AddHttpContextAccessor();
         services.TryAddSingleton(TimeProvider.System);
         services.AddModuleDbContext<FederationCatalogDbContext>(FederationCatalogDbContext.Schema, MigrationOrder);
         services.AddScoped<ComparsaAdministration>();
         services.AddScoped<AssignmentAdministration>();
+        services.AddScoped<IPersonalDataParticipant, CatalogPersonalData>();
         services.AddScoped<WeaponModelAdministration>();
         services.AddScoped<ComparsaLogoAdministration>();
         services.AddScoped<FederationLogoAdministration>();

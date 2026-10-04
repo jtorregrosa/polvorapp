@@ -162,6 +162,22 @@ public sealed class UserManagementTests(PostgresFixture postgres, MailpitFixture
     }
 
     [Fact]
+    public async Task A_name_change_is_audited_without_the_names()
+    {
+        var other = await _host.CreateUserAsync("nombre.cambiado@example.test");
+
+        using var response = await _admin.PutAsJsonAsync(
+            $"/api/users/{other.Id}", new { name = "Nombre Cambiado Sintético", role = "FIRING_CHIEF", locale = "es-ES" }, TestContext.Current.CancellationToken);
+
+        Assert.Equal("Nombre Cambiado Sintético", (await ReadAsync<UserResponse>(response)).Name);
+        var entry = Assert.Single(await _host.AuditEntriesAsync("UserUpdated"), e => e.EntityId == other.Id.ToString());
+        Assert.Contains("\"changedFields\": [\"name\"]", entry.Data, StringComparison.Ordinal);
+        Assert.DoesNotContain("Persona Sintética", entry.Data, StringComparison.Ordinal);
+        Assert.DoesNotContain("Nombre Cambiado", entry.Data, StringComparison.Ordinal);
+        Assert.Contains("\"FIRING_CHIEF\"", entry.Data, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task A_two_factor_reset_forces_enrolment_and_ends_sessions()
     {
         var user = await _host.CreateUserAsync("perdio.movil@example.test");

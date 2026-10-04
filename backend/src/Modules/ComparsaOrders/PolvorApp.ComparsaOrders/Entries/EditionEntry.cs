@@ -65,6 +65,12 @@ internal sealed class EditionEntry
     /// <summary>When the copy was last taken from the registry.</summary>
     public required DateTimeOffset CopiedAt { get; set; }
 
+    /// <summary>
+    /// When a GDPR erasure (UC-26, add-audit-privacy) anonymised the entry: its copy of the person and
+    /// of the weapon's number and guide is blank, and it can no longer be edited (spec: Erased entries).
+    /// </summary>
+    public DateTimeOffset? ErasedAt { get; set; }
+
     /// <summary>PostgreSQL <c>xmin</c>: an edit based on an older version is rejected (<c>entries.modified</c>).</summary>
     public uint Version { get; set; }
 }

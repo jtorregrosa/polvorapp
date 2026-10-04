@@ -74,5 +74,6 @@ internal sealed class OrderExports(ComparsaOrdersDbContext db) : IOrderExports
                 loan.LenderKind,
                 new ExportedPerson(loan.LenderFirstName, loan.LenderLastName, loan.LenderNationalId, null),
                 loan.LenderComparsaId,
-                new ExportedWeapon(loan.WeaponModelId, loan.WeaponNumber, loan.OwnershipGuideNumber)));
+                new ExportedWeapon(loan.WeaponModelId, loan.WeaponNumber, loan.OwnershipGuideNumber)),
+        entry.ErasedAt is not null);
 }

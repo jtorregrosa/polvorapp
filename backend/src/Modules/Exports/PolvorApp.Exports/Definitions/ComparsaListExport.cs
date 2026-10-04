@@ -47,7 +47,8 @@ internal sealed class ComparsaListExport : IExportDefinition
                 new(texts.Flask, DocumentCellType.Text),
             ],
             rows,
-            [texts.Total, null, null, null, entries.Sum(r => r.Entry.PowderKg), entries.Sum(r => r.Entry.CapsBoxes), null, null, null]);
+            // Totals count every entry of the order, erased ones included: they are the order's figures.
+            [texts.Total, null, null, null, order.Entries.Sum(e => e.PowderKg), order.Entries.Sum(e => e.CapsBoxes), null, null, null]);
     }
 
     private static IReadOnlyList<object?> Row(ExportRow row, ExportData data, ExportTexts texts)
@@ -78,7 +79,8 @@ internal sealed class ComparsaListExport : IExportDefinition
             WeaponSource.Loan when entry.Loan is { } loan => Join(
                 ", ",
                 Describe(data, loan.Weapon.WeaponModelId, loan.Weapon.WeaponNumber),
-                texts.Format(texts.LentBy, ExportRows.PersonName(loan.Lender.LastName, loan.Lender.FirstName))),
+                // An erased lender has no name: only the weapon is described.
+                ExportRows.PersonName(loan.Lender.LastName, loan.Lender.FirstName) is { Length: > 0 } lender ? texts.Format(texts.LentBy, lender) : null),
             _ => null,
         };
         if (entry.WeaponSource == WeaponSource.None)
