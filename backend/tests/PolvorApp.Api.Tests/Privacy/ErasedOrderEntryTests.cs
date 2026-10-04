@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PolvorApp.Api.Tests.Infrastructure;
@@ -44,6 +45,56 @@ public sealed class ErasedOrderEntryTests(PostgresFixture postgres, MailpitFixtu
             new { version = entry.GetProperty("version").GetUInt32(), status = "ACTIVE", powderKg = 1, capsBoxes = 0, weaponSource = "NONE", flask = "NONE" },
             TestContext.Current.CancellationToken);
         await IdentityAssertions.AssertProblemAsync(edit, HttpStatusCode.Conflict, "orders.entryErased");
+    }
+
+    /// <summary>
+    /// Spec comparsa-orders "Erased entries": quantities keep counting in the orders dashboard and
+    /// billing, and the erased person is never found by the lender lookup again.
+    /// </summary>
+    [Fact]
+    public async Task The_dashboard_and_billing_keep_an_erased_entry_and_the_lookup_no_longer_finds_them()
+    {
+        var (person, _) = await _orders.AddArquebusierAsync(_orders.Own.Id, "Contada Sintética");
+        var order = await _orders.PrepareAsync(_orders.Admin, _orders.Own.Id);
+        var orderId = order.GetProperty("id").GetGuid();
+        await _orders.ReadOrdersAsync(db => db.Entries.Where(e => e.ArquebusierId == person.Id)
+            .ExecuteUpdateAsync(e => e.SetProperty(x => x.PowderKg, 2), TestContext.Current.CancellationToken));
+        // Closed first, so the entry is anonymised rather than removed and only the erasure changes.
+        await _orders.SetOrdersOpenAsync(false);
+        var (totalsBefore, billingBefore) = await CountsAsync(orderId);
+
+        await EraseAsync(person.NationalId);
+
+        var (totalsAfter, billingAfter) = await CountsAsync(orderId);
+        // Quantities stay; the compliance warnings were the registry record's, which is gone (BR-04).
+        Assert.Equal(WithoutWarnings(totalsBefore), WithoutWarnings(totalsAfter));
+        Assert.Equal(0, JsonNode.Parse(totalsAfter)!["entriesWithWarnings"]!.GetValue<int>());
+        Assert.Equal(billingBefore, billingAfter);
+        await _orders.SetOrdersOpenAsync(true);
+        using var lookup = await _orders.FiringChief.PostAsJsonAsync(
+            "/api/comparsa-orders/lender-lookup", new { nationalId = person.NationalId }, TestContext.Current.CancellationToken);
+        var found = await IdentityAssertions.ReadAsync<JsonElement>(lookup);
+        Assert.False(found.GetProperty("registered").GetBoolean());
+        Assert.Equal(JsonValueKind.Null, found.GetProperty("lender").ValueKind);
+    }
+
+    private static string WithoutWarnings(string totals)
+    {
+        var node = JsonNode.Parse(totals)!.AsObject();
+        node.Remove("entriesWithWarnings");
+        return node.ToJsonString();
+    }
+
+    /// <summary>The order's totals on the orders dashboard, and its billing, as JSON.</summary>
+    private async Task<(string Totals, string Billing)> CountsAsync(Guid orderId)
+    {
+        using var response = await _orders.Admin.GetAsync("/api/comparsa-orders/overview", TestContext.Current.CancellationToken);
+        var overview = await IdentityAssertions.ReadAsync<JsonElement>(response);
+        var row = overview.GetProperty("rows").EnumerateArray()
+            .Single(r => r.GetProperty("comparsa").GetProperty("id").GetGuid() == _orders.Own.Id);
+        var billing = (await OrderTestHost.GetOrderAsync(_orders.Admin, orderId)).GetProperty("billing");
+        Assert.Equal(2, row.GetProperty("totals").GetProperty("powderKg").GetInt32());
+        return (row.GetProperty("totals").GetRawText(), billing.GetRawText());
     }
 
     [Fact]

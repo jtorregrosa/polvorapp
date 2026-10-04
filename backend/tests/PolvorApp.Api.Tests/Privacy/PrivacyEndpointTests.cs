@@ -228,7 +228,15 @@ public sealed class PrivacyEndpointTests(PostgresFixture postgres, MailpitFixtur
             Assert.Contains(workbook.Worksheet("Perfil").CellsUsed(), c => c.GetString() == chief.Email);
         }
 
+        // Audited with the reference and what was sent, never the user's email (spec: Exporting a user's data).
+        var exported = Assert.Single(await _registry.Host.AuditEntriesAsync("PersonalDataExported"));
+        Assert.Contains(Reference, exported.Data!, StringComparison.Ordinal);
+        Assert.Contains("\"user\"", exported.Data!, StringComparison.Ordinal);
+        Assert.DoesNotContain(chief.Email, exported.Data!, StringComparison.OrdinalIgnoreCase);
+
         await PostAsync<JsonElement>($"/api/privacy/users/{chief.Id}/erasure", new { reference = Reference });
+        var erasure = Assert.Single(await _registry.Host.AuditEntriesAsync("PersonalDataErased"));
+        Assert.DoesNotContain(chief.Email, erasure.Data!, StringComparison.OrdinalIgnoreCase);
         using var after = await _registry.Admin.PostAsJsonAsync($"/api/privacy/users/{chief.Id}/export", new { reference = Reference }, TestContext.Current.CancellationToken);
         await IdentityAssertions.AssertProblemAsync(after, HttpStatusCode.NotFound, "privacy.notFound");
     }
@@ -341,5 +349,24 @@ public sealed class PrivacyRateLimitTests(PostgresFixture postgres, MailpitFixtu
         }
 
         Assert.Equal([HttpStatusCode.OK, HttpStatusCode.OK, HttpStatusCode.TooManyRequests], statuses);
+    }
+
+    [Fact]
+    public async Task Lookups_exports_and_erasures_share_one_budget_per_user()
+    {
+        var nationalId = RegistryData.NextIdentity().NationalId;
+        var other = await _registry.Host.CreateUserAsync("otra.admin.limite@example.test", PolvorApp.IdentityAccess.Contracts.UserRole.Admin);
+        using var otherAdmin = await _registry.Host.SignInAsync(other);
+
+        using var lookup = await _registry.Admin.PostAsJsonAsync("/api/privacy/people/lookup", new { nationalId }, TestContext.Current.CancellationToken);
+        using var export = await _registry.Admin.PostAsJsonAsync("/api/privacy/people/export", new { nationalId, reference = "REQ-LIMITE-1" }, TestContext.Current.CancellationToken);
+        using var erasure = await _registry.Admin.PostAsJsonAsync("/api/privacy/people/erasure", new { nationalId, reference = "REQ-LIMITE-1" }, TestContext.Current.CancellationToken);
+        using var someoneElse = await otherAdmin.PostAsJsonAsync("/api/privacy/people/lookup", new { nationalId }, TestContext.Current.CancellationToken);
+
+        // Nothing is held for the synthetic DNI/NIE: the export answers 404, but it still counts.
+        Assert.Equal(
+            (HttpStatusCode.OK, HttpStatusCode.NotFound, HttpStatusCode.TooManyRequests, HttpStatusCode.OK),
+            (lookup.StatusCode, export.StatusCode, erasure.StatusCode, someoneElse.StatusCode));
+        Assert.Empty(await _registry.Host.AuditEntriesAsync("PersonalDataErased"));
     }
 }

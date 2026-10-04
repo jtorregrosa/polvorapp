@@ -50,6 +50,8 @@ public sealed class UserPersonalDataTests(PostgresFixture postgres, MailpitFixtu
         var chief = await ChiefWithNotificationsAsync("jefa.borrada@example.test");
         var normalised = chief.Email.ToUpperInvariant();
         await InsertFailedSignInAsync(normalised);
+        // Someone else's failed sign-in is not theirs: the redaction leaves it alone.
+        await InsertFailedSignInAsync("OTRA.PERSONA@EXAMPLE.TEST");
         using var session = await _registry.Host.SignInAsync(chief);
         var actedBefore = (await ActivityAsync(chief.Id)).Count;
 
@@ -71,6 +73,7 @@ public sealed class UserPersonalDataTests(PostgresFixture postgres, MailpitFixtu
         var data = await scope.ServiceProvider.GetRequiredService<AuditDbContext>().Set<AuditEntry>().AsNoTracking()
             .Where(e => e.Data != null).Select(e => e.Data!).ToListAsync(TestContext.Current.CancellationToken);
         Assert.DoesNotContain(data, d => d.Contains(normalised, StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(data, d => d.Contains("OTRA.PERSONA@EXAMPLE.TEST", StringComparison.Ordinal));
         using var login = await (await _registry.Host.NewClientAsync()).PostAsJsonAsync(
             "/api/auth/login", new { email = chief.Email, password = IdentityTestHost.Password }, TestContext.Current.CancellationToken);
         await IdentityAssertions.AssertProblemAsync(login, HttpStatusCode.Unauthorized, "auth.invalidCredentials");

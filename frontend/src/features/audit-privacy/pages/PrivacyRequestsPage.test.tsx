@@ -244,6 +244,56 @@ describe('PrivacyRequestsPage (spec: GDPR request screens)', () => {
     expect(screen.getByRole('region', { name: 'Datos que guarda PolvorApp' })).toBeInTheDocument();
   });
 
+  it('says when the person was erased meanwhile and when there were too many lookups', async () => {
+    const user = userEvent.setup();
+    lookups(FOUND);
+    server.use(mock.post('/api/privacy/people/erasure', () => problem(404, 'privacy.notFound')));
+    await asAdmin();
+    await lookUp(user);
+    await user.click(await screen.findByRole('button', { name: 'Borrar datos' }));
+    const dialog = await screen.findByRole('alertdialog');
+    await user.type(
+      within(dialog).getByRole('textbox', { name: 'Referencia de la solicitud' }),
+      'REQ-2031-12',
+    );
+    await user.click(within(dialog).getByRole('button', { name: 'Borrar' }));
+    expect(
+      await within(dialog).findByText('PolvorApp no guarda ningún dato de esta persona.'),
+    ).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }));
+
+    server.use(mock.post('/api/privacy/people/lookup', () => problem(429, 'tooManyRequests')));
+    await user.click(screen.getByRole('button', { name: 'Buscar' }));
+    expect(
+      await screen.findByText('Demasiadas solicitudes. Espera un minuto y vuelve a intentarlo.'),
+    ).toBeInTheDocument();
+  });
+
+  it('says which stored files are still to be erased', async () => {
+    const user = userEvent.setup();
+    lookups(FOUND, NOTHING);
+    server.use(
+      mock.post('/api/privacy/people/erasure', () =>
+        HttpResponse.json({ counts: { arquebusiersDeleted: 1, photosDeleted: 2 }, filesPending: 2 }),
+      ),
+    );
+    await asAdmin();
+    await lookUp(user);
+    await user.click(await screen.findByRole('button', { name: 'Borrar datos' }));
+    const dialog = await screen.findByRole('alertdialog');
+    await user.type(
+      within(dialog).getByRole('textbox', { name: 'Referencia de la solicitud' }),
+      'REQ-2031-13',
+    );
+    await user.click(within(dialog).getByRole('button', { name: 'Borrar' }));
+
+    expect(
+      await screen.findByText(
+        /Quedan 2 archivos por borrar del almacenamiento: se borrarán automáticamente\./,
+      ),
+    ).toBeInTheDocument();
+  });
+
   it('shows translated refusals: a reference with a DNI on its field, a busy erasure in the dialog', async () => {
     const user = userEvent.setup();
     lookups(FOUND);
