@@ -13,6 +13,10 @@ export default defineConfig({
       clean: true,
       override: {
         mutator: { path: 'src/api/http.ts', name: 'apiFetch' },
+        operations: {
+          // The audit log pages on the server with a cursor (add-audit-privacy, design D10).
+          ListAuditEntries: { query: { useInfinite: true, useInfiniteQueryParam: 'cursor' } },
+        },
       },
     },
   },

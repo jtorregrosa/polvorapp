@@ -30,6 +30,8 @@ const FIELD_REASONS = [
   'sameAsHolder',
   'nothingToCollect',
   'licenseInvalid',
+  // A person erased on a GDPR request meanwhile (add-audit-privacy).
+  'entryErased',
 ] as const;
 
 type FieldReason = (typeof FIELD_REASONS)[number];

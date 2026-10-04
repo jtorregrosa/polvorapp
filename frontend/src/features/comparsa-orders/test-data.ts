@@ -62,6 +62,7 @@ const OWN_WEAPON = {
 const ENTRY: EntryResponse = {
   id: '00000000-0000-4000-8000-000000000801',
   version: 3,
+  erased: false,
   arquebusier: {
     id: '00000000-0000-4000-8000-000000000301',
     firstName: 'Arcabucero',
@@ -136,6 +137,7 @@ export const NORTE_ORDER: OrderResponse = {
       ownedWeapon: null,
       loan: {
         lenderKind: 'ARQUEBUSIER',
+        lenderErased: false,
         lenderFirstName: 'Arcabucera',
         lenderLastName: 'Sintética Seis',
         lenderComparsaName: SUR.name,
@@ -190,6 +192,7 @@ export const NORTE_ORDER: OrderResponse = {
       borrowerFirstName: 'Arcabucera',
       borrowerLastName: 'Sintética Siete',
       borrowerComparsaName: SUR.name,
+      borrowerErased: false,
     },
   ],
   totals: {

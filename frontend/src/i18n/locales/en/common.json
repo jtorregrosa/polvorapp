@@ -44,7 +44,9 @@
     "users": "Users",
     "account": "My account",
     "warningCount_one": "{{count}} with a warning",
-    "warningCount_other": "{{count}} with warnings"
+    "warningCount_other": "{{count}} with warnings",
+    "auditLog": "Audit log",
+    "privacy": "Privacy"
   },
   "forbidden": {
     "title": "Access denied",

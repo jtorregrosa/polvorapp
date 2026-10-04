@@ -201,6 +201,7 @@
     "notInOrder": "Ha de ser una altra inscripció de la mateixa comanda.",
     "sameAsHolder": "Ha de ser una persona diferent del titular.",
     "nothingToCollect": "El titular no té res d'aquest tipus per recollir.",
-    "licenseInvalid": "No té llicència d'armes en vigor eixe dia."
+    "licenseInvalid": "No té llicència d'armes en vigor eixe dia.",
+    "entryErased": "És una persona esborrada."
   }
 }

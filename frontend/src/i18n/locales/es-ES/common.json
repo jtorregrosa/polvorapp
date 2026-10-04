@@ -44,7 +44,9 @@
     "users": "Usuarios",
     "account": "Mi cuenta",
     "warningCount_one": "{{count}} con aviso",
-    "warningCount_other": "{{count}} con avisos"
+    "warningCount_other": "{{count}} con avisos",
+    "auditLog": "Auditoría",
+    "privacy": "Privacidad"
   },
   "forbidden": {
     "title": "Acceso no permitido",

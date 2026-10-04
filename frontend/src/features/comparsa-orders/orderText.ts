@@ -15,6 +15,9 @@ export function useEntryText() {
 
   return useMemo(
     () => ({
+      /** The arquebusier's name, or "Erased person" once erased on a GDPR request (spec: Erased entries). */
+      name: (entry: EntryResponse): string =>
+        entry.erased ? t('entry.erased') : personName(entry.arquebusier),
       powder: (entry: EntryResponse) => t('totals.kg', { value: number(entry.powderKg) }),
       caps: (entry: EntryResponse) =>
         entry.capsBoxes === 0 || !entry.capsType
@@ -39,6 +42,7 @@ export function useEntryText() {
           case 'LOAN': {
             const loan = entry.loan;
             if (!loan) return t('entry.weapon.LOAN_MISSING');
+            if (loan.lenderErased) return t('loan.lenderErased');
             const lender = personName({ firstName: loan.lenderFirstName, lastName: loan.lenderLastName });
             const text =
               loan.lenderKind === 'EXTERNAL'
@@ -52,10 +56,11 @@ export function useEntryText() {
       },
       flask: (entry: EntryResponse) => t(`entry.flask.${entry.flask}`),
       /**
-       * The arquebusier's DNI/NIE and ID Unión (from the entry's copy once they left the registry;
-       * none once erased), then the first-year flag or that they are no longer in the registry.
+       * The arquebusier's DNI/NIE and ID Unión (from the entry's copy once they left the registry),
+       * then the first-year flag or that they are no longer in the registry; nothing once erased.
        */
       notes: (entry: EntryResponse): string[] => {
+        if (entry.erased) return [];
         const { nationalId, federationId, inRegistry } = entry.arquebusier;
         return [
           nationalId ? t('entry.nationalId', { value: nationalId }) : null,

@@ -44,6 +44,7 @@
     "optional": "Opcional",
     "requiredNote": "Tots els camps són obligatoris excepte els marcats com a opcionals.",
     "clearDate": "Esborra la data",
+    "clearDateFor": "Esborra la data de {{subject}}",
     "clearTime": "Esborra l'hora",
     "clearTimeFor": "Esborra l'hora de {{subject}}",
     "optionalSuffix": "(opcional)",
@@ -124,7 +125,8 @@
     "user": {
       "INVITED": "Convidat",
       "ACTIVE": "Actiu",
-      "DEACTIVATED": "Desactivat"
+      "DEACTIVATED": "Desactivat",
+      "ERASED": "Esborrat"
     }
   },
   "validation": {
@@ -216,7 +218,9 @@
     "notGiven": "No consta",
     "edit": "Edita",
     "saved": "Canvis desats",
-    "saveChanges": "Desa els canvis"
+    "saveChanges": "Desa els canvis",
+    "view": "Veure detalls",
+    "close": "Tancar"
   },
   "amountTable": {
     "amount": "Import",

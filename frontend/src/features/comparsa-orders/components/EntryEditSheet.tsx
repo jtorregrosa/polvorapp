@@ -43,14 +43,20 @@ export interface EntryEditSheetProps {
   order: OrderResponse;
   entry: EntryResponse;
   /**
-   * The order can no longer be edited (orders closed, order validated or gone): the page reloads
-   * it, which removes this panel, and shows `reason`.
+   * The order or the entry can no longer be edited (orders closed, order validated or gone, or the
+   * entry's person erased): the page reloads it, which removes this panel, and shows `reason`.
    */
   onClosedOut: (reason: string) => void;
 }
 
-/** The refusals after which the order on screen can no longer be edited at all. */
-const CLOSING_CODES = ['orders.closed', 'orders.validated', 'orders.notFound', 'entries.notFound'];
+/** The refusals after which the order or entry on screen can no longer be edited. */
+const CLOSING_CODES = [
+  'orders.closed',
+  'orders.validated',
+  'orders.notFound',
+  'entries.notFound',
+  'orders.entryErased',
+];
 
 /** Sets every value of `next` on the form, as if the person had chosen them. */
 function setAll(form: UseFormReturn<EntryValues>, next: EntryValues) {

@@ -158,7 +158,8 @@
       "editName": "dades del compte"
     },
     "cancel": "Cancel·la",
-    "twoFactorState": "Verificació en dos passos: {{state}}"
+    "twoFactorState": "Verificació en dos passos: {{state}}",
+    "erased": "Usuari esborrat"
   },
   "roles": {
     "ADMIN": "Administrador",
@@ -186,7 +187,8 @@
       "lastAdmin": "És l'únic administrador actiu: convida o reactiva un altre administrador abans de fer este canvi.",
       "notInvited": "Només es pot reenviar la invitació a usuaris que encara no l'han acceptada.",
       "notEnrolled": "Este usuari no té configurada la verificació en dos passos.",
-      "notFound": "Este usuari no existix."
+      "notFound": "Este usuari no existix.",
+      "erased": "Les dades d’este usuari estan esborrades: ja no es pot canviar."
     },
     "email": {
       "sendFailed": "Els canvis s'han guardat, però no s'ha pogut enviar el correu. Torna-ho a provar des de la fitxa de l'usuari."

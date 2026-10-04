@@ -1,0 +1,128 @@
+{
+  "page": {
+    "title": "Sol·licituds de privacitat",
+    "description": "Atén les sol·licituds escrites d’accés i supressió (RGPD) d’arcabussers i propietaris externs. Per als usuaris, usa la seua fitxa."
+  },
+  "lookup": {
+    "title": "Buscar una persona",
+    "description": "Escriu el DNI/NIE de la sol·licitud per a veure quines dades guarda PolvorApp d’eixa persona.",
+    "nationalId": "DNI/NIE",
+    "submit": "Buscar",
+    "clear": "Nova cerca",
+    "searching": "Buscant…"
+  },
+  "reference": {
+    "label": "Referència de la sol·licitud",
+    "help": "Identifica la sol·licitud escrita rebuda, per exemple amb el seu número de registre d’entrada. No escrigues el nom ni el DNI/NIE de la persona: queda en el registre d’auditoria."
+  },
+  "summary": {
+    "title": "Dades que guarda PolvorApp",
+    "nothingHeld": "PolvorApp no guarda cap dada d’esta persona.",
+    "registry": {
+      "title": "Registre d’arcabussers",
+      "none": "No està en el registre.",
+      "name": "Nom",
+      "comparsa": "Comparsa",
+      "status": "Estat",
+      "ownedWeapons": "Armes pròpies",
+      "photos": "Fotos",
+      "unknownComparsa": "Comparsa desconeguda"
+    },
+    "entries": {
+      "title": "Línies de comanda per edició",
+      "caption": "Línies de comanda de la persona, per edició",
+      "none": "No té línies de comanda.",
+      "edition": "Edició",
+      "comparsa": "Comparsa",
+      "orderStatus": "Estat de la comanda",
+      "erased": "Ja esborrada"
+    },
+    "lenderLoans": {
+      "title": "Armes cedides",
+      "none": "No ha cedit armes.",
+      "item_one": "{{year}}: {{count}} cessió",
+      "item_other": "{{year}}: {{count}} cessions"
+    },
+    "pickupProxies": {
+      "label": "Autoritzacions de recollida",
+      "count_one": "{{count}} autorització",
+      "count_other": "{{count}} autoritzacions"
+    }
+  },
+  "export": {
+    "action": "Descarregar dades",
+    "userAction": "Descarregar dades personals",
+    "title": "Descarregar les dades personals",
+    "description": "Es descarrega un ZIP amb un full de càlcul de totes les seues dades i les seues fotos, per a lliurar-lo a la persona. No se’n guarda còpia en PolvorApp.",
+    "confirm": "Descarregar",
+    "done": "S’ha descarregat l’arxiu."
+  },
+  "erase": {
+    "action": "Esborrar dades",
+    "userAction": "Esborrar dades personals",
+    "title": "Esborrar les dades de {{name}}?",
+    "titleUnknown": "Esborrar les dades d’esta persona?",
+    "description": "S’elimina la seua fitxa del registre, amb les seues armes i fotos, i s’anonimitzen les seues línies de comanda i les seues cessions. Les quantitats es mantenen.",
+    "userDescription": "El compte es tanca per a sempre: s’esborren el seu nom i el seu correu, i el registre d’auditoria el mostrarà com a «Usuari esborrat».",
+    "confirm": "Esborrar",
+    "warnings": {
+      "title": "Abans d’esborrar",
+      "irreversible": "No es pot desfer.",
+      "listsChange": "Les llistes de {{year}} de {{comparsa}} (comanda {{status}}) deixaran de nomenar esta persona.",
+      "entryRemoved": "La seua línia de la comanda de {{year}} de {{comparsa}} es llevarà, perquè les comandes estan obertes."
+    },
+    "done": "Dades esborrades.",
+    "filesPending_one": "Queda {{count}} arxiu per esborrar de l’emmagatzematge: s’esborrarà automàticament.",
+    "filesPending_other": "Queden {{count}} arxius per esborrar de l’emmagatzematge: s’esborraran automàticament.",
+    "counts": {
+      "arquebusiersDeleted_one": "{{count}} fitxa del registre eliminada",
+      "arquebusiersDeleted_other": "{{count}} fitxes del registre eliminades",
+      "ownedWeaponsDeleted_one": "{{count}} arma pròpia eliminada",
+      "ownedWeaponsDeleted_other": "{{count}} armes pròpies eliminades",
+      "photosDeleted_one": "{{count}} foto eliminada",
+      "photosDeleted_other": "{{count}} fotos eliminades",
+      "entriesAnonymised_one": "{{count}} línia de comanda anonimitzada",
+      "entriesAnonymised_other": "{{count}} línies de comanda anonimitzades",
+      "loansAnonymised_one": "{{count}} cessió anonimitzada",
+      "loansAnonymised_other": "{{count}} cessions anonimitzades",
+      "pickupProxiesRemoved_one": "{{count}} autorització de recollida llevada",
+      "pickupProxiesRemoved_other": "{{count}} autoritzacions de recollida llevades",
+      "usersErased_one": "{{count}} compte d’usuari esborrat",
+      "usersErased_other": "{{count}} comptes d’usuari esborrats",
+      "assignmentsRemoved_one": "{{count}} assignació de comparsa llevada",
+      "assignmentsRemoved_other": "{{count}} assignacions de comparsa llevades",
+      "notificationPreferencesRemoved_one": "{{count}} preferència d’avisos llevada",
+      "notificationPreferencesRemoved_other": "{{count}} preferències d’avisos llevades",
+      "notificationDeliveriesRemoved_one": "{{count}} avís enviat llevat",
+      "notificationDeliveriesRemoved_other": "{{count}} avisos enviats llevats",
+      "auditEntriesRedacted_one": "{{count}} entrada d’auditoria sense dades personals",
+      "auditEntriesRedacted_other": "{{count}} entrades d’auditoria sense dades personals"
+    }
+  },
+  "errors": {
+    "privacy": {
+      "notFound": "PolvorApp no guarda cap dada d’esta persona.",
+      "busy": "Una altra persona està canviant estes dades. Torna-ho a intentar d’ací a uns segons.",
+      "storageUnavailable": "No s’han pogut llegir les fotos. Torna-ho a intentar d’ací a uns minuts.",
+      "auditUnavailable": "No s’ha pogut registrar la sol·licitud, així que no s’ha fet. Torna-ho a intentar d’ací a uns minuts.",
+      "selfErasure": "No pots esborrar les teues pròpies dades. Demana-ho a un altre administrador.",
+      "alreadyErased": "Les dades d’este usuari ja estan esborrades.",
+      "lastAdmin": "És l’únic administrador actiu: convida o reactiva un altre administrador abans d’esborrar-lo."
+    },
+    "validation": "Revisa els camps marcats.",
+    "tooManyRequests": "Massa sol·licituds. Espera un minut i torna-ho a intentar.",
+    "generic": "No s’ha pogut completar l’acció. Torna-ho a intentar."
+  },
+  "fields": {
+    "nationalId": {
+      "required": "Escriu el DNI/NIE.",
+      "invalid": "No és un DNI/NIE vàlid.",
+      "checkLetter": "La lletra no correspon al número."
+    },
+    "reference": {
+      "required": "Escriu la referència de la sol·licitud.",
+      "tooLong": "Com a màxim 50 caràcters.",
+      "invalid": "Usa una línia, sense correus ni DNI/NIE."
+    }
+  }
+}

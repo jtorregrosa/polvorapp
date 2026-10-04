@@ -6,6 +6,7 @@ import {
   CirclePlay,
   CircleX,
   Clock,
+  Eraser,
   Lock,
   Send,
   Sparkles,
@@ -69,6 +70,8 @@ export const STATUS_MAP = {
     INVITED: { tone: 'info', icon: Send },
     ACTIVE: { tone: 'success', icon: CircleCheck },
     DEACTIVATED: { tone: 'muted', icon: CircleX },
+    /** Erased on a GDPR request (add-audit-privacy): kept only as a name in the audit log. */
+    ERASED: { tone: 'muted', icon: Eraser },
   },
   /** Comparsas and weapon models (federation-catalog): deactivated records keep their history. */
   catalog: {

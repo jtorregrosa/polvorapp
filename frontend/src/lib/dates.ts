@@ -29,3 +29,10 @@ export function isIsoDate(value: string): boolean {
   const date = new Date(Date.UTC(year, month - 1, day));
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
 }
+
+/** The calendar date `days` days before `isoDate` (`yyyy-MM-dd`), e.g. the start of "the last 30 days". */
+export function isoDaysBefore(isoDate: string, days: number): string {
+  const [year, month, day] = isoDate.split('-').map(Number) as [number, number, number];
+  // Calendar arithmetic in UTC: no time zone or daylight saving change can shift the date.
+  return new Date(Date.UTC(year, month - 1, day - days)).toISOString().slice(0, 10);
+}

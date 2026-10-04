@@ -44,6 +44,7 @@
     "optional": "Opcional",
     "requiredNote": "Todos los campos son obligatorios salvo los marcados como opcionales.",
     "clearDate": "Borrar fecha",
+    "clearDateFor": "Borrar fecha de {{subject}}",
     "clearTime": "Borrar hora",
     "clearTimeFor": "Borrar hora de {{subject}}",
     "optionalSuffix": "(opcional)",
@@ -124,7 +125,8 @@
     "user": {
       "INVITED": "Invitado",
       "ACTIVE": "Activo",
-      "DEACTIVATED": "Desactivado"
+      "DEACTIVATED": "Desactivado",
+      "ERASED": "Borrado"
     }
   },
   "validation": {
@@ -216,7 +218,9 @@
     "notGiven": "No consta",
     "edit": "Editar",
     "saved": "Cambios guardados",
-    "saveChanges": "Guardar cambios"
+    "saveChanges": "Guardar cambios",
+    "view": "Ver detalles",
+    "close": "Cerrar"
   },
   "amountTable": {
     "amount": "Importe",

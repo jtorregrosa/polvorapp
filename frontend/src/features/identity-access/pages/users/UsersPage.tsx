@@ -15,6 +15,7 @@ import { formatDate } from '@/lib/format';
 import { knownFilter, withFilter } from '@/lib/search-filters';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { problemMessage } from '../../problems';
+import { userEmail, userName } from '../../user-name';
 
 const ROLES = Object.values(UserRole);
 const STATUSES = Object.values(UserStatus);
@@ -39,18 +40,18 @@ export function UsersPage() {
       {
         id: 'name',
         header: t('users.columns.name'),
-        sortValue: (user) => user.name,
+        sortValue: (user) => userName(t, user),
         cell: (user) => (
           <Link to={`/users/${user.id}`} className="font-semibold text-foreground hover:underline">
-            {user.name}
+            {userName(t, user)}
           </Link>
         ),
       },
       {
         id: 'email',
         header: t('users.columns.email'),
-        sortValue: (user) => user.email,
-        cell: (user) => user.email,
+        sortValue: (user) => userEmail(user),
+        cell: (user) => userEmail(user),
       },
       { id: 'role', header: t('users.columns.role'), cell: (user) => t(`roles.${user.role}`) },
       {
@@ -138,9 +139,9 @@ export function UsersPage() {
           mobileRow={(user) => (
             <>
               <Link to={`/users/${user.id}`} className="font-semibold text-foreground">
-                {user.name}
+                {userName(t, user)}
               </Link>
-              <span className="text-help break-all text-muted-foreground">{user.email}</span>
+              <span className="text-help break-all text-muted-foreground">{userEmail(user)}</span>
               <span className="flex flex-wrap items-center gap-2 text-help text-muted-foreground">
                 {t(`roles.${user.role}`)}
                 <StatusBadge kind="user" value={user.status} />

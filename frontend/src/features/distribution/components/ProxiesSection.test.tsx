@@ -202,6 +202,12 @@ describe('Pickup proxies on the distribution page (spec: Distribution screens)',
       /Autorizado/,
       'No tiene licencia de armas en vigor ese día.',
     ],
+    [
+      // Erased on a GDPR request after the panel was opened (add-audit-privacy).
+      () => problem(400, 'validation', { errors: { proxyEntryId: 'entryErased' } }),
+      /Autorizado/,
+      'Es una persona borrada.',
+    ],
   ])('shows the translated reason of a rejection on its field', async (answer, field, reason) => {
     const user = userEvent.setup();
     comparsas([NORTE]);

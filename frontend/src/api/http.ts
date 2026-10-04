@@ -196,30 +196,22 @@ function fileNameOf(disposition: string | null): string | undefined {
  * expired session is reported to the registered handler, and a refusal throws {@link ApiProblemError}.
  */
 export async function apiDownload(url: string): Promise<DownloadedFile> {
-  const response = await fetch(url, {
-    credentials: 'same-origin',
-    headers: { 'Accept-Language': activeLanguage() },
-  });
+  const response = await send(url, {});
   if (!response.ok) {
-    if (response.status === 401 && !isSignInStep(url)) {
-      unauthorizedHandler?.();
-    }
-    throw new ApiProblemError(response.status, await readProblem(response));
+    return refuse(url, response);
   }
   return { blob: await response.blob(), fileName: fileNameOf(response.headers.get('Content-Disposition')) };
 }
 
 /**
- * Mutator used by the orval-generated client: same-origin cookies, the UI language as
- * `Accept-Language`, the anti-forgery token on every write (fetched when missing, refreshed and
- * retried once when rejected), expired sessions reported to the registered handler, and unusable
- * responses thrown as {@link ApiProblemError}.
+ * Sends a request with the UI language as `Accept-Language`, same-origin cookies and, on a write,
+ * the anti-forgery token (fetched when missing, refreshed and retried once when rejected).
  */
-export const apiFetch = async <T>(url: string, options: RequestInit): Promise<T> => {
+async function send(url: string, options: RequestInit): Promise<Response> {
   const method = (options.method ?? 'GET').toUpperCase();
   const write = !SAFE_METHODS.has(method);
 
-  const send = async (): Promise<Response> => {
+  const attempt = async (): Promise<Response> => {
     const headers = new Headers(options.headers);
     if (!headers.has('Accept-Language')) {
       headers.set('Accept-Language', activeLanguage());
@@ -236,20 +228,52 @@ export const apiFetch = async <T>(url: string, options: RequestInit): Promise<T>
     return fetch(url, { ...options, method, headers, credentials: 'same-origin' });
   };
 
-  let response = await send();
+  let response = await attempt();
   if (write && response.status === 400) {
     const problem = await readProblem(response.clone());
     if ((problem as { code?: unknown } | undefined)?.code === ANTIFORGERY_PROBLEM) {
       await refreshAntiforgeryToken();
-      response = await send();
+      response = await attempt();
     }
   }
+  return response;
+}
 
+/** Reports an expired session and throws the API's refusal. */
+async function refuse(url: string, response: Response): Promise<never> {
+  if (response.status === 401 && !isSignInStep(url)) {
+    unauthorizedHandler?.();
+  }
+  throw new ApiProblemError(response.status, await readProblem(response));
+}
+
+/**
+ * Downloads a file the API builds from a request body, e.g. a person's data export
+ * (add-audit-privacy, design D11): the DNI/NIE goes in the JSON body, never in the address. Same
+ * language, anti-forgery token and refusals as {@link apiFetch}.
+ */
+export async function apiDownloadPost(url: string, body: unknown): Promise<DownloadedFile> {
+  const response = await send(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
   if (!response.ok) {
-    if (response.status === 401 && !isSignInStep(url)) {
-      unauthorizedHandler?.();
-    }
-    throw new ApiProblemError(response.status, await readProblem(response));
+    return refuse(url, response);
+  }
+  return { blob: await response.blob(), fileName: fileNameOf(response.headers.get('Content-Disposition')) };
+}
+
+/**
+ * Mutator used by the orval-generated client: same-origin cookies, the UI language as
+ * `Accept-Language`, the anti-forgery token on every write (fetched when missing, refreshed and
+ * retried once when rejected), expired sessions reported to the registered handler, and unusable
+ * responses thrown as {@link ApiProblemError}.
+ */
+export const apiFetch = async <T>(url: string, options: RequestInit): Promise<T> => {
+  const response = await send(url, options);
+  if (!response.ok) {
+    return refuse(url, response);
   }
 
   const data = await readData(response);

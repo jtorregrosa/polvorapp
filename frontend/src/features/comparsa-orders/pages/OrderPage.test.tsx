@@ -302,6 +302,65 @@ describe('OrderPage (spec: Orders screens)', () => {
     expect(within(section).getByText('Definitivo')).toBeInTheDocument();
   });
 
+  it('shows an erased entry as "Erased person", without its identity or an edit action (spec: Erased entries)', async () => {
+    const historic = NORTE_ORDER.entries[3];
+    const active = NORTE_ORDER.entries[0];
+    if (!historic || !active) throw new Error('The fixture has an active and a history entry.');
+    await open({
+      ...NORTE_ORDER,
+      entries: [
+        active,
+        {
+          ...historic,
+          erased: true,
+          arquebusier: {
+            ...historic.arquebusier,
+            firstName: null,
+            lastName: null,
+            nationalId: null,
+            federationId: null,
+          },
+        },
+      ],
+    });
+
+    const table = screen.getByRole('table', { name: 'Líneas del pedido' });
+    const erased = within(table).getByRole('rowheader', { name: 'Persona borrada' });
+    const row = erased.closest('tr');
+    if (!row) throw new Error('The rowheader is in a row.');
+    expect(row).not.toHaveTextContent('DNI/NIE');
+    expect(row).not.toHaveTextContent('Ya no está en el registro');
+    expect(within(row).queryByRole('button', { name: /Editar/ })).not.toBeInTheDocument();
+    expect(within(table).getAllByRole('button', { name: /Editar/ })).toHaveLength(1);
+  });
+
+  it('describes a loan from an erased lender and a weapon lent to an erased borrower without names', async () => {
+    const borrower = NORTE_ORDER.entries.find((entry) => entry.loan !== null);
+    const lent = NORTE_ORDER.lentOut[0];
+    if (!borrower?.loan || !lent) throw new Error('The fixture has a loan and a weapon lent out.');
+    await open({
+      ...NORTE_ORDER,
+      entries: [
+        {
+          ...borrower,
+          loan: {
+            ...borrower.loan,
+            lenderKind: 'EXTERNAL',
+            lenderErased: true,
+            lenderFirstName: null,
+            lenderLastName: null,
+          },
+        },
+      ],
+      lentOut: [{ ...lent, borrowerErased: true, borrowerFirstName: null, borrowerLastName: null }],
+    });
+
+    const table = screen.getByRole('table', { name: 'Líneas del pedido' });
+    expect(table).toHaveTextContent('Cesión de una persona borrada');
+    const section = screen.getByRole('region', { name: 'Armas cedidas a otros' });
+    expect(section).toHaveTextContent('Persona borrada (Comparsa Sintética Sur)');
+  });
+
   it('shows the weapons lent to others', async () => {
     await open();
 

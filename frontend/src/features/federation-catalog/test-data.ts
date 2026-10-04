@@ -68,6 +68,15 @@ export const CHIEF_BAJA: UserResponse = {
   status: 'DEACTIVATED',
 };
 
+/** A FiringChief erased on a GDPR request (add-audit-privacy): no name, no email. */
+export const CHIEF_BORRADO: UserResponse = {
+  ...CHIEF_UNO,
+  id: '00000000-0000-4000-8000-000000000205',
+  name: '—',
+  email: '',
+  status: 'ERASED',
+};
+
 export const OTRA_ADMIN: UserResponse = {
   ...CHIEF_UNO,
   id: '00000000-0000-4000-8000-000000000204',

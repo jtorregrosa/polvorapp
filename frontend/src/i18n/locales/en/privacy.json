@@ -1,0 +1,128 @@
+{
+  "page": {
+    "title": "Privacy requests",
+    "description": "Handle written access and erasure requests (GDPR) from arquebusiers and external owners. For users, use their detail page."
+  },
+  "lookup": {
+    "title": "Look up a person",
+    "description": "Type the DNI/NIE in the request to see what PolvorApp holds about that person.",
+    "nationalId": "DNI/NIE",
+    "submit": "Look up",
+    "clear": "New lookup",
+    "searching": "Looking up…"
+  },
+  "reference": {
+    "label": "Request reference",
+    "help": "Identify the written request you received, for example with its registry number. Do not type the person’s name or DNI/NIE: it is kept in the audit log."
+  },
+  "summary": {
+    "title": "Data PolvorApp holds",
+    "nothingHeld": "PolvorApp holds no data about this person.",
+    "registry": {
+      "title": "Arquebusier registry",
+      "none": "Not in the registry.",
+      "name": "Name",
+      "comparsa": "Comparsa",
+      "status": "Status",
+      "ownedWeapons": "Owned weapons",
+      "photos": "Photos",
+      "unknownComparsa": "Unknown comparsa"
+    },
+    "entries": {
+      "title": "Order entries by edition",
+      "caption": "The person’s order entries, by edition",
+      "none": "No order entries.",
+      "edition": "Edition",
+      "comparsa": "Comparsa",
+      "orderStatus": "Order status",
+      "erased": "Already erased"
+    },
+    "lenderLoans": {
+      "title": "Weapons lent",
+      "none": "No weapons lent.",
+      "item_one": "{{year}}: {{count}} loan",
+      "item_other": "{{year}}: {{count}} loans"
+    },
+    "pickupProxies": {
+      "label": "Pickup authorisations",
+      "count_one": "{{count}} authorisation",
+      "count_other": "{{count}} authorisations"
+    }
+  },
+  "export": {
+    "action": "Download data",
+    "userAction": "Download personal data",
+    "title": "Download the personal data",
+    "description": "A ZIP with a spreadsheet of all their data and their photos is downloaded, to hand over to the person. PolvorApp keeps no copy.",
+    "confirm": "Download",
+    "done": "The file has been downloaded."
+  },
+  "erase": {
+    "action": "Erase data",
+    "userAction": "Erase personal data",
+    "title": "Erase {{name}}’s data?",
+    "titleUnknown": "Erase this person’s data?",
+    "description": "Their registry record goes, with their weapons and photos, and their order entries and loans are anonymised. Quantities are kept.",
+    "userDescription": "The account is closed for good: its name and email are erased, and the audit log will show it as “Erased user”.",
+    "confirm": "Erase",
+    "warnings": {
+      "title": "Before you erase",
+      "irreversible": "This cannot be undone.",
+      "listsChange": "The {{year}} lists of {{comparsa}} (order {{status}}) will no longer name this person.",
+      "entryRemoved": "Their entry in the {{year}} order of {{comparsa}} will be removed, because orders are open."
+    },
+    "done": "Data erased.",
+    "filesPending_one": "{{count}} stored file is still to be erased: it will be erased automatically.",
+    "filesPending_other": "{{count}} stored files are still to be erased: they will be erased automatically.",
+    "counts": {
+      "arquebusiersDeleted_one": "{{count}} registry record deleted",
+      "arquebusiersDeleted_other": "{{count}} registry records deleted",
+      "ownedWeaponsDeleted_one": "{{count}} owned weapon deleted",
+      "ownedWeaponsDeleted_other": "{{count}} owned weapons deleted",
+      "photosDeleted_one": "{{count}} photo deleted",
+      "photosDeleted_other": "{{count}} photos deleted",
+      "entriesAnonymised_one": "{{count}} order entry anonymised",
+      "entriesAnonymised_other": "{{count}} order entries anonymised",
+      "loansAnonymised_one": "{{count}} loan anonymised",
+      "loansAnonymised_other": "{{count}} loans anonymised",
+      "pickupProxiesRemoved_one": "{{count}} pickup authorisation removed",
+      "pickupProxiesRemoved_other": "{{count}} pickup authorisations removed",
+      "usersErased_one": "{{count}} user account erased",
+      "usersErased_other": "{{count}} user accounts erased",
+      "assignmentsRemoved_one": "{{count}} comparsa assignment removed",
+      "assignmentsRemoved_other": "{{count}} comparsa assignments removed",
+      "notificationPreferencesRemoved_one": "{{count}} notification preference removed",
+      "notificationPreferencesRemoved_other": "{{count}} notification preferences removed",
+      "notificationDeliveriesRemoved_one": "{{count}} sent notification removed",
+      "notificationDeliveriesRemoved_other": "{{count}} sent notifications removed",
+      "auditEntriesRedacted_one": "{{count}} audit entry cleared of personal data",
+      "auditEntriesRedacted_other": "{{count}} audit entries cleared of personal data"
+    }
+  },
+  "errors": {
+    "privacy": {
+      "notFound": "PolvorApp holds no data about this person.",
+      "busy": "Someone else is changing this data. Try again in a few seconds.",
+      "storageUnavailable": "The photos could not be read. Try again in a few minutes.",
+      "auditUnavailable": "The request could not be recorded, so it was not carried out. Try again in a few minutes.",
+      "selfErasure": "You cannot erase your own data. Ask another administrator.",
+      "alreadyErased": "This user’s data is already erased.",
+      "lastAdmin": "This is the only active administrator: invite or reactivate another administrator before erasing them."
+    },
+    "validation": "Check the highlighted fields.",
+    "tooManyRequests": "Too many requests. Wait a minute and try again.",
+    "generic": "The action could not be completed. Try again."
+  },
+  "fields": {
+    "nationalId": {
+      "required": "Type the DNI/NIE.",
+      "invalid": "Not a valid DNI/NIE.",
+      "checkLetter": "The letter does not match the number."
+    },
+    "reference": {
+      "required": "Type the request reference.",
+      "tooLong": "At most 50 characters.",
+      "invalid": "Use one line, without emails or DNI/NIE."
+    }
+  }
+}

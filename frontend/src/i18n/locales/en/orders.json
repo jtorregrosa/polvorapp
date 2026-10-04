@@ -66,7 +66,8 @@
       "modified": "Someone else changed the order. It is shown again with their changes.",
       "entriesInvalid": "Some entries need checking before it is submitted.",
       "alreadyInEdition": "This arquebusier already has an entry in this edition.",
-      "busy": "The order is busy. Please try again in a few seconds."
+      "busy": "The order is busy. Please try again in a few seconds.",
+      "entryErased": "This entry belongs to an erased person: it can no longer be changed."
     },
     "entries": {
       "notFound": "The entry was not found.",
@@ -152,7 +153,8 @@
       "RENTAL_1KG": "1 kg rental",
       "RENTAL_2KG": "2 kg rental",
       "NONE": "No flask"
-    }
+    },
+    "erased": "Erased person"
   },
   "issues": {
     "ownedWeaponMissing": "the own weapon is no longer in the registry",
@@ -170,7 +172,8 @@
   "lentOut": {
     "title": "Weapons lent to others",
     "description": "Your arquebusiers’ weapons lent in this edition.",
-    "item": "{{weapon}} of {{owner}}, lent to {{borrower}} ({{comparsa}})"
+    "item": "{{weapon}} of {{owner}}, lent to {{borrower}} ({{comparsa}})",
+    "borrowerErased": "Erased person"
   },
   "entryPanel": {
     "title": "Entry of {{name}}",
@@ -221,7 +224,8 @@
     "tooManyLookups": "You have made too many lookups. Wait a minute and try again.",
     "searching": "Looking up the owner…",
     "modelsFailed": "The weapon models could not be loaded.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "lenderErased": "Loan from an erased person"
   },
   "actions": {
     "entriesInvalid": "Some entries need checking first: {{names}}. They are marked in the order.",

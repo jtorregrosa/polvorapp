@@ -1,5 +1,7 @@
 import type { RouteObject } from 'react-router';
 import type { RouteHandle } from '@/components/app/Breadcrumbs';
+import { AuditLogPage } from '@/features/audit-privacy/pages/AuditLogPage';
+import { PrivacyRequestsPage } from '@/features/audit-privacy/pages/PrivacyRequestsPage';
 import { AcceptInvitationPage } from '@/features/identity-access/pages/AcceptInvitationPage';
 import { AccountPage } from '@/features/identity-access/pages/AccountPage';
 import { EnrolmentPage } from '@/features/identity-access/pages/EnrolmentPage';
@@ -191,6 +193,16 @@ export const appRoutes: RouteObject[] = [
                     path: 'weapon-models/:id',
                     Component: WeaponModelDetailPage,
                     handle: { breadcrumb: 'nav.weaponModels' } satisfies RouteHandle,
+                  },
+                  {
+                    path: 'privacy',
+                    Component: PrivacyRequestsPage,
+                    handle: { breadcrumb: 'nav.privacy' } satisfies RouteHandle,
+                  },
+                  {
+                    path: 'audit-log',
+                    Component: AuditLogPage,
+                    handle: { breadcrumb: 'nav.auditLog' } satisfies RouteHandle,
                   },
                   {
                     path: 'users',

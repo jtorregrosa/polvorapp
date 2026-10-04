@@ -17,6 +17,7 @@ export const ORDERS_PROBLEM_CODES = [
   'entries.notFound',
   'entries.modified',
   'orders.busy',
+  'orders.entryErased',
 ] as const;
 
 export type OrdersProblemCode = (typeof ORDERS_PROBLEM_CODES)[number];
@@ -32,6 +33,8 @@ export const RELOAD_CODES: readonly OrdersProblemCode[] = [
   'orders.invalidTransition',
   'entries.modified',
   'entries.notFound',
+  // The entry's person was erased on a GDPR request: shown again, read-only (add-audit-privacy).
+  'orders.entryErased',
 ];
 
 /** Field reasons the API reports in a `validation` problem; each has a text in `orders:validation`. */

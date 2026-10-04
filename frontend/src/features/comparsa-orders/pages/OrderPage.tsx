@@ -192,7 +192,8 @@ function EntryEditAction({
   const query = useGetComparsaOrder(orderId, { query: { retry: false } });
   const order = query.data?.data as OrderResponse | undefined;
   const entry = order?.entries.find((candidate) => candidate.id === entryId);
-  return order?.canEdit && entry ? (
+  // An erased entry is read-only (spec: Erased entries).
+  return order?.canEdit && entry && !entry.erased ? (
     <EntryEditSheet order={order} entry={entry} onClosedOut={onClosedOut} />
   ) : null;
 }
@@ -236,7 +237,7 @@ export function OrderPage() {
         id: 'name',
         header: t('entries.columns.name'),
         rowHeader: true,
-        cell: (entry) => <span className="font-semibold">{personName(entry.arquebusier)}</span>,
+        cell: (entry) => <span className="font-semibold">{text.name(entry)}</span>,
         secondary: (entry) => {
           const notes = text.notes(entry);
           return notes.length > 0 ? <EntryNotes notes={notes} /> : undefined;
@@ -358,7 +359,7 @@ export function OrderPage() {
           getRowId={(entry) => entry.id}
           mobileRow={(entry) => (
             <>
-              <span className="font-semibold">{personName(entry.arquebusier)}</span>
+              <span className="font-semibold">{text.name(entry)}</span>
               {text.notes(entry).length > 0 && (
                 <span className="text-help text-muted-foreground">
                   <EntryNotes notes={text.notes(entry)} />
@@ -423,10 +424,9 @@ export function OrderPage() {
                 {t('lentOut.item', {
                   weapon: [loan.weaponModel?.label, loan.weaponNumber].filter(Boolean).join(' '),
                   owner: personName({ firstName: loan.lenderFirstName, lastName: loan.lenderLastName }),
-                  borrower: personName({
-                    firstName: loan.borrowerFirstName,
-                    lastName: loan.borrowerLastName,
-                  }),
+                  borrower: loan.borrowerErased
+                    ? t('lentOut.borrowerErased')
+                    : personName({ firstName: loan.borrowerFirstName, lastName: loan.borrowerLastName }),
                   comparsa: loan.borrowerComparsaName,
                 })}
               </li>
