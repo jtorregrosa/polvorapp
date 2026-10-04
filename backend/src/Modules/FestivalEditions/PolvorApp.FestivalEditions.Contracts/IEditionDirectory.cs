@@ -14,6 +14,10 @@ namespace PolvorApp.FestivalEditions.Contracts;
 /// <param name="FestivalEndsOn">Last festival day: the license of an entry must be valid through it (BR-04).</param>
 /// <param name="OfferedWeaponModelIds">Models offered for rental: in the edition's set, active and rentable (BR-07).</param>
 /// <param name="Prices">The edition's current prices, which billing applies to its orders (add-billing-summary, design D2).</param>
+/// <param name="OrdersCloseOn">
+/// The planned close date of the order window: a published plan only, it never closes the orders
+/// (BR-10); the planned close reminders count down to it (add-notifications, design D9).
+/// </param>
 public sealed record EditionSnapshot(
     Guid Id,
     int Year,
@@ -22,7 +26,17 @@ public sealed record EditionSnapshot(
     DateOnly FestivalStartsOn,
     DateOnly FestivalEndsOn,
     IReadOnlyList<Guid> OfferedWeaponModelIds,
-    EditionPrices Prices);
+    EditionPrices Prices,
+    DateOnly? OrdersCloseOn);
+
+/// <summary>A calendar milestone to remind by email (add-notifications, design D10).</summary>
+/// <param name="Id">Milestone identifier.</param>
+/// <param name="EditionId">Its edition.</param>
+/// <param name="EditionYear">The edition's year.</param>
+/// <param name="EditionStatus">The edition's status: FiringChiefs are reminded only once it is in progress (BR-12).</param>
+/// <param name="Date">The milestone's date.</param>
+/// <param name="Title">Its title, as an Admin typed it.</param>
+public sealed record MilestoneFacts(Guid Id, Guid EditionId, int EditionYear, EditionStatus EditionStatus, DateOnly Date, string Title);
 
 /// <summary>
 /// Read-only lookup of festival editions for other modules, e.g. comparsa orders (#10). It applies no
@@ -45,4 +59,10 @@ public interface IEditionDirectory
     /// the wait is bounded, and no reader may be open on its connection.
     /// </summary>
     Task<EditionSnapshot?> ReadForOrderWriteAsync(Guid editionId, DbTransaction transaction, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The milestones with <c>notify</c> on, dated from <paramref name="firstDate"/> to <paramref name="lastDate"/>
+    /// inclusive, of editions that are not closed, in no particular order (add-notifications, design D10).
+    /// </summary>
+    Task<IReadOnlyList<MilestoneFacts>> ListMilestonesToNotifyAsync(DateOnly firstDate, DateOnly lastDate, CancellationToken cancellationToken);
 }

@@ -21,6 +21,7 @@
     <ProjectReference Include="..\PolvorApp.FestivalEditions.Contracts\PolvorApp.FestivalEditions.Contracts.csproj" />
     <ProjectReference Include="..\..\FederationCatalog\PolvorApp.FederationCatalog.Contracts\PolvorApp.FederationCatalog.Contracts.csproj" />
     <ProjectReference Include="..\..\IdentityAccess\PolvorApp.IdentityAccess.Contracts\PolvorApp.IdentityAccess.Contracts.csproj" />
+    <ProjectReference Include="..\..\Notifications\PolvorApp.Notifications.Contracts\PolvorApp.Notifications.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

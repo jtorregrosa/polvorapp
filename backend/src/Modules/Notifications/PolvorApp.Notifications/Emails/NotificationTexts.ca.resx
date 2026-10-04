@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DateFormat" xml:space="preserve">
+    <value>d MMMM 'de' yyyy</value>
+  </data>
+  <data name="MonthFormat" xml:space="preserve">
+    <value>MMMM 'de' yyyy</value>
+  </data>
+  <data name="Greeting" xml:space="preserve">
+    <value>Hola, {0}:</value>
+  </data>
+  <data name="Footer.LICENSE_DIGEST" xml:space="preserve">
+    <value>Reps este correu perquè tens activat el resum mensual de llicències. Pots canviar-ho en:</value>
+  </data>
+  <data name="Footer.ORDER_WINDOW" xml:space="preserve">
+    <value>Reps este correu perquè tens activats els avisos d'obertura i tancament de comandes. Pots canviar-ho en:</value>
+  </data>
+  <data name="Footer.ORDER_STATUS" xml:space="preserve">
+    <value>Reps este correu perquè tens activats els avisos d'estat de les comandes. Pots canviar-ho en:</value>
+  </data>
+  <data name="Footer.MILESTONE_REMINDER" xml:space="preserve">
+    <value>Reps este correu perquè tens activats els recordatoris del calendari. Pots canviar-ho en:</value>
+  </data>
+  <data name="OrderState.NOT_PREPARED" xml:space="preserve">
+    <value>encara no està preparada</value>
+  </data>
+  <data name="OrderState.DRAFT" xml:space="preserve">
+    <value>està en esborrany</value>
+  </data>
+  <data name="OrderState.RETURNED" xml:space="preserve">
+    <value>està retornada i pendent de corregir</value>
+  </data>
+  <data name="When.Tomorrow" xml:space="preserve">
+    <value>demà</value>
+  </data>
+  <data name="When.Today" xml:space="preserve">
+    <value>hui</value>
+  </data>
+  <data name="OrdersOpened.Subject" xml:space="preserve">
+    <value>Comandes obertes: Festes {0}</value>
+  </data>
+  <data name="OrdersOpened.Text" xml:space="preserve">
+    <value>La Unió ha obert les comandes de les Festes {0}. El tancament previst és el {1}.
+
+Prepara o revisa la comanda de la teua comparsa en PolvorApp:
+{2}</value>
+  </data>
+  <data name="OrdersClosed.Subject" xml:space="preserve">
+    <value>Comandes tancades: Festes {0}</value>
+  </data>
+  <data name="OrdersClosed.Text" xml:space="preserve">
+    <value>La Unió ha tancat les comandes de les Festes {0}. Des d'ara els caps de tir ja no les poden editar.
+
+Pots consultar-les en PolvorApp:
+{1}</value>
+  </data>
+  <data name="OrdersClosingSoon.Subject" xml:space="preserve">
+    <value>Recordatori: les comandes de les Festes {1} es tanquen el {2}</value>
+  </data>
+  <data name="OrdersClosingSoon.Text" xml:space="preserve">
+    <value>Les comandes de les Festes {1} es tanquen el {2} i la comanda de {0} {3}.
+
+Revisa-la i envia-la en PolvorApp:
+{4}</value>
+  </data>
+  <data name="OrdersClosingTomorrow.Subject" xml:space="preserve">
+    <value>Últim avís: les comandes de les Festes {1} es tanquen {5}</value>
+  </data>
+  <data name="OrdersClosingTomorrow.Text" xml:space="preserve">
+    <value>Les comandes de les Festes {1} es tanquen {5}, el {2}, i la comanda de {0} {3}.
+
+Envia-la com més prompte millor en PolvorApp:
+{4}</value>
+  </data>
+  <data name="OrderSubmitted.Subject" xml:space="preserve">
+    <value>Comanda enviada: {0}, Festes {1}</value>
+  </data>
+  <data name="OrderSubmitted.Text" xml:space="preserve">
+    <value>{0} ha enviat la seua comanda de les Festes {1}.
+
+Pots revisar-la en PolvorApp:
+{2}</value>
+  </data>
+  <data name="OrderReturned.Subject" xml:space="preserve">
+    <value>Comanda retornada: {0}, Festes {1}</value>
+  </data>
+  <data name="OrderReturned.Text" xml:space="preserve">
+    <value>La Unió ha retornat la comanda de {0} per a les Festes {1}.
+
+Llig el motiu i corregix la comanda en PolvorApp:
+{2}</value>
+  </data>
+  <data name="OrderValidated.Subject" xml:space="preserve">
+    <value>Comanda validada: {0}, Festes {1}</value>
+  </data>
+  <data name="OrderValidated.Text" xml:space="preserve">
+    <value>La Unió ha validat la comanda de {0} per a les Festes {1}.
+
+Pots consultar-la en PolvorApp:
+{2}</value>
+  </data>
+  <data name="MilestoneReminder.Subject" xml:space="preserve">
+    <value>Recordatori: {0}, el {1}</value>
+  </data>
+  <data name="MilestoneReminder.Text" xml:space="preserve">
+    <value>Recordatori del calendari de les Festes {2}: «{0}» és el {1}.
+
+Consulta l'edició en PolvorApp:
+{3}</value>
+  </data>
+  <data name="LicenseDigest.Subject" xml:space="preserve">
+    <value>Resum de llicències de {0}</value>
+  </data>
+  <data name="LicenseDigest.Text" xml:space="preserve">
+    <value>Este és el resum mensual de les llicències dels arcabussers actius de les teues comparses.
+
+{1}
+
+Consulta els avisos en PolvorApp:
+{2}</value>
+  </data>
+  <data name="LicenseDigest.Missing" xml:space="preserve">
+    <value>- Sense llicència: {0}</value>
+  </data>
+  <data name="LicenseDigest.Pending" xml:space="preserve">
+    <value>- Llicència en tràmit: {0}</value>
+  </data>
+  <data name="LicenseDigest.Expired" xml:space="preserve">
+    <value>- Llicència caducada: {0}</value>
+  </data>
+  <data name="LicenseDigest.ExpiringSoon" xml:space="preserve">
+    <value>- Caduca en els pròxims 90 dies: {0}</value>
+  </data>
+</root>

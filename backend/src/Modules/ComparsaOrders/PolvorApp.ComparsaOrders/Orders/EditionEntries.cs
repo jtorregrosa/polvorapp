@@ -38,6 +38,11 @@ internal sealed class EditionEntries(ComparsaOrdersDbContext db) : IEditionEntri
             .Select(o => new { o.ComparsaId, o.Status })
             .ToDictionaryAsync(o => o.ComparsaId, o => o.Status, cancellationToken);
 
+    public async Task<IReadOnlyList<OrderSummary>> ListOrdersAsync(Guid editionId, CancellationToken cancellationToken) =>
+        await db.Orders.AsNoTracking().Where(o => o.EditionId == editionId)
+            .Select(o => new OrderSummary(o.Id, o.ComparsaId, o.Status))
+            .ToListAsync(cancellationToken);
+
     private IQueryable<EditionEntryFacts> Facts(IQueryable<ComparsaOrder> orders, Expression<Func<EditionEntry, bool>>? filter = null)
     {
         var entries = db.Entries.AsNoTracking();

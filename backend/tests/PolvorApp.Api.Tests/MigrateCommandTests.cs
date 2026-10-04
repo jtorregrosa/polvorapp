@@ -45,7 +45,7 @@ public sealed class MigrateCommandTests(PostgresFixture postgres)
 
         var order = factory.Services.GetServices<IDatabaseMigrator>().OrderBy(m => m.Order).Select(m => m.Name);
 
-        Assert.Equal(["AuditDbContext", "IdentityAccessDbContext", "FederationCatalogDbContext", "ArquebusierRegistryDbContext", "FestivalEditionsDbContext", "ComparsaOrdersDbContext", "DistributionDbContext"], order);
+        Assert.Equal(["AuditDbContext", "IdentityAccessDbContext", "FederationCatalogDbContext", "ArquebusierRegistryDbContext", "FestivalEditionsDbContext", "ComparsaOrdersDbContext", "DistributionDbContext", "NotificationsDbContext"], order);
     }
 
     [Fact]

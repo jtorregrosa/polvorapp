@@ -53,8 +53,9 @@ internal sealed partial class SmtpEmailSender(IOptions<EmailOptions> options, IL
         }
         catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
         {
-            LogFailed(logger, message.Template, phase.ToString(), exception.GetType().Name, ErrorCode(exception));
-            throw new EmailDeliveryException();
+            var code = ErrorCode(exception);
+            LogFailed(logger, message.Template, phase.ToString(), exception.GetType().Name, code);
+            throw new EmailDeliveryException(phase.ToString(), code);
         }
 
         // The server accepted the message: a failing QUIT must not report it as unsent.

@@ -8,6 +8,7 @@ using PolvorApp.Distribution.Persistence;
 using PolvorApp.FederationCatalog.Persistence;
 using PolvorApp.FestivalEditions.Persistence;
 using PolvorApp.IdentityAccess.Persistence;
+using PolvorApp.Notifications.Persistence;
 
 namespace PolvorApp.Api.Tests.Persistence;
 
@@ -27,5 +28,6 @@ public sealed class ModelDriftTests
         Assert.False(scope.ServiceProvider.GetRequiredService<FestivalEditionsDbContext>().Database.HasPendingModelChanges(), nameof(FestivalEditionsDbContext));
         Assert.False(scope.ServiceProvider.GetRequiredService<ComparsaOrdersDbContext>().Database.HasPendingModelChanges(), nameof(ComparsaOrdersDbContext));
         Assert.False(scope.ServiceProvider.GetRequiredService<DistributionDbContext>().Database.HasPendingModelChanges(), nameof(DistributionDbContext));
+        Assert.False(scope.ServiceProvider.GetRequiredService<NotificationsDbContext>().Database.HasPendingModelChanges(), nameof(NotificationsDbContext));
     }
 }

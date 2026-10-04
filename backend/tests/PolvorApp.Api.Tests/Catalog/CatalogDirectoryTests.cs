@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using PolvorApp.Api.Platform.Database;
 using PolvorApp.Api.Tests.Infrastructure;
+using PolvorApp.FederationCatalog.Assignments;
 using PolvorApp.FederationCatalog.Comparsas;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.FederationCatalog.Persistence;
@@ -31,6 +32,9 @@ public sealed class CatalogDirectoryTests(PostgresFixture postgres) : IAsyncLife
     };
     private readonly WeaponModel _pistol = new() { Id = Guid.CreateVersion7(), Kind = WeaponKind.Pistol, Label = "PISTOLA", Active = false, CreatedAt = Now };
 
+    private readonly Guid _chiefOfBoth = Guid.CreateVersion7();
+    private readonly Guid _chiefOfInactive = Guid.CreateVersion7();
+
     private ApiFactory? _factory;
 
     public async ValueTask InitializeAsync()
@@ -41,6 +45,10 @@ public sealed class CatalogDirectoryTests(PostgresFixture postgres) : IAsyncLife
         var db = scope.ServiceProvider.GetRequiredService<FederationCatalogDbContext>();
         db.Comparsas.AddRange(_active, _inactive);
         db.WeaponModels.AddRange(_arcabuz, _pistol);
+        db.Assignments.AddRange(
+            new FiringChiefAssignment { ComparsaId = _active.Id, UserId = _chiefOfBoth, AssignedAt = Now },
+            new FiringChiefAssignment { ComparsaId = _inactive.Id, UserId = _chiefOfBoth, AssignedAt = Now },
+            new FiringChiefAssignment { ComparsaId = _inactive.Id, UserId = _chiefOfInactive, AssignedAt = Now });
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
@@ -113,6 +121,18 @@ public sealed class CatalogDirectoryTests(PostgresFixture postgres) : IAsyncLife
             Assert.Empty(await directory.FindWeaponModelsAsync([], TestContext.Current.CancellationToken));
             Assert.Single(await directory.FindComparsasAsync([_active.Id, _active.Id], TestContext.Current.CancellationToken));
             Assert.Single(await directory.FindWeaponModelsAsync([_arcabuz.Id, _arcabuz.Id], TestContext.Current.CancellationToken));
+        }
+    }
+
+    [Fact]
+    public async Task Firing_chief_assignments_are_listed_for_active_comparsas_only()
+    {
+        var (directory, scope) = Resolve();
+        await using (scope)
+        {
+            var assignments = await directory.ListFiringChiefAssignmentsAsync(TestContext.Current.CancellationToken);
+
+            Assert.Equal([new FiringChiefAssignmentSummary(_chiefOfBoth, _active.Id)], assignments);
         }
     }
 

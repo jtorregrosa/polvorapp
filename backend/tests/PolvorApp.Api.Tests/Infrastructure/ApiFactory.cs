@@ -65,6 +65,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         // Hosts share one bucket but not one database: a sweep (fired by a test clock moved
         // forward) would delete the photos of every other test. Sweeper tests enable it themselves.
         ["Storage:SweepEnabled"] = "false",
+        ["Notifications:Enabled"] = "false",
     };
 
     public CapturingLoggerProvider Logs { get; } = new();

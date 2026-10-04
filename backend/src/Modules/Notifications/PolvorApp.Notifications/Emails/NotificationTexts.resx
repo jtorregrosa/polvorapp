@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DateFormat" xml:space="preserve">
+    <value>d 'de' MMMM 'de' yyyy</value>
+  </data>
+  <data name="MonthFormat" xml:space="preserve">
+    <value>MMMM 'de' yyyy</value>
+  </data>
+  <data name="Greeting" xml:space="preserve">
+    <value>Hola, {0}:</value>
+  </data>
+  <data name="Footer.LICENSE_DIGEST" xml:space="preserve">
+    <value>Recibes este correo porque tienes activado el resumen mensual de licencias. Puedes cambiarlo en:</value>
+  </data>
+  <data name="Footer.ORDER_WINDOW" xml:space="preserve">
+    <value>Recibes este correo porque tienes activados los avisos de apertura y cierre de pedidos. Puedes cambiarlo en:</value>
+  </data>
+  <data name="Footer.ORDER_STATUS" xml:space="preserve">
+    <value>Recibes este correo porque tienes activados los avisos de estado de los pedidos. Puedes cambiarlo en:</value>
+  </data>
+  <data name="Footer.MILESTONE_REMINDER" xml:space="preserve">
+    <value>Recibes este correo porque tienes activados los recordatorios del calendario. Puedes cambiarlo en:</value>
+  </data>
+  <data name="OrderState.NOT_PREPARED" xml:space="preserve">
+    <value>aún no está preparado</value>
+  </data>
+  <data name="OrderState.DRAFT" xml:space="preserve">
+    <value>está en borrador</value>
+  </data>
+  <data name="OrderState.RETURNED" xml:space="preserve">
+    <value>está devuelto y pendiente de corregir</value>
+  </data>
+  <data name="When.Tomorrow" xml:space="preserve">
+    <value>mañana</value>
+  </data>
+  <data name="When.Today" xml:space="preserve">
+    <value>hoy</value>
+  </data>
+  <data name="OrdersOpened.Subject" xml:space="preserve">
+    <value>Pedidos abiertos: Fiestas {0}</value>
+  </data>
+  <data name="OrdersOpened.Text" xml:space="preserve">
+    <value>La Unión ha abierto los pedidos de las Fiestas {0}. El cierre previsto es el {1}.
+
+Prepara o revisa el pedido de tu comparsa en PolvorApp:
+{2}</value>
+  </data>
+  <data name="OrdersClosed.Subject" xml:space="preserve">
+    <value>Pedidos cerrados: Fiestas {0}</value>
+  </data>
+  <data name="OrdersClosed.Text" xml:space="preserve">
+    <value>La Unión ha cerrado los pedidos de las Fiestas {0}. Desde ahora los jefes de disparo ya no pueden editarlos.
+
+Puedes consultarlos en PolvorApp:
+{1}</value>
+  </data>
+  <data name="OrdersClosingSoon.Subject" xml:space="preserve">
+    <value>Recordatorio: los pedidos de las Fiestas {1} cierran el {2}</value>
+  </data>
+  <data name="OrdersClosingSoon.Text" xml:space="preserve">
+    <value>Los pedidos de las Fiestas {1} cierran el {2} y el pedido de {0} {3}.
+
+Revísalo y envíalo en PolvorApp:
+{4}</value>
+  </data>
+  <data name="OrdersClosingTomorrow.Subject" xml:space="preserve">
+    <value>Último aviso: los pedidos de las Fiestas {1} cierran {5}</value>
+  </data>
+  <data name="OrdersClosingTomorrow.Text" xml:space="preserve">
+    <value>Los pedidos de las Fiestas {1} cierran {5}, el {2}, y el pedido de {0} {3}.
+
+Envíalo cuanto antes en PolvorApp:
+{4}</value>
+  </data>
+  <data name="OrderSubmitted.Subject" xml:space="preserve">
+    <value>Pedido enviado: {0}, Fiestas {1}</value>
+  </data>
+  <data name="OrderSubmitted.Text" xml:space="preserve">
+    <value>{0} ha enviado su pedido de las Fiestas {1}.
+
+Puedes revisarlo en PolvorApp:
+{2}</value>
+  </data>
+  <data name="OrderReturned.Subject" xml:space="preserve">
+    <value>Pedido devuelto: {0}, Fiestas {1}</value>
+  </data>
+  <data name="OrderReturned.Text" xml:space="preserve">
+    <value>La Unión ha devuelto el pedido de {0} para las Fiestas {1}.
+
+Lee el motivo y corrige el pedido en PolvorApp:
+{2}</value>
+  </data>
+  <data name="OrderValidated.Subject" xml:space="preserve">
+    <value>Pedido validado: {0}, Fiestas {1}</value>
+  </data>
+  <data name="OrderValidated.Text" xml:space="preserve">
+    <value>La Unión ha validado el pedido de {0} para las Fiestas {1}.
+
+Puedes consultarlo en PolvorApp:
+{2}</value>
+  </data>
+  <data name="MilestoneReminder.Subject" xml:space="preserve">
+    <value>Recordatorio: {0}, el {1}</value>
+  </data>
+  <data name="MilestoneReminder.Text" xml:space="preserve">
+    <value>Recordatorio del calendario de las Fiestas {2}: «{0}» es el {1}.
+
+Consulta la edición en PolvorApp:
+{3}</value>
+  </data>
+  <data name="LicenseDigest.Subject" xml:space="preserve">
+    <value>Resumen de licencias de {0}</value>
+  </data>
+  <data name="LicenseDigest.Text" xml:space="preserve">
+    <value>Este es el resumen mensual de las licencias de los arcabuceros activos de tus comparsas.
+
+{1}
+
+Consulta los avisos en PolvorApp:
+{2}</value>
+  </data>
+  <data name="LicenseDigest.Missing" xml:space="preserve">
+    <value>- Sin licencia: {0}</value>
+  </data>
+  <data name="LicenseDigest.Pending" xml:space="preserve">
+    <value>- Licencia en trámite: {0}</value>
+  </data>
+  <data name="LicenseDigest.Expired" xml:space="preserve">
+    <value>- Licencia caducada: {0}</value>
+  </data>
+  <data name="LicenseDigest.ExpiringSoon" xml:space="preserve">
+    <value>- Caduca en los próximos 90 días: {0}</value>
+  </data>
+</root>

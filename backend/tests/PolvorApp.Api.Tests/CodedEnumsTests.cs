@@ -30,6 +30,9 @@ public sealed class CodedEnumsTests
         Assert.Contains(enums, type => type.Name == "DocumentFileFormat");
         Assert.Contains(enums, type => type.Name == "ExportAudience");
         Assert.Contains(enums, type => type.Name == "DistributionType");
+        Assert.Contains(enums, type => type.Name == "NotificationKind");
+        Assert.Contains(enums, type => type.Name == "NotificationEventType");
+        Assert.Contains(enums, type => type.Name == "DeliveryStatus");
         foreach (var type in enums)
         {
             var all = typeof(EnumCodes).GetMethod(nameof(EnumCodes.All))!.MakeGenericMethod(type);

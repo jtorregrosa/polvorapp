@@ -41,6 +41,10 @@ namespace PolvorApp.FestivalEditions.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("edition_id");
 
+                    b.Property<bool>("Notify")
+                        .HasColumnType("boolean")
+                        .HasColumnName("notify");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -179,6 +183,51 @@ namespace PolvorApp.FestivalEditions.Persistence.Migrations
                             t.HasCheckConstraint("ck_festival_editions_weapon_rental", "weapon_rental IS NULL OR weapon_rental >= 0");
 
                             t.HasCheckConstraint("ck_festival_editions_year", "year BETWEEN 2000 AND 2100");
+                        });
+                });
+
+            modelBuilder.Entity("PolvorApp.Notifications.Contracts.NotificationEventEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("ComparsaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("comparsa_id");
+
+                    b.Property<Guid>("EditionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("edition_id");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<Guid?>("OrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("order_id");
+
+                    b.Property<DateTimeOffset?>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("processed_at");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notification_events");
+
+                    b.HasIndex("OccurredAt")
+                        .HasDatabaseName("ix_notification_events_pending")
+                        .HasFilter("processed_at IS NULL");
+
+                    b.ToTable("notification_events", "notifications", t =>
+                        {
+                            t.ExcludeFromMigrations();
                         });
                 });
 

@@ -19,6 +19,11 @@ public sealed record ComparsaSummary(Guid Id, string Name, Side Side, bool Activ
 public sealed record WeaponModelSummary(
     Guid Id, WeaponKind Kind, Side? Side, Handedness? Handedness, WeaponSize? Size, string Label, bool Active, bool Rentable);
 
+/// <summary>A FiringChief assigned to a comparsa (add-notifications, design D6).</summary>
+/// <param name="UserId">The FiringChief's user identifier.</param>
+/// <param name="ComparsaId">The assigned comparsa.</param>
+public sealed record FiringChiefAssignmentSummary(Guid UserId, Guid ComparsaId);
+
 /// <summary>
 /// A comparsa's logo or the Federation's, for other modules, e.g. to print it in a document (change
 /// add-comparsa-logos, design D6; add-distribution-planning, design D11).
@@ -44,6 +49,13 @@ public interface ICatalogDirectory
 
     /// <summary>The active comparsas, in no particular order (e.g. the comparsas expected to order; add-comparsa-orders).</summary>
     Task<IReadOnlyList<ComparsaSummary>> ListActiveComparsasAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The FiringChief assignments to active comparsas, in no particular order, e.g. to find the
+    /// recipients of a comparsa's notifications (add-notifications). The user's role and status are not
+    /// checked here: callers read them from the identity module.
+    /// </summary>
+    Task<IReadOnlyList<FiringChiefAssignmentSummary>> ListFiringChiefAssignmentsAsync(CancellationToken cancellationToken);
 
     /// <summary>The weapon model, or null when none has that id.</summary>
     Task<WeaponModelSummary?> FindWeaponModelAsync(Guid weaponModelId, CancellationToken cancellationToken);

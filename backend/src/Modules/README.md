@@ -222,3 +222,18 @@ reference fails even before any of its types is used.
   so the cascade needs no audit entry of its own. A database test asserts the key, its delete rule
   and the cascade. Use it only when keeping the row would be wrong; `SET NULL` with a copy is the
   default for history.
+
+## Conventions shared by modules (from `add-notifications`)
+
+- **Notification outbox**: a module whose change should notify someone records a
+  `Notifications.Contracts.NotificationEvent` with `INotificationOutbox.Record(context, event)`
+  before `SaveChanges`, so the event commits or rolls back with the change and its audit entry. Its
+  context maps the table with `modelBuilder.AddNotificationOutbox()` (excluded from its migrations;
+  the `Notifications` module owns `notifications.notification_events`), and a snapshot-only migration
+  records the mapping. Events hold identifiers only — never names, reasons or other free text. The
+  notifications module works out the recipients, renders and sends the emails in the background, and
+  re-checks recipients and facts when it sends. Record only events that changed something: an
+  operation that writes nothing records nothing.
+- **Recipients** come from read contracts: `IUserDirectory.ListAsync(role)` (with each user's status
+  and locale) and `ICatalogDirectory.ListFiringChiefAssignmentsAsync()` (assignments to active
+  comparsas). Like every read contract they apply no scope; the notifications module applies BR-12.

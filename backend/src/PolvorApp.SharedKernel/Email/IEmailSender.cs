@@ -47,6 +47,21 @@ public sealed class EmailDeliveryException : Exception
     {
     }
 
+    /// <param name="phase">The failing step (<c>Connect</c>, <c>Authenticate</c>, <c>Send</c>…).</param>
+    /// <param name="code">A PII-free error code, e.g. <c>550 MailboxUnavailable</c> or <c>Timeout</c>.</param>
+    public EmailDeliveryException(string phase, string code)
+        : base("The email could not be sent.")
+    {
+        Phase = phase;
+        Code = code;
+    }
+
+    /// <summary>The failing step, when the sender knows it; never message content.</summary>
+    public string? Phase { get; }
+
+    /// <summary>A PII-free error code, when the sender knows it.</summary>
+    public string? Code { get; }
+
     public EmailDeliveryException(string message)
         : base(message)
     {
