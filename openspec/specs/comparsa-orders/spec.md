@@ -200,7 +200,9 @@ totals and later exports SHALL use the copy.
 
 Entries of every edition other than the one in progress, and those of the edition in progress
 once its orders are closed, are the history: no operation SHALL remove them. Deleting an arquebusier SHALL NOT anonymise them. They SHALL be anonymised only on a
-GDPR erasure request (UC-26), which `add-audit-privacy` (#15) provides.
+GDPR erasure request (UC-26, audit-privacy capability, "Erasing a person's data"), which blanks the
+copied identity and weapon number and guide of the person's entries and of the loans in which they
+are the lender, marks them as erased, and keeps every other field.
 
 #### Scenario: Name kept after deletion
 - **WHEN** an arquebusier with a validated 2030 entry is deleted from the registry
@@ -213,6 +215,10 @@ GDPR erasure request (UC-26), which `add-audit-privacy` (#15) provides.
 #### Scenario: Owned weapon kept in the history
 - **WHEN** the owned weapon of a validated `OWNED` entry is later removed from the registry
 - **THEN** the entry still shows the weapon's model, number and ownership guide
+
+#### Scenario: Anonymised only by erasure
+- **WHEN** an Admin erases, on a GDPR request, a person whose 2030 entry keeps its copy
+- **THEN** the 2030 entry keeps its status, powder, caps, weapon source, flask and rental model, and its name, national ID, federationId and weapon number and guide are blank
 
 ### Requirement: Weapon loans (UC-13, BR-09)
 An entry with weapon source `LOAN` SHALL have one `WeaponLoan`, registered by the users who may
@@ -656,3 +662,29 @@ national IDs, weapon numbers or ownership guides.
 #### Scenario: Seeded orders on the dashboard
 - **WHEN** an Admin opens the orders of the seeded current edition
 - **THEN** the dashboard shows orders in `DRAFT` and `SUBMITTED` and a comparsa not prepared
+
+### Requirement: Erased entries
+An entry or loan erased by a GDPR request SHALL:
+- show "Erased person" in place of the name, and no national ID, `federationId`, weapon number or
+  ownership guide, on every screen;
+- be read-only: editing an erased entry, or a loan with an erased lender, SHALL be blocking
+  (`409 Conflict`, `entryErased`). Changing the weapon source of a borrower whose lender is
+  erased SHALL still be allowed and SHALL delete the erased loan;
+- keep counting in the order's totals, the orders dashboard and billing;
+- never be offered or found by the lender lookup, and never be pre-filled into a later edition.
+
+#### Scenario: Erased entry in the order
+- **WHEN** a user opens an order with an erased entry
+- **THEN** the entry shows "Erased person" without national ID or federationId, and has no edit action
+
+#### Scenario: Editing an erased entry is blocking
+- **WHEN** an Admin saves a change to an erased entry
+- **THEN** the request is rejected with `409 Conflict` with `entryErased`, and nothing changes
+
+#### Scenario: Totals keep the erased entry
+- **WHEN** a validated order has an erased `ACTIVE` 2 kg entry
+- **THEN** the order's total powder includes those 2 kg
+
+#### Scenario: Borrower leaves an erased loan
+- **WHEN** a FiringChief changes to `RENTAL` the weapon source of an editable entry whose external lender was erased
+- **THEN** the entry is saved and the erased loan is deleted
