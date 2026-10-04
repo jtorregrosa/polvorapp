@@ -69,6 +69,7 @@
     "ArquebusierUpdated": "Arcabusser modificat",
     "ArquebusiersImported": "Arcabussers importats",
     "AuditEntriesPurged": "Registres d’auditoria caducats eliminats",
+    "BadgesDownloaded": "Carnets descarregats",
     "CalendarMilestoneAdded": "Fita del calendari afegida",
     "CalendarMilestoneRemoved": "Fita del calendari llevada",
     "CalendarMilestoneUpdated": "Fita del calendari modificada",
@@ -141,6 +142,7 @@
   "entityTypes": {
     "Arquebusier": "Arcabusser",
     "AuditTrail": "Registre d’auditoria",
+    "Badges": "Carnets",
     "CalendarMilestone": "Fita del calendari",
     "Comparsa": "Comparsa",
     "ComparsaOrder": "Comanda",

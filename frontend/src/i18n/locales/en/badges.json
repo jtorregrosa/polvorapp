@@ -1,0 +1,51 @@
+{
+  "action": "Print badges",
+  "actionContext": "of {{comparsa}}",
+  "sheet": {
+    "title": "Print badges",
+    "description": "An A4 sheet of 10 card-size badges, with crop marks.",
+    "batchComparsa_one": "{{count}} arquebusier of {{comparsa}}, active and reserve",
+    "batchComparsa_other": "{{count}} arquebusiers of {{comparsa}}, active and reserve",
+    "batchSelection_one": "{{count}} selected arquebusier",
+    "batchSelection_other": "{{count}} selected arquebusiers",
+    "language": "Labels' language",
+    "languageHint": "Names and the comparsa are not translated.",
+    "languages": {
+      "es-ES": "Spanish",
+      "ca-ES-valencia": "Valencian",
+      "en": "English"
+    },
+    "incompleteTitle": "Some badges will be incomplete",
+    "noPhoto_one": "{{count}} without an ID photo: an empty frame to paste one in.",
+    "noPhoto_other": "{{count}} without an ID photo: an empty frame to paste one in.",
+    "noLicense_one": "{{count}} without an issued license: the expiry date is left blank.",
+    "noLicense_other": "{{count}} without an issued license: the expiry date is left blank.",
+    "noLogo": "No Federation logo uploaded: the badges print without it.",
+    "printNote": "Print at 100 % scale (actual size, not “fit to page”) on cardstock and cut along the marks.",
+    "download": "Download PDF",
+    "saved": "File saved: {{name}}",
+    "failedTitle": "The badges could not be generated"
+  },
+  "selection": {
+    "label": "Selection",
+    "count_one": "{{count}} selected",
+    "count_other": "{{count}} selected",
+    "clear": "Clear selection",
+    "limit": "A PDF holds at most {{max}} badges: remove some from the selection.",
+    "removed_one": "{{count}} arquebusier is no longer in the registry: they leave the selection when you close.",
+    "removed_other": "{{count}} arquebusiers are no longer in the registry: they leave the selection when you close."
+  },
+  "errors": {
+    "notFound": "The comparsa no longer exists.",
+    "nothingToPrint": "The comparsa has no arquebusiers.",
+    "tooMany": "A PDF holds at most 200 badges. Print a selection instead.",
+    "photoUnreadable": "The ID photo of {{names}} cannot be read. Upload it again or leave them out of the selection.",
+    "photoUnreadableCount_one": "The ID photo of {{count}} arquebusier cannot be read. Upload it again or leave them out.",
+    "photoUnreadableCount_other": "The ID photos of {{count}} arquebusiers cannot be read. Upload them again or leave them out.",
+    "busy": "Other badges are being generated. Try again in a few seconds.",
+    "auditUnavailable": "The download could not be recorded. Try again.",
+    "storageUnavailable": "The photos and the logo cannot be read right now. Try again.",
+    "tooManyRequests": "You downloaded many documents in a row. Wait a minute.",
+    "failed": "Try again."
+  }
+}

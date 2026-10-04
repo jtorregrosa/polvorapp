@@ -15,7 +15,8 @@ import {
   getListFiringChiefsQueryKey,
   useListFiringChiefs,
 } from '@/api/generated/firing-chief-assignments/firing-chief-assignments';
-import type { ComparsaResponse, FiringChiefResponse } from '@/api/generated/model';
+import { useListArquebusiers } from '@/api/generated/arquebusiers/arquebusiers';
+import type { ArquebusierRowResponse, ComparsaResponse, FiringChiefResponse } from '@/api/generated/model';
 import { ApiProblemError } from '@/api/http';
 import { AlertBanner, NoticeBanner } from '@/components/app/AlertBanner';
 import { ComparsaLogo } from '@/components/app/ComparsaLogo';
@@ -27,6 +28,7 @@ import { SectionCard } from '@/components/app/SectionCard';
 import { SectionGrid } from '@/components/app/SectionGrid';
 import { StatusBadge } from '@/components/app/StatusBadge';
 import { useAppForm } from '@/components/app/use-app-form';
+import { BadgeSheet } from '@/features/badges/components/BadgeSheet';
 import { useSession } from '@/features/identity-access/session';
 import { NotFoundPage } from '@/features/platform/pages/NotFoundPage';
 import { useNotice, type Announce } from '@/lib/notices';
@@ -185,10 +187,23 @@ function AdminDetail({
   };
   const actions = useComparsaActions(comparsa, chiefs.rows?.length, announce);
   const refreshAfterChange = useRefreshAfterChange(comparsa.id);
+  // Spec "Badge screens": every arquebusier of the comparsa, with the counts of incomplete badges.
+  const arquebusiers = useListArquebusiers({ comparsaId: comparsa.id });
+  const badgeRows = (arquebusiers.data?.data ?? []) as ArquebusierRowResponse[];
   return (
     <DetailLayout
       comparsa={comparsa}
       notice={notice}
+      actions={
+        badgeRows.length > 0 && (
+          <BadgeSheet
+            batch={{ kind: 'comparsa', comparsaId: comparsa.id, comparsaName: comparsa.name }}
+            rows={badgeRows}
+            context={comparsa.name}
+            onUnknownIds={() => undefined}
+          />
+        )
+      }
       moreActions={actions.items}
       moreActionsRef={actions.moreActions}
     >
@@ -203,6 +218,7 @@ function AdminDetail({
 function DetailLayout({
   comparsa,
   notice,
+  actions,
   moreActions,
   moreActionsRef,
   children,
@@ -210,6 +226,8 @@ function DetailLayout({
   comparsa: ComparsaResponse;
   /** The outcome of an action, under the header. */
   notice: ReactNode;
+  /** Actions beside the name, e.g. "Print badges" (Admins). */
+  actions?: ReactNode;
   moreActions?: MoreAction[];
   moreActionsRef?: Ref<HTMLButtonElement>;
   children: ReactNode;
@@ -224,6 +242,7 @@ function DetailLayout({
         context={t(`side.${comparsa.side}`)}
         name={comparsa.name}
         statuses={<StatusBadge kind="catalog" value={comparsa.active ? 'ACTIVE' : 'INACTIVE'} />}
+        actions={actions}
         moreActions={moreActions}
         moreActionsRef={moreActionsRef}
       />

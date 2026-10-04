@@ -69,6 +69,7 @@
     "ArquebusierUpdated": "Arquebusier updated",
     "ArquebusiersImported": "Arquebusiers imported",
     "AuditEntriesPurged": "Expired audit entries purged",
+    "BadgesDownloaded": "Badges downloaded",
     "CalendarMilestoneAdded": "Calendar milestone added",
     "CalendarMilestoneRemoved": "Calendar milestone removed",
     "CalendarMilestoneUpdated": "Calendar milestone updated",
@@ -141,6 +142,7 @@
   "entityTypes": {
     "Arquebusier": "Arquebusier",
     "AuditTrail": "Audit log",
+    "Badges": "Badges",
     "CalendarMilestone": "Calendar milestone",
     "Comparsa": "Comparsa",
     "ComparsaOrder": "Order",

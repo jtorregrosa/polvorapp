@@ -32,6 +32,29 @@ declare their breadcrumb with a `handle: { breadcrumb: '<common key>' } satisfie
   error summary and the current values to review.
 - Empty values read "Not given". Identifiers use `mono` (Geist Mono).
 
+### Row selection
+
+- A list offers row selection only where there is a bulk action (the registry list's "Print
+  badges", for Admins). The screen owns the selection (`rowSelection`): it survives paging, sorting
+  and filtering, and is cleared when the user leaves the page.
+- Each row (and each stacked item on phones) has a checkbox labelled "Select <name>"; the header
+  box (above the list on phones) selects or clears the current page only and shows a dash when
+  partial. Choosing a box, or missing it slightly within its cell, never opens the record, and the
+  count is announced. The screen drops the ids of rows that no longer exist.
+- While rows are selected, a bar above the table says how many and offers "Clear" and the bulk
+  action; a limit (e.g. 200 badges) disables the action and says why.
+
+### Badge sheet
+
+- "Print badges" opens a side panel (`DetailSheet`, a bottom sheet on phones) from the registry
+  list's selection bar, from the list header when it is filtered by one comparsa and nothing is
+  selected, and from the comparsa page's header (Admins only). It says what will print (the
+  comparsa or the number selected), offers the labels' language as `RadioCards` (the user's by
+  default), warns in one `AlertBanner` about badges without a photo or an issued license and a
+  missing Federation logo, reminds to print at 100 %, and downloads the PDF.
+- A refused download explains itself inside the panel: a photo that cannot be read names the
+  arquebusiers; arquebusiers no longer in the registry leave the selection, and the panel says so.
+
 ### Comparsa logos
 
 - Wherever a comparsa is named, `ComparsaLogo` can go before the name: `sm` in list rows (desktop
