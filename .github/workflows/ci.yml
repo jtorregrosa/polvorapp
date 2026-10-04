@@ -73,7 +73,8 @@ jobs:
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # The Testcontainers suite with coverage takes about 20 minutes on a hosted runner.
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: backend
