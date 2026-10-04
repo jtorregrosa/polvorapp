@@ -132,6 +132,8 @@ public sealed class EntryEditingTests(PostgresFixture postgres, MailpitFixture m
 
         var draft = await SaveOrderAsync(order, Entry(order, arquebusier.Id), body => body["powderKg"] = 1);
         await SetOrderStatusAsync(OrderId(order), OrderStatus.Returned, "Motivo sintético");
+        // The host's clock is frozen: move it on, so the audit entries are told apart by time.
+        _orders.Host.Time.Advance(TimeSpan.FromSeconds(1));
         var returned = await SaveOrderAsync(order, Entry(draft, arquebusier.Id), body => body["powderKg"] = 2);
 
         Assert.Equal("DRAFT", draft.GetProperty("status").GetString());

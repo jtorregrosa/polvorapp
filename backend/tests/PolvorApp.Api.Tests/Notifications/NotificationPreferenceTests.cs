@@ -53,6 +53,8 @@ public sealed class NotificationPreferenceTests(PostgresFixture postgres, Mailpi
         using var off = await SaveAsync(chief, ("LICENSE_DIGEST", false));
         using var unchanged = await SaveAsync(chief, ("LICENSE_DIGEST", false), ("ORDER_WINDOW", true));
         var afterOff = await KindsAsync(chief);
+        // The host's clock is frozen: move it on, so the audit entries are told apart by time.
+        _host.Time.Advance(TimeSpan.FromSeconds(1));
         using var on = await SaveAsync(chief, ("LICENSE_DIGEST", true));
 
         Assert.Equal(HttpStatusCode.OK, off.StatusCode);
