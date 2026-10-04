@@ -26,6 +26,8 @@ public sealed class PhotoAuditTests(PostgresFixture postgres, MailpitFixture mai
     public async Task An_upload_and_a_replacement_record_the_kind_and_whether_it_replaced()
     {
         var first = await UploadAsync("id");
+        // The host's clock is frozen: move it on, so the audit entries are told apart by time.
+        _registry.Host.Time.Advance(TimeSpan.FromSeconds(1));
         var second = await UploadAsync("id");
 
         var entries = await _registry.Host.AuditEntriesAsync("ArquebusierPhotoUploaded");
