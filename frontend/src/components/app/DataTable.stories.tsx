@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { useState } from 'react';
 import { Link } from 'react-router';
-import { DataTable, type DataTableColumn } from './DataTable';
+import { DataTable, type DataTableColumn, type RowSelection } from './DataTable';
 import { StatusBadge } from './StatusBadge';
 
 // Synthetic data only.
@@ -122,4 +123,35 @@ export const RowsLeadToRecords: Story = {
       </>
     ),
   },
+};
+
+function SelectableTable() {
+  const [selection, setSelection] = useState<RowSelection>({ a2: true, a14: true });
+  return (
+    <DataTable
+      caption="Arcabuceros"
+      data={rows}
+      columns={linkedColumns}
+      getRowId={(row) => row.id}
+      getRowHref={(row) => `/arquebusiers/${row.id}`}
+      rowSelection={selection}
+      onRowSelectionChange={setSelection}
+      getRowLabel={(row) => row.surname}
+      mobileRow={(row) => (
+        <Link to={`/arquebusiers/${row.id}`} className="font-semibold text-foreground">
+          {row.surname}
+        </Link>
+      )}
+    />
+  );
+}
+
+/**
+ * Row selection, owned by the screen: a labelled checkbox per row (and per stacked item on phones),
+ * the header one for the current page (mixed when partial). The selection survives paging, sorting
+ * and filtering; the count is announced. A checkbox never opens the record.
+ */
+export const RowSelectionStory: Story = {
+  name: 'Row selection',
+  render: () => <SelectableTable />,
 };

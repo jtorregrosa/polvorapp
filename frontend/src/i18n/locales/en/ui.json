@@ -37,6 +37,12 @@
     "announce": {
       "sorted": "Sorted by {{column}}: {{direction}}",
       "unsorted": "Not sorted"
+    },
+    "selection": {
+      "row": "Select {{name}}",
+      "page": "Select all on this page",
+      "count_one": "{{count}} selected",
+      "count_other": "{{count}} selected"
     }
   },
   "form": {

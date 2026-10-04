@@ -13,6 +13,8 @@ import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { useId, useMemo, useState, type ChangeEvent, type MouseEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -45,7 +47,10 @@ export interface DataTableColumn<TRow extends RowData> {
   rowHeader?: boolean;
 }
 
-export interface DataTableProps<TRow extends RowData> {
+/** Selected rows by row id (`getRowId`); ids of rows not in `data` (filtered out, other pages) are kept. */
+export type RowSelection = Readonly<Record<string, boolean>>;
+
+interface DataTableBaseProps<TRow extends RowData> {
   /** Accessible name of the table, its scroll region and its pagination. */
   caption: string;
   /** Keep the reference stable (e.g. a TanStack Query result): a new array resets to page 1. */
@@ -68,9 +73,25 @@ export interface DataTableProps<TRow extends RowData> {
   mobileRow?: (row: TRow) => ReactNode;
 }
 
-/** Elements whose own click must not open the row's record. */
+/**
+ * Row selection, owned by the screen (spec: Data tables): all three props or none. Each row gets a
+ * checkbox and the current page one. The screen keeps ids of rows that are filtered out or on other
+ * pages, and removes the ids of rows that no longer exist (e.g. after a reload).
+ */
+type DataTableSelectionProps<TRow extends RowData> =
+  | {
+      rowSelection: RowSelection;
+      onRowSelectionChange: (selection: RowSelection) => void;
+      /** The row's name for its checkbox label ("Select …"). */
+      getRowLabel: (row: TRow) => string;
+    }
+  | { rowSelection?: never; onRowSelectionChange?: never; getRowLabel?: never };
+
+export type DataTableProps<TRow extends RowData> = DataTableBaseProps<TRow> & DataTableSelectionProps<TRow>;
+
+/** Elements whose own click must not open the row's record, the selection cell included (a near miss on its box). */
 const INTERACTIVE =
-  'a, button, input, select, textarea, label, summary, [contenteditable], [tabindex], [role="button"], [role="menuitem"], [role="checkbox"], [role="switch"], [role="tab"]';
+  'a, button, input, select, textarea, label, summary, [contenteditable], [tabindex], [role="button"], [role="menuitem"], [role="checkbox"], [role="switch"], [role="tab"], [data-row-select]';
 
 /**
  * Follows the row's link to its record (spec: Data tables, whole row opens the record), unless the
@@ -121,6 +142,9 @@ export function DataTable<TRow extends RowData>({
   emptyText,
   getRowHref,
   mobileRow,
+  rowSelection,
+  onRowSelectionChange,
+  getRowLabel,
 }: DataTableProps<TRow>) {
   const stacked = useIsMobile() && mobileRow !== undefined;
   const pageSizeId = useId();
@@ -205,8 +229,55 @@ export function DataTable<TRow extends RowData>({
 
   const rows = table.getRowModel().rows;
 
+  // Selection is kept by id across pages, sorting and filters; the header box acts on this page only.
+  const selectable = rowSelection !== undefined;
+  const isSelected = (id: string) => rowSelection?.[id] === true;
+  const pageSelected = rows.filter((row) => isSelected(row.id)).length;
+  const pageState: boolean | 'indeterminate' =
+    rows.length > 0 && pageSelected === rows.length ? true : pageSelected > 0 ? 'indeterminate' : false;
+  const changeSelection = (next: Record<string, boolean>) => {
+    const kept = Object.fromEntries(Object.entries(next).filter(([, value]) => value));
+    onRowSelectionChange?.(kept);
+    setAnnouncement(t('table.selection.count', { count: Object.keys(kept).length }));
+  };
+  const toggleRow = (id: string, checked: boolean) => {
+    changeSelection({ ...rowSelection, [id]: checked });
+  };
+  const togglePage = () => {
+    const checked = pageState !== true;
+    changeSelection({ ...rowSelection, ...Object.fromEntries(rows.map((row) => [row.id, checked])) });
+  };
+  const rowCheckbox = (row: (typeof rows)[number]) => (
+    <Checkbox
+      checked={isSelected(row.id)}
+      aria-label={t('table.selection.row', { name: getRowLabel?.(row.original) })}
+      onCheckedChange={(value) => {
+        toggleRow(row.id, value === true);
+      }}
+    />
+  );
+  const columnCount = columns.length + (selectable ? 1 : 0);
+  const pageCheckbox = (id?: string) => (
+    <Checkbox
+      id={id}
+      checked={pageState}
+      disabled={isLoading || rows.length === 0}
+      aria-label={id === undefined ? t('table.selection.page') : undefined}
+      onCheckedChange={togglePage}
+    />
+  );
+  const pageCheckboxId = `${captionId}-page`;
+
   return (
     <div className="flex flex-col gap-3">
+      {stacked && selectable && (
+        <div className="flex items-center gap-3 px-4">
+          {pageCheckbox(pageCheckboxId)}
+          <Label htmlFor={pageCheckboxId} className="font-normal">
+            {t('table.selection.page')}
+          </Label>
+        </div>
+      )}
       {stacked && (
         // role="list": Safari drops list semantics from lists without bullets.
         // eslint-disable-next-line jsx-a11y/no-redundant-roles
@@ -243,12 +314,23 @@ export function DataTable<TRow extends RowData>({
                           openRecord(event, href);
                         }
                   }
+                  data-state={selectable && isSelected(row.id) ? 'selected' : undefined}
                   className={cn(
                     'flex flex-col gap-1 rounded-lg border bg-card px-4 py-3 shadow-e1',
                     href !== undefined && 'cursor-pointer hover:bg-surface-2',
+                    'data-[state=selected]:bg-muted data-[state=selected]:hover:bg-muted',
                   )}
                 >
-                  {mobileRow(row.original)}
+                  {selectable ? (
+                    <div className="flex items-start gap-3">
+                      <span data-row-select="" className="pt-0.5">
+                        {rowCheckbox(row)}
+                      </span>
+                      <div className="flex min-w-0 flex-col gap-1">{mobileRow(row.original)}</div>
+                    </div>
+                  ) : (
+                    mobileRow(row.original)
+                  )}
                 </li>
               );
             })}
@@ -272,6 +354,7 @@ export function DataTable<TRow extends RowData>({
           <TableHeader>
             {table.getHeaderGroups().map((group) => (
               <TableRow key={group.id}>
+                {selectable && <TableHead className="w-10">{pageCheckbox()}</TableHead>}
                 {group.headers.map((header) => {
                   const sortable = header.column.getCanSort();
                   const sorted = header.column.getIsSorted();
@@ -321,6 +404,7 @@ export function DataTable<TRow extends RowData>({
             {isLoading &&
               Array.from({ length: LOADING_ROWS }, (_, index) => (
                 <TableRow key={index}>
+                  {selectable && <TableCell />}
                   {columns.map((column) => (
                     <TableCell key={column.id}>
                       <Skeleton className="h-4 w-full" />
@@ -330,7 +414,7 @@ export function DataTable<TRow extends RowData>({
               ))}
             {!isLoading && total === 0 && (
               <TableRow>
-                <TableCell colSpan={columns.length} className="py-10 text-center text-muted-foreground">
+                <TableCell colSpan={columnCount} className="py-10 text-center text-muted-foreground">
                   {emptyText ?? t('table.empty')}
                 </TableCell>
               </TableRow>
@@ -349,8 +433,14 @@ export function DataTable<TRow extends RowData>({
                             openRecord(event, href);
                           }
                     }
+                    data-state={selectable && isSelected(row.id) ? 'selected' : undefined}
                     className={cn('h-row', href !== undefined && 'cursor-pointer')}
                   >
+                    {selectable && (
+                      <TableCell data-row-select="" className="w-10">
+                        {rowCheckbox(row)}
+                      </TableCell>
+                    )}
                     {row.getAllCells().map((cell) =>
                       byId.get(cell.column.id)?.rowHeader ? (
                         <th
