@@ -109,9 +109,17 @@
       "columns": {
         "date": "Date",
         "title": "Milestone",
-        "actions": "Actions"
+        "actions": "Actions",
+        "notify": "Email reminder"
       },
-      "empty": "No milestones yet."
+      "empty": "No milestones yet.",
+      "notify": {
+        "label": "Send an email reminder",
+        "hint": "A week before, to Admins and, once the edition is in progress, to firing chiefs.",
+        "mark": "Email reminder",
+        "yes": "Yes",
+        "no": "No"
+      }
     }
   },
   "actions": {
@@ -131,11 +139,11 @@
     },
     "openOrders": {
       "title": "Open the {{year}} orders?",
-      "description": "FiringChiefs will be able to prepare and edit their comparsas' orders."
+      "description": "FiringChiefs will be able to prepare and edit their comparsas' orders. They are told by email."
     },
     "closeOrders": {
       "title": "Close the {{year}} orders?",
-      "description": "Orders become read-only for FiringChiefs. You can open them again for corrections."
+      "description": "Orders become read-only for FiringChiefs. You can open them again for corrections. They are told by email."
     },
     "closeEdition": {
       "title": "Close the {{year}} edition?",

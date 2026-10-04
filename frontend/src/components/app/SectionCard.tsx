@@ -1,4 +1,4 @@
-import { useId, type ReactNode } from 'react';
+import { useId, type ReactNode, type Ref } from 'react';
 import { cn } from '@/lib/cn';
 
 export interface SectionCardProps {
@@ -9,14 +9,31 @@ export interface SectionCardProps {
   action?: ReactNode;
   /** `full` takes the whole row of a `SectionGrid`. */
   span?: 'auto' | 'full';
+  /**
+   * Makes the section a link target (`#id`) that can take focus, e.g. when an email links to it; the
+   * page moves focus there itself.
+   */
+  anchorId?: string;
+  ref?: Ref<HTMLElement>;
   children: ReactNode;
 }
 
 /** A titled, read-only section of a detail page with its edit action (spec: Detail pages in read mode). */
-export function SectionCard({ title, description, action, span = 'auto', children }: SectionCardProps) {
+export function SectionCard({
+  title,
+  description,
+  action,
+  span = 'auto',
+  anchorId,
+  ref,
+  children,
+}: SectionCardProps) {
   const titleId = useId();
   return (
     <section
+      ref={ref}
+      id={anchorId}
+      tabIndex={anchorId ? -1 : undefined}
       aria-labelledby={titleId}
       className={cn(
         'flex min-w-0 flex-col gap-group rounded-lg border bg-card p-4 shadow-e1 sm:p-6',

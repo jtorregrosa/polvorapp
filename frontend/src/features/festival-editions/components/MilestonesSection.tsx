@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Plus, Trash2 } from 'lucide-react';
+import { BellRing, Plus, Trash2 } from 'lucide-react';
 import { useMemo, useRef, type RefObject } from 'react';
-import type { UseFormReturn } from 'react-hook-form';
+import { useController, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
   useAddCalendarMilestone,
@@ -10,6 +10,7 @@ import {
 } from '@/api/generated/editions/editions';
 import type { CalendarMilestoneResponse, EditionResponse } from '@/api/generated/model';
 import { Button } from '@/components/app/Button';
+import { CheckboxField } from '@/components/app/CheckboxField';
 import { ConfirmDialog } from '@/components/app/ConfirmDialog';
 import { explainFailure } from '@/components/app/confirm-failure';
 import { DataTable, type DataTableColumn } from '@/components/app/DataTable';
@@ -34,6 +35,7 @@ const FIELDS = ['date', 'title'] as const;
 
 function MilestoneFields({ form }: { form: UseFormReturn<MilestoneValues, unknown, MilestoneInput> }) {
   const { t } = useTranslation('editions');
+  const notify = useController({ control: form.control, name: 'notify' });
   return (
     <>
       <FormField control={form.control} name="date" label={t('sections.milestones.date')} width="short">
@@ -42,6 +44,12 @@ function MilestoneFields({ form }: { form: UseFormReturn<MilestoneValues, unknow
       <FormField control={form.control} name="title" label={t('sections.milestones.titleLabel')} width="long">
         {(field) => <TextInput {...field} maxLength={100} autoComplete="off" />}
       </FormField>
+      <CheckboxField
+        label={t('sections.milestones.notify.label')}
+        description={t('sections.milestones.notify.hint')}
+        checked={notify.field.value}
+        onCheckedChange={notify.field.onChange}
+      />
     </>
   );
 }
@@ -115,7 +123,7 @@ function MilestoneActions({
   const explain = useExplain();
   const notify = useSaveNotice();
   const values = useMemo<MilestoneValues>(
-    () => ({ date: milestone.date, title: milestone.title }),
+    () => ({ date: milestone.date, title: milestone.title, notify: milestone.notify }),
     [milestone],
   );
   const form = useAppForm<MilestoneValues, unknown, MilestoneInput>({
@@ -164,6 +172,17 @@ function MilestoneActions({
   );
 }
 
+/** The mobile row's mark of a milestone reminded by email: text, never an icon alone. */
+function ReminderMark() {
+  const { t } = useTranslation('editions');
+  return (
+    <span className="inline-flex items-center gap-1 text-help text-muted-foreground">
+      <BellRing aria-hidden="true" className="size-3.5" />
+      {t('sections.milestones.notify.mark')}
+    </span>
+  );
+}
+
 /** The edition's calendar milestones, by date (spec: Calendar milestones). */
 export function MilestonesSection({ edition, canEdit }: { edition: EditionResponse; canEdit: boolean }) {
   const { t } = useTranslation('editions');
@@ -181,6 +200,19 @@ export function MilestonesSection({ edition, canEdit }: { edition: EditionRespon
         header: t('sections.milestones.columns.title'),
         rowHeader: true,
         cell: (milestone) => milestone.title,
+      },
+      {
+        id: 'notify',
+        header: t('sections.milestones.columns.notify'),
+        cell: (milestone) =>
+          milestone.notify ? (
+            <span className="inline-flex items-center gap-1">
+              <BellRing aria-hidden="true" className="size-3.5" />
+              {t('sections.milestones.notify.yes')}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">{t('sections.milestones.notify.no')}</span>
+          ),
       },
       ...(canEdit
         ? [
@@ -215,6 +247,7 @@ export function MilestonesSection({ edition, canEdit }: { edition: EditionRespon
         mobileRow={(milestone) => (
           <>
             <span className="font-semibold text-foreground">{milestone.title}</span>
+            {milestone.notify && <ReminderMark />}
             <span className="text-help text-muted-foreground">{dates.day(milestone.date)}</span>
             {canEdit && <MilestoneActions editionId={edition.id} milestone={milestone} addRef={addRef} />}
           </>

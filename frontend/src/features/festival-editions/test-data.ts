@@ -47,8 +47,14 @@ export const CURRENT_2031: EditionResponse = {
       id: '00000000-0000-4000-8000-000000000701',
       date: '2030-11-30',
       title: 'Plazo sintético de nuevos arcabuceros',
+      notify: true,
     },
-    { id: '00000000-0000-4000-8000-000000000702', date: '2099-03-01', title: 'Reparto sintético de pólvora' },
+    {
+      id: '00000000-0000-4000-8000-000000000702',
+      date: '2099-03-01',
+      title: 'Reparto sintético de pólvora',
+      notify: false,
+    },
   ],
   nextWindow: { kind: 'CLOSES', date: '2031-02-10' },
 };

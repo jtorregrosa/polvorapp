@@ -109,9 +109,17 @@
       "columns": {
         "date": "Fecha",
         "title": "Hito",
-        "actions": "Acciones"
+        "actions": "Acciones",
+        "notify": "Recordatorio por correo"
       },
-      "empty": "Aún no hay hitos."
+      "empty": "Aún no hay hitos.",
+      "notify": {
+        "label": "Enviar un recordatorio por correo",
+        "hint": "Una semana antes, a los Admins y, con la edición en curso, a los jefes de disparo.",
+        "mark": "Recordatorio por correo",
+        "yes": "Sí",
+        "no": "No"
+      }
     }
   },
   "actions": {
@@ -131,11 +139,11 @@
     },
     "openOrders": {
       "title": "¿Abrir los pedidos de {{year}}?",
-      "description": "Los jefes de disparo podrán preparar y editar los pedidos de sus comparsas."
+      "description": "Los jefes de disparo podrán preparar y editar los pedidos de sus comparsas. Se les avisará por correo."
     },
     "closeOrders": {
       "title": "¿Cerrar los pedidos de {{year}}?",
-      "description": "Los pedidos pasan a ser de solo lectura para los jefes de disparo. Podrás volver a abrirlos para correcciones."
+      "description": "Los pedidos pasan a ser de solo lectura para los jefes de disparo. Podrás volver a abrirlos para correcciones. Se les avisará por correo."
     },
     "closeEdition": {
       "title": "¿Cerrar la edición {{year}}?",

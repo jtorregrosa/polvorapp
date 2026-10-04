@@ -181,9 +181,9 @@ export const modelsSchema = z.object({ weaponModelIds: z.array(z.string()) });
 
 export type ModelsValues = z.infer<typeof modelsSchema>;
 
-/** A calendar milestone: a date and a one-line title (spec: Calendar milestones). */
+/** A calendar milestone: a date, a one-line title and whether it is reminded by email (spec: Calendar milestones). */
 export const milestoneSchema = z
-  .object({ date: z.string(), title: z.string() })
+  .object({ date: z.string(), title: z.string(), notify: z.boolean() })
   .superRefine((values, context) => {
     requiredDate(values.date, 'date', context);
     // As the server measures it: normalised, then trimmed.
@@ -194,9 +194,13 @@ export const milestoneSchema = z
       context.addIssue({ code: 'custom', path: ['title'], message: messages.tooLong });
     }
   })
-  .transform((values) => ({ date: values.date, title: values.title.normalize('NFC').trim() }));
+  .transform((values) => ({
+    date: values.date,
+    title: values.title.normalize('NFC').trim(),
+    notify: values.notify,
+  }));
 
 export type MilestoneValues = z.input<typeof milestoneSchema>;
 export type MilestoneInput = z.output<typeof milestoneSchema>;
 
-export const EMPTY_MILESTONE: MilestoneValues = { date: '', title: '' };
+export const EMPTY_MILESTONE: MilestoneValues = { date: '', title: '', notify: false };

@@ -23,6 +23,7 @@ import { SectionGrid } from '@/components/app/SectionGrid';
 import { useSaveNotice } from '@/components/app/save-notice';
 import { explainFailure } from '@/components/app/confirm-failure';
 import { TextInput } from '@/components/app/TextInput';
+import { NotificationsSection } from '@/features/notifications/NotificationsSection';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import {
   digitsOnly,
@@ -191,6 +192,7 @@ export function AccountPage() {
         </SectionCard>
         <ChangePasswordForm />
         <RecoveryCodesSection codesLeft={account.recoveryCodesLeft} />
+        <NotificationsSection />
         <SectionCard
           title={t('account.signOutEverywhereTitle')}
           description={t('account.signOutEverywhereDescription')}

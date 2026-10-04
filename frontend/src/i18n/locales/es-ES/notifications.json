@@ -1,0 +1,38 @@
+{
+  "section": {
+    "title": "Avisos por correo",
+    "description": "Elige qué correos quieres recibir de PolvorApp.",
+    "edit": "avisos por correo",
+    "editTitle": "Editar avisos por correo",
+    "editDescription": "Desmarca los avisos que no quieras recibir. Se aplican a partir del próximo correo.",
+    "loadFailed": "No se han podido cargar tus avisos.",
+    "loading": "Cargando tus avisos…"
+  },
+  "state": {
+    "on": "Activado",
+    "off": "Desactivado"
+  },
+  "kinds": {
+    "LICENSE_DIGEST": {
+      "label": "Resumen mensual de licencias",
+      "description": "El día 1 de cada mes: licencias que faltan, en trámite, caducadas o que caducan en 90 días en tus comparsas."
+    },
+    "ORDER_WINDOW": {
+      "label": "Apertura y cierre de pedidos",
+      "description": "Cuando se abren o cierran los pedidos, y recordatorios 7 días y 1 día antes del cierre previsto si tu pedido no está enviado."
+    },
+    "ORDER_STATUS": {
+      "label": "Estado de los pedidos",
+      "description": "Cuando un pedido se devuelve o se valida; para Admins, cuando un jefe de disparo envía un pedido."
+    },
+    "MILESTONE_REMINDER": {
+      "label": "Recordatorios del calendario",
+      "description": "Una semana antes de los hitos que la Unión marque para avisar."
+    }
+  },
+  "errors": {
+    "invalid": "Este tipo de aviso no existe.",
+    "notApplicable": "Este aviso no se aplica a tu rol.",
+    "duplicate": "Este aviso aparece dos veces."
+  }
+}
