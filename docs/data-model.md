@@ -58,14 +58,17 @@ keeps a snapshot of what was deleted.
 
 **User** — `email` (unique, sign-in name), `name`, `role` (`ADMIN` | `FIRING_CHIEF`), `locale`
 (`es-ES` | `ca-ES-valencia` | `en`, used for emails and applied at sign-in), `active`, `createdAt`,
-`lastSignInAt`. Credentials (password hash, authenticator key, recovery codes, lockout) are managed by
-ASP.NET Core Identity in the `identity` schema. **Status** is derived: `DEACTIVATED` if not active,
-otherwise `INVITED` while there is no password, else `ACTIVE`. At least one active Admin must always
-remain (blocking).
+`lastSignInAt`, `erasedAt`. Credentials (password hash, authenticator key, recovery codes, lockout) are
+managed by ASP.NET Core Identity in the `identity` schema. **Status** is derived: `ERASED` once
+`erasedAt` is set, else `DEACTIVATED` if not active, otherwise `INVITED` while there is no password,
+else `ACTIVE`. At least one active Admin must always remain (blocking). A GDPR erasure (UC-26) blanks
+the user's name and email, removes their credentials, assignments and notification settings, and
+keeps the row so audit entries still point to it; an `ERASED` user can never be edited, reactivated
+or re-invited (blocking, `users.erased`).
 
 **FiringChiefAssignment** — `user`, `comparsa`. A comparsa can have several FiringChiefs and a
 FiringChief several comparsas; the assignments are exactly a FiringChief's comparsa scope (BR-12).
-Only `FIRING_CHIEF` users that are not deactivated can be newly assigned, and only to active
+Only `FIRING_CHIEF` users that are neither deactivated nor erased can be newly assigned, and only to active
 comparsas (blocking); existing assignments are kept when the user or the comparsa is deactivated
 or the user becomes an Admin (no effect while Admin), and removed when the comparsa is deleted.
 Managed by Admins from both the comparsa and the user pages (maintainer decision).
@@ -159,6 +162,7 @@ the screen say so.
 | `rentalModel` | if `RENTAL`: a model offered for rental in the edition (BR-07) |
 | `flask` | `OWNED` \| `RENTAL_1KG` \| `RENTAL_2KG` \| `NONE` |
 | history copy | `firstName`, `lastName`, `nationalId`, `federationId`, and for `OWNED` the weapon's model, `weaponNumber` and `ownershipGuideNumber` |
+| `erasedAt` | set by a GDPR erasure (UC-26): the history copy and the registry links are blank (a database check enforces it) and the entry is read-only |
 
 An `ACTIVE` entry may have no powder or no weapon: some arquebusiers only carry powder and others
 only fire, such as the comparsa captains. `rentalWeapon` and `rentalFlaskNumber` (units assigned at
@@ -177,6 +181,13 @@ of two kinds:
 Both kinds store the lender's `firstName`, `lastName`, `nationalId` (and comparsa, if registered)
 and the weapon's model, `weaponNumber` and `ownershipGuideNumber`. They are typed by hand for an
 external owner and copied for a registered one. An owned weapon may be lent to several borrowers.
+A GDPR erasure of the lender sets `erasedAt` and blanks the lender's names, `nationalId`, weapon
+number and ownership guide; the model stays, and the loan is read-only until the borrower changes
+the weapon source, which deletes it.
+
+**Erased entries and loans** keep counting in totals, the orders dashboard and billing (quantities,
+not identities), are left out of per-person export and distribution rows, are never offered as
+proxies or by the lender lookup, and are never pre-filled into a later edition.
 
 **RentalWeapon** — `edition`, `model`, `weaponNumber`, `assignedEntry`. Return is handled by the rental company (out of scope).
 
@@ -243,9 +254,15 @@ subject or body is stored. Deleted one year after creation.
 **Note** — `comparsa`, `author`, `date`, `text` (internal comparsa notes).
 
 **AuditEntry** (append-only, `audit` schema) — `occurredAt`, `actorUserId` (null for anonymous
-events such as a failed sign-in), `action`, `entityType`, `entityId`, `comparsaId`, `traceId`, `data`
-(small JSON, never secrets). Written in the same transaction as the change it records (GDPR
-accountability and dispute resolution).
+events such as a failed sign-in, and for system jobs), `action`, `entityType`, `entityId`,
+`comparsaId`, `traceId`, `data` (small JSON, never secrets). Written in the same transaction as the
+change it records (GDPR accountability and dispute resolution). Every `action` is declared in its
+module's catalogue. A database trigger refuses every update, delete and truncate, except the audit
+module's own maintenance: the retention purge and the GDPR redaction of `data` (SEC-05).
+**Retention**: security events (sign-ins, lockouts, recovery codes, password reset requests, a
+refused first-administrator creation, lender and person lookups) are kept 1 year, everything else 5 years; a nightly purge deletes older entries
+and audits what it deleted. A GDPR erasure removes the person's names and DNI/NIE from `data`; the
+entries themselves stay.
 
 ## 3. Business rules
 
@@ -264,7 +281,7 @@ accountability and dispute resolution).
 | BR-11 | No powder carryover between editions. | — |
 | BR-12 | FiringChiefs only see and edit their own comparsa (except loans, where the borrower's name is visible). | Block |
 | BR-13 | A transfer moves the arquebusier to the new comparsa for future editions only. | — |
-| BR-14 | Deleting an arquebusier (left the Federation) erases their registry data, owned weapons and photos (the images right after the deletion, or by the hourly orphan sweep if that fails). While the orders of the edition in progress are open, their entry in it is removed, after a confirmation that says so. Every other entry (past editions, and the edition in progress once its orders are closed) is kept as history with its copy of the identity and weapon data; it is anonymised only on a GDPR erasure request (UC-26). | — |
+| BR-14 | Deleting an arquebusier (left the Federation) erases their registry data, owned weapons and photos (the images right after the deletion, or by the hourly orphan sweep if that fails). While the orders of the edition in progress are open, their entry in it is removed, after a confirmation that says so. Every other entry (past editions, and the edition in progress once its orders are closed) is kept as history with its copy of the identity and weapon data; it is anonymised only on a GDPR erasure request (UC-26), which also erases the registry record as this deletion does and anonymises the loans they lent. | — |
 
 ## 4. Arquebusier badge (UC-30)
 

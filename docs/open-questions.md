@@ -100,3 +100,7 @@ their date.
 | Q-64 | Managing notifications (answer 21: "poder gestionarlas") | Each user turns each kind of their role on or off; all on by default; Admins mark which milestones are reminded (maintainer decision, 2026-10-04). | ✅ |
 | Q-65 | Notification kinds | Orders opened and closed, planned close reminders (7 and 1 day before), order returned or validated (FiringChiefs), order submitted (Admins), milestone reminders 7 days before (maintainer decision, 2026-10-04). | ✅ |
 | Q-61 | Federation logo on documents | Uploaded at run time by an Admin into private storage and printed on the form (and later the badges); never committed, as the repository is public (maintainer decision, 2026-10-03). | ✅ |
+| Q-66 | When a GDPR erasure is allowed | Always: an open edition never blocks it; the confirmation warns about the editions whose lists will no longer name the person and the entry removed while orders are open (maintainer decision, 2026-10-04; `add-audit-privacy`). | ✅ |
+| Q-67 | Whose GDPR requests PolvorApp handles | Arquebusiers and external weapon owners (by DNI/NIE), and users (Admins and FiringChiefs, from their page) (maintainer decision, 2026-10-04). | ✅ |
+| Q-68 | Format of a GDPR export | A ZIP with one spreadsheet of everything held and the person's photos (maintainer decision, 2026-10-04). | ✅ |
+| Q-69 | Audit retention | Security events 1 year, everything else 5 years, purged daily (maintainer decision, 2026-10-04). | ✅ |

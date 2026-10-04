@@ -232,6 +232,7 @@ The API image runs one command instead of the web server when given a verb:
 | `migrate` | Applies every module's migrations and creates the storage bucket if it is missing (run by the `api-migrate` service). |
 | `seed` | Creates the synthetic data above (`Development`, `Staging`, `Testing` only). |
 | `create-admin --email <email> --name <name> [--locale es-ES\|ca-ES-valencia\|en]` | Invites the first Admin on a new installation (email with the invitation link). Refused once an Admin can sign in; run again to resend the invitation to the same invited Admin. |
+| `purge-audit` | Deletes the audit entries past their retention period at once (the API also does it daily, see "Audit retention"). |
 
 ```bash
 docker compose run --rm api create-admin --email admin@example.org --name "Admin name"
@@ -280,7 +281,8 @@ node ../scripts/check-coverage.mjs TestResults 80          # 80 % line gate
   `Email__SmtpHost`, `Email__SmtpPort`, `Email__Security` (`None` | `StartTls` | `SslOnConnect`),
   `Email__From`, optional `Email__Username`/`Email__Password` and `Email__TimeoutSeconds`,
   `App__PublicBaseUrl`, `Notifications__Enabled` (default `true`), `Notifications__DispatchIntervalSeconds`
-  (1–3600, default 30), …). Outside `Development` and `Testing` the API requires TLS for SMTP and an
+  (1–3600, default 30), `Audit__PurgeEnabled` (default `true`), `Audit__RetentionYears` (5–100,
+  default 5), `Audit__SecurityRetentionDays` (365–36500, default 365), …). Outside `Development` and `Testing` the API requires TLS for SMTP and an
   https `App__PublicBaseUrl`. The
   API refuses to start when a required setting is missing, naming the setting.
 - Logs are JSON on stdout and never include query strings, bodies or personal data (NFR-12).
@@ -300,6 +302,21 @@ dotnet run --project backend/src/PolvorApp.Api send-notifications
 
 It sends nothing twice and exits with 1 when a delivery failed. `Notifications__Enabled=false` turns
 both background services off (the command still works); test hosts do so and call the runs directly.
+
+### Audit retention
+
+The API keeps audit entries for a limited time (`add-audit-privacy`, SEC-05): access and security
+events (sign-ins, failed sign-ins, lockouts, recovery-code use, password reset requests, lender and
+personal-data lookups) for `Audit__SecurityRetentionDays` (365), everything else for
+`Audit__RetentionYears` (5). A background purge runs a minute after start-up and then daily, deletes
+in batches and records one `AuditEntriesPurged` entry with the counts. `purge-audit` runs it at once;
+`Audit__PurgeEnabled=false` turns the background purge off (test hosts do so).
+
+A database trigger refuses every `UPDATE`, `DELETE` and `TRUNCATE` on `audit.audit_entries`, also with
+`session_replication_role = replica`. Only the audit module's `AuditMaintenance` may change entries:
+deletes inside a transaction marked for the purge, and changes of `data` alone inside one marked for a
+GDPR redaction. So do not try to "clean up" audit rows by hand in a local database — drop the database
+or re-create the compose volume instead.
 
 ### API contract
 
@@ -360,7 +377,7 @@ Playwright runs against the compose stack with the synthetic users seeded. The s
 times from one address, so raise the per-address sign-in limits for the run (CI does the same):
 
 ```bash
-RATE_LIMIT_AUTH_PER_MINUTE=300 RATE_LIMIT_AUTH_EMAIL_PER_15_MINUTES=100 RATE_LIMIT_PERSONAL_DATA_WRITES_PER_MINUTE=600 RATE_LIMIT_IMAGE_UPLOADS_PER_MINUTE=200 RATE_LIMIT_SPREADSHEET_IMPORTS_PER_MINUTE=100 RATE_LIMIT_EXPORTS_PER_MINUTE=300 NOTIFICATIONS_DISPATCH_INTERVAL_SECONDS=2 docker compose up -d --build --wait
+RATE_LIMIT_AUTH_PER_MINUTE=300 RATE_LIMIT_AUTH_EMAIL_PER_15_MINUTES=100 RATE_LIMIT_PERSONAL_DATA_WRITES_PER_MINUTE=600 RATE_LIMIT_IMAGE_UPLOADS_PER_MINUTE=200 RATE_LIMIT_SPREADSHEET_IMPORTS_PER_MINUTE=100 RATE_LIMIT_EXPORTS_PER_MINUTE=300 RATE_LIMIT_PRIVACY_PER_MINUTE=100 NOTIFICATIONS_DISPATCH_INTERVAL_SECONDS=2 docker compose up -d --build --wait
 docker compose run --rm api-seed
 cd frontend && npx playwright install --with-deps chromium firefox webkit   # once
 npm run e2e

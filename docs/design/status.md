@@ -68,6 +68,7 @@ neutral pill with the raw code and a development-only console warning.
 | `INVITED` | info | Send | Invitado | Convidat | Invited |
 | `ACTIVE` | success | CircleCheck | Activo | Actiu | Active |
 | `DEACTIVATED` | muted | CircleX | Desactivado | Desactivat | Deactivated |
+| `ERASED` | muted | Eraser | Borrado | Esborrat | Erased |
 
 ## `catalog`
 

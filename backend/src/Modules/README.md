@@ -237,3 +237,29 @@ reference fails even before any of its types is used.
 - **Recipients** come from read contracts: `IUserDirectory.ListAsync(role)` (with each user's status
   and locale) and `ICatalogDirectory.ListFiringChiefAssignmentsAsync()` (assignments to active
   comparsas). Like every read contract they apply no scope; the notifications module applies BR-12.
+
+## Conventions shared by modules (from `add-audit-privacy`)
+
+- **Audit action catalogue**: every action code a module records is a constant in its
+  `<Module>AuditActions` class and is declared there with its entity type and retention class
+  (`AuditActionDefinition`), registered with `services.AddAuditActions(<Module>AuditActions.All)`.
+  `AuditTrail` refuses to record an undeclared code, or a code under another entity type, so a new
+  action fails its module's tests until it is declared. Access and security events (sign-ins,
+  lookups) use `AuditRetentionClass.Security` (kept 1 year); everything else is `Standard` (5 years).
+  Every code also needs an `audit:actions.<Code>` label in the three locales (a frontend test checks it).
+- **Record links in the audit log**: a module whose records have a page registers
+  `services.AddAuditRecordResolver<TContext, TEntity>(EntityType)` for entities keyed by a GUID `Id`,
+  so the audit log links an entry to its record only while it exists.
+- **Audit entries are never changed**: a database trigger refuses `UPDATE`, `DELETE` and `TRUNCATE`.
+  Only `AuditPrivacy`'s `AuditMaintenance` deletes expired entries or redacts personal values, and an
+  architecture test forbids naming the guard or writing to the table anywhere else.
+- **Personal data participants** (GDPR requests, UC-26): a module that stores a person's data, or
+  links to a person, implements `AuditPrivacy.Contracts.IPersonalDataParticipant` and registers it as
+  a scoped service. It describes, exports (only the subject's own data; another person appears by
+  role) and erases its part. The erasure runs on the request's transaction in two steps, in the order
+  of `PersonalDataParticipantOrder`: `PrepareErasureAsync` locks and notes in `PersonalDataErasure`
+  what later participants need, then `EraseAsync` deletes or anonymises and adds its counts. A
+  participant enlists its context with `db.EnlistAsync(transaction)` (SharedKernel) or runs SQL on the
+  transaction's connection, never commits, and refuses a blocking rule with
+  `PersonalDataErasureRefusedException`. `PersonalDataCoverageTests` fails when a module with a column
+  such as `national_id`, `first_name`, `email` or `user_id` registers no participant.

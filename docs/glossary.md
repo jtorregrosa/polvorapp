@@ -30,12 +30,18 @@ equivalent are kept as-is (e.g. `Comparsa`).
 | Spanish | Code term | Definition |
 |---|---|---|
 | Usuario | `User` | Someone who signs in to PolvorApp: an `Admin` or a `FiringChief`. Accounts exist only by invitation. |
-| Invitado / Activo / Desactivado | `UserStatus` (`INVITED`, `ACTIVE`, `DEACTIVATED`) | Derived, never stored: `INVITED` until the invitation is accepted (no password yet), `ACTIVE` afterwards, `DEACTIVATED` when an Admin blocks the account (sessions end, data kept). |
+| Invitado / Activo / Desactivado / Borrado | `UserStatus` (`INVITED`, `ACTIVE`, `DEACTIVATED`, `ERASED`) | Derived, never stored: `INVITED` until the invitation is accepted (no password yet), `ACTIVE` afterwards, `DEACTIVATED` when an Admin blocks the account (sessions end, data kept), `ERASED` once the user's data was erased on a GDPR request (shown as "Erased user"; final). |
 | Invitación | `Invitation` | Emailed single-use link (valid 7 days) with which an invited user sets a password and enrols an authenticator. Resending replaces the previous link. |
 | Verificación en dos pasos | `TwoFactor` | Mandatory 6-digit code from an authenticator app (TOTP) after the password (ADR-0004). |
 | Código de recuperación | `RecoveryCode` | One of 10 single-use codes shown once at enrolment, used to sign in without the phone. |
 | Dispositivo recordado | `RememberedDevice` | Browser the user chose to trust for 30 days: the code is not asked there. Forgotten on password change, 2FA reset, deactivation and "sign out everywhere". |
 | Registro de auditoría | `AuditEntry` | Append-only record of a write, export or security event: who (`actorUserId`), what (`action`, `entityType`, `entityId`), when, comparsa and trace id. Never contains secrets. |
+| Solicitud RGPD | `PersonalDataRequests`; audit entity type `PersonalDataRequest` | A written request from a person to see (export) or erase the data PolvorApp holds about them (GDPR, UC-26). An Admin handles it; it is audited with its reference and counts, never the person's name or DNI/NIE. |
+| Referencia de la solicitud | `reference` | 1–50 characters that identify the written request (e.g. its registry number), typed by the Admin; it must not contain an email or a DNI/NIE. |
+| Exportación de datos personales | `PersonalDataPackage` (built from each module's `PersonalDataExportPart`) | A ZIP with a spreadsheet of everything held about a person or user, and their photos; built on request and never stored. |
+| Supresión de datos / borrado | `PersonalDataErasure` | Erasing a person's or user's data on a GDPR request: the registry record is deleted, past entries and loans anonymised, proxies removed and audit data redacted. Never blocked, only warned about; cannot be undone. |
+| Persona borrada | erased entry (`EditionEntry.erasedAt`, `WeaponLoan.erasedAt`) | An entry or loan anonymised by an erasure of an arquebusier or an external owner: shown as "Erased person", no name or identifiers, read-only, still counted in totals and billing. |
+| Usuario borrado | erased user (`User.erasedAt`, status `ERASED`) | A user whose data was erased: the row stays so audit entries keep pointing to it, shown as "Erased user" with no name or email; it can never be changed or reactivated. |
 
 ## Licensing and compliance
 
