@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="DateFormat" xml:space="preserve">
+    <value>d MMMM yyyy</value>
+  </data>
+  <data name="MonthFormat" xml:space="preserve">
+    <value>MMMM yyyy</value>
+  </data>
+  <data name="Greeting" xml:space="preserve">
+    <value>Hello {0},</value>
+  </data>
+  <data name="Footer.LICENSE_DIGEST" xml:space="preserve">
+    <value>You receive this email because the monthly license digest is on for you. You can change it at:</value>
+  </data>
+  <data name="Footer.ORDER_WINDOW" xml:space="preserve">
+    <value>You receive this email because order window emails are on for you. You can change it at:</value>
+  </data>
+  <data name="Footer.ORDER_STATUS" xml:space="preserve">
+    <value>You receive this email because order status emails are on for you. You can change it at:</value>
+  </data>
+  <data name="Footer.MILESTONE_REMINDER" xml:space="preserve">
+    <value>You receive this email because calendar reminders are on for you. You can change it at:</value>
+  </data>
+  <data name="OrderState.NOT_PREPARED" xml:space="preserve">
+    <value>is not prepared yet</value>
+  </data>
+  <data name="OrderState.DRAFT" xml:space="preserve">
+    <value>is a draft</value>
+  </data>
+  <data name="OrderState.RETURNED" xml:space="preserve">
+    <value>was returned and needs corrections</value>
+  </data>
+  <data name="When.Tomorrow" xml:space="preserve">
+    <value>tomorrow</value>
+  </data>
+  <data name="When.Today" xml:space="preserve">
+    <value>today</value>
+  </data>
+  <data name="OrdersOpened.Subject" xml:space="preserve">
+    <value>Orders open: Fiestas {0}</value>
+  </data>
+  <data name="OrdersOpened.Text" xml:space="preserve">
+    <value>The Federation has opened the orders of Fiestas {0}. They are planned to close on {1}.
+
+Prepare or check your comparsa's order in PolvorApp:
+{2}</value>
+  </data>
+  <data name="OrdersClosed.Subject" xml:space="preserve">
+    <value>Orders closed: Fiestas {0}</value>
+  </data>
+  <data name="OrdersClosed.Text" xml:space="preserve">
+    <value>The Federation has closed the orders of Fiestas {0}. Firing chiefs can no longer edit them.
+
+You can still read them in PolvorApp:
+{1}</value>
+  </data>
+  <data name="OrdersClosingSoon.Subject" xml:space="preserve">
+    <value>Reminder: the orders of Fiestas {1} close on {2}</value>
+  </data>
+  <data name="OrdersClosingSoon.Text" xml:space="preserve">
+    <value>The orders of Fiestas {1} close on {2}, and the order of {0} {3}.
+
+Check it and submit it in PolvorApp:
+{4}</value>
+  </data>
+  <data name="OrdersClosingTomorrow.Subject" xml:space="preserve">
+    <value>Last reminder: the orders of Fiestas {1} close {5}</value>
+  </data>
+  <data name="OrdersClosingTomorrow.Text" xml:space="preserve">
+    <value>The orders of Fiestas {1} close {5}, {2}, and the order of {0} {3}.
+
+Submit it as soon as you can in PolvorApp:
+{4}</value>
+  </data>
+  <data name="OrderSubmitted.Subject" xml:space="preserve">
+    <value>Order submitted: {0}, Fiestas {1}</value>
+  </data>
+  <data name="OrderSubmitted.Text" xml:space="preserve">
+    <value>{0} has submitted its order for Fiestas {1}.
+
+You can review it in PolvorApp:
+{2}</value>
+  </data>
+  <data name="OrderReturned.Subject" xml:space="preserve">
+    <value>Order returned: {0}, Fiestas {1}</value>
+  </data>
+  <data name="OrderReturned.Text" xml:space="preserve">
+    <value>The Federation has returned the order of {0} for Fiestas {1}.
+
+Read the reason and correct the order in PolvorApp:
+{2}</value>
+  </data>
+  <data name="OrderValidated.Subject" xml:space="preserve">
+    <value>Order validated: {0}, Fiestas {1}</value>
+  </data>
+  <data name="OrderValidated.Text" xml:space="preserve">
+    <value>The Federation has validated the order of {0} for Fiestas {1}.
+
+You can read it in PolvorApp:
+{2}</value>
+  </data>
+  <data name="MilestoneReminder.Subject" xml:space="preserve">
+    <value>Reminder: {0}, on {1}</value>
+  </data>
+  <data name="MilestoneReminder.Text" xml:space="preserve">
+    <value>A reminder from the calendar of Fiestas {2}: "{0}" is on {1}.
+
+See the edition in PolvorApp:
+{3}</value>
+  </data>
+  <data name="LicenseDigest.Subject" xml:space="preserve">
+    <value>License digest for {0}</value>
+  </data>
+  <data name="LicenseDigest.Text" xml:space="preserve">
+    <value>This is the monthly digest of the licenses of your comparsas' active arquebusiers.
+
+{1}
+
+See the warnings in PolvorApp:
+{2}</value>
+  </data>
+  <data name="LicenseDigest.Missing" xml:space="preserve">
+    <value>- No license: {0}</value>
+  </data>
+  <data name="LicenseDigest.Pending" xml:space="preserve">
+    <value>- License pending: {0}</value>
+  </data>
+  <data name="LicenseDigest.Expired" xml:space="preserve">
+    <value>- License expired: {0}</value>
+  </data>
+  <data name="LicenseDigest.ExpiringSoon" xml:space="preserve">
+    <value>- Expires within 90 days: {0}</value>
+  </data>
+</root>

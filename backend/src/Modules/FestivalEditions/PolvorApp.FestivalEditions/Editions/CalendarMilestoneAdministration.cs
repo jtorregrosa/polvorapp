@@ -4,8 +4,12 @@ using PolvorApp.SharedKernel.Auditing;
 
 namespace PolvorApp.FestivalEditions.Editions;
 
-/// <summary>A validated milestone: its date and its trimmed, single-line title.</summary>
-internal sealed record CalendarMilestoneInput(DateOnly Date, string Title);
+/// <summary>
+/// A validated milestone: its date, its trimmed, single-line title and whether it is reminded by email.
+/// A null <see cref="Notify"/> means "not given": off for a new milestone, unchanged for an edit
+/// (add-notifications, design D10).
+/// </summary>
+internal sealed record CalendarMilestoneInput(DateOnly Date, string Title, bool? Notify);
 
 /// <summary>
 /// Calendar milestones of an edition (spec: Calendar milestones), managed by Admins in any status.
@@ -30,9 +34,17 @@ internal sealed class CalendarMilestoneAdministration(FestivalEditionsDbContext 
             }
 
             var now = time.GetUtcNow();
-            var milestone = new CalendarMilestone { Id = Guid.CreateVersion7(now), EditionId = editionId, Date = input.Date, Title = input.Title, CreatedAt = now };
+            var milestone = new CalendarMilestone
+            {
+                Id = Guid.CreateVersion7(now),
+                EditionId = editionId,
+                Date = input.Date,
+                Title = input.Title,
+                Notify = input.Notify ?? false,
+                CreatedAt = now,
+            };
             db.Milestones.Add(milestone);
-            Record("CalendarMilestoneAdded", milestone, new { editionId, input.Date, input.Title });
+            Record("CalendarMilestoneAdded", milestone, new { editionId, milestone.Date, milestone.Title, milestone.Notify });
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return EditionWrite.Done(milestone);
@@ -50,14 +62,16 @@ internal sealed class CalendarMilestoneAdministration(FestivalEditionsDbContext 
                     : EditionWrite.Failed(EditionOutcome.NotFound);
             }
 
-            var previous = new CalendarMilestoneInput(milestone.Date, milestone.Title);
-            if (previous == input)
+            var notify = input.Notify ?? milestone.Notify;
+            var previous = new CalendarMilestoneInput(milestone.Date, milestone.Title, milestone.Notify);
+            var current = input with { Notify = notify };
+            if (previous == current)
             {
                 return EditionWrite.Done(milestone);
             }
 
-            (milestone.Date, milestone.Title) = (input.Date, input.Title);
-            Record("CalendarMilestoneUpdated", milestone, new { editionId, previous, current = input });
+            (milestone.Date, milestone.Title, milestone.Notify) = (current.Date, current.Title, notify);
+            Record("CalendarMilestoneUpdated", milestone, new { editionId, previous, current });
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return EditionWrite.Done(milestone);
@@ -75,7 +89,7 @@ internal sealed class CalendarMilestoneAdministration(FestivalEditionsDbContext 
             }
 
             db.Milestones.Remove(milestone);
-            Record("CalendarMilestoneRemoved", milestone, new { editionId, milestone.Date, milestone.Title });
+            Record("CalendarMilestoneRemoved", milestone, new { editionId, milestone.Date, milestone.Title, milestone.Notify });
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return EditionWrite.Done(milestone);

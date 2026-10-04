@@ -32,6 +32,10 @@
     <Project Path="src/Modules/Distribution/PolvorApp.Distribution.Contracts/PolvorApp.Distribution.Contracts.csproj" />
     <Project Path="src/Modules/Distribution/PolvorApp.Distribution/PolvorApp.Distribution.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/Notifications/">
+    <Project Path="src/Modules/Notifications/PolvorApp.Notifications.Contracts/PolvorApp.Notifications.Contracts.csproj" />
+    <Project Path="src/Modules/Notifications/PolvorApp.Notifications/PolvorApp.Notifications.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/Exports/">
     <Project Path="src/Modules/Exports/PolvorApp.Exports.Contracts/PolvorApp.Exports.Contracts.csproj" />
     <Project Path="src/Modules/Exports/PolvorApp.Exports/PolvorApp.Exports.csproj" />

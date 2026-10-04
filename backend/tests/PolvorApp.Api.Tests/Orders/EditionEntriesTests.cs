@@ -72,6 +72,17 @@ public sealed class EditionEntriesTests(PostgresFixture postgres, MailpitFixture
     }
 
     [Fact]
+    public async Task The_orders_of_an_edition_are_listed_with_their_comparsa_and_status()
+    {
+        var own = NewOrder(_orders.Current, _orders.Own.Id, OrderStatus.Submitted);
+        await _orders.Services.SaveOrdersAsync(own, NewOrder(_orders.Previous, _orders.Inactive.Id, OrderStatus.Validated));
+
+        var orders = await EntriesAsync(e => e.ListOrdersAsync(_orders.Current.Id, TestContext.Current.CancellationToken));
+
+        Assert.Equal([new OrderSummary(own.Id, _orders.Own.Id, OrderStatus.Submitted)], orders);
+    }
+
+    [Fact]
     public async Task No_ids_find_nothing() =>
         Assert.Empty(await EntriesAsync(e => e.FindManyAsync([], TestContext.Current.CancellationToken)));
 

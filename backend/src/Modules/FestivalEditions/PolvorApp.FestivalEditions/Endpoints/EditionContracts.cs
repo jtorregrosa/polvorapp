@@ -50,7 +50,11 @@ internal sealed record EditionWeaponModelsRequest(IReadOnlyList<Guid>? WeaponMod
 /// <summary>Add or edit a calendar milestone (spec: Calendar milestones).</summary>
 /// <param name="Date">Its date, <c>yyyy-MM-dd</c>.</param>
 /// <param name="Title">1 to 100 characters after trimming, on one line.</param>
-internal sealed record CalendarMilestoneRequest(string? Date, string? Title);
+/// <param name="Notify">
+/// Whether the milestone is reminded by email (add-notifications). Absent: off for a new milestone,
+/// unchanged for an edit.
+/// </param>
+internal sealed record CalendarMilestoneRequest(string? Date, string? Title, bool? Notify = null);
 
 /// <summary>An edition in the list.</summary>
 /// <param name="Id">Edition identifier.</param>
@@ -81,7 +85,8 @@ internal sealed record EditionWeaponModelResponse(Guid Id, string Label, WeaponK
 /// <param name="Id">Milestone identifier.</param>
 /// <param name="Date">Its date.</param>
 /// <param name="Title">Its title.</param>
-internal sealed record CalendarMilestoneResponse(Guid Id, DateOnly Date, string Title);
+/// <param name="Notify">Whether it is reminded by email (add-notifications).</param>
+internal sealed record CalendarMilestoneResponse(Guid Id, DateOnly Date, string Title, bool Notify);
 
 /// <summary>Which order window date comes next.</summary>
 [JsonConverter(typeof(CodeEnumConverter<EditionWindowKind>))]

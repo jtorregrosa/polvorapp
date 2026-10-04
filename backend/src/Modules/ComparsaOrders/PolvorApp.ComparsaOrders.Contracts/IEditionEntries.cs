@@ -22,7 +22,19 @@ public interface IEditionEntries
 
     /// <summary>The status of each comparsa's order in the edition, by comparsa; a comparsa without an order is absent (not prepared).</summary>
     Task<IReadOnlyDictionary<Guid, OrderStatus>> ListOrderStatusesAsync(Guid editionId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Each prepared order of the edition with its comparsa and status, in no particular order; a comparsa
+    /// without an order is absent (not prepared). For links and reminders (add-notifications, design D9).
+    /// </summary>
+    Task<IReadOnlyList<OrderSummary>> ListOrdersAsync(Guid editionId, CancellationToken cancellationToken);
 }
+
+/// <summary>A comparsa's order in an edition, without its entries.</summary>
+/// <param name="OrderId">Order identifier.</param>
+/// <param name="ComparsaId">Its comparsa.</param>
+/// <param name="Status">Its status.</param>
+public sealed record OrderSummary(Guid OrderId, Guid ComparsaId, OrderStatus Status);
 
 /// <summary>An entry with its order and what it collects on distribution day.</summary>
 /// <param name="EntryId">Entry identifier.</param>

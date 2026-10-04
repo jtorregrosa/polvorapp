@@ -1,6 +1,4 @@
 using System.Globalization;
-using System.Text;
-using System.Text.Encodings.Web;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using PolvorApp.IdentityAccess.Security;
@@ -41,7 +39,7 @@ internal sealed class IdentityEmails(IStringLocalizer<EmailTexts> texts, IOption
         var email = user.Email ?? throw new InvalidOperationException("The user has no email address.");
         var link = urls.Value.Link(path, new Dictionary<string, string> { ["user"] = user.Id.ToString(), ["token"] = token });
         var (subject, text) = Render(user, template, link, validity);
-        return new EmailMessage(email, user.Name, subject, text, ToHtml(text, link), template);
+        return new EmailMessage(email, user.Name, subject, text, PlainTextHtml.Render(text, [link]), template);
     }
 
     private (string Subject, string Text) Render(User user, string template, Uri link, int validity)
@@ -61,20 +59,4 @@ internal sealed class IdentityEmails(IStringLocalizer<EmailTexts> texts, IOption
     /// <summary>A missing text would otherwise be sent as its key.</summary>
     private static string Text(LocalizedString text) =>
         text.ResourceNotFound ? throw new InvalidOperationException($"The email text {text.Name} is missing.") : text.Value;
-
-    /// <summary>One paragraph per blank-line block; the link line becomes an anchor.</summary>
-    private static string ToHtml(string text, Uri link)
-    {
-        var html = new StringBuilder("<!doctype html><html><body>");
-        foreach (var paragraph in text.Split("\n\n"))
-        {
-            html.Append("<p>");
-            var lines = paragraph.Split('\n').Select(line => line == link.AbsoluteUri
-                ? $"<a href=\"{HtmlEncoder.Default.Encode(link.AbsoluteUri)}\">{HtmlEncoder.Default.Encode(link.AbsoluteUri)}</a>"
-                : HtmlEncoder.Default.Encode(line));
-            html.Append(string.Join("<br>", lines)).Append("</p>");
-        }
-
-        return html.Append("</body></html>").ToString();
-    }
 }

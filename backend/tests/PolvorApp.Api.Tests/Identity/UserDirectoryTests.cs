@@ -6,7 +6,7 @@ namespace PolvorApp.Api.Tests.Identity;
 
 /// <summary>
 /// The read contract other modules use to look up users (change add-federation-catalog, design D2):
-/// name, email, role and derived status, never credentials.
+/// name, email, role, derived status and locale, never credentials.
 /// </summary>
 public sealed class UserDirectoryTests(PostgresFixture postgres, MailpitFixture mailpit)
 {
@@ -38,7 +38,7 @@ public sealed class UserDirectoryTests(PostgresFixture postgres, MailpitFixture 
 
         Assert.Equal(4, found.Count);
         var byId = found.ToDictionary(u => u.Id);
-        Assert.Equal(new UserSummary(active.Id, "Persona Sintética directorio.activo", active.Email, UserRole.FiringChief, UserStatus.Active), byId[active.Id]);
+        Assert.Equal(new UserSummary(active.Id, "Persona Sintética directorio.activo", active.Email, UserRole.FiringChief, UserStatus.Active, "es-ES"), byId[active.Id]);
         Assert.Equal(UserStatus.Invited, byId[invited.Id].Status);
         Assert.Equal(UserStatus.Deactivated, byId[deactivated.Id].Status);
         Assert.Equal(UserRole.Admin, byId[admin.Id].Role);
@@ -85,10 +85,32 @@ public sealed class UserDirectoryTests(PostgresFixture postgres, MailpitFixture 
     }
 
     [Fact]
+    public async Task Listing_by_role_returns_every_user_of_that_role_with_status_and_locale()
+    {
+        await using var host = await IdentityTestHost.StartAsync(postgres, mailpit);
+        var active = await host.CreateUserAsync("directorio.rol.activo@example.test", locale: "ca-ES-valencia");
+        var invited = await host.CreateUserAsync("directorio.rol.invitado@example.test", withPassword: false, enrolled: false);
+        var deactivated = await host.CreateUserAsync("directorio.rol.baja@example.test", active: false, locale: "en");
+        var admin = await host.CreateUserAsync("directorio.rol.admin@example.test", UserRole.Admin);
+        await using var scope = host.Services.CreateAsyncScope();
+        var directory = scope.ServiceProvider.GetRequiredService<IUserDirectory>();
+
+        var chiefs = await directory.ListAsync(UserRole.FiringChief, TestContext.Current.CancellationToken);
+        var admins = await directory.ListAsync(UserRole.Admin, TestContext.Current.CancellationToken);
+
+        var byId = chiefs.ToDictionary(u => u.Id);
+        Assert.Equal(new[] { active.Id, invited.Id, deactivated.Id }.Order(), byId.Keys.Order());
+        Assert.Equal(("ca-ES-valencia", UserStatus.Active), (byId[active.Id].Locale, byId[active.Id].Status));
+        Assert.Equal(UserStatus.Invited, byId[invited.Id].Status);
+        Assert.Equal(("en", UserStatus.Deactivated), (byId[deactivated.Id].Locale, byId[deactivated.Id].Status));
+        Assert.Equal(admin.Id, Assert.Single(admins).Id);
+    }
+
+    [Fact]
     public void The_summary_exposes_no_credentials_or_security_data()
     {
         Assert.Equal(
-            ["Email", "Id", "Name", "Role", "Status"],
+            ["Email", "Id", "Locale", "Name", "Role", "Status"],
             typeof(UserSummary).GetProperties().Select(p => p.Name).Order(StringComparer.Ordinal));
     }
 }

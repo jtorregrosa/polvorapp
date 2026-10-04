@@ -39,7 +39,7 @@ internal sealed class EditionDirectory(FestivalEditionsDbContext db, ICatalogDir
         command.Transaction = transaction;
         command.CommandText =
             "SELECT year, status, orders_open, festival_starts_on, festival_ends_on,"
-            + " powder_per_kg, caps_box, weapon_rental, flask_rental"
+            + " powder_per_kg, caps_box, weapon_rental, flask_rental, orders_close_on"
             + " FROM editions.festival_editions WHERE id = $1 FOR SHARE";
         var parameter = command.CreateParameter();
         parameter.Value = editionId;
@@ -61,7 +61,8 @@ internal sealed class EditionDirectory(FestivalEditionsDbContext db, ICatalogDir
                 reader.GetFieldValue<DateOnly>(3),
                 reader.GetFieldValue<DateOnly>(4),
                 new EditionPrices(
-                    Price(reader, "powder_per_kg"), Price(reader, "caps_box"), Price(reader, "weapon_rental"), Price(reader, "flask_rental")));
+                    Price(reader, "powder_per_kg"), Price(reader, "caps_box"), Price(reader, "weapon_rental"), Price(reader, "flask_rental")),
+                Date(reader, "orders_close_on"));
         }
 
         return await SnapshotAsync(row, cancellationToken);
@@ -88,8 +89,16 @@ internal sealed class EditionDirectory(FestivalEditionsDbContext db, ICatalogDir
             edition.FestivalStartsOn,
             edition.FestivalEndsOn,
             models.Where(m => m.Active && m.Rentable).Select(m => m.Id).Order().ToList(),
-            edition.Prices);
+            edition.Prices,
+            edition.OrdersCloseOn);
     }
+
+    public async Task<IReadOnlyList<MilestoneFacts>> ListMilestonesToNotifyAsync(DateOnly firstDate, DateOnly lastDate, CancellationToken cancellationToken) =>
+        await db.Milestones.AsNoTracking()
+            .Where(m => m.Notify && m.Date >= firstDate && m.Date <= lastDate)
+            .Join(db.Editions.Where(e => e.Status != EditionStatus.Closed), m => m.EditionId, e => e.Id, (m, e) => new { m, e.Year, e.Status })
+            .Select(x => new MilestoneFacts(x.m.Id, x.m.EditionId, x.Year, x.Status, x.m.Date, x.m.Title))
+            .ToListAsync(cancellationToken);
 
     /// <summary>A price column by name, so a reordered SELECT list cannot swap two prices; null when not set.</summary>
     private static decimal? Price(DbDataReader reader, string column)
@@ -98,11 +107,18 @@ internal sealed class EditionDirectory(FestivalEditionsDbContext db, ICatalogDir
         return reader.IsDBNull(ordinal) ? null : reader.GetDecimal(ordinal);
     }
 
+    /// <summary>A nullable date column by name; null when not set.</summary>
+    private static DateOnly? Date(DbDataReader reader, string column)
+    {
+        var ordinal = reader.GetOrdinal(column);
+        return reader.IsDBNull(ordinal) ? null : reader.GetFieldValue<DateOnly>(ordinal);
+    }
+
     /// <summary>The columns a snapshot needs, from the entity or from the locking read.</summary>
     private sealed record EditionRow(
-        Guid Id, int Year, EditionStatus Status, bool OrdersOpen, DateOnly FestivalStartsOn, DateOnly FestivalEndsOn, EditionPrices Prices)
+        Guid Id, int Year, EditionStatus Status, bool OrdersOpen, DateOnly FestivalStartsOn, DateOnly FestivalEndsOn, EditionPrices Prices, DateOnly? OrdersCloseOn)
     {
         public static EditionRow Of(FestivalEdition edition) =>
-            new(edition.Id, edition.Year, edition.Status, edition.OrdersOpen, edition.FestivalStartsOn, edition.FestivalEndsOn, edition.GetPrices());
+            new(edition.Id, edition.Year, edition.Status, edition.OrdersOpen, edition.FestivalStartsOn, edition.FestivalEndsOn, edition.GetPrices(), edition.OrdersCloseOn);
     }
 }

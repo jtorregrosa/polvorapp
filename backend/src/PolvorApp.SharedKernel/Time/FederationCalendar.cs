@@ -13,10 +13,12 @@ public static class FederationCalendar
     private static readonly TimeZoneInfo Zone = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneId);
 
     /// <summary>Today's date in Europe/Madrid.</summary>
-    public static DateOnly Today(TimeProvider time)
+    public static DateOnly Today(TimeProvider time) => DateOnly.FromDateTime(Now(time).DateTime);
+
+    /// <summary>The current time in Europe/Madrid, e.g. to send scheduled emails at a local hour (add-notifications).</summary>
+    public static DateTimeOffset Now(TimeProvider time)
     {
         ArgumentNullException.ThrowIfNull(time);
-        var local = TimeZoneInfo.ConvertTime(time.GetUtcNow(), Zone);
-        return DateOnly.FromDateTime(local.DateTime);
+        return TimeZoneInfo.ConvertTime(time.GetUtcNow(), Zone);
     }
 }

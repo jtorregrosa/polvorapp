@@ -5718,6 +5718,16 @@
               }
             }
           },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "400": {
             "description": "Bad Request",
             "content": {
@@ -8416,6 +8426,117 @@
           }
         ]
       }
+    },
+    "/api/account/notification-preferences": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "The signed-in user's notification kinds and whether each is on.",
+        "operationId": "GetNotificationPreferences",
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationPreferencesResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Turns the signed-in user's notification kinds on or off; kinds left out keep their value.",
+        "operationId": "SaveNotificationPreferences",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationPreferencesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationPreferencesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -9026,6 +9147,12 @@
               "null",
               "string"
             ]
+          },
+          "notify": {
+            "type": [
+              "null",
+              "boolean"
+            ]
           }
         }
       },
@@ -9033,7 +9160,8 @@
         "required": [
           "id",
           "date",
-          "title"
+          "title",
+          "notify"
         ],
         "type": "object",
         "properties": {
@@ -9047,6 +9175,9 @@
           },
           "title": {
             "type": "string"
+          },
+          "notify": {
+            "type": "boolean"
           }
         }
       },
@@ -10909,6 +11040,81 @@
           }
         }
       },
+      "NotificationKind": {
+        "enum": [
+          "LICENSE_DIGEST",
+          "ORDER_WINDOW",
+          "ORDER_STATUS",
+          "MILESTONE_REMINDER"
+        ]
+      },
+      "NotificationPreferenceRequest": {
+        "required": [
+          "kind",
+          "enabled"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "enabled": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          }
+        }
+      },
+      "NotificationPreferenceResponse": {
+        "required": [
+          "kind",
+          "enabled"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/NotificationKind"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NotificationPreferencesRequest": {
+        "required": [
+          "kinds"
+        ],
+        "type": "object",
+        "properties": {
+          "kinds": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/NotificationPreferenceRequest"
+            }
+          }
+        }
+      },
+      "NotificationPreferencesResponse": {
+        "required": [
+          "kinds"
+        ],
+        "type": "object",
+        "properties": {
+          "kinds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationPreferenceResponse"
+            }
+          }
+        }
+      },
       "NotInOrderResponse": {
         "required": [
           "arquebusierId",
@@ -12714,6 +12920,9 @@
     },
     {
       "name": "Distribution"
+    },
+    {
+      "name": "Notifications"
     }
   ]
 }

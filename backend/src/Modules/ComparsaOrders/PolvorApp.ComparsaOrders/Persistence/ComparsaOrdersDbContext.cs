@@ -5,6 +5,7 @@ using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.ComparsaOrders.Entries;
 using PolvorApp.ComparsaOrders.Loans;
 using PolvorApp.ComparsaOrders.Orders;
+using PolvorApp.Notifications.Contracts;
 using PolvorApp.SharedKernel.Auditing;
 using PolvorApp.SharedKernel.Codes;
 using PolvorApp.SharedKernel.Persistence;
@@ -82,6 +83,9 @@ internal sealed class ComparsaOrdersDbContext(DbContextOptions<ComparsaOrdersDbC
     {
         modelBuilder.HasDefaultSchema(Schema);
         modelBuilder.AddAuditTrail();
+
+        // Events that cause notifications commit with the change (add-notifications, design D2).
+        modelBuilder.AddNotificationOutbox();
         MapOrders(modelBuilder);
         MapEntries(modelBuilder);
         MapLoans(modelBuilder);

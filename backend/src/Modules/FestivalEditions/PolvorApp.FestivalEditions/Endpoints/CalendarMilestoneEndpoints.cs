@@ -64,7 +64,7 @@ internal static class CalendarMilestoneEndpoints
         return result.Outcome == EditionOutcome.Done ? TypedResults.NoContent() : EditionProblems.From(result);
     }
 
-    private static CalendarMilestoneResponse Response(CalendarMilestone milestone) => new(milestone.Id, milestone.Date, milestone.Title);
+    private static CalendarMilestoneResponse Response(CalendarMilestone milestone) => new(milestone.Id, milestone.Date, milestone.Title, milestone.Notify);
 
     private static bool TryRead(
         CalendarMilestoneRequest request, [NotNullWhen(true)] out CalendarMilestoneInput? input, [NotNullWhen(false)] out ProblemHttpResult? invalid)
@@ -74,7 +74,7 @@ internal static class CalendarMilestoneEndpoints
         var title = InputFields.Text(request.Title, "title", CalendarMilestone.TitleMaxLength, errors);
         if (date is { } validDate && title is not null && errors.Count == 0)
         {
-            (input, invalid) = (new CalendarMilestoneInput(validDate, title), null);
+            (input, invalid) = (new CalendarMilestoneInput(validDate, title, request.Notify), null);
             return true;
         }
 

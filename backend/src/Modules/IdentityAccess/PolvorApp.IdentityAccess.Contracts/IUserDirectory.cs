@@ -6,7 +6,8 @@ namespace PolvorApp.IdentityAccess.Contracts;
 /// <param name="Email">Sign-in email.</param>
 /// <param name="Role">Role.</param>
 /// <param name="Status">Derived status.</param>
-public sealed record UserSummary(Guid Id, string Name, string Email, UserRole Role, UserStatus Status);
+/// <param name="Locale">Preferred language (<c>es-ES</c>, <c>ca-ES-valencia</c> or <c>en</c>), used for emails.</param>
+public sealed record UserSummary(Guid Id, string Name, string Email, UserRole Role, UserStatus Status, string Locale);
 
 /// <summary>
 /// Read-only lookup of users for other modules, e.g. to validate and show FiringChief
@@ -24,4 +25,10 @@ public interface IUserDirectory
     /// unknown ids are skipped.
     /// </summary>
     Task<IReadOnlyList<UserSummary>> FindManyAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Every user with <paramref name="role"/>, in any status and in no particular order, e.g. the
+    /// recipients of a notification (change add-notifications, design D6). Callers filter by status.
+    /// </summary>
+    Task<IReadOnlyList<UserSummary>> ListAsync(UserRole role, CancellationToken cancellationToken);
 }

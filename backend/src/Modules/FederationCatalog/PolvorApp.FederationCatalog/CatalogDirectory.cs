@@ -34,6 +34,12 @@ internal sealed class CatalogDirectory(FederationCatalogDbContext db, LogoReader
             .Select(c => new ComparsaSummary(c.Id, c.Name, c.Side, c.Active))
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<FiringChiefAssignmentSummary>> ListFiringChiefAssignmentsAsync(CancellationToken cancellationToken) =>
+        await db.Assignments.AsNoTracking()
+            .Where(a => db.Comparsas.Any(c => c.Id == a.ComparsaId && c.Active))
+            .Select(a => new FiringChiefAssignmentSummary(a.UserId, a.ComparsaId))
+            .ToListAsync(cancellationToken);
+
     public Task<WeaponModelSummary?> FindWeaponModelAsync(Guid weaponModelId, CancellationToken cancellationToken) =>
         db.WeaponModels.AsNoTracking()
             .Where(m => m.Id == weaponModelId)

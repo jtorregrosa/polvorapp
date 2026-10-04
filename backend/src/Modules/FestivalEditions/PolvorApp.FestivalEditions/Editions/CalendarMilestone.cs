@@ -16,5 +16,8 @@ internal sealed class CalendarMilestone
 
     public required string Title { get; set; }
 
+    /// <summary>Whether the milestone is reminded by email (add-notifications, spec: Milestone reminders).</summary>
+    public bool Notify { get; set; }
+
     public required DateTimeOffset CreatedAt { get; init; }
 }

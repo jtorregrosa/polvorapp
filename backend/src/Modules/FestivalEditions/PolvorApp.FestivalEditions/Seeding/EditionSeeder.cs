@@ -52,7 +52,15 @@ internal sealed partial class EditionSeeder(
 
     public static IReadOnlyList<Guid> EditionIds { get; } = [PastEdition, CurrentEdition, DraftEdition];
 
-    public static int MilestoneCount => CurrentMilestones.Count + 1;
+    /// <summary>
+    /// The current edition's milestone reminded by email (add-notifications): within 7 days of the seed date, so
+    /// <c>send-notifications</c> sends its reminder; the other milestones have <c>notify</c> off.
+    /// </summary>
+    public static (int Days, string Title) ReminderMilestone { get; } = (5, "Entrega sintética de documentación");
+
+    public static Guid ReminderMilestoneId => MilestoneId(CurrentMilestones.Count + 2);
+
+    public static int MilestoneCount => CurrentMilestones.Count + 2;
 
     public async Task SeedAsync(CancellationToken cancellationToken)
     {
@@ -182,6 +190,7 @@ internal sealed partial class EditionSeeder(
         var wanted = CurrentMilestones
             .Select((m, i) => (Id: MilestoneId(i + 1), Edition: CurrentEdition, Date: today.AddDays(m.Days), m.Title))
             .Append((Id: MilestoneId(CurrentMilestones.Count + 1), Edition: PastEdition, Date: new DateOnly(currentYear - 1, 4, 30), Title: "Balance sintético de la edición"))
+            .Append((Id: ReminderMilestoneId, Edition: CurrentEdition, Date: today.AddDays(ReminderMilestone.Days), ReminderMilestone.Title))
             .ToList();
         var editions = await db.Editions.Where(e => EditionIds.Contains(e.Id)).Select(e => e.Id).ToListAsync(cancellationToken);
         var ids = wanted.Select(m => m.Id).ToList();
@@ -189,7 +198,15 @@ internal sealed partial class EditionSeeder(
         var added = 0;
         foreach (var milestone in wanted.Where(m => !existing.Contains(m.Id) && editions.Contains(m.Edition)))
         {
-            db.Milestones.Add(new CalendarMilestone { Id = milestone.Id, EditionId = milestone.Edition, Date = milestone.Date, Title = milestone.Title, CreatedAt = now });
+            db.Milestones.Add(new CalendarMilestone
+            {
+                Id = milestone.Id,
+                EditionId = milestone.Edition,
+                Date = milestone.Date,
+                Title = milestone.Title,
+                Notify = milestone.Id == ReminderMilestoneId,
+                CreatedAt = now,
+            });
             added++;
         }
 

@@ -27,6 +27,8 @@ COPY src/Modules/Exports/PolvorApp.Exports/PolvorApp.Exports.csproj src/Modules/
 COPY src/Modules/Exports/PolvorApp.Exports.Contracts/PolvorApp.Exports.Contracts.csproj src/Modules/Exports/PolvorApp.Exports.Contracts/
 COPY src/Modules/Distribution/PolvorApp.Distribution/PolvorApp.Distribution.csproj src/Modules/Distribution/PolvorApp.Distribution/
 COPY src/Modules/Distribution/PolvorApp.Distribution.Contracts/PolvorApp.Distribution.Contracts.csproj src/Modules/Distribution/PolvorApp.Distribution.Contracts/
+COPY src/Modules/Notifications/PolvorApp.Notifications/PolvorApp.Notifications.csproj src/Modules/Notifications/PolvorApp.Notifications/
+COPY src/Modules/Notifications/PolvorApp.Notifications.Contracts/PolvorApp.Notifications.Contracts.csproj src/Modules/Notifications/PolvorApp.Notifications.Contracts/
 RUN dotnet restore src/PolvorApp.Api/PolvorApp.Api.csproj
 
 COPY src/ src/

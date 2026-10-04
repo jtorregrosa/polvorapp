@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PolvorApp.FestivalEditions.Contracts;
 using PolvorApp.FestivalEditions.Persistence;
+using PolvorApp.Notifications.Contracts;
 using PolvorApp.SharedKernel.Auditing;
 
 namespace PolvorApp.FestivalEditions.Editions;
@@ -10,7 +11,8 @@ namespace PolvorApp.FestivalEditions.Editions;
 /// orders (UC-11, BR-10); design D3). Each change locks the edition row, compares its version and is
 /// audited in the same transaction; setting the current value records nothing.
 /// </summary>
-internal sealed class EditionLifecycle(FestivalEditionsDbContext db, IAuditTrail trail, EditionWriteGuard guard, TimeProvider time)
+internal sealed class EditionLifecycle(
+    FestivalEditionsDbContext db, IAuditTrail trail, INotificationOutbox notifications, EditionWriteGuard guard, TimeProvider time)
 {
     /// <summary>
     /// Moves the edition one step. The unique index keeps a single edition in progress under
@@ -92,6 +94,7 @@ internal sealed class EditionLifecycle(FestivalEditionsDbContext db, IAuditTrail
 
             edition.OrdersOpen = open;
             Record(open ? "EditionOrdersOpened" : "EditionOrdersClosed", edition);
+            notifications.Record(db, open ? NotificationEvent.OrdersOpened(edition.Id) : NotificationEvent.OrdersClosed(edition.Id));
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return EditionWrite.Done(edition);

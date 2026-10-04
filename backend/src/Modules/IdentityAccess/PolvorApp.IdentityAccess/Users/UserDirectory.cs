@@ -18,13 +18,20 @@ internal sealed class UserDirectory(IdentityAccessDbContext db) : IUserDirectory
             return [];
         }
 
+        return await ProjectAsync(db.Users.Where(u => userIds.Contains(u.Id)), cancellationToken);
+    }
+
+    public Task<IReadOnlyList<UserSummary>> ListAsync(UserRole role, CancellationToken cancellationToken) =>
+        ProjectAsync(db.Users.Where(u => u.Role == role), cancellationToken);
+
+    private static async Task<IReadOnlyList<UserSummary>> ProjectAsync(IQueryable<User> users, CancellationToken cancellationToken)
+    {
         // Projected in SQL: credentials and security data are never loaded, let alone returned.
-        var rows = await db.Users.AsNoTracking()
-            .Where(u => userIds.Contains(u.Id))
-            .Select(u => new { u.Id, u.Name, u.Email, u.Role, u.Active, HasPassword = u.PasswordHash != null })
+        var rows = await users.AsNoTracking()
+            .Select(u => new { u.Id, u.Name, u.Email, u.Role, u.Active, HasPassword = u.PasswordHash != null, u.Locale })
             .ToListAsync(cancellationToken);
 
         // Email is a required column (IdentityAccessDbContext), so it is never null here.
-        return rows.Select(u => new UserSummary(u.Id, u.Name, u.Email!, u.Role, User.DeriveStatus(u.Active, u.HasPassword))).ToList();
+        return rows.Select(u => new UserSummary(u.Id, u.Name, u.Email!, u.Role, User.DeriveStatus(u.Active, u.HasPassword), u.Locale)).ToList();
     }
 }

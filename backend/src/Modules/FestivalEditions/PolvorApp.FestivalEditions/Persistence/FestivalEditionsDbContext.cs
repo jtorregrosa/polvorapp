@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using PolvorApp.FestivalEditions.Contracts;
 using PolvorApp.FestivalEditions.Editions;
+using PolvorApp.Notifications.Contracts;
 using PolvorApp.SharedKernel.Auditing;
 using PolvorApp.SharedKernel.Codes;
 using PolvorApp.SharedKernel.Persistence;
@@ -48,6 +49,9 @@ internal sealed class FestivalEditionsDbContext(DbContextOptions<FestivalEdition
     {
         modelBuilder.HasDefaultSchema(Schema);
         modelBuilder.AddAuditTrail();
+
+        // Events that cause notifications commit with the change (add-notifications, design D2).
+        modelBuilder.AddNotificationOutbox();
         MapEditions(modelBuilder);
         MapWeaponModels(modelBuilder);
         MapMilestones(modelBuilder);

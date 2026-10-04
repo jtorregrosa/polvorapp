@@ -85,7 +85,7 @@ public static class EditionData
 
     public sealed record ModelJson(Guid Id, string Label, string Kind, bool Offered);
 
-    public sealed record MilestoneJson(Guid Id, DateOnly Date, string Title);
+    public sealed record MilestoneJson(Guid Id, DateOnly Date, string Title, bool Notify);
 
     public sealed record NextWindowJson(string Kind, DateOnly Date);
 

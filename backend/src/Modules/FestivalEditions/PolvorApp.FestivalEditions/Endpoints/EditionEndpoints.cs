@@ -7,6 +7,7 @@ using PolvorApp.FestivalEditions.Contracts;
 using PolvorApp.FestivalEditions.Editions;
 using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.SharedKernel.Http;
+using PolvorApp.SharedKernel.Security;
 using PolvorApp.SharedKernel.Validation;
 
 namespace PolvorApp.FestivalEditions.Endpoints;
@@ -48,7 +49,9 @@ internal static class EditionEndpoints
             .WithSummary("Moves an edition one step: DRAFT, IN_PROGRESS, CLOSED.")
             .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict).ProducesProblem(StatusCodes.Status503ServiceUnavailable);
+        // Each change emails every FiringChief (add-notifications): rate limited like the order moves.
         adminOnly.MapPost("/{id:guid}/orders", SetOrdersAsync).WithName("SetEditionOrders")
+            .RequireRateLimiting(RateLimitPolicies.OrderWrites).ProducesProblem(StatusCodes.Status429TooManyRequests)
             .WithSummary("Opens or closes the orders of the edition in progress.")
             .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict).ProducesProblem(StatusCodes.Status503ServiceUnavailable);

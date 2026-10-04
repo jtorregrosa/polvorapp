@@ -8,6 +8,7 @@ using PolvorApp.ComparsaOrders.Persistence;
 using PolvorApp.ComplianceInsights.Contracts;
 using PolvorApp.FestivalEditions.Contracts;
 using PolvorApp.IdentityAccess.Contracts;
+using PolvorApp.Notifications.Contracts;
 using PolvorApp.SharedKernel.Auditing;
 
 namespace PolvorApp.ComparsaOrders.Orders;
@@ -28,6 +29,7 @@ internal sealed class OrderLifecycle(
     IComplianceRules rules,
     LoanWriter loans,
     IAuditTrail trail,
+    INotificationOutbox notifications,
     TimeProvider time)
 {
     /// <summary>Submits a draft or returned order: a FiringChief with the attestation while the orders are open, an Admin on the comparsa's behalf at any time.</summary>
@@ -172,7 +174,24 @@ internal sealed class OrderLifecycle(
         }
 
         trail.Record(db, new AuditRecord("ComparsaOrder" + Past(move), OrderAdministration.EntityType, order.Id.ToString(), data, ComparsaId: order.ComparsaId));
+        if (Event(order, move, currentUser.IsAdmin) is { } notification)
+        {
+            notifications.Record(db, notification);
+        }
     }
+
+    /// <summary>
+    /// What the move tells others (add-notifications, spec: Order status emails): a FiringChief's
+    /// submission tells the Admins, a review tells the comparsa's FiringChiefs; an Admin's submission on
+    /// the comparsa's behalf tells nobody.
+    /// </summary>
+    private static NotificationEvent? Event(ComparsaOrder order, OrderMove move, bool byAdmin) => move switch
+    {
+        OrderMove.Submit when byAdmin => null,
+        OrderMove.Submit => NotificationEvent.OrderSubmitted(order.EditionId, order.ComparsaId, order.Id),
+        OrderMove.Validate => NotificationEvent.OrderValidated(order.EditionId, order.ComparsaId, order.Id),
+        _ => NotificationEvent.OrderReturned(order.EditionId, order.ComparsaId, order.Id),
+    };
 
     private static string Past(OrderMove move) => move switch
     {

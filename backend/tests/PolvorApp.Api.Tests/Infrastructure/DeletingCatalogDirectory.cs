@@ -56,6 +56,9 @@ public sealed class DeletingCatalogDirectory
         public Task<IReadOnlyList<ComparsaSummary>> FindComparsasAsync(IReadOnlyCollection<Guid> comparsaIds, CancellationToken cancellationToken) =>
             inner.FindComparsasAsync(comparsaIds, cancellationToken);
 
+        public Task<IReadOnlyList<FiringChiefAssignmentSummary>> ListFiringChiefAssignmentsAsync(CancellationToken cancellationToken) =>
+            inner.ListFiringChiefAssignmentsAsync(cancellationToken);
+
         public async Task<WeaponModelSummary?> FindWeaponModelAsync(Guid weaponModelId, CancellationToken cancellationToken)
         {
             var model = await inner.FindWeaponModelAsync(weaponModelId, cancellationToken);

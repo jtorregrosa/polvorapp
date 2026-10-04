@@ -74,7 +74,7 @@ internal sealed partial class EditionViews(
             milestones
                 .OrderBy(m => m.Date)
                 .ThenBy(m => m.Title, SpanishOrder.Names)
-                .Select(m => new CalendarMilestoneResponse(m.Id, m.Date, m.Title))
+                .Select(m => new CalendarMilestoneResponse(m.Id, m.Date, m.Title, m.Notify))
                 .ToList(),
             NextWindow(edition, FederationCalendar.Today(time)));
     }
