@@ -808,6 +808,17 @@ Versions in use: PostgreSQL 18.6, Npgsql and Npgsql.EntityFrameworkCore.PostgreS
     - `serial-state/notifications.spec.ts` "milestone reminder" failed once on axe `target-size`
       for the edit panel's close button, and on its own cannot run here: it starts `docker` from
       Node, which Windows cannot resolve (`ENOENT`); it runs in CI on Linux.
+- **After the archive** (follow-up, branch `test/audit-privacy-follow-ups`):
+  - `NotificationPreferenceTests`, `EntryEditingTests` and `PhotoAuditTests` were not flaky under
+    load, as written above: their host's clock is frozen, so two audit entries had the same time,
+    and the new `(action, occurred_at, id)` index made their order follow the random part of the
+    UUIDv7 ids. The tests now move the fake clock on between the two actions (PR #31).
+  - The local E2E failures in Firefox came from running 8 workers (half of 16 cores) against one
+    compose stack; local runs now use 4. The notifications journey's `ENOENT` came from the shell
+    the runs were started from, which did not pass Docker's folder to Node. With both, the full
+    suite passed twice in a row on Windows (284 of 284).
+  - The follow-up tests listed above are written, except the user export's activity sheet in
+    detail and the audit resolvers of every record type.
 - **Full suite after group 6** (before its review fixes): 2319 of 2322 passed. `NotificationPreferenceTests`,
   `PhotoAuditTests` and `EntryEditingTests` failed once under load and pass on their own.
 - **Full suite after group 4**: 2275 of 2278 passed. `PhotoAuditTests`, `EntryEditingTests` and
