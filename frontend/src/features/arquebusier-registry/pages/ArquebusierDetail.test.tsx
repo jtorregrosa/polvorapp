@@ -332,6 +332,24 @@ describe('Editing a section (spec: Detail pages in read mode)', () => {
     }
   });
 
+  it('offers Admins "View history", which opens the audit log filtered by the arquebusier (spec: Audit log screens)', async () => {
+    detail();
+    await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_ADMIN });
+
+    expect(await screen.findByRole('link', { name: 'Ver historial' })).toHaveAttribute(
+      'href',
+      `/audit-log?entityType=Arquebusier&entityId=${DETAIL_UNO.id}`,
+    );
+  });
+
+  it('does not offer "View history" to a FiringChief', async () => {
+    detail();
+    await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
+    await screen.findByRole('heading', { level: 1, name: 'Arcabucero García Sintético' });
+
+    expect(screen.queryByRole('link', { name: 'Ver historial' })).not.toBeInTheDocument();
+  });
+
   it('has no accessibility violations, read-only and with a panel open', async () => {
     const user = userEvent.setup();
     detail();

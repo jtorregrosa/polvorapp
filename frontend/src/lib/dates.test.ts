@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isIsoDate, todayIso } from './dates';
+import { isIsoDate, isoDaysBefore, todayIso } from './dates';
 
 describe('todayIso', () => {
   it.each([
@@ -25,4 +25,16 @@ describe('isIsoDate', () => {
       expect(isIsoDate(value)).toBe(false);
     },
   );
+});
+
+describe('isoDaysBefore', () => {
+  it.each([
+    ['2030-07-14', 29, '2030-06-15'],
+    ['2030-03-01', 1, '2030-02-28'],
+    ['2032-03-01', 1, '2032-02-29'],
+    ['2030-01-10', 29, '2029-12-12'],
+    ['2030-03-31', 0, '2030-03-31'],
+  ])('%s minus %i days is %s, whatever the daylight saving change', (date, days, expected) => {
+    expect(isoDaysBefore(date, days)).toBe(expected);
+  });
 });

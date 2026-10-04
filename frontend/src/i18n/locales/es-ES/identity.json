@@ -158,7 +158,8 @@
       "editName": "datos de la cuenta"
     },
     "cancel": "Cancelar",
-    "twoFactorState": "Verificación en dos pasos: {{state}}"
+    "twoFactorState": "Verificación en dos pasos: {{state}}",
+    "erased": "Usuario borrado"
   },
   "roles": {
     "ADMIN": "Administrador",
@@ -186,7 +187,8 @@
       "lastAdmin": "Es el único administrador activo: invita o reactiva a otro administrador antes de hacer este cambio.",
       "notInvited": "Solo se puede reenviar la invitación a usuarios que aún no la han aceptado.",
       "notEnrolled": "Este usuario no tiene configurada la verificación en dos pasos.",
-      "notFound": "Este usuario no existe."
+      "notFound": "Este usuario no existe.",
+      "erased": "Los datos de este usuario están borrados: ya no se puede cambiar."
     },
     "email": {
       "sendFailed": "Los cambios se han guardado, pero no se ha podido enviar el correo. Vuelve a intentarlo desde la ficha del usuario."

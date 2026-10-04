@@ -201,6 +201,7 @@
     "notInOrder": "Must be another entry of the same order.",
     "sameAsHolder": "Must be someone other than the holder.",
     "nothingToCollect": "The holder has nothing of this type to collect.",
-    "licenseInvalid": "Has no active weapons license on the day."
+    "licenseInvalid": "Has no active weapons license on the day.",
+    "entryErased": "This person was erased."
   }
 }

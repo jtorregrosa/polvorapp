@@ -7,6 +7,8 @@ import {
   Flag,
   House,
   IdCard,
+  ScrollText,
+  ShieldCheck,
   Truck,
   Users,
   type LucideIcon,
@@ -37,4 +39,6 @@ export const NAVIGATION: readonly NavigationEntry[] = [
   { to: '/comparsas', labelKey: 'nav.comparsas', icon: Flag },
   { to: '/weapon-models', labelKey: 'nav.weaponModels', icon: Crosshair, roles: ['ADMIN'] },
   { to: '/users', labelKey: 'nav.users', icon: Users, roles: ['ADMIN'] },
+  { to: '/audit-log', labelKey: 'nav.auditLog', icon: ScrollText, roles: ['ADMIN'] },
+  { to: '/privacy', labelKey: 'nav.privacy', icon: ShieldCheck, roles: ['ADMIN'] },
 ];

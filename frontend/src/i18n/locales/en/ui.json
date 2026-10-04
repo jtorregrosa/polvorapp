@@ -44,6 +44,7 @@
     "optional": "Optional",
     "requiredNote": "All fields are required unless marked as optional.",
     "clearDate": "Clear date",
+    "clearDateFor": "Clear date of {{subject}}",
     "clearTime": "Clear time",
     "clearTimeFor": "Clear time of {{subject}}",
     "optionalSuffix": "(optional)",
@@ -124,7 +125,8 @@
     "user": {
       "INVITED": "Invited",
       "ACTIVE": "Active",
-      "DEACTIVATED": "Deactivated"
+      "DEACTIVATED": "Deactivated",
+      "ERASED": "Erased"
     }
   },
   "validation": {
@@ -216,7 +218,9 @@
     "notGiven": "Not given",
     "edit": "Edit",
     "saved": "Changes saved",
-    "saveChanges": "Save changes"
+    "saveChanges": "Save changes",
+    "view": "View details",
+    "close": "Close"
   },
   "amountTable": {
     "amount": "Amount",

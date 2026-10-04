@@ -273,6 +273,20 @@ describe('UserDetailPage (specs: User management by Admins, Detail pages in read
     );
   });
 
+  it('says in the panel when the user was erased meanwhile (add-audit-privacy)', async () => {
+    const user = userEvent.setup();
+    userDetails(CHIEF);
+    server.use(mock.put(`/api/users/${CHIEF.id}`, () => problem(409, 'users.erased')));
+    await asAdmin(`/users/${CHIEF.id}`);
+
+    const panel = await editAccount(user);
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
+
+    expect(await within(panel).findByRole('group', { name: 'Hay un problema' })).toHaveTextContent(
+      'Los datos de este usuario están borrados: ya no se puede cambiar.',
+    );
+  });
+
   it('deactivates a user from "More actions" only after confirming, set apart as destructive', async () => {
     const user = userEvent.setup();
     const details = userDetails(CHIEF);
@@ -292,7 +306,12 @@ describe('UserDetailPage (specs: User management by Admins, Detail pages in read
       within(menu)
         .getAllByRole('menuitem')
         .map((item) => item.textContent),
-    ).toEqual(['Restablecer la verificación en dos pasos', 'Desactivar usuario']);
+    ).toEqual([
+      'Restablecer la verificación en dos pasos',
+      'Descargar datos personales',
+      'Desactivar usuario',
+      'Borrar datos personales',
+    ]);
     expect(within(menu).getByRole('separator')).toBeInTheDocument();
     await user.click(within(menu).getByRole('menuitem', { name: 'Desactivar usuario' }));
     const dialog = await screen.findByRole('alertdialog', { name: '¿Desactivar a Jefa Sintética?' });
@@ -475,6 +494,16 @@ describe('UserDetailPage (specs: User management by Admins, Detail pages in read
     await expectSaved('Usuario reactivado.');
     await user.click(screen.getByRole('button', { name: 'Más acciones' }));
     expect(await screen.findByRole('menuitem', { name: 'Desactivar usuario' })).toBeInTheDocument();
+  });
+
+  it('offers "View history", which opens the audit log filtered by the user (spec: Audit log screens)', async () => {
+    userDetails(CHIEF);
+    await asAdmin(`/users/${CHIEF.id}`);
+
+    expect(await screen.findByRole('link', { name: 'Ver historial' })).toHaveAttribute(
+      'href',
+      `/audit-log?entityType=User&entityId=${CHIEF.id}`,
+    );
   });
 
   it('says when the user does not exist', async () => {

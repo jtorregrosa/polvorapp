@@ -143,6 +143,42 @@ describe('ConfirmDialog', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
+  it('forgets an earlier failure when its owner opens it again', async () => {
+    const user = userEvent.setup();
+    function Owner() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <Button
+            onClick={() => {
+              setOpen(true);
+            }}
+          >
+            Más acciones
+          </Button>
+          <ConfirmDialog
+            open={open}
+            onOpenChange={setOpen}
+            title="¿Eliminar?"
+            description="No se puede deshacer."
+            confirmLabel="Eliminar"
+            onConfirm={() => Promise.reject(new ConfirmFailure('Ocupado.'))}
+          />
+        </>
+      );
+    }
+    await renderWithProviders(<Owner />);
+
+    await user.click(screen.getByRole('button', { name: 'Más acciones' }));
+    await user.click(screen.getByRole('button', { name: 'Eliminar' }));
+    expect(await screen.findByText('Ocupado.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Cancelar' }));
+    await user.click(screen.getByRole('button', { name: 'Más acciones' }));
+
+    expect(await screen.findByRole('alertdialog', { name: '¿Eliminar?' })).toBeInTheDocument();
+    expect(screen.queryByText('Ocupado.')).not.toBeInTheDocument();
+  });
+
   it('runs onConfirmed once closed and leaves focus to it, even when the trigger goes away', async () => {
     const user = userEvent.setup();
     function Page() {

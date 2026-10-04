@@ -44,7 +44,9 @@
     "users": "Usuaris",
     "account": "El meu compte",
     "warningCount_one": "{{count}} amb avís",
-    "warningCount_other": "{{count}} amb avisos"
+    "warningCount_other": "{{count}} amb avisos",
+    "auditLog": "Auditoria",
+    "privacy": "Privacitat"
   },
   "forbidden": {
     "title": "Accés no permés",

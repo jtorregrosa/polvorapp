@@ -8,6 +8,7 @@ import {
   SUPPORTED_LANGUAGES,
   type Language,
 } from './config';
+import caAudit from './locales/ca-ES-valencia/audit.json';
 import caBilling from './locales/ca-ES-valencia/billing.json';
 import caCatalog from './locales/ca-ES-valencia/catalog.json';
 import caDistribution from './locales/ca-ES-valencia/distribution.json';
@@ -18,8 +19,10 @@ import caIdentity from './locales/ca-ES-valencia/identity.json';
 import caInsights from './locales/ca-ES-valencia/insights.json';
 import caNotifications from './locales/ca-ES-valencia/notifications.json';
 import caOrders from './locales/ca-ES-valencia/orders.json';
+import caPrivacy from './locales/ca-ES-valencia/privacy.json';
 import caRegistry from './locales/ca-ES-valencia/registry.json';
 import caUi from './locales/ca-ES-valencia/ui.json';
+import enAudit from './locales/en/audit.json';
 import enBilling from './locales/en/billing.json';
 import enCatalog from './locales/en/catalog.json';
 import enDistribution from './locales/en/distribution.json';
@@ -30,8 +33,10 @@ import enIdentity from './locales/en/identity.json';
 import enInsights from './locales/en/insights.json';
 import enNotifications from './locales/en/notifications.json';
 import enOrders from './locales/en/orders.json';
+import enPrivacy from './locales/en/privacy.json';
 import enRegistry from './locales/en/registry.json';
 import enUi from './locales/en/ui.json';
+import esAudit from './locales/es-ES/audit.json';
 import esBilling from './locales/es-ES/billing.json';
 import esCatalog from './locales/es-ES/catalog.json';
 import esDistribution from './locales/es-ES/distribution.json';
@@ -42,6 +47,7 @@ import esIdentity from './locales/es-ES/identity.json';
 import esInsights from './locales/es-ES/insights.json';
 import esNotifications from './locales/es-ES/notifications.json';
 import esOrders from './locales/es-ES/orders.json';
+import esPrivacy from './locales/es-ES/privacy.json';
 import esRegistry from './locales/es-ES/registry.json';
 import esUi from './locales/es-ES/ui.json';
 
@@ -61,6 +67,8 @@ export const resources = {
     exports: esExports,
     distribution: esDistribution,
     notifications: esNotifications,
+    audit: esAudit,
+    privacy: esPrivacy,
   },
   'ca-ES-valencia': {
     common: caCommon,
@@ -75,6 +83,8 @@ export const resources = {
     exports: caExports,
     distribution: caDistribution,
     notifications: caNotifications,
+    audit: caAudit,
+    privacy: caPrivacy,
   },
   en: {
     common: enCommon,
@@ -89,6 +99,8 @@ export const resources = {
     exports: enExports,
     distribution: enDistribution,
     notifications: enNotifications,
+    audit: enAudit,
+    privacy: enPrivacy,
   },
 } as const satisfies Record<
   Language,
@@ -105,6 +117,8 @@ export const resources = {
     exports: object;
     distribution: object;
     notifications: object;
+    audit: object;
+    privacy: object;
   }
 >;
 

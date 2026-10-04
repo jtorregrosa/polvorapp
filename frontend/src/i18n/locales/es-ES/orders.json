@@ -66,7 +66,8 @@
       "modified": "Otra persona ha cambiado el pedido. Se muestra de nuevo con sus cambios.",
       "entriesInvalid": "Hay líneas que revisar antes de enviarlo.",
       "alreadyInEdition": "Este arcabucero ya tiene una línea en esta edición.",
-      "busy": "El pedido está ocupado. Inténtalo de nuevo en unos segundos."
+      "busy": "El pedido está ocupado. Inténtalo de nuevo en unos segundos.",
+      "entryErased": "Esta línea es de una persona borrada: ya no se puede cambiar."
     },
     "entries": {
       "notFound": "No se ha encontrado la línea.",
@@ -152,7 +153,8 @@
       "RENTAL_1KG": "Alquiler de 1 kg",
       "RENTAL_2KG": "Alquiler de 2 kg",
       "NONE": "Sin cantimplora"
-    }
+    },
+    "erased": "Persona borrada"
   },
   "issues": {
     "ownedWeaponMissing": "el arma propia ya no está en el registro",
@@ -170,7 +172,8 @@
   "lentOut": {
     "title": "Armas cedidas a otros",
     "description": "Armas de tus arcabuceros cedidas en esta edición.",
-    "item": "{{weapon}} de {{owner}}, cedida a {{borrower}} ({{comparsa}})"
+    "item": "{{weapon}} de {{owner}}, cedida a {{borrower}} ({{comparsa}})",
+    "borrowerErased": "Persona borrada"
   },
   "entryPanel": {
     "title": "Línea de {{name}}",
@@ -221,7 +224,8 @@
     "tooManyLookups": "Has hecho demasiadas búsquedas. Espera un minuto e inténtalo de nuevo.",
     "searching": "Buscando el propietario…",
     "modelsFailed": "No se han podido cargar los modelos de arma.",
-    "retry": "Reintentar"
+    "retry": "Reintentar",
+    "lenderErased": "Cesión de una persona borrada"
   },
   "actions": {
     "entriesInvalid": "Hay líneas que revisar antes de seguir: {{names}}. Se señalan en el pedido.",

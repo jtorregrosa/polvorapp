@@ -91,7 +91,8 @@ export function ConfirmDialog({
 
   const setOpen = (next: boolean) => {
     if (pending) return;
-    if (next) setFailure(undefined);
+    // Forgotten on closing too: a controlled dialog is reopened through `open`, not this callback.
+    setFailure(undefined);
     setUncontrolledOpen(next);
     onOpenChange?.(next);
   };

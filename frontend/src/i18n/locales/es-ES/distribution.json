@@ -201,6 +201,7 @@
     "notInOrder": "Debe ser otra inscripción del mismo pedido.",
     "sameAsHolder": "Debe ser otra persona distinta del titular.",
     "nothingToCollect": "El titular no tiene nada de este tipo que recoger.",
-    "licenseInvalid": "No tiene licencia de armas en vigor ese día."
+    "licenseInvalid": "No tiene licencia de armas en vigor ese día.",
+    "entryErased": "Es una persona borrada."
   }
 }

@@ -7,7 +7,7 @@ import { problem, renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN } from '@/test/identity';
 import { server } from '@/test/server';
-import { asFiringChief, CHIEF_BAJA, CHIEF_DOS, CHIEF_UNO, NORTE, OESTE } from '../test-data';
+import { asFiringChief, CHIEF_BAJA, CHIEF_BORRADO, CHIEF_DOS, CHIEF_UNO, NORTE, OESTE } from '../test-data';
 
 /** The comparsa page's calls, with its FiringChiefs held in `chiefs` (changed by the handlers). */
 function comparsaWithChiefs(comparsa: ComparsaResponse, initial: FiringChiefResponse[]) {
@@ -15,7 +15,7 @@ function comparsaWithChiefs(comparsa: ComparsaResponse, initial: FiringChiefResp
   server.use(
     mock.get(`/api/comparsas/${comparsa.id}`, () => HttpResponse.json(comparsa)),
     mock.get(`/api/comparsas/${comparsa.id}/firing-chiefs`, () => HttpResponse.json(state.chiefs)),
-    mock.get('/api/users', () => HttpResponse.json([CHIEF_UNO, CHIEF_DOS, CHIEF_BAJA])),
+    mock.get('/api/users', () => HttpResponse.json([CHIEF_UNO, CHIEF_DOS, CHIEF_BAJA, CHIEF_BORRADO])),
   );
   return state;
 }
@@ -44,7 +44,7 @@ describe('FiringChiefs section of a comparsa (spec: Managing assignments from th
     expect(rowOf(table, 'Jefa Sintética Dos')).toHaveTextContent('Invitado');
   });
 
-  it('offers only FiringChiefs who are neither deactivated nor already assigned', async () => {
+  it('offers only FiringChiefs who are neither deactivated, erased nor already assigned', async () => {
     comparsaWithChiefs(NORTE, [asFiringChief(CHIEF_UNO)]);
     await renderApp(`/comparsas/${NORTE.id}`, { session: SYNTHETIC_ADMIN });
 

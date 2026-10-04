@@ -66,7 +66,8 @@
       "modified": "Una altra persona ha canviat la comanda. Es mostra de nou amb els seus canvis.",
       "entriesInvalid": "Hi ha línies que cal revisar abans d’enviar-la.",
       "alreadyInEdition": "Este arcabusser ja té una línia en esta edició.",
-      "busy": "La comanda està ocupada. Torna-ho a provar d’ací a uns segons."
+      "busy": "La comanda està ocupada. Torna-ho a provar d’ací a uns segons.",
+      "entryErased": "Esta línia és d’una persona esborrada: ja no es pot canviar."
     },
     "entries": {
       "notFound": "No s’ha trobat la línia.",
@@ -152,7 +153,8 @@
       "RENTAL_1KG": "Lloguer d’1 kg",
       "RENTAL_2KG": "Lloguer de 2 kg",
       "NONE": "Sense cantimplora"
-    }
+    },
+    "erased": "Persona esborrada"
   },
   "issues": {
     "ownedWeaponMissing": "l’arma pròpia ja no està en el registre",
@@ -170,7 +172,8 @@
   "lentOut": {
     "title": "Armes cedides a altres",
     "description": "Armes dels teus arcabussers cedides en esta edició.",
-    "item": "{{weapon}} de {{owner}}, cedida a {{borrower}} ({{comparsa}})"
+    "item": "{{weapon}} de {{owner}}, cedida a {{borrower}} ({{comparsa}})",
+    "borrowerErased": "Persona esborrada"
   },
   "entryPanel": {
     "title": "Línia de {{name}}",
@@ -221,7 +224,8 @@
     "tooManyLookups": "Has fet massa cerques. Espera un minut i torna-ho a provar.",
     "searching": "S’està buscant el propietari…",
     "modelsFailed": "No s’han pogut carregar els models d’arma.",
-    "retry": "Torna-ho a provar"
+    "retry": "Torna-ho a provar",
+    "lenderErased": "Cessió d’una persona esborrada"
   },
   "actions": {
     "entriesInvalid": "Hi ha línies que cal revisar abans de continuar: {{names}}. S’assenyalen en la comanda.",

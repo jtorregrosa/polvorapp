@@ -17,6 +17,7 @@ import { ComplianceWarnings } from '@/features/compliance-insights/components/Co
 import { NotFoundPage } from '@/features/platform/pages/NotFoundPage';
 import { useNotice, type Announce, type Notice } from '@/lib/notices';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
+import { ViewHistoryLink } from '@/features/audit-privacy/components/ViewHistoryLink';
 import { requestFields, valuesOf } from '../arquebusierSchema';
 import { DeleteDialog, TransferDialog } from '../components/ArquebusierActions';
 import { IdPhoto } from '../components/ArquebusierPhotos';
@@ -141,16 +142,19 @@ function ArquebusierRecord({ details, notice, announce, reload, staleError, onRe
         }
         actions={
           isAdmin && (
-            <Button
-              ref={transferButton}
-              variant="secondary"
-              icon={ArrowRightLeft}
-              onClick={() => {
-                setDialog('transfer');
-              }}
-            >
-              {t('transfer.action')}
-            </Button>
+            <>
+              <Button
+                ref={transferButton}
+                variant="secondary"
+                icon={ArrowRightLeft}
+                onClick={() => {
+                  setDialog('transfer');
+                }}
+              >
+                {t('transfer.action')}
+              </Button>
+              <ViewHistoryLink entityType="Arquebusier" entityId={details.id} />
+            </>
           )
         }
         // Status changes and deletion are writes: not offered while the registry is locked (BR-10).

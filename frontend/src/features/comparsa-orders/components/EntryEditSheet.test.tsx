@@ -7,6 +7,7 @@ import { problem, recordBodies, renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
 import { SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
+import { personName } from '../orderText';
 import { ARCABUZ, NORTE_ORDER, TRABUCO } from '../test-data';
 
 const ORIGINAL_WIDTH = window.innerWidth;
@@ -220,6 +221,46 @@ describe('EntryEditSheet (spec: Orders screens, Edition entries (BR-05, BR-07))'
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
     expect(screen.queryByRole('button', { name: /^Editar/ })).not.toBeInTheDocument();
+  });
+
+  it('closes the panel and shows the entry read-only once the person was erased (spec: Erased entries)', async () => {
+    const user = userEvent.setup();
+    server.use(
+      mock.put(`/api/comparsa-orders/${NORTE_ORDER.id}/entries/:entryId`, () =>
+        problem(409, 'orders.entryErased'),
+      ),
+    );
+    const { dialog, served } = await openPanel(user, UNO);
+    served.set({
+      ...NORTE_ORDER,
+      entries: NORTE_ORDER.entries.map((entry) =>
+        personName(entry.arquebusier) === UNO
+          ? {
+              ...entry,
+              erased: true,
+              arquebusier: {
+                ...entry.arquebusier,
+                firstName: null,
+                lastName: null,
+                nationalId: null,
+                federationId: null,
+              },
+            }
+          : entry,
+      ),
+    });
+
+    await save(user, dialog);
+
+    expect(
+      await screen.findByText('Esta línea es de una persona borrada: ya no se puede cambiar.'),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+    const erased = screen.getByRole('rowheader', { name: 'Persona borrada' }).closest('tr');
+    if (!erased) throw new Error('The rowheader is in a row.');
+    expect(within(erased).queryByRole('button', { name: /^Editar/ })).not.toBeInTheDocument();
   });
 
   it('explains that saving a submitted order sends it back to draft', async () => {

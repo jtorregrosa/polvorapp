@@ -28,6 +28,8 @@ export type DateInputProps = Omit<
    * cannot empty a date once chosen.
    */
   clearable?: boolean;
+  /** Names the clear button after the field when a page has several, e.g. "From". */
+  clearSubject?: string;
   ref?: Ref<HTMLInputElement>;
 };
 
@@ -44,6 +46,7 @@ export function DateInput({
   onBlur,
   onKeyDown,
   clearable = false,
+  clearSubject,
   ref,
   disabled,
   ...props
@@ -94,6 +97,7 @@ export function DateInput({
           variant="quiet"
           size="sm"
           icon={X}
+          aria-label={clearSubject ? t('form.clearDateFor', { subject: clearSubject }) : undefined}
           onClick={() => {
             // A partly typed date shows segments React does not know about: empty the field itself.
             if (input.current) input.current.value = '';

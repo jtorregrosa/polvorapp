@@ -1,0 +1,128 @@
+{
+  "page": {
+    "title": "Solicitudes de privacidad",
+    "description": "Atiende las solicitudes escritas de acceso y supresión (RGPD) de arcabuceros y propietarios externos. Para los usuarios, usa su ficha."
+  },
+  "lookup": {
+    "title": "Buscar a una persona",
+    "description": "Escribe el DNI/NIE de la solicitud para ver qué datos guarda PolvorApp de esa persona.",
+    "nationalId": "DNI/NIE",
+    "submit": "Buscar",
+    "clear": "Nueva búsqueda",
+    "searching": "Buscando…"
+  },
+  "reference": {
+    "label": "Referencia de la solicitud",
+    "help": "Identifica la solicitud escrita recibida, por ejemplo con su número de registro de entrada. No escribas el nombre ni el DNI/NIE de la persona: queda en el registro de auditoría."
+  },
+  "summary": {
+    "title": "Datos que guarda PolvorApp",
+    "nothingHeld": "PolvorApp no guarda ningún dato de esta persona.",
+    "registry": {
+      "title": "Registro de arcabuceros",
+      "none": "No está en el registro.",
+      "name": "Nombre",
+      "comparsa": "Comparsa",
+      "status": "Estado",
+      "ownedWeapons": "Armas propias",
+      "photos": "Fotos",
+      "unknownComparsa": "Comparsa desconocida"
+    },
+    "entries": {
+      "title": "Líneas de pedido por edición",
+      "caption": "Líneas de pedido de la persona, por edición",
+      "none": "No tiene líneas de pedido.",
+      "edition": "Edición",
+      "comparsa": "Comparsa",
+      "orderStatus": "Estado del pedido",
+      "erased": "Ya borrada"
+    },
+    "lenderLoans": {
+      "title": "Armas cedidas",
+      "none": "No ha cedido armas.",
+      "item_one": "{{year}}: {{count}} cesión",
+      "item_other": "{{year}}: {{count}} cesiones"
+    },
+    "pickupProxies": {
+      "label": "Autorizaciones de recogida",
+      "count_one": "{{count}} autorización",
+      "count_other": "{{count}} autorizaciones"
+    }
+  },
+  "export": {
+    "action": "Descargar datos",
+    "userAction": "Descargar datos personales",
+    "title": "Descargar los datos personales",
+    "description": "Se descarga un ZIP con una hoja de cálculo de todos sus datos y sus fotos, para entregarlo a la persona. No se guarda copia en PolvorApp.",
+    "confirm": "Descargar",
+    "done": "Se ha descargado el archivo."
+  },
+  "erase": {
+    "action": "Borrar datos",
+    "userAction": "Borrar datos personales",
+    "title": "¿Borrar los datos de {{name}}?",
+    "titleUnknown": "¿Borrar los datos de esta persona?",
+    "description": "Se elimina su ficha del registro, con sus armas y fotos, y se anonimizan sus líneas de pedido y sus cesiones. Las cantidades se mantienen.",
+    "userDescription": "La cuenta se cierra para siempre: se borran su nombre y su correo, y el registro de auditoría la mostrará como «Usuario borrado».",
+    "confirm": "Borrar",
+    "warnings": {
+      "title": "Antes de borrar",
+      "irreversible": "No se puede deshacer.",
+      "listsChange": "Las listas de {{year}} de {{comparsa}} (pedido {{status}}) dejarán de nombrar a esta persona.",
+      "entryRemoved": "Su línea del pedido de {{year}} de {{comparsa}} se quitará, porque los pedidos están abiertos."
+    },
+    "done": "Datos borrados.",
+    "filesPending_one": "Queda {{count}} archivo por borrar del almacenamiento: se borrará automáticamente.",
+    "filesPending_other": "Quedan {{count}} archivos por borrar del almacenamiento: se borrarán automáticamente.",
+    "counts": {
+      "arquebusiersDeleted_one": "{{count}} ficha del registro eliminada",
+      "arquebusiersDeleted_other": "{{count}} fichas del registro eliminadas",
+      "ownedWeaponsDeleted_one": "{{count}} arma propia eliminada",
+      "ownedWeaponsDeleted_other": "{{count}} armas propias eliminadas",
+      "photosDeleted_one": "{{count}} foto eliminada",
+      "photosDeleted_other": "{{count}} fotos eliminadas",
+      "entriesAnonymised_one": "{{count}} línea de pedido anonimizada",
+      "entriesAnonymised_other": "{{count}} líneas de pedido anonimizadas",
+      "loansAnonymised_one": "{{count}} cesión anonimizada",
+      "loansAnonymised_other": "{{count}} cesiones anonimizadas",
+      "pickupProxiesRemoved_one": "{{count}} autorización de recogida quitada",
+      "pickupProxiesRemoved_other": "{{count}} autorizaciones de recogida quitadas",
+      "usersErased_one": "{{count}} cuenta de usuario borrada",
+      "usersErased_other": "{{count}} cuentas de usuario borradas",
+      "assignmentsRemoved_one": "{{count}} asignación de comparsa quitada",
+      "assignmentsRemoved_other": "{{count}} asignaciones de comparsa quitadas",
+      "notificationPreferencesRemoved_one": "{{count}} preferencia de avisos quitada",
+      "notificationPreferencesRemoved_other": "{{count}} preferencias de avisos quitadas",
+      "notificationDeliveriesRemoved_one": "{{count}} aviso enviado quitado",
+      "notificationDeliveriesRemoved_other": "{{count}} avisos enviados quitados",
+      "auditEntriesRedacted_one": "{{count}} entrada de auditoría sin datos personales",
+      "auditEntriesRedacted_other": "{{count}} entradas de auditoría sin datos personales"
+    }
+  },
+  "errors": {
+    "privacy": {
+      "notFound": "PolvorApp no guarda ningún dato de esta persona.",
+      "busy": "Otra persona está cambiando estos datos. Vuelve a intentarlo en unos segundos.",
+      "storageUnavailable": "No se han podido leer las fotos. Vuelve a intentarlo en unos minutos.",
+      "auditUnavailable": "No se ha podido registrar la solicitud, así que no se ha hecho. Vuelve a intentarlo en unos minutos.",
+      "selfErasure": "No puedes borrar tus propios datos. Pídeselo a otro administrador.",
+      "alreadyErased": "Los datos de este usuario ya están borrados.",
+      "lastAdmin": "Es el único administrador activo: invita o reactiva a otro administrador antes de borrarlo."
+    },
+    "validation": "Revisa los campos marcados.",
+    "tooManyRequests": "Demasiadas solicitudes. Espera un minuto y vuelve a intentarlo.",
+    "generic": "No se ha podido completar la acción. Vuelve a intentarlo."
+  },
+  "fields": {
+    "nationalId": {
+      "required": "Escribe el DNI/NIE.",
+      "invalid": "No es un DNI/NIE válido.",
+      "checkLetter": "La letra no corresponde al número."
+    },
+    "reference": {
+      "required": "Escribe la referencia de la solicitud.",
+      "tooLong": "Como máximo 50 caracteres.",
+      "invalid": "Usa una línea, sin correos ni DNI/NIE."
+    }
+  }
+}

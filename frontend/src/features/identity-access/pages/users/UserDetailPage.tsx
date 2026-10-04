@@ -29,6 +29,8 @@ import { SectionGrid } from '@/components/app/SectionGrid';
 import { useSaveNotice } from '@/components/app/save-notice';
 import { StatusBadge } from '@/components/app/StatusBadge';
 import { useAppForm } from '@/components/app/use-app-form';
+import { useUserPrivacyActions } from '@/features/audit-privacy/components/useUserPrivacyActions';
+import { ViewHistoryLink } from '@/features/audit-privacy/components/ViewHistoryLink';
 import { UserComparsasSection } from '@/features/federation-catalog/components/UserComparsasSection';
 import { DEFAULT_LANGUAGE, matchLanguage } from '@/i18n/config';
 import { formatDate } from '@/lib/format';
@@ -37,6 +39,7 @@ import { useInvalidate } from '@/lib/use-invalidate';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { problemMessage } from '../../problems';
 import { SESSION_QUERY_KEY, useForgetSession, useSession } from '../../session';
+import { userEmail, userName } from '../../user-name';
 import { UserFields } from './UserFields';
 import { userFieldsSchema, type UserFieldValues } from './userFieldsSchema';
 
@@ -98,25 +101,32 @@ function AccountSection({ user }: { user: UserResponse }) {
     return { status: 'saved' };
   };
 
+  // An erased user can no longer be changed (409 users.erased): nothing to edit.
+  const erased = user.status === 'ERASED';
   return (
     <SectionCard
       title={t('users.sections.account')}
       action={
-        <EditSheet
-          title={t('users.sections.edit')}
-          sectionName={t('users.sections.editName')}
-          form={form}
-          values={values}
-          onSave={save}
-        >
-          <UserFields control={form.control} />
-        </EditSheet>
+        !erased && (
+          <EditSheet
+            title={t('users.sections.edit')}
+            sectionName={t('users.sections.editName')}
+            form={form}
+            values={values}
+            onSave={save}
+          >
+            <UserFields control={form.control} />
+          </EditSheet>
+        )
       }
     >
       <DescriptionList
         items={[
-          { term: t('users.fields.name'), value: user.name },
-          { term: t('users.fields.email'), value: <span className="break-all">{user.email}</span> },
+          { term: t('users.fields.name'), value: userName(t, user) },
+          {
+            term: t('users.fields.email'),
+            value: erased ? '' : <span className="break-all">{userEmail(user)}</span>,
+          },
           { term: t('users.fields.role'), value: t(`roles.${user.role}`) },
           {
             term: t('users.fields.locale'),
@@ -156,6 +166,14 @@ function useUserActions(user: UserResponse, announce: Announce, clearNotice: () 
   const refresh = useRefreshAfterChange(user.id);
   const moreActions = useRef<HTMLButtonElement>(null);
   const [dialog, setDialog] = useState<'deactivate' | 'resetTwoFactor'>();
+  const privacy = useUserPrivacyActions(user, {
+    name: userName(t, user),
+    returnFocus: moreActions,
+    announce: (text) => {
+      announce('success', text);
+    },
+    onErased: refresh,
+  });
 
   /** A direct action: a failure is announced with focus, a success politely. */
   const act = async (action: () => Promise<unknown>, success: string): Promise<void> => {
@@ -215,6 +233,8 @@ function useUserActions(user: UserResponse, announce: Announce, clearNotice: () 
         },
   );
 
+  items.push(...privacy.items);
+
   const close = (open: boolean) => {
     if (!open) setDialog(undefined);
   };
@@ -253,10 +273,13 @@ function useUserActions(user: UserResponse, announce: Announce, clearNotice: () 
         onConfirm={() => confirmed(() => resetTwoFactor.mutateAsync({ id: user.id }))}
         onConfirmed={afterConfirmed(t('users.twoFactorReset'))}
       />
+      {privacy.dialogs}
     </>
   );
 
-  return { items, headerAction, dialogs, moreActions };
+  // An erased user keeps only "View history" (spec: GDPR request screens).
+  const erased = user.status === 'ERASED';
+  return { items: erased ? [] : items, headerAction: !erased && headerAction, dialogs, moreActions };
 }
 
 function UserRecord({
@@ -277,7 +300,7 @@ function UserRecord({
       <RecordHeader
         back={{ to: '/users', label: t('users.detailBack') }}
         context={t(`roles.${user.role}`)}
-        name={user.name}
+        name={userName(t, user)}
         statuses={
           <>
             <StatusBadge kind="user" value={user.status} />
@@ -288,14 +311,19 @@ function UserRecord({
             </span>
           </>
         }
-        actions={actions.headerAction || undefined}
+        actions={
+          <>
+            {actions.headerAction}
+            <ViewHistoryLink entityType="User" entityId={user.id} />
+          </>
+        }
         moreActions={actions.items}
         moreActionsRef={actions.moreActions}
       />
       <NoticeBanner notice={notice} />
       <SectionGrid>
         <AccountSection user={user} />
-        <UserComparsasSection user={user} />
+        {user.status !== 'ERASED' && <UserComparsasSection user={user} />}
       </SectionGrid>
       {actions.dialogs}
     </>
@@ -306,7 +334,7 @@ function UserDetail({ id }: { id: string }) {
   const { t } = useTranslation('identity');
   const user = useGetUser(id, { query: { retry: false } });
   const details = user.data?.data as UserResponse | undefined;
-  useDocumentTitle(details?.name ?? t('users.title'));
+  useDocumentTitle(details ? userName(t, details) : t('users.title'));
   // E.g. "invitation sent", handed over by the invitation page; shown once.
   const [notice, announce, clearNotice] = useNotice();
   const back = { to: '/users', label: t('users.detailBack') };

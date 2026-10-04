@@ -17,6 +17,7 @@ const KNOWN_CODES = new Set([
   'users.notInvited',
   'users.notEnrolled',
   'users.notFound',
+  'users.erased',
   'email.sendFailed',
 ] as const);
 

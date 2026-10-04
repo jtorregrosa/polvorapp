@@ -158,7 +158,8 @@
       "editName": "account details"
     },
     "cancel": "Cancel",
-    "twoFactorState": "Two-step verification: {{state}}"
+    "twoFactorState": "Two-step verification: {{state}}",
+    "erased": "Erased user"
   },
   "roles": {
     "ADMIN": "Administrator",
@@ -186,7 +187,8 @@
       "lastAdmin": "This is the only active administrator: invite or reactivate another administrator before making this change.",
       "notInvited": "The invitation can only be resent to users who have not accepted it yet.",
       "notEnrolled": "This user has not set up two-step verification.",
-      "notFound": "This user does not exist."
+      "notFound": "This user does not exist.",
+      "erased": "This user’s data is erased: it can no longer be changed."
     },
     "email": {
       "sendFailed": "The changes were saved, but the email could not be sent. Try again from the user's page."

@@ -41,7 +41,11 @@ export function FiringChiefsSection({
     const assigned = new Set(chiefs.map((chief) => chief.userId));
     return ((users.data?.data ?? []) as UserResponse[])
       .filter(
-        (user) => user.role === 'FIRING_CHIEF' && user.status !== 'DEACTIVATED' && !assigned.has(user.id),
+        (user) =>
+          user.role === 'FIRING_CHIEF' &&
+          // Deactivated and erased users cannot be assigned (BR-12; add-audit-privacy).
+          (user.status === 'ACTIVE' || user.status === 'INVITED') &&
+          !assigned.has(user.id),
       )
       .map((user) => ({ id: user.id, name: user.name, label: `${user.name} (${user.email})` }));
   }, [chiefs, users.data]);
