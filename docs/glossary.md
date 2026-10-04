@@ -68,7 +68,10 @@ equivalent are kept as-is (e.g. `Comparsa`).
 | Diana | `Diana` | Morning act where the shooting contest is held. |
 | Salvas al Patrón | `PatronSalute` | Minor firing act in honour of the patron saint. |
 | Concurso de disparo | `ShootingContest` | **Out of scope** for now. |
-| Evento de calendario | `CalendarMilestone` | Administrative dates of an edition (license renewal call, course, deadlines…). Can trigger notifications. |
+| Evento de calendario | `CalendarMilestone` | Administrative dates of an edition (license renewal call, course, deadlines…). With `notify` on, it is reminded by email 7 days before. |
+| Tipo de aviso | `NotificationKind` (`LICENSE_DIGEST`, `ORDER_WINDOW`, `ORDER_STATUS`, `MILESTONE_REMINDER`) | A kind of email notification. Each user turns the kinds of their role on or off; all are on by default. |
+| Resumen de licencias | `LICENSE_DIGEST` | Monthly email to each FiringChief counting, per comparsa, the `ACTIVE` arquebusiers whose license is missing, pending, expired or expiring within 90 days. Counts only, no names. |
+| Recordatorio de cierre | planned close reminder (`ORDER_WINDOW`) | Email 7 days and 1 day before the planned `ordersCloseOn`, while the orders are open, to the FiringChiefs of a comparsa whose order is not submitted. The planned date never closes the orders. |
 | Bloqueo del registro | `RegistryLock` | An independent lock on the registry (not tied to editions). When on, FiringChiefs cannot register, edit, change status, manage weapons or photos; Admins always write. Toggled by Admins and audited. |
 
 ## Weapons

@@ -95,4 +95,8 @@ their date.
 | Q-58 | Reason of a pickup proxy | Not stored (GDPR, it may reveal health data): the form leaves it blank, written by hand (maintainer decision, 2026-10-03). | ✅ |
 | Q-59 | Language of distribution lists and forms | The user's language (es-ES, ca-ES-valencia, en) (maintainer decision, 2026-10-03). | ✅ |
 | Q-60 | Proxy's license | A proxy must hold an active weapons license on the day: **blocking**, a deliberate exception to compliance checks being warnings (maintainer decision, 2026-10-03). | ✅ |
+| Q-62 | Recipients of the license reminders | FiringChiefs only, by comparsa; arquebusiers are never emailed (their address is for their FiringChief) (maintainer decision, 2026-10-04; `add-notifications`). | ✅ |
+| Q-63 | License reminder cadence | A monthly digest on the first day of the month, counting licenses missing, pending, expired or expiring within 90 days; none when there is nothing to report (maintainer decision, 2026-10-04). | ✅ |
+| Q-64 | Managing notifications (answer 21: "poder gestionarlas") | Each user turns each kind of their role on or off; all on by default; Admins mark which milestones are reminded (maintainer decision, 2026-10-04). | ✅ |
+| Q-65 | Notification kinds | Orders opened and closed, planned close reminders (7 and 1 day before), order returned or validated (FiringChiefs), order submitted (Admins), milestone reminders 7 days before (maintainer decision, 2026-10-04). | ✅ |
 | Q-61 | Federation logo on documents | Uploaded at run time by an Admin into private storage and printed on the form (and later the badges); never committed, as the repository is public (maintainer decision, 2026-10-03). | ✅ |

@@ -279,10 +279,27 @@ node ../scripts/check-coverage.mjs TestResults 80          # 80 % line gate
 - Configuration comes only from environment variables (`ConnectionStrings__Postgres`,
   `Email__SmtpHost`, `Email__SmtpPort`, `Email__Security` (`None` | `StartTls` | `SslOnConnect`),
   `Email__From`, optional `Email__Username`/`Email__Password` and `Email__TimeoutSeconds`,
-  `App__PublicBaseUrl`, …). Outside `Development` and `Testing` the API requires TLS for SMTP and an
+  `App__PublicBaseUrl`, `Notifications__Enabled` (default `true`), `Notifications__DispatchIntervalSeconds`
+  (1–3600, default 30), …). Outside `Development` and `Testing` the API requires TLS for SMTP and an
   https `App__PublicBaseUrl`. The
   API refuses to start when a required setting is missing, naming the setting.
 - Logs are JSON on stdout and never include query strings, bodies or personal data (NFR-12).
+
+### Notifications
+
+The API sends the notification emails itself (`add-notifications`): a dispatcher sends event emails
+(orders opened or closed, order status) every `Notifications__DispatchIntervalSeconds`, and a
+scheduler works out the license digest, the planned close reminders and the milestone reminders every
+15 minutes from 08:00 Europe/Madrid. Locally they land in Mailpit (<http://localhost:8025>). To send
+today's scheduled notifications at once, whatever the hour:
+
+```bash
+docker compose run --rm api send-notifications
+dotnet run --project backend/src/PolvorApp.Api send-notifications
+```
+
+It sends nothing twice and exits with 1 when a delivery failed. `Notifications__Enabled=false` turns
+both background services off (the command still works); test hosts do so and call the runs directly.
 
 ### API contract
 
@@ -343,7 +360,7 @@ Playwright runs against the compose stack with the synthetic users seeded. The s
 times from one address, so raise the per-address sign-in limits for the run (CI does the same):
 
 ```bash
-RATE_LIMIT_AUTH_PER_MINUTE=300 RATE_LIMIT_AUTH_EMAIL_PER_15_MINUTES=100 RATE_LIMIT_PERSONAL_DATA_WRITES_PER_MINUTE=600 RATE_LIMIT_IMAGE_UPLOADS_PER_MINUTE=200 RATE_LIMIT_SPREADSHEET_IMPORTS_PER_MINUTE=100 RATE_LIMIT_EXPORTS_PER_MINUTE=300 docker compose up -d --build --wait
+RATE_LIMIT_AUTH_PER_MINUTE=300 RATE_LIMIT_AUTH_EMAIL_PER_15_MINUTES=100 RATE_LIMIT_PERSONAL_DATA_WRITES_PER_MINUTE=600 RATE_LIMIT_IMAGE_UPLOADS_PER_MINUTE=200 RATE_LIMIT_SPREADSHEET_IMPORTS_PER_MINUTE=100 RATE_LIMIT_EXPORTS_PER_MINUTE=300 NOTIFICATIONS_DISPATCH_INTERVAL_SECONDS=2 docker compose up -d --build --wait
 docker compose run --rm api-seed
 cd frontend && npx playwright install --with-deps chromium firefox webkit   # once
 npm run e2e

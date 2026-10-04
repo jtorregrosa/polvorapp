@@ -118,7 +118,7 @@ Federation labels such as "ARCABUZ CRISTIANO" do not follow Q-07 strictly; Q-53)
 
 **EditionWeaponModel** — which `WeaponModel`s are rentable in an edition (copied from the previous edition at creation, then editable). A model that becomes inactive or non-rentable after being offered stays in the set until an Admin removes it, but is no longer offered for rental.
 
-**CalendarMilestone** — `date`, `title` (up to 50 per edition); added, edited and removed by Admins in any status. No `notify` field until change #14.
+**CalendarMilestone** — `date`, `title`, `notify` (up to 50 per edition); added, edited and removed by Admins in any status. `notify` (off by default) asks for an email reminder 7 days before the date: to Admins, and to FiringChiefs once the edition is in progress (`add-notifications`).
 
 **RegistrySettings** — a single row holding the registry lock state (`locked` boolean, `lockedChangedAt` timestamptz). When locked, FiringChief writes to the registry are refused (`409 registry.locked`); Admins keep writing. The lock is independent of editions and is toggled by Admins.
 
@@ -216,7 +216,29 @@ store `distributionNumber` at handover.
 
 ### Cross-cutting
 
-**CalendarMilestone** — `edition`, `date`, `title`, `notify` (email reminders).
+**CalendarMilestone** — `edition`, `date`, `title`, `notify` (email reminders; see above).
+
+### Notifications (`add-notifications`, UC-23)
+
+Emails to the users of PolvorApp (never to arquebusiers), each of a `NotificationKind` that the user
+can turn off: `LICENSE_DIGEST` (FiringChiefs), `ORDER_WINDOW` (FiringChiefs), `ORDER_STATUS`
+(FiringChiefs of the order's comparsa; Admins for a FiringChief's submission) and `MILESTONE_REMINDER`
+(Admins, and FiringChiefs for the edition in progress).
+
+**NotificationOptOut** — `user`, `kind`: a kind the user turned off. Every kind is on while no row
+exists.
+
+**NotificationEvent** (outbox) — `type` (`ORDERS_OPENED`, `ORDERS_CLOSED`, `ORDER_SUBMITTED`,
+`ORDER_RETURNED`, `ORDER_VALIDATED`), `edition`, `comparsa`, `order`, `occurredAt`, `processedAt`:
+recorded by the editions and orders modules in the transaction of the change; identifiers only.
+Processed events are deleted after 30 days.
+
+**NotificationDelivery** — `user`, `kind`, `template`, `topic` (unique per user: a recipient gets each
+notification once), `data` (identifiers, dates and counts only), `status` (`PENDING` | `SENT` |
+`SKIPPED` | `FAILED`), `attempts`, `nextAttemptAt`, `createdAt`, `sentAt`, `lastError`. No address,
+subject or body is stored. Deleted one year after creation.
+
+**NotificationRun** — `job`, `period`: the license digest of a month was worked out (once per month).
 
 **Note** — `comparsa`, `author`, `date`, `text` (internal comparsa notes).
 
