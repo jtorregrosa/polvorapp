@@ -37,6 +37,12 @@
     "announce": {
       "sorted": "Ordenat per {{column}}: {{direction}}",
       "unsorted": "Sense ordenar"
+    },
+    "selection": {
+      "row": "Seleccionar {{name}}",
+      "page": "Seleccionar tots els d'esta pàgina",
+      "count_one": "{{count}} seleccionat",
+      "count_other": "{{count}} seleccionats"
     }
   },
   "form": {
