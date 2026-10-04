@@ -137,6 +137,11 @@
   registered by the comparsa's FiringChiefs while the edition is in progress, even with the orders
   closed; the proxy must hold an active weapons license on the day (blocking); no reason is stored;
   the authorisation form is printed in the user's language with the Federation's logo once uploaded.
+- **UC-30 (badges)**, change `add-badges` (maintainer decisions): Admins print badges as an A4 PDF
+  of 10 ID-1 cards with crop marks, either for a whole comparsa (`ACTIVE` and `RESERVE`) or for a
+  selection ticked in the registry list, at most 200 per PDF. The labels' language is chosen for
+  each download (Q-49 open). A missing photo or issued license prints an empty frame or line, with
+  a warning before the download, never a block. Nothing is stored; each download is audited.
 - **UC-23 (email notifications)**, change `add-notifications` (maintainer decisions): emails go only to
   `ACTIVE` users, never to arquebusiers. A monthly license digest (first day of the month; counts per
   comparsa of `ACTIVE` arquebusiers with a missing, pending, expired or expiring-within-90-days

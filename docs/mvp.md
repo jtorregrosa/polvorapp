@@ -70,6 +70,9 @@ per change. Checks deferred to it:
 - `add-arquebusier-photos`: ID and license photos taken with the camera of a real Android phone and
   an iPhone (HEIC); cropping with a screen reader (NVDA, VoiceOver); `exiftool` over the stored
   objects in the bucket.
+- `add-badges`: one badge sheet printed at 100 % on cardstock, measured with a ruler (cards
+  85.60 × 53.98 mm, crop marks on the cutting lines) and tried in an ID-1 plastic sleeve; the
+  Federation green and the layout checked with the Federation on that proof.
 
 ## Blockers to resolve before go-live (not before starting)
 
