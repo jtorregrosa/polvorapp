@@ -95,6 +95,20 @@ its detail page follows this pattern:
   back to the list with its notice.
 - **Section editing.** Sections are edited in `EditSheet`s. Money uses `MoneyInput`. A panel that
   adds a row, such as "Add milestone", gives `EditSheet` its own `trigger` label and icon.
+- **Emails.** A move that emails other users says so in its dialog, e.g. "They are told by email"
+  for opening or closing the orders (`add-notifications`).
+- **Reminder marks.** A milestone reminded by email shows a muted text mark under its title ("Email
+  reminder", with a `BellRing` icon that is `aria-hidden`), never an icon alone. Its panel has a
+  `CheckboxField` whose description says who is reminded and when.
+
+### Notification settings (account page)
+
+The account page's "Email notifications" section (`add-notifications`) lists, in read mode, each kind
+of email of the user's role with its state as text ("On"/"Off") and what it covers. "Edit" opens an
+`EditSheet` with one `CheckboxField` per kind (label and description). The section is a
+`SectionCard` with `anchorId="notifications"`: an email's settings link opens
+`/account?section=notifications`, and the page scrolls to the section and moves focus to it. A load
+failure stays inside the section (`LoadFailure` with retry) and never hides the rest of the page.
 
 ### Order page (comparsa orders)
 

@@ -137,6 +137,15 @@
   registered by the comparsa's FiringChiefs while the edition is in progress, even with the orders
   closed; the proxy must hold an active weapons license on the day (blocking); no reason is stored;
   the authorisation form is printed in the user's language with the Federation's logo once uploaded.
+- **UC-23 (email notifications)**, change `add-notifications` (maintainer decisions): emails go only to
+  `ACTIVE` users, never to arquebusiers. A monthly license digest (first day of the month; counts per
+  comparsa of `ACTIVE` arquebusiers with a missing, pending, expired or expiring-within-90-days
+  license) goes to FiringChiefs. Opening and closing the orders, and reminders 7 days and 1 day before
+  the planned close date for orders not yet submitted, go to FiringChiefs. An order returned or
+  validated is told to its comparsa's FiringChiefs (the return reason is read in the app, never
+  emailed); a FiringChief's submission is told to the Admins. Milestones marked `notify` are reminded
+  7 days ahead to Admins, and to FiringChiefs once the edition is in progress. Each user turns each
+  kind of their role on or off on the account page; scheduled emails go out from 08:00 Europe/Madrid.
 - On distribution day the **FiringChief validates the identity** of their arquebusiers; nobody signs.
   The only paper document is the proxy authorisation (UC-19), for the exceptional case.
 - Today the Federation records flask assignments with a laptop and a spreadsheet; UC-20 printable
