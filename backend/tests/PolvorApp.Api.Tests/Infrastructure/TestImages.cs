@@ -55,6 +55,19 @@ public static class TestImages
     }
 
     /// <summary>
+    /// A JPEG start marker and frame header announcing <paramref name="width"/> × <paramref name="height"/>,
+    /// without scan data: baseline (SOF0), 8 bits and 3 components unless told otherwise, and an end marker
+    /// unless <paramref name="complete"/> is false.
+    /// </summary>
+    public static byte[] JpegHeaderOnly(int width, int height, byte frameMarker = 0xC0, byte precision = 8, byte components = 3, bool complete = true)
+    {
+        var frame = new byte[] { 0xFF, frameMarker, 0x00, 0x11, precision, 0, 0, 0, 0, components, 1, 0x11, 0, 2, 0x11, 0, 3, 0x11, 0 };
+        BinaryPrimitives.WriteUInt16BigEndian(frame.AsSpan(5), (ushort)height);
+        BinaryPrimitives.WriteUInt16BigEndian(frame.AsSpan(7), (ushort)width);
+        return complete ? [0xFF, 0xD8, .. frame, 0xFF, 0xD9] : [0xFF, 0xD8, .. frame];
+    }
+
+    /// <summary>
     /// A JPEG that stores the upright quadrant image transformed so that a viewer applying EXIF
     /// <paramref name="orientation"/> (1–8) shows it upright, with GPS and camera tags.
     /// </summary>

@@ -1,0 +1,88 @@
+--- page 1 (portrait) ---
+ARCABUCERO ARCABUCERO
+Unión de Comparsas Sintéticas «Ejemplo» Unión de Comparsas Sintéticas «Ejemplo»
+Apellidos Apellidos
+Sintético Pérez Sintètic i Col·lell
+Nombre Nombre
+Ana María Lluís
+DNI/NIE DNI/NIE
+00000000T X0000000T
+Código Código
+1001 1002
+Fecha de caducidad Fecha de caducidad
+31/05/2033
+Comparsa Comparsa
+Comparsa Sintética Norte Comparsa Sintética Sur
+ARCABUCERO ARCABUCERO
+Unión de Comparsas Sintéticas «Ejemplo» Unión de Comparsas Sintéticas «Ejemplo»
+Apellidos Apellidos
+Ejemplo Núñez Sintético 4
+Nombre Nombre
+Begoña Ana
+DNI/NIE DNI/NIE
+00000001R 00000000T
+Código Código
+1003 1004
+Fecha de caducidad Fecha de caducidad
+01/01/2030 31/05/2033
+Comparsa Comparsa
+Comparsa Sintética Sur Comparsa Sintética Norte
+ARCABUCERO ARCABUCERO
+Unión de Comparsas Sintéticas «Ejemplo» Unión de Comparsas Sintéticas «Ejemplo»
+Apellidos Apellidos
+Sintético 5 Sintético 6
+Nombre Nombre
+Ana Ana
+DNI/NIE DNI/NIE
+00000000T 00000000T
+Código Código
+1005 1006
+Fecha de caducidad Fecha de caducidad
+31/05/2033 31/05/2033
+Comparsa Comparsa
+Comparsa Sintética Norte Comparsa Sintética Norte
+ARCABUCERO ARCABUCERO
+Unión de Comparsas Sintéticas «Ejemplo» Unión de Comparsas Sintéticas «Ejemplo»
+Apellidos Apellidos
+Sintético 7 Sintético 8
+Nombre Nombre
+Ana Ana
+DNI/NIE DNI/NIE
+00000000T 00000000T
+Código Código
+1007 1008
+Fecha de caducidad Fecha de caducidad
+31/05/2033 31/05/2033
+Comparsa Comparsa
+Comparsa Sintética Norte Comparsa Sintética Norte
+ARCABUCERO ARCABUCERO
+Unión de Comparsas Sintéticas «Ejemplo» Unión de Comparsas Sintéticas «Ejemplo»
+Apellidos Apellidos
+Sintético 9 Sintético 10
+Nombre Nombre
+Ana Ana
+DNI/NIE DNI/NIE
+00000000T 00000000T
+Código Código
+1009 1010
+Fecha de caducidad Fecha de caducidad
+31/05/2033 31/05/2033
+Comparsa Comparsa
+Comparsa Sintética Norte Comparsa Sintética Norte
+--- page 2 (portrait) ---
+ARCABUCERO
+Unión de Comparsas Sintéticas «Ejemplo»
+Apellidos
+Sintético 11
+Nombre
+Ana
+DNI/NIE
+00000000T
+Código
+1011
+Fecha de caducidad
+31/05/2033
+Comparsa
+Comparsa Sintética Norte
+--- images ---
+page 1: 9 image(s), page 2: 1 image(s)
