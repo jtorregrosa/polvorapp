@@ -1,0 +1,38 @@
+{
+  "section": {
+    "title": "Email notifications",
+    "description": "Choose which emails you want to receive from PolvorApp.",
+    "edit": "email notifications",
+    "editTitle": "Edit email notifications",
+    "editDescription": "Clear the notifications you do not want. They apply from the next email.",
+    "loadFailed": "Your notifications could not be loaded.",
+    "loading": "Loading your notifications…"
+  },
+  "state": {
+    "on": "On",
+    "off": "Off"
+  },
+  "kinds": {
+    "LICENSE_DIGEST": {
+      "label": "Monthly license digest",
+      "description": "On the first day of each month: licenses missing, pending, expired or expiring within 90 days in your comparsas."
+    },
+    "ORDER_WINDOW": {
+      "label": "Orders opened and closed",
+      "description": "When the orders open or close, and reminders 7 days and 1 day before the planned close if your order is not submitted."
+    },
+    "ORDER_STATUS": {
+      "label": "Order status",
+      "description": "When an order is returned or validated; for Admins, when a firing chief submits an order."
+    },
+    "MILESTONE_REMINDER": {
+      "label": "Calendar reminders",
+      "description": "A week before the milestones the Federation marks for a reminder."
+    }
+  },
+  "errors": {
+    "invalid": "This kind of notification does not exist.",
+    "notApplicable": "This notification does not apply to your role.",
+    "duplicate": "This notification appears twice."
+  }
+}

@@ -109,9 +109,17 @@
       "columns": {
         "date": "Data",
         "title": "Fita",
-        "actions": "Accions"
+        "actions": "Accions",
+        "notify": "Recordatori per correu"
       },
-      "empty": "Encara no hi ha fites."
+      "empty": "Encara no hi ha fites.",
+      "notify": {
+        "label": "Envia un recordatori per correu",
+        "hint": "Una setmana abans, als Admins i, amb l'edició en curs, als caps de tir.",
+        "mark": "Recordatori per correu",
+        "yes": "Sí",
+        "no": "No"
+      }
     }
   },
   "actions": {
@@ -131,11 +139,11 @@
     },
     "openOrders": {
       "title": "Vols obrir les comandes de {{year}}?",
-      "description": "Els caps de tir podran preparar i editar les comandes de les seues comparses."
+      "description": "Els caps de tir podran preparar i editar les comandes de les seues comparses. Se'ls avisarà per correu."
     },
     "closeOrders": {
       "title": "Vols tancar les comandes de {{year}}?",
-      "description": "Les comandes passen a ser de només lectura per als caps de tir. Podràs tornar a obrir-les per a correccions."
+      "description": "Les comandes passen a ser de només lectura per als caps de tir. Podràs tornar a obrir-les per a correccions. Se'ls avisarà per correu."
     },
     "closeEdition": {
       "title": "Vols tancar l'edició {{year}}?",

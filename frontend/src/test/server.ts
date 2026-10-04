@@ -21,4 +21,13 @@ export const server = setupServer(
   mock.get('/api/registry/lock', () => HttpResponse.json({ locked: false, changedAt: null })),
   // The comparsas page's Federation logo section, for Admins: no logo yet.
   mock.get('/api/federation', () => HttpResponse.json({ logo: null })),
+  // The account page's email notifications: every kind of a FiringChief on.
+  mock.get('/api/account/notification-preferences', () =>
+    HttpResponse.json({
+      kinds: ['LICENSE_DIGEST', 'ORDER_WINDOW', 'ORDER_STATUS', 'MILESTONE_REMINDER'].map((kind) => ({
+        kind,
+        enabled: true,
+      })),
+    }),
+  ),
 );

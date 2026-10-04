@@ -16,6 +16,7 @@ import caCommon from './locales/ca-ES-valencia/common.json';
 import caEditions from './locales/ca-ES-valencia/editions.json';
 import caIdentity from './locales/ca-ES-valencia/identity.json';
 import caInsights from './locales/ca-ES-valencia/insights.json';
+import caNotifications from './locales/ca-ES-valencia/notifications.json';
 import caOrders from './locales/ca-ES-valencia/orders.json';
 import caRegistry from './locales/ca-ES-valencia/registry.json';
 import caUi from './locales/ca-ES-valencia/ui.json';
@@ -27,6 +28,7 @@ import enCommon from './locales/en/common.json';
 import enEditions from './locales/en/editions.json';
 import enIdentity from './locales/en/identity.json';
 import enInsights from './locales/en/insights.json';
+import enNotifications from './locales/en/notifications.json';
 import enOrders from './locales/en/orders.json';
 import enRegistry from './locales/en/registry.json';
 import enUi from './locales/en/ui.json';
@@ -38,6 +40,7 @@ import esCommon from './locales/es-ES/common.json';
 import esEditions from './locales/es-ES/editions.json';
 import esIdentity from './locales/es-ES/identity.json';
 import esInsights from './locales/es-ES/insights.json';
+import esNotifications from './locales/es-ES/notifications.json';
 import esOrders from './locales/es-ES/orders.json';
 import esRegistry from './locales/es-ES/registry.json';
 import esUi from './locales/es-ES/ui.json';
@@ -57,6 +60,7 @@ export const resources = {
     billing: esBilling,
     exports: esExports,
     distribution: esDistribution,
+    notifications: esNotifications,
   },
   'ca-ES-valencia': {
     common: caCommon,
@@ -70,6 +74,7 @@ export const resources = {
     billing: caBilling,
     exports: caExports,
     distribution: caDistribution,
+    notifications: caNotifications,
   },
   en: {
     common: enCommon,
@@ -83,6 +88,7 @@ export const resources = {
     billing: enBilling,
     exports: enExports,
     distribution: enDistribution,
+    notifications: enNotifications,
   },
 } as const satisfies Record<
   Language,
@@ -98,6 +104,7 @@ export const resources = {
     billing: object;
     exports: object;
     distribution: object;
+    notifications: object;
   }
 >;
 

@@ -301,6 +301,7 @@ describe('EditionDetailPage edit panels (spec: Detail pages in read mode)', () =
       id: '00000000-0000-4000-8000-000000000703',
       date: '2031-03-15',
       title: 'Hito sintético',
+      notify: false,
     };
     const added = recordBodies(() => {
       details.set({ milestones: [...CURRENT_2031.milestones, created] });
@@ -330,7 +331,7 @@ describe('EditionDetailPage edit panels (spec: Detail pages in read mode)', () =
     fireEvent.change(within(panel).getByLabelText('Fecha'), { target: { value: '2031-03-15' } });
     await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
     await expectSaved('Hito añadido.');
-    expect(added.bodies).toEqual([{ date: '2031-03-15', title: 'Hito sintético' }]);
+    expect(added.bodies).toEqual([{ date: '2031-03-15', title: 'Hito sintético', notify: false }]);
     const table = screen.getByRole('table', { name: 'Hitos del calendario' });
     expect(await within(table).findByText('Hito sintético')).toBeInTheDocument();
 
@@ -341,7 +342,7 @@ describe('EditionDetailPage edit panels (spec: Detail pages in read mode)', () =
     await user.type(title, 'Hito sintético revisado');
     await user.click(within(editPanel).getByRole('button', { name: 'Guardar cambios' }));
     await expectSaved('Cambios guardados');
-    expect(edited.bodies).toEqual([{ date: '2031-03-15', title: 'Hito sintético revisado' }]);
+    expect(edited.bodies).toEqual([{ date: '2031-03-15', title: 'Hito sintético revisado', notify: false }]);
     expect(await within(table).findByText('Hito sintético revisado')).toBeInTheDocument();
 
     await user.click(

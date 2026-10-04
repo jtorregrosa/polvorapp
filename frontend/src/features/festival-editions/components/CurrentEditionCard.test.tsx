@@ -38,11 +38,13 @@ describe('CurrentEditionCard on the start page (spec: Current edition on the sta
       id: `00000000-0000-4000-8000-00000000080${String(n)}`,
       date: `2099-0${String(n)}-01`,
       title: `Hito sintético ${String(n)}`,
+      notify: false,
     }));
     const past = {
       id: '00000000-0000-4000-8000-000000000800',
       date: '2020-01-01',
       title: 'Plazo sintético pasado',
+      notify: false,
     };
     currentIs({ ...CURRENT_2031, milestones: [past, ...upcoming] });
     await renderApp('/', { session: SYNTHETIC_FIRING_CHIEF });

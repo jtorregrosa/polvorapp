@@ -1,0 +1,38 @@
+{
+  "section": {
+    "title": "Avisos per correu",
+    "description": "Tria quins correus vols rebre de PolvorApp.",
+    "edit": "avisos per correu",
+    "editTitle": "Edita els avisos per correu",
+    "editDescription": "Desmarca els avisos que no vulgues rebre. S'apliquen a partir del pròxim correu.",
+    "loadFailed": "No s'han pogut carregar els teus avisos.",
+    "loading": "Carregant els teus avisos…"
+  },
+  "state": {
+    "on": "Activat",
+    "off": "Desactivat"
+  },
+  "kinds": {
+    "LICENSE_DIGEST": {
+      "label": "Resum mensual de llicències",
+      "description": "El dia 1 de cada mes: llicències que falten, en tràmit, caducades o que caduquen en 90 dies en les teues comparses."
+    },
+    "ORDER_WINDOW": {
+      "label": "Obertura i tancament de comandes",
+      "description": "Quan s'obrin o es tanquen les comandes, i recordatoris 7 dies i 1 dia abans del tancament previst si la teua comanda no està enviada."
+    },
+    "ORDER_STATUS": {
+      "label": "Estat de les comandes",
+      "description": "Quan una comanda es retorna o es valida; per als Admins, quan un cap de tir envia una comanda."
+    },
+    "MILESTONE_REMINDER": {
+      "label": "Recordatoris del calendari",
+      "description": "Una setmana abans de les fites que la Unió marque per a avisar."
+    }
+  },
+  "errors": {
+    "invalid": "Este tipus d'avís no existix.",
+    "notApplicable": "Este avís no s'aplica al teu rol.",
+    "duplicate": "Este avís apareix dues vegades."
+  }
+}
