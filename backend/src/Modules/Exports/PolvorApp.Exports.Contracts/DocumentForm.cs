@@ -121,9 +121,20 @@ public sealed class DocumentFormField : DocumentFormBlock
     public override string ToString() => $"{nameof(DocumentFormField)} {Label}";
 }
 
+/// <summary>How a <see cref="DocumentImage"/> is encoded.</summary>
+public enum DocumentImageFormat
+{
+    /// <summary>PNG, e.g. a logo with transparency.</summary>
+    Png,
+
+    /// <summary>JPEG, e.g. an ID photo (add-badges, design D2).</summary>
+    Jpeg,
+}
+
 /// <summary>
-/// A PNG image to print, e.g. a logo. Built only from the PNG itself, so its size always matches its
-/// pixels: at least 1 and at most <see cref="MaxSide"/> pixels a side, at most <see cref="MaxBytes"/>.
+/// A PNG or JPEG image to print, e.g. a logo or a photo. Built only from the encoded image itself, so
+/// its size always matches its pixels: at least 1 and at most <see cref="MaxSide"/> pixels a side, at
+/// most <see cref="MaxBytes"/>.
 /// </summary>
 public sealed class DocumentImage
 {
@@ -131,17 +142,21 @@ public sealed class DocumentImage
 
     public const int MaxBytes = 4 * 1024 * 1024;
 
-    private static readonly byte[] Signature = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
+    private static readonly byte[] PngSignature = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
 
-    private DocumentImage(ReadOnlyMemory<byte> png, int width, int height) => (Png, Width, Height) = (png, width, height);
+    private DocumentImage(ReadOnlyMemory<byte> content, DocumentImageFormat format, int width, int height) =>
+        (Content, Format, Width, Height) = (content, format, width, height);
 
-    /// <summary>The image, PNG-encoded.</summary>
-    public ReadOnlyMemory<byte> Png { get; }
+    /// <summary>The encoded image, in <see cref="Format"/>.</summary>
+    public ReadOnlyMemory<byte> Content { get; }
 
-    /// <summary>Width in pixels, read from the PNG header.</summary>
+    /// <summary>Informational: the writers draw either kind, as QuestPDF reads the format from the bytes.</summary>
+    public DocumentImageFormat Format { get; }
+
+    /// <summary>Width in pixels, read from the image header.</summary>
     public int Width { get; }
 
-    /// <summary>Height in pixels, read from the PNG header.</summary>
+    /// <summary>Height in pixels, read from the image header.</summary>
     public int Height { get; }
 
     /// <summary>A copy of <paramref name="png"/>, refused unless it is a PNG within the limits.</summary>
@@ -149,21 +164,94 @@ public sealed class DocumentImage
     {
         var bytes = png.Span;
         // Signature (8), IHDR length (4) and type (4), then width and height (4 + 4), big-endian.
-        if (bytes.Length < 24 || bytes.Length > MaxBytes || !bytes[..8].SequenceEqual(Signature) || !bytes[12..16].SequenceEqual("IHDR"u8))
+        if (bytes.Length < 24 || bytes.Length > MaxBytes || !bytes[..8].SequenceEqual(PngSignature) || !bytes[12..16].SequenceEqual("IHDR"u8))
         {
-            throw new ArgumentException("A document image is a PNG of at most 4 MB.", nameof(png));
+            throw new ArgumentException($"A document image is a PNG of at most {MaxBytes} bytes.", nameof(png));
         }
 
         var width = BinaryPrimitives.ReadInt32BigEndian(bytes[16..20]);
         var height = BinaryPrimitives.ReadInt32BigEndian(bytes[20..24]);
-        if (width is < 1 or > MaxSide || height is < 1 or > MaxSide)
+        return Create(png, DocumentImageFormat.Png, width, height, nameof(png));
+    }
+
+    /// <summary>
+    /// A copy of <paramref name="jpeg"/>, refused unless it is a complete baseline, extended or progressive
+    /// JPEG of 8 bits with 1 (grey) or 3 (colour) components, within the limits: the kinds the PDF writers
+    /// draw as they are.
+    /// </summary>
+    public static DocumentImage FromJpeg(ReadOnlyMemory<byte> jpeg)
+    {
+        if (jpeg.Length > MaxBytes || JpegFrameSize(jpeg.Span) is not var (width, height))
         {
-            throw new ArgumentException($"A document image is 1 to {MaxSide} pixels a side.", nameof(png));
+            throw new ArgumentException($"A document image is an 8-bit grey or colour JPEG of at most {MaxBytes} bytes.", nameof(jpeg));
         }
 
-        return new DocumentImage(png.ToArray(), width, height);
+        return Create(jpeg, DocumentImageFormat.Jpeg, width, height, nameof(jpeg));
     }
 
     /// <summary>Its size only.</summary>
     public override string ToString() => $"{nameof(DocumentImage)} {Width}×{Height}";
+
+    private static DocumentImage Create(ReadOnlyMemory<byte> content, DocumentImageFormat format, int width, int height, string parameter)
+    {
+        if (width is < 1 or > MaxSide || height is < 1 or > MaxSide)
+        {
+            throw new ArgumentException($"A document image is 1 to {MaxSide} pixels a side.", parameter);
+        }
+
+        return new DocumentImage(content.ToArray(), format, width, height);
+    }
+
+    /// <summary>
+    /// The size in the frame header, walking the marker segments after the start-of-image marker; null
+    /// unless the bytes end with the end-of-image marker (no truncated file) and the frame is baseline,
+    /// extended sequential or progressive (SOF0–SOF2) with 8-bit samples and 1 or 3 components.
+    /// </summary>
+    private static (int Width, int Height)? JpegFrameSize(ReadOnlySpan<byte> bytes)
+    {
+        if (bytes.Length < 4 || bytes[0] != 0xFF || bytes[1] != 0xD8 || bytes[^2] != 0xFF || bytes[^1] != 0xD9)
+        {
+            return null;
+        }
+
+        var position = 2;
+        while (position + 4 <= bytes.Length)
+        {
+            if (bytes[position] != 0xFF)
+            {
+                return null;
+            }
+
+            var marker = bytes[position + 1];
+            if (marker == 0xFF)
+            {
+                position++; // fill byte
+                continue;
+            }
+
+            var length = BinaryPrimitives.ReadUInt16BigEndian(bytes[(position + 2)..]);
+            if (length < 2 || position + 2 + length > bytes.Length)
+            {
+                return null;
+            }
+
+            if (marker is >= 0xC0 and <= 0xCF and not (0xC4 or 0xC8 or 0xCC))
+            {
+                // Length (2), precision (1), height (2), width (2), components (1). Lossless, hierarchical and
+                // arithmetic-coded frames, 12-bit samples and CMYK are refused.
+                return marker <= 0xC2 && length >= 8 && bytes[position + 4] == 8 && bytes[position + 9] is 1 or 3
+                    ? (BinaryPrimitives.ReadUInt16BigEndian(bytes[(position + 7)..]), BinaryPrimitives.ReadUInt16BigEndian(bytes[(position + 5)..]))
+                    : null;
+            }
+
+            if (marker == 0xDA)
+            {
+                return null; // scan data before any frame header
+            }
+
+            position += 2 + length;
+        }
+
+        return null;
+    }
 }

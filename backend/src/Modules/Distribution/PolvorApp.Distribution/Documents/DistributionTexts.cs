@@ -1,6 +1,7 @@
 using System.Globalization;
 using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.Distribution.Contracts;
+using PolvorApp.Exports.Contracts;
 
 namespace PolvorApp.Distribution.Documents;
 
@@ -123,7 +124,7 @@ internal sealed record DistributionTexts
         ProxyNationalId = "DNI/NIE autorizado",
         Flasks = FlaskWords("Propia", "Alquiler 1 kg", "Alquiler 2 kg", "Ninguna"),
         ErasedPerson = "[datos borrados]",
-        FederationName = "Unión de Comparsas de Moros y Cristianos «Ber-Largas»",
+        FederationName = FederationNames.Spanish,
         FormTitles = new Dictionary<DistributionType, string>
         {
             [DistributionType.Powder] = "Autorización de recogida de pólvora — Fiestas {0}",
@@ -174,7 +175,7 @@ internal sealed record DistributionTexts
         ProxyNationalId = "DNI/NIE autoritzat",
         Flasks = FlaskWords("Pròpia", "Lloguer 1 kg", "Lloguer 2 kg", "Cap"),
         ErasedPerson = "[dades esborrades]",
-        FederationName = "Unió de Comparses de Moros i Cristians «Ber-Largas»",
+        FederationName = FederationNames.Valencian,
         FormTitles = new Dictionary<DistributionType, string>
         {
             [DistributionType.Powder] = "Autorització de recollida de pólvora — Festes {0}",
@@ -225,7 +226,7 @@ internal sealed record DistributionTexts
         ProxyNationalId = "Proxy DNI/NIE",
         Flasks = FlaskWords("Own", "Rented 1 kg", "Rented 2 kg", "None"),
         ErasedPerson = "[data erased]",
-        FederationName = "Unión de Comparsas de Moros y Cristianos «Ber-Largas»",
+        FederationName = FederationNames.Spanish,
         FormTitles = new Dictionary<DistributionType, string>
         {
             [DistributionType.Powder] = "Authorisation to collect the powder — Festival {0}",

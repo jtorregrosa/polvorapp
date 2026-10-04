@@ -36,4 +36,11 @@ internal sealed class DocumentRenderer(TimeProvider time) : IDocumentRenderer
         return new RenderedDocument(
             PdfFormWriter.Write(form, FederationCalendar.Today(time)), PdfExportWriter.ContentType, $"{form.FileStem}.{PdfExportWriter.Extension}");
     }
+
+    public RenderedDocument RenderBadgeSheet(DocumentBadgeSheet sheet)
+    {
+        ArgumentNullException.ThrowIfNull(sheet);
+        return new RenderedDocument(
+            PdfBadgeSheetWriter.Write(sheet, FederationCalendar.Today(time)), PdfExportWriter.ContentType, $"{sheet.FileStem}.{PdfExportWriter.Extension}");
+    }
 }

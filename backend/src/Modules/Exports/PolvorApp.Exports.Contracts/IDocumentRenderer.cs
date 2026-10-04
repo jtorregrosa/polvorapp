@@ -16,6 +16,9 @@ public interface IDocumentRenderer
 
     /// <summary>A workbook of several sheets, as an Excel file (add-audit-privacy).</summary>
     RenderedDocument RenderWorkbook(DocumentWorkbook workbook);
+
+    /// <summary>Arquebusier badges on A4 sheets to cut by hand, as a PDF (add-badges).</summary>
+    RenderedDocument RenderBadgeSheet(DocumentBadgeSheet sheet);
 }
 
 /// <summary>A rendered file, ready to return: never stored (SEC-06).</summary>

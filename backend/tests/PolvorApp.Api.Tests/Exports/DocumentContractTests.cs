@@ -138,6 +138,65 @@ public sealed class DocumentContractTests
     }
 
     [Fact]
+    public void A_photo_takes_its_size_and_format_from_the_jpeg()
+    {
+        var photo = DocumentImage.FromJpeg(TestImages.Jpeg(300, 400));
+
+        Assert.Equal((300, 400), (photo.Width, photo.Height));
+        Assert.Equal(DocumentImageFormat.Jpeg, photo.Format);
+        Assert.Equal(DocumentImageFormat.Png, DocumentImage.FromPng(TestImages.Png(4, 3)).Format);
+        Assert.Equal("DocumentImage 300×400", photo.ToString());
+    }
+
+    [Fact]
+    public void A_photo_must_be_a_jpeg_of_a_sensible_size()
+    {
+        Assert.Throws<ArgumentException>(() => DocumentImage.FromJpeg(ReadOnlyMemory<byte>.Empty));
+        Assert.Throws<ArgumentException>(() => DocumentImage.FromJpeg(TestImages.Png(300, 400)));
+        Assert.Throws<ArgumentException>(() => DocumentImage.FromJpeg(TestImages.JpegHeaderOnly(5000, 300)));
+        Assert.Throws<ArgumentException>(() => DocumentImage.FromJpeg(TestImages.JpegHeaderOnly(300, 0)));
+        Assert.Throws<ArgumentException>(() => DocumentImage.FromJpeg(new byte[DocumentImage.MaxBytes + 1]));
+        var header = DocumentImage.FromJpeg(TestImages.JpegHeaderOnly(300, 400));
+        Assert.Equal((300, 400), (header.Width, header.Height));
+    }
+
+    [Fact]
+    public void A_truncated_jpeg_is_refused()
+    {
+        var jpeg = TestImages.Jpeg(300, 400);
+
+        Assert.Throws<ArgumentException>(() => DocumentImage.FromJpeg(jpeg.AsMemory(0, jpeg.Length - 2)));
+        Assert.Throws<ArgumentException>(() => DocumentImage.FromJpeg(TestImages.JpegHeaderOnly(300, 400, complete: false)));
+    }
+
+    [Theory]
+    [InlineData(0xC3, 8, 3)] // lossless
+    [InlineData(0xC5, 8, 3)] // hierarchical
+    [InlineData(0xC9, 8, 3)] // arithmetic-coded
+    [InlineData(0xC0, 12, 3)] // 12-bit samples
+    [InlineData(0xC0, 8, 4)] // CMYK
+    public void A_jpeg_the_pdf_writers_cannot_draw_as_is_is_refused(byte frameMarker, byte precision, byte components) =>
+        Assert.Throws<ArgumentException>(() => DocumentImage.FromJpeg(TestImages.JpegHeaderOnly(300, 400, frameMarker, precision, components)));
+
+    [Theory]
+    [InlineData(0xC1, 3)]
+    [InlineData(0xC2, 3)]
+    [InlineData(0xC0, 1)]
+    public void Extended_progressive_and_grey_jpegs_are_accepted(byte frameMarker, byte components) =>
+        Assert.Equal(300, DocumentImage.FromJpeg(TestImages.JpegHeaderOnly(300, 400, frameMarker, 8, components)).Width);
+
+    [Fact]
+    public void A_form_draws_a_jpeg_logo()
+    {
+        var form = new DocumentForm(
+            "stem", "Título", [], [new DocumentFormField("Nombre", "Ana")], ["Firma"], "v", DocumentImage.FromJpeg(TestImages.Jpeg(400, 300)));
+
+        using var pdf = UglyToad.PdfPig.PdfDocument.Open(Renderer.RenderForm(form).Content.ToArray());
+
+        Assert.Single(pdf.GetPage(1).GetImages());
+    }
+
+    [Fact]
     public void A_text_the_fonts_cannot_draw_fails_without_echoing_it()
     {
         var table = new DocumentTable("stem", "Título", [], "v", [Text("Nombre")], [["漢字 Sintético"]], null);

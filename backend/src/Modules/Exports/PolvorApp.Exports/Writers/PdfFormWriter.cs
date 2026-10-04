@@ -73,7 +73,7 @@ internal static class PdfFormWriter
         {
             // The logo keeps its shape inside a fixed-height box; its size comes from the PNG itself.
             var width = Math.Min(LogoMaxWidth, LogoHeight * logo.Width / logo.Height);
-            row.ConstantItem(width).Height(LogoHeight).Image(logo.Png.ToArray()).FitArea();
+            row.ConstantItem(width).Height(LogoHeight).Image(logo.Content.ToArray()).FitArea();
         }
 
         if (form.HeadingLines.Count > 0)
