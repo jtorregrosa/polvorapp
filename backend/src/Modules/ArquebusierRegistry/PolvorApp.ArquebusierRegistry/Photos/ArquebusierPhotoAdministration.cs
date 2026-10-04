@@ -28,6 +28,7 @@ internal sealed partial class ArquebusierPhotoAdministration(
     IObjectStorage storage,
     IImageNormalizer images,
     PhotoObjects objects,
+    PhotoReader reader,
     TimeProvider time,
     RegistryWriteGuard guard,
     ILogger<ArquebusierPhotoAdministration> logger)
@@ -148,32 +149,9 @@ internal sealed partial class ArquebusierPhotoAdministration(
 
         try
         {
-            // A replacement may commit and erase the image between the two reads: read once more.
-            Guid? missing = null;
-            for (var attempt = 0; attempt < 2; attempt++)
-            {
-                var photo = await db.Photos.AsNoTracking().SingleOrDefaultAsync(p => p.ArquebusierId == arquebusierId && p.Kind == kind, cancellationToken);
-                if (photo is null)
-                {
-                    return (RegistryOutcome.PhotoNotFound, null);
-                }
-
-                if (photo.Id == missing)
-                {
-                    break;
-                }
-
-                if (await storage.GetAsync(photo.ObjectKey, cancellationToken) is { } stored)
-                {
-                    return (RegistryOutcome.Done, stored);
-                }
-
-                missing = photo.Id;
-            }
-
-            // A reference without an image breaks the write order (design D2): worth an alert.
-            LogMissingImage(logger, arquebusierId, missing!.Value);
-            return (RegistryOutcome.PhotoNotFound, null);
+            return await reader.OpenAsync(arquebusierId, kind, cancellationToken) is { } stored
+                ? (RegistryOutcome.Done, stored)
+                : (RegistryOutcome.PhotoNotFound, null);
         }
         catch (StorageUnavailableException)
         {
@@ -290,9 +268,6 @@ internal sealed partial class ArquebusierPhotoAdministration(
         LogRejected(logger, nameof(UploadAsync), reason, arquebusierId, kind, currentUser.UserId);
         return upload;
     }
-
-    [LoggerMessage(Level = LogLevel.Error, Message = "Photo {PhotoId} of arquebusier {ArquebusierId} has no stored image")]
-    private static partial void LogMissingImage(ILogger logger, Guid arquebusierId, Guid photoId);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Photo {Operation} rejected with {Reason} for arquebusier {ArquebusierId}, kind {Kind}, by user {UserId}")]
     private static partial void LogRejected(ILogger logger, string operation, string reason, Guid arquebusierId, ArquebusierPhotoKind kind, Guid? userId);

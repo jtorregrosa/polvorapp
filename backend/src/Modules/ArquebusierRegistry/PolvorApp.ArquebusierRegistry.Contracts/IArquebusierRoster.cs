@@ -20,7 +20,9 @@ public interface IArquebusierRoster
     /// <summary>
     /// The arquebusiers with these ids, of any comparsa, in no defined order; unknown ids are skipped.
     /// Unscoped: pass only ids read from stored records (an order's entries, a loan's lender), never ids
-    /// taken from a request, or a FiringChief could read another comparsa's arquebusiers.
+    /// taken from a request, or a FiringChief could read another comparsa's arquebusiers. The one
+    /// exception is an Admin-only route, whose caller's scope is the whole Federation (the badge
+    /// selection, add-badges design D4).
     /// </summary>
     Task<IReadOnlyList<RosterArquebusier>> FindManyAsync(IReadOnlyCollection<Guid> arquebusierIds, CancellationToken cancellationToken);
 
