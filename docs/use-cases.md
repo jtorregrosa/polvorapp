@@ -146,6 +146,20 @@
   emailed); a FiringChief's submission is told to the Admins. Milestones marked `notify` are reminded
   7 days ahead to Admins, and to FiringChiefs once the edition is in progress. Each user turns each
   kind of their role on or off on the account page; scheduled emails go out from 08:00 Europe/Madrid.
+- **UC-25 (audit log)**, change `add-audit-privacy`: Admins read every audit entry, newest first
+  and a page at a time, filtered by period (the last 30 days by default), user, comparsa, area and
+  action; each entry opens with its recorded data and trace id. Arquebusier and user pages link to
+  their history. Entries cannot be changed or deleted; security events are kept 1 year and the rest
+  5 years (maintainer decision, 2026-10-04).
+- **UC-26 (GDPR requests)**, change `add-audit-privacy` (maintainer decisions, 2026-10-04):
+  - The subjects are arquebusiers, external weapon owners (by DNI/NIE) and users (from their page).
+  - Every request carries a reference to the written request, never the person's name or DNI/NIE,
+    and is audited; the DNI/NIE never appears in addresses, logs, file names or audit data.
+  - The export is a ZIP with a spreadsheet of everything held and the person's photos, built on the
+    fly and never stored.
+  - An erasure is never blocked, only warned about: the registry record goes as in a deletion
+    (BR-14), past entries and loans are anonymised but keep counting, proxies go, and audit entries
+    lose the person's names and DNI/NIE. An erased user keeps a row named "Erased user".
 - On distribution day the **FiringChief validates the identity** of their arquebusiers; nobody signs.
   The only paper document is the proxy authorisation (UC-19), for the exceptional case.
 - Today the Federation records flask assignments with a laptop and a spreadsheet; UC-20 printable

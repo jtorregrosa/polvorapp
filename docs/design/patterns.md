@@ -164,6 +164,51 @@ only, one per day and one for the proxies:
   with hidden triggers, so one left open still shows why its save was refused. After a conflict a
   panel shows the server's values before the person saves again.
 
+### Audit log (audit and privacy)
+
+A long, append-only record read by Admins (`add-audit-privacy`) uses the list template with
+server paging:
+
+- **Filters in the address.** `FilterDate` from and to, then `FilterSelect`s for user (with "No
+  user" for the system and anonymous requests), comparsa, area and action. With no period in the
+  address the page asks for the last 30 days; an emptied "From" stays as `from=` (no lower bound),
+  and an inverted period is said at "To" without asking. The actions offered follow the chosen
+  area; a value from the address stays shown while its list loads. A record
+  filter ("View history") shows as an info banner naming the record type, with a button that
+  removes it.
+- **Rows.** A `DataTable` with `paginated={false}`, newest first; the action label is the row
+  header. "Show more" under the table appends the next page (cursor paging), and the result text
+  says when there are more; focus moves to the first new entry, and a failed page keeps what was
+  loaded. The record links to its page (underlined) only while it exists and has one; the
+  user is the name, "Erased user", "System" or "Anonymous", never an identifier.
+- **Details.** Each row has a `DetailSheet` ("View details" + the action for screen readers): a
+  read-only side panel with a `DescriptionList` of the entry (trace id in the monospaced face) and
+  a second list of the recorded data fields, as recorded. Use `DetailSheet` for any read-only
+  panel; `EditSheet` only when the panel saves something.
+- **History.** A record's page offers "View history" to Admins in its header, a `Button asChild`
+  link to the audit log filtered by the record.
+
+### GDPR requests (audit and privacy)
+
+Requests that involve a person's DNI/NIE (`add-audit-privacy`) never put it in the address:
+
+- **Lookup.** The settings template: a `SectionCard` with a one-field form (the DNI/NIE, checked as
+  the API does before it is sent), then the result: a summary `SectionCard` with the actions, or
+  an info banner when nothing is held; focus moves to the result. The lookup and its result live in
+  the page's memory only, and editing the DNI/NIE hides the result.
+- **Request reference.** Every export and erasure asks for it inside its confirmation: a
+  `FormField` whose help says not to type the person's name or DNI/NIE. The dialog checks it before
+  sending; a refused reference lands on the field, any other refusal in the dialog.
+- **Download.** A primary-toned `ConfirmDialog` that starts on the reference; the file comes from a
+  POST (`apiDownloadPost`) and keeps the API's file name.
+- **Erasure.** A destructive `ConfirmDialog` that names the person, lists the warnings in `notes`
+  (cannot be undone, the lists that will no longer name them, the entry removed while orders are
+  open) before the reference, starts on Cancel and repeats the verb ("Erase"). After it, the
+  outcome (what was deleted, anonymised and removed, in words) is announced with focus, and the
+  lookup is cleared.
+- **Erased records.** An erased user shows the `ERASED` status, "Erased user" as the name, no
+  edits and only "View history"; an erased entry shows "Erased person", no identity and no "Edit".
+
 ## Actions
 
 - At most **one primary action** per page, at its natural width (never stretched across a form).
