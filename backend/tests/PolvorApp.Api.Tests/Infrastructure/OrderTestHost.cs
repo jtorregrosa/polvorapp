@@ -131,6 +131,20 @@ public sealed class OrderTestHost : IAsyncDisposable
         return await read(scope.ServiceProvider.GetRequiredService<ComparsaOrdersDbContext>());
     }
 
+    /// <summary>Anonymises an entry as a GDPR erasure leaves it (add-audit-privacy, design D7).</summary>
+    internal Task<int> EraseEntryAsync(Guid entryId) =>
+        ReadOrdersAsync(db => db.Entries.Where(e => e.Id == entryId).ExecuteUpdateAsync(
+            e => e.SetProperty(x => x.ArquebusierId, (Guid?)null)
+                .SetProperty(x => x.FirstName, (string?)null)
+                .SetProperty(x => x.LastName, (string?)null)
+                .SetProperty(x => x.NationalId, (string?)null)
+                .SetProperty(x => x.FederationId, (int?)null)
+                .SetProperty(x => x.OwnedWeaponId, (Guid?)null)
+                .SetProperty(x => x.OwnedWeaponNumber, (string?)null)
+                .SetProperty(x => x.OwnedWeaponGuideNumber, (string?)null)
+                .SetProperty(x => x.ErasedAt, DateTimeOffset.UtcNow),
+            TestContext.Current.CancellationToken));
+
     public ValueTask DisposeAsync() => Registry.DisposeAsync();
 
     private static WeaponModel Rentable(WeaponModel model)

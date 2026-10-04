@@ -15,6 +15,16 @@ public static class FederationCalendar
     /// <summary>Today's date in Europe/Madrid.</summary>
     public static DateOnly Today(TimeProvider time) => DateOnly.FromDateTime(Now(time).DateTime);
 
+    /// <summary>The instant <paramref name="date"/> starts in Europe/Madrid, e.g. a day filter (add-audit-privacy).</summary>
+    public static DateTimeOffset StartOf(DateOnly date)
+    {
+        var utc = TimeZoneInfo.ConvertTimeToUtc(date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified), Zone);
+        return new DateTimeOffset(utc, TimeSpan.Zero);
+    }
+
+    /// <summary><paramref name="instant"/> in Europe/Madrid, e.g. to print it (add-audit-privacy).</summary>
+    public static DateTimeOffset InMadrid(DateTimeOffset instant) => TimeZoneInfo.ConvertTime(instant, Zone);
+
     /// <summary>The current time in Europe/Madrid, e.g. to send scheduled emails at a local hour (add-notifications).</summary>
     public static DateTimeOffset Now(TimeProvider time)
     {

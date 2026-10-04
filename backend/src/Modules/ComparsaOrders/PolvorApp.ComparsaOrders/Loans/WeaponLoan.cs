@@ -36,4 +36,7 @@ internal sealed class WeaponLoan
     public string? OwnershipGuideNumber { get; set; }
 
     public required DateTimeOffset CopiedAt { get; set; }
+
+    /// <summary>When a GDPR erasure of the lender blanked their identity and the weapon's number and guide.</summary>
+    public DateTimeOffset? ErasedAt { get; set; }
 }

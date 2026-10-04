@@ -20,6 +20,7 @@
     <ProjectReference Include="..\..\..\PolvorApp.SharedKernel\PolvorApp.SharedKernel.csproj" />
     <ProjectReference Include="..\PolvorApp.ComparsaOrders.Contracts\PolvorApp.ComparsaOrders.Contracts.csproj" />
     <ProjectReference Include="..\..\ArquebusierRegistry\PolvorApp.ArquebusierRegistry.Contracts\PolvorApp.ArquebusierRegistry.Contracts.csproj" />
+    <ProjectReference Include="..\..\AuditPrivacy\PolvorApp.AuditPrivacy.Contracts\PolvorApp.AuditPrivacy.Contracts.csproj" />
     <ProjectReference Include="..\..\Billing\PolvorApp.Billing.Contracts\PolvorApp.Billing.Contracts.csproj" />
     <ProjectReference Include="..\..\ComplianceInsights\PolvorApp.ComplianceInsights.Contracts\PolvorApp.ComplianceInsights.Contracts.csproj" />
     <ProjectReference Include="..\..\FederationCatalog\PolvorApp.FederationCatalog.Contracts\PolvorApp.FederationCatalog.Contracts.csproj" />

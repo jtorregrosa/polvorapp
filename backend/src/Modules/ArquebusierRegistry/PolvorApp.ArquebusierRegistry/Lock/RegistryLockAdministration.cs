@@ -32,7 +32,7 @@ internal sealed class RegistryLockAdministration(ArquebusierRegistryDbContext db
 
             settings.Locked = locked;
             settings.LockedChangedAt = time.GetUtcNow();
-            trail.Record(db, new AuditRecord(locked ? "RegistryLocked" : "RegistryUnlocked", EntityType));
+            trail.Record(db, new AuditRecord(locked ? ArquebusierRegistryAuditActions.RegistryLocked : ArquebusierRegistryAuditActions.RegistryUnlocked, EntityType));
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return (RegistryOutcome.Done, settings);

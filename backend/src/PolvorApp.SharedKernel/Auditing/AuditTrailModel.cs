@@ -32,11 +32,14 @@ public static class AuditTrailModel
             entry.Property(e => e.EntityId).HasMaxLength(100);
             entry.Property(e => e.TraceId).HasMaxLength(64);
             entry.Property(e => e.Data).HasColumnType("jsonb");
-            // Viewer filters (#15): time range, entity, actor and comparsa, newest first.
-            entry.HasIndex(e => e.OccurredAt);
-            entry.HasIndex(e => new { e.EntityType, e.EntityId });
-            entry.HasIndex(e => new { e.ActorUserId, e.OccurredAt }).HasFilter("actor_user_id IS NOT NULL");
-            entry.HasIndex(e => new { e.ComparsaId, e.OccurredAt }).HasFilter("comparsa_id IS NOT NULL");
+            // Viewer filters: time range, entity, action, actor and comparsa, newest first. Each ends in
+            // (occurred_at, id), the keyset order of the audit log, so a page's range is an index bound
+            // (add-audit-privacy, design D10); the action index also serves the retention purge (D3).
+            entry.HasIndex(e => new { e.OccurredAt, e.Id });
+            entry.HasIndex(e => new { e.EntityType, e.EntityId, e.OccurredAt, e.Id });
+            entry.HasIndex(e => new { e.Action, e.OccurredAt, e.Id });
+            entry.HasIndex(e => new { e.ActorUserId, e.OccurredAt, e.Id }).HasFilter("actor_user_id IS NOT NULL");
+            entry.HasIndex(e => new { e.ComparsaId, e.OccurredAt, e.Id }).HasFilter("comparsa_id IS NOT NULL");
         });
 
         return modelBuilder;

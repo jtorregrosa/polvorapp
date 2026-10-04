@@ -26,6 +26,7 @@ internal static class RateLimits
         var spreadsheetImports = Limit(configuration, "RateLimits:SpreadsheetImports:PermitLimit", 10);
         var orderWrites = Limit(configuration, "RateLimits:OrderWrites:PermitLimit", 120);
         var exports = Limit(configuration, "RateLimits:Exports:PermitLimit", 30);
+        var privacy = Limit(configuration, "RateLimits:Privacy:PermitLimit", 10);
 
         services.AddRateLimiter(options =>
         {
@@ -37,6 +38,7 @@ internal static class RateLimits
             options.AddPolicy(RateLimitPolicies.SpreadsheetImports, context => PerUser(context, spreadsheetImports, TimeSpan.FromMinutes(1)));
             options.AddPolicy(RateLimitPolicies.OrderWrites, context => PerUser(context, orderWrites, TimeSpan.FromMinutes(1)));
             options.AddPolicy(RateLimitPolicies.Exports, context => PerUser(context, exports, TimeSpan.FromMinutes(1)));
+            options.AddPolicy(RateLimitPolicies.Privacy, context => PerUser(context, privacy, TimeSpan.FromMinutes(1)));
         });
 
         services.Configure<ForwardedHeadersOptions>(options =>

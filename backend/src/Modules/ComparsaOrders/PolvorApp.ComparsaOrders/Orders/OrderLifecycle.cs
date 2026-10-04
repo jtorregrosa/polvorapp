@@ -173,7 +173,7 @@ internal sealed class OrderLifecycle(
                 break;
         }
 
-        trail.Record(db, new AuditRecord("ComparsaOrder" + Past(move), OrderAdministration.EntityType, order.Id.ToString(), data, ComparsaId: order.ComparsaId));
+        trail.Record(db, new AuditRecord(AuditAction(move), OrderAdministration.EntityType, order.Id.ToString(), data, ComparsaId: order.ComparsaId));
         if (Event(order, move, currentUser.IsAdmin) is { } notification)
         {
             notifications.Record(db, notification);
@@ -193,11 +193,11 @@ internal sealed class OrderLifecycle(
         _ => NotificationEvent.OrderReturned(order.EditionId, order.ComparsaId, order.Id),
     };
 
-    private static string Past(OrderMove move) => move switch
+    private static string AuditAction(OrderMove move) => move switch
     {
-        OrderMove.Submit => "Submitted",
-        OrderMove.Validate => "Validated",
-        _ => "Returned",
+        OrderMove.Submit => ComparsaOrdersAuditActions.ComparsaOrderSubmitted,
+        OrderMove.Validate => ComparsaOrdersAuditActions.ComparsaOrderValidated,
+        _ => ComparsaOrdersAuditActions.ComparsaOrderReturned,
     };
 
     /// <summary>An entry that blocks the move, with its reasons (<c>orders.entriesInvalid</c>).</summary>

@@ -36,7 +36,7 @@ internal sealed partial class WeaponModelAdministration(
         var model = new WeaponModel { Id = Guid.CreateVersion7(time.GetUtcNow()), Kind = input.Kind, Label = input.Label, CreatedAt = time.GetUtcNow() };
         Apply(model, input);
         db.WeaponModels.Add(model);
-        Record("WeaponModelCreated", model, Snapshot(model));
+        Record(FederationCatalogAuditActions.WeaponModelCreated, model, Snapshot(model));
         return await SaveAsync(model, cancellationToken);
     }
 
@@ -57,7 +57,7 @@ internal sealed partial class WeaponModelAdministration(
         }
 
         Apply(model, input);
-        Record("WeaponModelUpdated", model, new { previous, current });
+        Record(FederationCatalogAuditActions.WeaponModelUpdated, model, new { previous, current });
         return await CommitAsync(transaction, await SaveAsync(model, cancellationToken), cancellationToken);
     }
 
@@ -76,7 +76,7 @@ internal sealed partial class WeaponModelAdministration(
         }
 
         model.Active = active;
-        Record(active ? "WeaponModelReactivated" : "WeaponModelDeactivated", model);
+        Record(active ? FederationCatalogAuditActions.WeaponModelReactivated : FederationCatalogAuditActions.WeaponModelDeactivated, model);
         return await CommitAsync(transaction, await SaveAsync(model, cancellationToken), cancellationToken);
     }
 
@@ -99,7 +99,7 @@ internal sealed partial class WeaponModelAdministration(
         }
 
         db.WeaponModels.Remove(model);
-        Record("WeaponModelDeleted", model, Snapshot(model));
+        Record(FederationCatalogAuditActions.WeaponModelDeleted, model, Snapshot(model));
         try
         {
             await db.SaveChangesAsync(cancellationToken);

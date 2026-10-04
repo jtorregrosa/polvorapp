@@ -35,7 +35,7 @@ internal sealed partial class ComparsaAdministration(
     {
         var comparsa = new Comparsa { Id = Guid.CreateVersion7(time.GetUtcNow()), Name = input.Name, Side = input.Side, CreatedAt = time.GetUtcNow() };
         db.Comparsas.Add(comparsa);
-        Record("ComparsaCreated", comparsa, new { name = input.Name, side = input.Side });
+        Record(FederationCatalogAuditActions.ComparsaCreated, comparsa, new { name = input.Name, side = input.Side });
         return await SaveAsync(comparsa, cancellationToken);
     }
 
@@ -56,7 +56,7 @@ internal sealed partial class ComparsaAdministration(
         var previous = new { name = comparsa.Name, side = comparsa.Side };
         comparsa.Name = input.Name;
         comparsa.Side = input.Side;
-        Record("ComparsaUpdated", comparsa, new { previous, current = new { name = input.Name, side = input.Side } });
+        Record(FederationCatalogAuditActions.ComparsaUpdated, comparsa, new { previous, current = new { name = input.Name, side = input.Side } });
         return await CommitAsync(transaction, await SaveAsync(comparsa, cancellationToken), cancellationToken);
     }
 
@@ -76,7 +76,7 @@ internal sealed partial class ComparsaAdministration(
         }
 
         comparsa.Active = active;
-        Record(active ? "ComparsaReactivated" : "ComparsaDeactivated", comparsa);
+        Record(active ? FederationCatalogAuditActions.ComparsaReactivated : FederationCatalogAuditActions.ComparsaDeactivated, comparsa);
         return await CommitAsync(transaction, await SaveAsync(comparsa, cancellationToken), cancellationToken);
     }
 
@@ -106,7 +106,7 @@ internal sealed partial class ComparsaAdministration(
         // The logo is a column of this row, never a usage: it goes with the comparsa (add-comparsa-logos D5).
         var logoKey = comparsa.Logo?.ObjectKey;
         db.Comparsas.Remove(comparsa);
-        Record("ComparsaDeleted", comparsa, new { name = comparsa.Name, side = comparsa.Side, active = comparsa.Active, hadLogo = logoKey is not null, unassignedUserIds });
+        Record(FederationCatalogAuditActions.ComparsaDeleted, comparsa, new { name = comparsa.Name, side = comparsa.Side, active = comparsa.Active, hadLogo = logoKey is not null, unassignedUserIds });
         try
         {
             await db.SaveChangesAsync(cancellationToken);

@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Sheet.registry" xml:space="preserve">
+    <value>Fitxa</value>
+  </data>
+  <data name="Sheet.ownedWeapons" xml:space="preserve">
+    <value>Armes pròpies</value>
+  </data>
+  <data name="Sheet.entries" xml:space="preserve">
+    <value>Participacions</value>
+  </data>
+  <data name="Sheet.lenderLoans" xml:space="preserve">
+    <value>Préstecs com a propietari</value>
+  </data>
+  <data name="Sheet.pickupProxies" xml:space="preserve">
+    <value>Autoritzacions de recollida</value>
+  </data>
+  <data name="Sheet.profile" xml:space="preserve">
+    <value>Perfil</value>
+  </data>
+  <data name="Sheet.assignments" xml:space="preserve">
+    <value>Comparses assignades</value>
+  </data>
+  <data name="Sheet.notificationPreferences" xml:space="preserve">
+    <value>Preferències d’avisos</value>
+  </data>
+  <data name="Sheet.notificationDeliveries" xml:space="preserve">
+    <value>Avisos enviats</value>
+  </data>
+  <data name="Sheet.activity" xml:space="preserve">
+    <value>Activitat</value>
+  </data>
+  <data name="Sheet.about" xml:space="preserve">
+    <value>Sobre aquestes dades</value>
+  </data>
+  <data name="Column.nationalId" xml:space="preserve">
+    <value>DNI/NIE</value>
+  </data>
+  <data name="Column.federationId" xml:space="preserve">
+    <value>N.º de federat</value>
+  </data>
+  <data name="Column.firstName" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="Column.lastName" xml:space="preserve">
+    <value>Cognoms</value>
+  </data>
+  <data name="Column.birthDate" xml:space="preserve">
+    <value>Data de naixement</value>
+  </data>
+  <data name="Column.email" xml:space="preserve">
+    <value>Correu electrònic</value>
+  </data>
+  <data name="Column.phone" xml:space="preserve">
+    <value>Telèfon</value>
+  </data>
+  <data name="Column.gender" xml:space="preserve">
+    <value>Sexe</value>
+  </data>
+  <data name="Column.status" xml:space="preserve">
+    <value>Estat</value>
+  </data>
+  <data name="Column.comparsa" xml:space="preserve">
+    <value>Comparsa</value>
+  </data>
+  <data name="Column.trainingCompletedOn" xml:space="preserve">
+    <value>Data del curs</value>
+  </data>
+  <data name="Column.licenseType" xml:space="preserve">
+    <value>Tipus de llicència</value>
+  </data>
+  <data name="Column.licensePending" xml:space="preserve">
+    <value>Llicència en tràmit</value>
+  </data>
+  <data name="Column.licenseIssuedOn" xml:space="preserve">
+    <value>Expedició de la llicència</value>
+  </data>
+  <data name="Column.licenseExpiresOn" xml:space="preserve">
+    <value>Caducitat de la llicència</value>
+  </data>
+  <data name="Column.registeredAt" xml:space="preserve">
+    <value>Alta en PolvorApp</value>
+  </data>
+  <data name="Column.weaponModel" xml:space="preserve">
+    <value>Model d’arma</value>
+  </data>
+  <data name="Column.weaponNumber" xml:space="preserve">
+    <value>N.º d’arma</value>
+  </data>
+  <data name="Column.ownershipGuideNumber" xml:space="preserve">
+    <value>Guia de pertinença</value>
+  </data>
+  <data name="Column.edition" xml:space="preserve">
+    <value>Edició</value>
+  </data>
+  <data name="Column.powderKg" xml:space="preserve">
+    <value>Pólvora (kg)</value>
+  </data>
+  <data name="Column.capsBoxes" xml:space="preserve">
+    <value>Caixes de pistons</value>
+  </data>
+  <data name="Column.capsType" xml:space="preserve">
+    <value>Tipus de pistó</value>
+  </data>
+  <data name="Column.weaponSource" xml:space="preserve">
+    <value>Origen de l’arma</value>
+  </data>
+  <data name="Column.flask" xml:space="preserve">
+    <value>Flascó</value>
+  </data>
+  <data name="Column.rentalModel" xml:space="preserve">
+    <value>Model llogat</value>
+  </data>
+  <data name="Column.ownedWeaponModel" xml:space="preserve">
+    <value>Model de l’arma pròpia</value>
+  </data>
+  <data name="Column.ownedWeaponNumber" xml:space="preserve">
+    <value>N.º de l’arma pròpia</value>
+  </data>
+  <data name="Column.ownedWeaponGuideNumber" xml:space="preserve">
+    <value>Guia de l’arma pròpia</value>
+  </data>
+  <data name="Column.loanLender" xml:space="preserve">
+    <value>Préstec de</value>
+  </data>
+  <data name="Column.loanWeaponModel" xml:space="preserve">
+    <value>Model prestat</value>
+  </data>
+  <data name="Column.erased" xml:space="preserve">
+    <value>Esborrada</value>
+  </data>
+  <data name="Column.type" xml:space="preserve">
+    <value>Tipus</value>
+  </data>
+  <data name="Column.role" xml:space="preserve">
+    <value>Paper</value>
+  </data>
+  <data name="Column.participation" xml:space="preserve">
+    <value>Participació</value>
+  </data>
+  <data name="Column.name" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="Column.language" xml:space="preserve">
+    <value>Idioma</value>
+  </data>
+  <data name="Column.createdAt" xml:space="preserve">
+    <value>Creació</value>
+  </data>
+  <data name="Column.lastSignInAt" xml:space="preserve">
+    <value>Últim accés</value>
+  </data>
+  <data name="Column.twoFactorEnabled" xml:space="preserve">
+    <value>Doble factor activat</value>
+  </data>
+  <data name="Column.assignedAt" xml:space="preserve">
+    <value>Assignació</value>
+  </data>
+  <data name="Column.kind" xml:space="preserve">
+    <value>Tipus d’avís</value>
+  </data>
+  <data name="Column.on" xml:space="preserve">
+    <value>Activat</value>
+  </data>
+  <data name="Column.template" xml:space="preserve">
+    <value>Plantilla</value>
+  </data>
+  <data name="Column.attempts" xml:space="preserve">
+    <value>Intents</value>
+  </data>
+  <data name="Column.sentAt" xml:space="preserve">
+    <value>Enviament</value>
+  </data>
+  <data name="Column.occurredAt" xml:space="preserve">
+    <value>Data i hora</value>
+  </data>
+  <data name="Column.action" xml:space="preserve">
+    <value>Acció</value>
+  </data>
+  <data name="Column.entityType" xml:space="preserve">
+    <value>Tipus de registre</value>
+  </data>
+  <data name="Column.entityId" xml:space="preserve">
+    <value>Registre</value>
+  </data>
+  <data name="Column.item" xml:space="preserve">
+    <value>Apartat</value>
+  </data>
+  <data name="Column.value" xml:space="preserve">
+    <value>Contingut</value>
+  </data>
+  <data name="About.Controller" xml:space="preserve">
+    <value>Responsable del tractament</value>
+  </data>
+  <data name="About.ControllerValue" xml:space="preserve">
+    <value>Unió de Comparses «Ber-Largas» (vegeu la clàusula de protecció de dades)</value>
+  </data>
+  <data name="About.Purposes" xml:space="preserve">
+    <value>Finalitats</value>
+  </data>
+  <data name="About.PurposesValue" xml:space="preserve">
+    <value>Gestió dels arcabussers de les festes de Moros i Cristians: registre, llicències, comandes de pólvora i armes, distribució i llistats per a la Intervenció d’Armes.</value>
+  </data>
+  <data name="About.Recipients" xml:space="preserve">
+    <value>Destinataris</value>
+  </data>
+  <data name="About.RecipientsValue" xml:space="preserve">
+    <value>Proveïdor de pólvora, empresa de lloguer d’armes i Intervenció d’Armes (Guàrdia Civil), només amb les dades que cadascun necessita.</value>
+  </data>
+  <data name="About.Retention" xml:space="preserve">
+    <value>Conservació</value>
+  </data>
+  <data name="About.RetentionValue" xml:space="preserve">
+    <value>La fitxa es conserva mentre es pertany a la Federació; les participacions d’edicions passades es conserven com a història; el registre d’auditoria, 5 anys (els accessos, 1 any).</value>
+  </data>
+  <data name="About.Rights" xml:space="preserve">
+    <value>Drets</value>
+  </data>
+  <data name="About.RightsValue" xml:space="preserve">
+    <value>Pot sol·licitar a la Federació l’accés, la rectificació o la supressió de les seues dades, segons la clàusula de protecció de dades.</value>
+  </data>
+  <data name="About.Reference" xml:space="preserve">
+    <value>Referència de la sol·licitud</value>
+  </data>
+  <data name="About.GeneratedAt" xml:space="preserve">
+    <value>Data de generació</value>
+  </data>
+  <data name="About.Note" xml:space="preserve">
+    <value>Avís</value>
+  </data>
+  <data name="Note.missingPhoto" xml:space="preserve">
+    <value>No s’ha trobat l’arxiu de la foto «{0}»: el registre existeix però la imatge no està disponible.</value>
+  </data>
+  <data name="Note.activityCapped" xml:space="preserve">
+    <value>El full d’activitat mostra només les 100 000 entrades més recents.</value>
+  </data>
+  <data name="Value.holder" xml:space="preserve">
+    <value>Titular</value>
+  </data>
+  <data name="Value.proxy" xml:space="preserve">
+    <value>Autoritzat</value>
+  </data>
+</root>

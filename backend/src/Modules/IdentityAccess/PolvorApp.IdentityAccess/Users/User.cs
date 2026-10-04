@@ -5,7 +5,8 @@ namespace PolvorApp.IdentityAccess.Users;
 
 /// <summary>
 /// A PolvorApp user (data-model: User). The Identity user name is the email; users are never
-/// deleted, only deactivated, so audit entries keep their actor (spec: Users and roles).
+/// deleted, only deactivated or erased by anonymisation, so audit entries keep their actor (spec:
+/// Users and roles).
 /// </summary>
 internal sealed class User : IdentityUser<Guid>
 {
@@ -24,10 +25,13 @@ internal sealed class User : IdentityUser<Guid>
 
     public DateTimeOffset? LastSignInAt { get; set; }
 
+    /// <summary>When a GDPR erasure anonymised the user (add-audit-privacy, design D8); they stay inactive.</summary>
+    public DateTimeOffset? ErasedAt { get; set; }
+
     /// <summary>Derived, never stored (spec: Users and roles).</summary>
-    public UserStatus Status => DeriveStatus(Active, PasswordHash is not null);
+    public UserStatus Status => DeriveStatus(Active, PasswordHash is not null, ErasedAt is not null);
 
     /// <summary>The one status rule, also used by queries that project instead of loading users.</summary>
-    public static UserStatus DeriveStatus(bool active, bool hasPassword) =>
-        !active ? UserStatus.Deactivated : hasPassword ? UserStatus.Active : UserStatus.Invited;
+    public static UserStatus DeriveStatus(bool active, bool hasPassword, bool erased) =>
+        erased ? UserStatus.Erased : !active ? UserStatus.Deactivated : hasPassword ? UserStatus.Active : UserStatus.Invited;
 }

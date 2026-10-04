@@ -46,7 +46,8 @@ builder.Services.AddOpenApi(options => options
         return Task.CompletedTask;
     })
     .AddPlatformSecurity()
-    .AddCodesOnlyEnums());
+    .AddCodesOnlyEnums()
+    .AddAuditActionCatalogue());
 
 // Modules are registered explicitly, one per capability (ADR-0001).
 builder.Services.AddModules(builder.Configuration, new AuditPrivacyModule(), new IdentityAccessModule(), new FederationCatalogModule(), new ArquebusierRegistryModule(), new ComplianceInsightsModule(), new FestivalEditionsModule(), new ComparsaOrdersModule(), new BillingModule(), new ExportsModule(), new DistributionModule(), new NotificationsModule());

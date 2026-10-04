@@ -15,7 +15,7 @@ namespace PolvorApp.IdentityAccess.Security;
 internal static class UserLock
 {
     /// <summary>Advisory lock key serialising every change that can add or remove an Admin.</summary>
-    private const long AdminChangesKey = 0x506F6C766F72_41; // "Polvor" + 'A'
+    public const long AdminChangesKey = 0x506F6C766F72_41; // "Polvor" + 'A'
 
     /// <summary>
     /// Serialises changes that can remove an active Admin (spec: last Admin is protected): a

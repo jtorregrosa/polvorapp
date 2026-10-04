@@ -58,7 +58,7 @@ internal sealed class OwnedWeaponAdministration(
                 CreatedAt = now,
             };
             db.OwnedWeapons.Add(weapon);
-            Record("OwnedWeaponAdded", weapon, comparsaId, new { arquebusierId, weaponModelId = weapon.WeaponModelId });
+            Record(ArquebusierRegistryAuditActions.OwnedWeaponAdded, weapon, comparsaId, new { arquebusierId, weaponModelId = weapon.WeaponModelId });
             return await CommitAsync(weapon, RegistryOutcome.OwnedWeaponModified, transaction, cancellationToken);
         });
 
@@ -109,7 +109,7 @@ internal sealed class OwnedWeaponAdministration(
             }
 
             (weapon.WeaponModelId, weapon.WeaponNumber, weapon.OwnershipGuideNumber) = (input.WeaponModelId, input.WeaponNumber, input.OwnershipGuideNumber);
-            Record("OwnedWeaponUpdated", weapon, comparsaId, new { arquebusierId, changedFields });
+            Record(ArquebusierRegistryAuditActions.OwnedWeaponUpdated, weapon, comparsaId, new { arquebusierId, changedFields });
             return await CommitAsync(weapon, RegistryOutcome.OwnedWeaponModified, transaction, cancellationToken);
         });
 
@@ -131,7 +131,7 @@ internal sealed class OwnedWeaponAdministration(
             }
 
             db.OwnedWeapons.Remove(weapon);
-            Record("OwnedWeaponRemoved", weapon, comparsaId, new { arquebusierId, weaponModelId = weapon.WeaponModelId });
+            Record(ArquebusierRegistryAuditActions.OwnedWeaponRemoved, weapon, comparsaId, new { arquebusierId, weaponModelId = weapon.WeaponModelId });
 
             // Weapon rows are not locked: a concurrent removal of the same weapon makes this one a 404.
             return await CommitAsync(weapon, RegistryOutcome.OwnedWeaponNotFound, transaction, cancellationToken);

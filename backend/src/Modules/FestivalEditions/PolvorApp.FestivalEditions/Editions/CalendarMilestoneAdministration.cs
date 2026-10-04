@@ -44,7 +44,7 @@ internal sealed class CalendarMilestoneAdministration(FestivalEditionsDbContext 
                 CreatedAt = now,
             };
             db.Milestones.Add(milestone);
-            Record("CalendarMilestoneAdded", milestone, new { editionId, milestone.Date, milestone.Title, milestone.Notify });
+            Record(FestivalEditionsAuditActions.CalendarMilestoneAdded, milestone, new { editionId, milestone.Date, milestone.Title, milestone.Notify });
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return EditionWrite.Done(milestone);
@@ -71,7 +71,7 @@ internal sealed class CalendarMilestoneAdministration(FestivalEditionsDbContext 
             }
 
             (milestone.Date, milestone.Title, milestone.Notify) = (current.Date, current.Title, notify);
-            Record("CalendarMilestoneUpdated", milestone, new { editionId, previous, current });
+            Record(FestivalEditionsAuditActions.CalendarMilestoneUpdated, milestone, new { editionId, previous, current });
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return EditionWrite.Done(milestone);
@@ -89,7 +89,7 @@ internal sealed class CalendarMilestoneAdministration(FestivalEditionsDbContext 
             }
 
             db.Milestones.Remove(milestone);
-            Record("CalendarMilestoneRemoved", milestone, new { editionId, milestone.Date, milestone.Title, milestone.Notify });
+            Record(FestivalEditionsAuditActions.CalendarMilestoneRemoved, milestone, new { editionId, milestone.Date, milestone.Title, milestone.Notify });
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return EditionWrite.Done(milestone);

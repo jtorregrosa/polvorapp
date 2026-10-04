@@ -29,6 +29,12 @@ internal static class EntryIssues
         ArgumentNullException.ThrowIfNull(entry);
         ArgumentNullException.ThrowIfNull(offeredModelIds);
 
+        // An erased person's entry is history only: read-only, it must never block the order.
+        if (entry.ErasedAt is not null)
+        {
+            return [];
+        }
+
         // History of an arquebusier who left the registry keeps its weapon and loan copies and does not
         // block: their entry stays only once the orders are closed, and must not stop an Admin's validation.
         var inRegistry = entry.ArquebusierId is not null;

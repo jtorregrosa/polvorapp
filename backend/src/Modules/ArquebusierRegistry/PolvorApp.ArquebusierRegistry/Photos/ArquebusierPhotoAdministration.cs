@@ -199,7 +199,7 @@ internal sealed partial class ArquebusierPhotoAdministration(
             }
 
             await db.Photos.Where(p => p.Id == photo.Id).ExecuteDeleteAsync(cancellationToken);
-            Record("ArquebusierPhotoRemoved", arquebusierId, await ComparsaOfAsync(arquebusierId, cancellationToken), new { kind = EnumCodes.ToCode(kind) });
+            Record(ArquebusierRegistryAuditActions.ArquebusierPhotoRemoved, arquebusierId, await ComparsaOfAsync(arquebusierId, cancellationToken), new { kind = EnumCodes.ToCode(kind) });
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             removedKey = photo.ObjectKey;
@@ -246,7 +246,7 @@ internal sealed partial class ArquebusierPhotoAdministration(
                 cancellationToken);
         }
 
-        Record("ArquebusierPhotoUploaded", photo.ArquebusierId, owner.ComparsaId, new { kind = EnumCodes.ToCode(photo.Kind), replaced = previous is not null });
+        Record(ArquebusierRegistryAuditActions.ArquebusierPhotoUploaded, photo.ArquebusierId, owner.ComparsaId, new { kind = EnumCodes.ToCode(photo.Kind), replaced = previous is not null });
         try
         {
             await db.SaveChangesAsync(cancellationToken);

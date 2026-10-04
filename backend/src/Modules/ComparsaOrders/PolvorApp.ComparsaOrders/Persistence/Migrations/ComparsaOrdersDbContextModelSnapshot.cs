@@ -54,6 +54,10 @@ namespace PolvorApp.ComparsaOrders.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("edition_id");
 
+                    b.Property<DateTimeOffset?>("ErasedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("erased_at");
+
                     b.Property<int?>("FederationId")
                         .HasColumnType("integer")
                         .HasColumnName("federation_id");
@@ -134,6 +138,10 @@ namespace PolvorApp.ComparsaOrders.Persistence.Migrations
                         .HasDatabaseName("ix_edition_entries_arquebusier_id")
                         .HasFilter("arquebusier_id IS NOT NULL");
 
+                    b.HasIndex("NationalId")
+                        .HasDatabaseName("ix_edition_entries_national_id")
+                        .HasFilter("national_id IS NOT NULL");
+
                     b.HasIndex("OwnedWeaponId")
                         .HasDatabaseName("ix_edition_entries_owned_weapon_id")
                         .HasFilter("owned_weapon_id IS NOT NULL");
@@ -164,6 +172,8 @@ namespace PolvorApp.ComparsaOrders.Persistence.Migrations
 
                             t.HasCheckConstraint("ck_edition_entries_copy", "arquebusier_id IS NULL OR (first_name IS NOT NULL AND last_name IS NOT NULL AND national_id IS NOT NULL AND federation_id IS NOT NULL)");
 
+                            t.HasCheckConstraint("ck_edition_entries_erased", "erased_at IS NULL OR (arquebusier_id IS NULL AND first_name IS NULL AND last_name IS NULL AND national_id IS NULL AND federation_id IS NULL AND owned_weapon_number IS NULL AND owned_weapon_guide_number IS NULL)");
+
                             t.HasCheckConstraint("ck_edition_entries_flask", "flask IN ('OWNED', 'RENTAL_1KG', 'RENTAL_2KG', 'NONE')");
 
                             t.HasCheckConstraint("ck_edition_entries_owned", "weapon_source = 'OWNED' OR (owned_weapon_id IS NULL AND owned_weapon_model_id IS NULL AND owned_weapon_number IS NULL AND owned_weapon_guide_number IS NULL)");
@@ -193,6 +203,10 @@ namespace PolvorApp.ComparsaOrders.Persistence.Migrations
                     b.Property<Guid>("EntryId")
                         .HasColumnType("uuid")
                         .HasColumnName("entry_id");
+
+                    b.Property<DateTimeOffset?>("ErasedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("erased_at");
 
                     b.Property<Guid?>("LenderComparsaId")
                         .HasColumnType("uuid")
@@ -248,6 +262,10 @@ namespace PolvorApp.ComparsaOrders.Persistence.Migrations
                         .HasDatabaseName("ix_weapon_loans_lender_comparsa_id")
                         .HasFilter("lender_comparsa_id IS NOT NULL");
 
+                    b.HasIndex("LenderNationalId")
+                        .HasDatabaseName("ix_weapon_loans_lender_national_id")
+                        .HasFilter("lender_national_id IS NOT NULL");
+
                     b.HasIndex("LenderOwnedWeaponId")
                         .HasDatabaseName("ix_weapon_loans_lender_owned_weapon_id")
                         .HasFilter("lender_owned_weapon_id IS NOT NULL");
@@ -260,6 +278,8 @@ namespace PolvorApp.ComparsaOrders.Persistence.Migrations
 
                     b.ToTable("weapon_loans", "orders", t =>
                         {
+                            t.HasCheckConstraint("ck_weapon_loans_erased", "erased_at IS NULL OR (lender_owned_weapon_id IS NULL AND lender_first_name IS NULL AND lender_last_name IS NULL AND lender_national_id IS NULL AND weapon_number IS NULL AND ownership_guide_number IS NULL)");
+
                             t.HasCheckConstraint("ck_weapon_loans_external", "lender_kind <> 'EXTERNAL' OR (lender_owned_weapon_id IS NULL AND lender_comparsa_id IS NULL)");
 
                             t.HasCheckConstraint("ck_weapon_loans_lender_kind", "lender_kind IN ('ARQUEBUSIER', 'EXTERNAL')");
@@ -457,19 +477,22 @@ namespace PolvorApp.ComparsaOrders.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_audit_entries");
 
-                    b.HasIndex("OccurredAt")
-                        .HasDatabaseName("ix_audit_entries_occurred_at");
-
-                    b.HasIndex("ActorUserId", "OccurredAt")
-                        .HasDatabaseName("ix_audit_entries_actor_user_id_occurred_at")
-                        .HasFilter("actor_user_id IS NOT NULL");
-
-                    b.HasIndex("ComparsaId", "OccurredAt")
-                        .HasDatabaseName("ix_audit_entries_comparsa_id_occurred_at")
-                        .HasFilter("comparsa_id IS NOT NULL");
-
                     b.HasIndex("EntityType", "EntityId")
                         .HasDatabaseName("ix_audit_entries_entity_type_entity_id");
+
+                    b.HasIndex("OccurredAt", "Id")
+                        .HasDatabaseName("ix_audit_entries_occurred_at_id");
+
+                    b.HasIndex("Action", "OccurredAt", "Id")
+                        .HasDatabaseName("ix_audit_entries_action_occurred_at_id");
+
+                    b.HasIndex("ActorUserId", "OccurredAt", "Id")
+                        .HasDatabaseName("ix_audit_entries_actor_user_id_occurred_at_id")
+                        .HasFilter("actor_user_id IS NOT NULL");
+
+                    b.HasIndex("ComparsaId", "OccurredAt", "Id")
+                        .HasDatabaseName("ix_audit_entries_comparsa_id_occurred_at_id")
+                        .HasFilter("comparsa_id IS NOT NULL");
 
                     b.ToTable("audit_entries", "audit", t =>
                         {

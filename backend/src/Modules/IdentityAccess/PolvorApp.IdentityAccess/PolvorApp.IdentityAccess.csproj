@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\PolvorApp.SharedKernel\PolvorApp.SharedKernel.csproj" />
     <ProjectReference Include="..\PolvorApp.IdentityAccess.Contracts\PolvorApp.IdentityAccess.Contracts.csproj" />
+    <ProjectReference Include="..\..\AuditPrivacy\PolvorApp.AuditPrivacy.Contracts\PolvorApp.AuditPrivacy.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

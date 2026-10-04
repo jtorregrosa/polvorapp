@@ -54,7 +54,7 @@ internal sealed class LenderLookup(
         }
 
         var lender = await roster.FindLenderAsync(normalised, cancellationToken);
-        trail.Record(db, new AuditRecord("LoanLenderLookedUp", EntityType, null, new { found = lender is not null }));
+        trail.Record(db, new AuditRecord(ComparsaOrdersAuditActions.LoanLenderLookedUp, EntityType, null, new { found = lender is not null }));
         await db.SaveChangesAsync(cancellationToken);
         return OrderResult<LenderLookupResponse>.Done(lender is null
             ? new LenderLookupResponse(Registered: false, null)
@@ -69,7 +69,7 @@ internal sealed class LenderLookup(
     public async Task RecordRegisteredProbeAsync(CancellationToken cancellationToken)
     {
         db.ChangeTracker.Clear();
-        trail.Record(db, new AuditRecord("LoanLenderLookedUp", EntityType, null, new { found = true, via = "externalLoan" }));
+        trail.Record(db, new AuditRecord(ComparsaOrdersAuditActions.LoanLenderLookedUp, EntityType, null, new { found = true, via = "externalLoan" }));
         await db.SaveChangesAsync(cancellationToken);
     }
 

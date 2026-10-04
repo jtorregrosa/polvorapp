@@ -23,6 +23,13 @@ internal sealed class DocumentRenderer(TimeProvider time) : IDocumentRenderer
         };
     }
 
+    public RenderedDocument RenderWorkbook(DocumentWorkbook workbook)
+    {
+        ArgumentNullException.ThrowIfNull(workbook);
+        return new RenderedDocument(
+            XlsxWorkbookWriter.Write(workbook), XlsxExportWriter.ContentType, $"{workbook.FileStem}.{XlsxExportWriter.Extension}");
+    }
+
     public RenderedDocument RenderForm(DocumentForm form)
     {
         ArgumentNullException.ThrowIfNull(form);

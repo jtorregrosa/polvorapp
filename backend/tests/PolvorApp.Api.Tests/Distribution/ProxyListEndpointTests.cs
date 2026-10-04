@@ -129,6 +129,18 @@ public sealed class ProxyListEndpointTests(PostgresFixture postgres, MailpitFixt
     }
 
     [Fact]
+    public async Task An_erased_entry_is_never_a_candidate()
+    {
+        var erased = await _orders.AddLicensedEntryAsync(_order, "Borrada Sintética", ValidThrough, powderKg: 1);
+        await _orders.EraseEntryAsync(erased.Id);
+
+        var candidates = (await CandidatesAsync(_orders.FiringChief, _orders.Own.Id)).Select(c => c.GetProperty("entryId").GetGuid()).ToList();
+
+        Assert.DoesNotContain(erased.Id, candidates);
+        Assert.Contains(_holder.Id, candidates);
+    }
+
+    [Fact]
     public async Task An_entry_collecting_for_another_cannot_get_a_proxy_of_that_type_only()
     {
         var collector = await _orders.AddLicensedEntryAsync(_order, "Climent Sintético", ValidThrough, powderKg: 1, weaponSource: WeaponSource.Rental);

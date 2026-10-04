@@ -49,7 +49,7 @@ internal sealed class EditionWeaponModelAdministration(
             db.EditionWeaponModels.RemoveRange(removed);
             db.EditionWeaponModels.AddRange(added.Select(m => new EditionWeaponModel { EditionId = id, WeaponModelId = m }));
             trail.Record(db, new AuditRecord(
-                "EditionWeaponModelsChanged",
+                FestivalEditionsAuditActions.EditionWeaponModelsChanged,
                 EditionAdministration.EntityType,
                 id.ToString(),
                 new { added, removed = removed.Select(m => m.WeaponModelId).Order().ToList() }));

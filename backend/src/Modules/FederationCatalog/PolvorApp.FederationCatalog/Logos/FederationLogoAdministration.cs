@@ -34,7 +34,7 @@ internal sealed class FederationLogoAdministration(
             var replaced = settings.Logo?.ObjectKey;
             settings.Logo = logo;
             settings.UpdatedAt = logo.UploadedAt;
-            Record("FederationLogoUploaded", new { replaced = replaced is not null });
+            Record(FederationCatalogAuditActions.FederationLogoUploaded, new { replaced = replaced is not null });
             return new LogoSwap(true, replaced);
         }, cancellationToken);
 
@@ -68,7 +68,7 @@ internal sealed class FederationLogoAdministration(
             removedKey = logo.ObjectKey;
             settings.Logo = null;
             settings.UpdatedAt = time.GetUtcNow();
-            Record("FederationLogoRemoved");
+            Record(FederationCatalogAuditActions.FederationLogoRemoved);
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
         }

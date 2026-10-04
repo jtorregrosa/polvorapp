@@ -19,6 +19,9 @@ internal enum AdminOutcome
     NotInvited,
     NotEnrolled,
 
+    /// <summary>The user was erased on a GDPR request: nothing about them changes any more.</summary>
+    Erased,
+
     /// <summary>The change is saved but the email could not be sent; the invitation can be resent.</summary>
     EmailNotSent,
 }
@@ -93,6 +96,11 @@ internal sealed class UserAdministration(
         }
 
         await using var transaction = await BeginAdminChangeAsync(user, cancellationToken);
+        if (user.ErasedAt is not null)
+        {
+            return (AdminOutcome.Erased, user);
+        }
+
         if (user.Role == UserRole.Admin && role != UserRole.Admin && await IsLastActiveAdminAsync(user, cancellationToken))
         {
             return (AdminOutcome.LastAdmin, user);
@@ -105,11 +113,14 @@ internal sealed class UserAdministration(
 
         // The principal is rebuilt on every request (ValidationInterval = 0), so a role change
         // applies on the user's next request without ending the session (spec: Role change takes effect).
-        var previous = new { name = user.Name, role = user.Role.ToCode(), locale = user.Locale };
+        // Names are personal data: a name change is recorded as a changed field, never its values
+        // (add-audit-privacy, design D9). Role and locale keep their previous and new values.
+        string[] changedFields = user.Name == name ? [] : ["name"];
+        var previous = new { role = user.Role.ToCode(), locale = user.Locale };
         user.Name = name;
         user.Role = role;
         user.Locale = locale;
-        trail.Record(db, SecurityEvents.UserUpdated, user, new { previous, current = new { name, role = role.ToCode(), locale } });
+        trail.Record(db, SecurityEvents.UserUpdated, user, new { changedFields, previous, current = new { role = role.ToCode(), locale } });
         await users.UpdateAsync(user).ThrowIfFailedAsync("Updating the user");
         await transaction.CommitAsync(cancellationToken);
         return (AdminOutcome.Done, user);
@@ -124,6 +135,11 @@ internal sealed class UserAdministration(
         }
 
         await using var transaction = await BeginAdminChangeAsync(user, cancellationToken);
+        if (user.ErasedAt is not null)
+        {
+            return (AdminOutcome.Erased, user);
+        }
+
         if (user.Active == active)
         {
             return (AdminOutcome.Done, user);
@@ -154,6 +170,11 @@ internal sealed class UserAdministration(
         string token;
         await using (var transaction = await db.LockAsync(user, cancellationToken))
         {
+            if (user.ErasedAt is not null)
+            {
+                return (AdminOutcome.Erased, user);
+            }
+
             if (user.Status != UserStatus.Invited)
             {
                 return (AdminOutcome.NotInvited, user);
@@ -179,6 +200,11 @@ internal sealed class UserAdministration(
         }
 
         await using var transaction = await db.LockAsync(user, cancellationToken);
+        if (user.ErasedAt is not null)
+        {
+            return (AdminOutcome.Erased, user);
+        }
+
         if (!user.TwoFactorEnabled)
         {
             return (AdminOutcome.NotEnrolled, user);

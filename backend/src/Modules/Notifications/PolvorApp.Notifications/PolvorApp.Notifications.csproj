@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\AuditPrivacy\PolvorApp.AuditPrivacy.Contracts\PolvorApp.AuditPrivacy.Contracts.csproj" />
     <ProjectReference Include="..\..\..\PolvorApp.SharedKernel\PolvorApp.SharedKernel.csproj" />
     <ProjectReference Include="..\PolvorApp.Notifications.Contracts\PolvorApp.Notifications.Contracts.csproj" />
     <ProjectReference Include="..\..\ArquebusierRegistry\PolvorApp.ArquebusierRegistry.Contracts\PolvorApp.ArquebusierRegistry.Contracts.csproj" />

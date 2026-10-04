@@ -6,6 +6,7 @@ using PolvorApp.Exports.Contracts;
 using PolvorApp.Exports.Definitions;
 using PolvorApp.Exports.Endpoints;
 using PolvorApp.Exports.Writers;
+using PolvorApp.SharedKernel.Auditing;
 using PolvorApp.SharedKernel.Modules;
 
 namespace PolvorApp.Exports;
@@ -20,6 +21,7 @@ public sealed class ExportsModule : IModule
 {
     public void AddServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddAuditActions(ExportsAuditActions.All);
         // Fonts and license once, at start-up: a missing font fails the start, not a user's export.
         PdfSetup.EnsureApplied();
         services.TryAddSingleton(TimeProvider.System);

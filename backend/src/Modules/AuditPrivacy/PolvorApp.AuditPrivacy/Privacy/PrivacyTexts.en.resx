@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Sheet.registry" xml:space="preserve">
+    <value>Record</value>
+  </data>
+  <data name="Sheet.ownedWeapons" xml:space="preserve">
+    <value>Owned weapons</value>
+  </data>
+  <data name="Sheet.entries" xml:space="preserve">
+    <value>Edition entries</value>
+  </data>
+  <data name="Sheet.lenderLoans" xml:space="preserve">
+    <value>Loans as lender</value>
+  </data>
+  <data name="Sheet.pickupProxies" xml:space="preserve">
+    <value>Pickup authorisations</value>
+  </data>
+  <data name="Sheet.profile" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="Sheet.assignments" xml:space="preserve">
+    <value>Comparsa assignments</value>
+  </data>
+  <data name="Sheet.notificationPreferences" xml:space="preserve">
+    <value>Notification preferences</value>
+  </data>
+  <data name="Sheet.notificationDeliveries" xml:space="preserve">
+    <value>Notifications sent</value>
+  </data>
+  <data name="Sheet.activity" xml:space="preserve">
+    <value>Activity</value>
+  </data>
+  <data name="Sheet.about" xml:space="preserve">
+    <value>About this data</value>
+  </data>
+  <data name="Column.nationalId" xml:space="preserve">
+    <value>DNI/NIE</value>
+  </data>
+  <data name="Column.federationId" xml:space="preserve">
+    <value>Federation number</value>
+  </data>
+  <data name="Column.firstName" xml:space="preserve">
+    <value>First name</value>
+  </data>
+  <data name="Column.lastName" xml:space="preserve">
+    <value>Last name</value>
+  </data>
+  <data name="Column.birthDate" xml:space="preserve">
+    <value>Birth date</value>
+  </data>
+  <data name="Column.email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Column.phone" xml:space="preserve">
+    <value>Phone</value>
+  </data>
+  <data name="Column.gender" xml:space="preserve">
+    <value>Gender</value>
+  </data>
+  <data name="Column.status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Column.comparsa" xml:space="preserve">
+    <value>Comparsa</value>
+  </data>
+  <data name="Column.trainingCompletedOn" xml:space="preserve">
+    <value>Course date</value>
+  </data>
+  <data name="Column.licenseType" xml:space="preserve">
+    <value>License type</value>
+  </data>
+  <data name="Column.licensePending" xml:space="preserve">
+    <value>License pending</value>
+  </data>
+  <data name="Column.licenseIssuedOn" xml:space="preserve">
+    <value>License issued on</value>
+  </data>
+  <data name="Column.licenseExpiresOn" xml:space="preserve">
+    <value>License expires on</value>
+  </data>
+  <data name="Column.registeredAt" xml:space="preserve">
+    <value>Registered in PolvorApp</value>
+  </data>
+  <data name="Column.weaponModel" xml:space="preserve">
+    <value>Weapon model</value>
+  </data>
+  <data name="Column.weaponNumber" xml:space="preserve">
+    <value>Weapon number</value>
+  </data>
+  <data name="Column.ownershipGuideNumber" xml:space="preserve">
+    <value>Ownership guide</value>
+  </data>
+  <data name="Column.edition" xml:space="preserve">
+    <value>Edition</value>
+  </data>
+  <data name="Column.powderKg" xml:space="preserve">
+    <value>Powder (kg)</value>
+  </data>
+  <data name="Column.capsBoxes" xml:space="preserve">
+    <value>Cap boxes</value>
+  </data>
+  <data name="Column.capsType" xml:space="preserve">
+    <value>Cap type</value>
+  </data>
+  <data name="Column.weaponSource" xml:space="preserve">
+    <value>Weapon source</value>
+  </data>
+  <data name="Column.flask" xml:space="preserve">
+    <value>Flask</value>
+  </data>
+  <data name="Column.rentalModel" xml:space="preserve">
+    <value>Rented model</value>
+  </data>
+  <data name="Column.ownedWeaponModel" xml:space="preserve">
+    <value>Owned weapon model</value>
+  </data>
+  <data name="Column.ownedWeaponNumber" xml:space="preserve">
+    <value>Owned weapon number</value>
+  </data>
+  <data name="Column.ownedWeaponGuideNumber" xml:space="preserve">
+    <value>Owned weapon guide</value>
+  </data>
+  <data name="Column.loanLender" xml:space="preserve">
+    <value>Loan from</value>
+  </data>
+  <data name="Column.loanWeaponModel" xml:space="preserve">
+    <value>Loaned model</value>
+  </data>
+  <data name="Column.erased" xml:space="preserve">
+    <value>Erased</value>
+  </data>
+  <data name="Column.type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Column.role" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="Column.participation" xml:space="preserve">
+    <value>Participation</value>
+  </data>
+  <data name="Column.name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Column.language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Column.createdAt" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="Column.lastSignInAt" xml:space="preserve">
+    <value>Last sign-in</value>
+  </data>
+  <data name="Column.twoFactorEnabled" xml:space="preserve">
+    <value>Two-factor enabled</value>
+  </data>
+  <data name="Column.assignedAt" xml:space="preserve">
+    <value>Assigned</value>
+  </data>
+  <data name="Column.kind" xml:space="preserve">
+    <value>Kind</value>
+  </data>
+  <data name="Column.on" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="Column.template" xml:space="preserve">
+    <value>Template</value>
+  </data>
+  <data name="Column.attempts" xml:space="preserve">
+    <value>Attempts</value>
+  </data>
+  <data name="Column.sentAt" xml:space="preserve">
+    <value>Sent</value>
+  </data>
+  <data name="Column.occurredAt" xml:space="preserve">
+    <value>Date and time</value>
+  </data>
+  <data name="Column.action" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="Column.entityType" xml:space="preserve">
+    <value>Record type</value>
+  </data>
+  <data name="Column.entityId" xml:space="preserve">
+    <value>Record</value>
+  </data>
+  <data name="Column.item" xml:space="preserve">
+    <value>Item</value>
+  </data>
+  <data name="Column.value" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="About.Controller" xml:space="preserve">
+    <value>Data controller</value>
+  </data>
+  <data name="About.ControllerValue" xml:space="preserve">
+    <value>Unión de Comparsas «Ber-Largas» (see the data protection notice)</value>
+  </data>
+  <data name="About.Purposes" xml:space="preserve">
+    <value>Purposes</value>
+  </data>
+  <data name="About.PurposesValue" xml:space="preserve">
+    <value>Management of the arquebusiers of the Moros y Cristianos festival: registry, licences, powder and weapon orders, distribution and lists for the Arms Authority.</value>
+  </data>
+  <data name="About.Recipients" xml:space="preserve">
+    <value>Recipients</value>
+  </data>
+  <data name="About.RecipientsValue" xml:space="preserve">
+    <value>Powder supplier, weapon rental company and the Arms Authority (Guardia Civil), each with only the data it needs.</value>
+  </data>
+  <data name="About.Retention" xml:space="preserve">
+    <value>Retention</value>
+  </data>
+  <data name="About.RetentionValue" xml:space="preserve">
+    <value>The record is kept while the person belongs to the Federation; entries of past editions are kept as history; the audit log for 5 years (sign-ins for 1 year).</value>
+  </data>
+  <data name="About.Rights" xml:space="preserve">
+    <value>Rights</value>
+  </data>
+  <data name="About.RightsValue" xml:space="preserve">
+    <value>You may ask the Federation for access to, rectification or erasure of your data, as the data protection notice explains.</value>
+  </data>
+  <data name="About.Reference" xml:space="preserve">
+    <value>Request reference</value>
+  </data>
+  <data name="About.GeneratedAt" xml:space="preserve">
+    <value>Generated on</value>
+  </data>
+  <data name="About.Note" xml:space="preserve">
+    <value>Notice</value>
+  </data>
+  <data name="Note.missingPhoto" xml:space="preserve">
+    <value>The file of the “{0}” photo was not found: the record exists but the image is not available.</value>
+  </data>
+  <data name="Note.activityCapped" xml:space="preserve">
+    <value>The activity sheet shows only the 100,000 most recent entries.</value>
+  </data>
+  <data name="Value.holder" xml:space="preserve">
+    <value>Holder</value>
+  </data>
+  <data name="Value.proxy" xml:space="preserve">
+    <value>Proxy</value>
+  </data>
+</root>

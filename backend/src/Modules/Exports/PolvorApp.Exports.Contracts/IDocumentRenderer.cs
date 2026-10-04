@@ -13,6 +13,9 @@ public interface IDocumentRenderer
 
     /// <summary>A one-page form to print and sign, as a PDF dated with the Federation's date of today.</summary>
     RenderedDocument RenderForm(DocumentForm form);
+
+    /// <summary>A workbook of several sheets, as an Excel file (add-audit-privacy).</summary>
+    RenderedDocument RenderWorkbook(DocumentWorkbook workbook);
 }
 
 /// <summary>A rendered file, ready to return: never stored (SEC-06).</summary>

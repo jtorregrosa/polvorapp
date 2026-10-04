@@ -33,11 +33,14 @@ internal static class ProxyRules
     public const string LicenseInvalid = "licenseInvalid";
     public const string ProxyAbsent = "proxyAbsent";
 
+    /// <summary>The entry's person was erased on a GDPR request (add-audit-privacy): neither holder nor proxy.</summary>
+    public const string EntryErased = "entryErased";
+
     /// <summary>For <c>POWDER</c>, an <c>ACTIVE</c> entry with powder; for <c>WEAPONS</c>, an <c>ACTIVE</c> entry renting a weapon.</summary>
     public static bool HasSomethingToCollect(EditionEntryFacts holder, DistributionType type)
     {
         ArgumentNullException.ThrowIfNull(holder);
-        return holder.IsActive && type switch
+        return holder.IsActive && !holder.Erased && type switch
         {
             DistributionType.Powder => holder.PowderKg > 0,
             DistributionType.Weapons => holder.WeaponSource == WeaponSource.Rental,
@@ -58,7 +61,8 @@ internal static class ProxyRules
 
     /// <summary>
     /// The first rule a new proxy breaks, as the field and reason of a <c>400</c>, or null when it holds:
-    /// the same order (BR-06), not the holder, something to collect, then the proxy's license. The
+    /// neither entry erased, the same order (BR-06), not the holder, something to collect, then the
+    /// proxy's license. The
     /// absence and uniqueness rules are checked under the comparsa's lock, by the writer.
     /// </summary>
     /// <param name="proxyLicense">The proxy arquebusier's license, or null when they have none or left the registry.</param>
@@ -71,6 +75,16 @@ internal static class ProxyRules
     {
         ArgumentNullException.ThrowIfNull(holder);
         ArgumentNullException.ThrowIfNull(proxy);
+        if (holder.Erased)
+        {
+            return ("holderEntryId", EntryErased);
+        }
+
+        if (proxy.Erased)
+        {
+            return ("proxyEntryId", EntryErased);
+        }
+
         if (proxy.OrderId != holder.OrderId)
         {
             return ("proxyEntryId", NotInOrder);

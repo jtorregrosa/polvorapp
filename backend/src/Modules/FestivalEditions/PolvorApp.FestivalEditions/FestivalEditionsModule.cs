@@ -8,6 +8,7 @@ using PolvorApp.FestivalEditions.Editions;
 using PolvorApp.FestivalEditions.Endpoints;
 using PolvorApp.FestivalEditions.Persistence;
 using PolvorApp.FestivalEditions.Seeding;
+using PolvorApp.SharedKernel.Auditing;
 using PolvorApp.SharedKernel.Modules;
 using PolvorApp.SharedKernel.Persistence;
 using PolvorApp.SharedKernel.Seeding;
@@ -26,6 +27,8 @@ public sealed class FestivalEditionsModule : IModule
 
     public void AddServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddAuditActions(FestivalEditionsAuditActions.All);
+        services.AddAuditRecordResolver<FestivalEditionsDbContext, Editions.FestivalEdition>(EditionAdministration.EntityType);
         services.AddHttpContextAccessor();
         services.TryAddSingleton(TimeProvider.System);
         services.AddModuleDbContext<FestivalEditionsDbContext>(FestivalEditionsDbContext.Schema, MigrationOrder);

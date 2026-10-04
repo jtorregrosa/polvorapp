@@ -247,6 +247,29 @@ public sealed class ExportEndpointTests(PostgresFixture postgres, MailpitFixture
         Assert.DoesNotContain(nationalId, entry.Data!, StringComparison.Ordinal);
     }
 
+    /// <summary>Spec exports "Erased entries in exports" (add-audit-privacy): out of the rows, still in the totals.</summary>
+    [Fact]
+    public async Task An_erased_entry_is_left_out_of_the_rows_but_counted_in_the_totals_and_the_audit_counts_the_rows_written()
+    {
+        var order = NewOrder(_orders.Current, _orders.Own.Id, OrderStatus.Validated);
+        var kept = NewEntry(order, null);
+        var erased = NewEntry(order, null);
+        (kept.PowderKg, erased.PowderKg) = (2, 2);
+        await _orders.Services.SaveOrdersAsync(order, kept, erased);
+        await _orders.EraseEntryAsync(erased.Id);
+
+        using var response = await _orders.Admin.GetAsync($"{Base}/comparsas/{_orders.Own.Id}/xlsx", TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        using var workbook = new XLWorkbook(new MemoryStream(await response.Content.ReadAsByteArrayAsync(TestContext.Current.CancellationToken)));
+        var cells = workbook.Worksheets.Single().CellsUsed().ToList();
+        Assert.Contains(cells, c => c.GetString().Contains(kept.LastName!, StringComparison.Ordinal));
+        Assert.Contains(cells, c => c.DataType == XLDataType.Number && Math.Abs(c.GetDouble() - 4) < 0.001);
+        var audit = Assert.Single(await _orders.Host.AuditEntriesAsync("ExportDownloaded"));
+        using var data = JsonDocument.Parse(audit.Data!);
+        Assert.Equal(1, data.RootElement.GetProperty("rows").GetInt32());
+    }
+
     [Fact]
     public async Task An_export_that_cannot_be_audited_is_not_returned()
     {

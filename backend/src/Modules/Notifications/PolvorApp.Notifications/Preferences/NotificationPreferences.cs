@@ -42,7 +42,7 @@ internal sealed class NotificationPreferences(NotificationsDbContext db, IAuditT
             await db.OptOuts.Where(o => o.UserId == userId && turnedOn.Contains(o.Kind)).ExecuteDeleteAsync(cancellationToken);
             trail.Record(db, new AuditRecord(
                 AuditAction,
-                "User",
+                NotificationsAuditActions.UserEntityType,
                 userId.ToString(),
                 new { turnedOff = turnedOff.Select(k => EnumCodes.ToCode(k)).ToList(), turnedOn = turnedOn.Select(k => EnumCodes.ToCode(k)).ToList() }));
             await db.SaveChangesAsync(cancellationToken);

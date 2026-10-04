@@ -58,7 +58,7 @@ internal sealed class EditionAdministration(
             };
             db.Editions.Add(edition);
             db.EditionWeaponModels.AddRange(copied.Select(id => new EditionWeaponModel { EditionId = edition.Id, WeaponModelId = id }));
-            Record("EditionCreated", edition, new
+            Record(FestivalEditionsAuditActions.EditionCreated, edition, new
             {
                 year,
                 festivalStartsOn,
@@ -130,7 +130,7 @@ internal sealed class EditionAdministration(
             }
 
             Apply(edition, input);
-            Record("EditionUpdated", edition, Changes(previous, current));
+            Record(FestivalEditionsAuditActions.EditionUpdated, edition, Changes(previous, current));
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return EditionWrite.Done(edition);
@@ -165,7 +165,7 @@ internal sealed class EditionAdministration(
             var modelIds = await db.EditionWeaponModels.Where(m => m.EditionId == id).Select(m => m.WeaponModelId).ToListAsync(cancellationToken);
             var milestoneCount = await db.Milestones.CountAsync(m => m.EditionId == id, cancellationToken);
             db.Editions.Remove(edition);
-            Record("EditionDeleted", edition, new
+            Record(FestivalEditionsAuditActions.EditionDeleted, edition, new
             {
                 edition.Year,
                 edition.Status,

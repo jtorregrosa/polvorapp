@@ -49,6 +49,7 @@ internal static class UsersEndpoints
             "INVITED" => UserStatus.Invited,
             "ACTIVE" => UserStatus.Active,
             "DEACTIVATED" => UserStatus.Deactivated,
+            "ERASED" => UserStatus.Erased,
             _ => null,
         };
         if (status is not null && statusFilter is null)
@@ -69,9 +70,10 @@ internal static class UsersEndpoints
 
         query = statusFilter switch
         {
+            UserStatus.Erased => query.Where(u => u.ErasedAt != null),
             UserStatus.Invited => query.Where(u => u.Active && u.PasswordHash == null),
             UserStatus.Active => query.Where(u => u.Active && u.PasswordHash != null),
-            UserStatus.Deactivated => query.Where(u => !u.Active),
+            UserStatus.Deactivated => query.Where(u => !u.Active && u.ErasedAt == null),
             _ => query,
         };
 
@@ -143,6 +145,7 @@ internal static class UsersEndpoints
         AdminOutcome.LastAdmin => Problems.Conflict(Problems.LastAdmin),
         AdminOutcome.NotInvited => Problems.Conflict(Problems.NotInvited),
         AdminOutcome.NotEnrolled => Problems.Conflict(Problems.NotEnrolled),
+        AdminOutcome.Erased => Problems.Conflict(Problems.UserErased),
         AdminOutcome.EmailNotSent => Problems.Problem(StatusCodes.Status502BadGateway, Problems.EmailSendFailed, new Dictionary<string, object?> { ["userId"] = user?.Id }),
         _ => throw new ArgumentOutOfRangeException(nameof(outcome), outcome, "Unexpected outcome."),
     };

@@ -181,6 +181,55 @@ public sealed class OrdersDatabaseTests(PostgresFixture postgres) : IAsyncLifeti
     }
 
     [Fact]
+    public async Task An_erased_entry_keeps_no_copy_of_the_person()
+    {
+        var order = await OrderAsync();
+        var withCopy = NewEntry(order, null);
+        withCopy.ErasedAt = DateTimeOffset.UtcNow;
+        var blank = NewEntry(order, null);
+        (blank.FirstName, blank.LastName, blank.NationalId, blank.FederationId, blank.ErasedAt) = (null, null, null, null, DateTimeOffset.UtcNow);
+
+        var error = await FailAsync(withCopy);
+        await Services.SaveOrdersAsync(blank);
+
+        Assert.Equal((PostgresErrorCodes.CheckViolation, ComparsaOrdersDbContext.ErasedEntryCheck), error);
+    }
+
+    [Fact]
+    public async Task An_erased_loan_keeps_no_copy_of_the_lender()
+    {
+        var order = await OrderAsync();
+        var entry = NewEntry(order, null);
+        entry.WeaponSource = WeaponSource.Loan;
+        var other = NewEntry(order, null);
+        other.WeaponSource = WeaponSource.Loan;
+        await Services.SaveOrdersAsync(entry, other);
+        var withCopy = NewLoan(entry.Id, LenderKind.External);
+        (withCopy.LenderFirstName, withCopy.LenderNationalId, withCopy.ErasedAt) = ("Prestador", NextIdentity().NationalId, DateTimeOffset.UtcNow);
+        var blank = NewLoan(other.Id, LenderKind.External);
+        blank.ErasedAt = DateTimeOffset.UtcNow;
+
+        var error = await FailAsync(withCopy);
+        await Services.SaveOrdersAsync(blank);
+
+        Assert.Equal((PostgresErrorCodes.CheckViolation, ComparsaOrdersDbContext.ErasedLoanCheck), error);
+    }
+
+    [Fact]
+    public async Task Copies_are_found_by_national_id()
+    {
+        await using var scope = Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<ComparsaOrdersDbContext>();
+
+        var indexes = await db.Database
+            .SqlQuery<string>($"SELECT indexname AS \"Value\" FROM pg_indexes WHERE schemaname = 'orders'")
+            .ToListAsync(TestContext.Current.CancellationToken);
+
+        Assert.Contains("ix_edition_entries_national_id", indexes);
+        Assert.Contains("ix_weapon_loans_lender_national_id", indexes);
+    }
+
+    [Fact]
     public async Task A_return_reason_exists_exactly_while_the_order_is_returned()
     {
         var (edition, comparsa) = await EditionAndComparsaAsync();

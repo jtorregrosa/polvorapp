@@ -136,6 +136,7 @@ internal sealed class OrderViews(
                 x.Entry.ArquebusierId,
                 x.Entry.FirstName,
                 x.Entry.LastName,
+                Erased = x.Entry.ErasedAt != null,
                 o.ComparsaId,
             })
             .ToListAsync(cancellationToken);
@@ -165,7 +166,8 @@ internal sealed class OrderViews(
                     owner.LastName,
                     borrower?.FirstName ?? r.FirstName,
                     borrower?.LastName ?? r.LastName,
-                    comparsas.TryGetValue(r.ComparsaId, out var name) ? name : throw new InvalidOperationException($"Comparsa {r.ComparsaId} is missing from the catalogue."));
+                    comparsas.TryGetValue(r.ComparsaId, out var name) ? name : throw new InvalidOperationException($"Comparsa {r.ComparsaId} is missing from the catalogue."),
+                    r.Erased);
             })
             .OrderBy(l => l.LenderLastName, SpanishOrder.Names)
             .ThenBy(l => l.BorrowerLastName, SpanishOrder.Names)
@@ -216,7 +218,8 @@ internal sealed class OrderViews(
             arquebusier is null ? null : firstYear.Of(arquebusier.Id),
             arquebusier is null
                 ? []
-                : [.. arquebusier.Weapons.Select(w => new EntryWeaponResponse(w.Id, w.WeaponModelId, Label(models, w.WeaponModelId), w.WeaponNumber, Removed: false))]);
+                : [.. arquebusier.Weapons.Select(w => new EntryWeaponResponse(w.Id, w.WeaponModelId, Label(models, w.WeaponModelId), w.WeaponNumber, Removed: false))],
+            Erased: entry.ErasedAt is not null);
     }
 
     /// <summary>The loan from its stored copy; an external owner's guide and DNI were typed by the borrower's comparsa.</summary>
@@ -233,7 +236,8 @@ internal sealed class OrderViews(
             loan.WeaponNumber,
             external ? loan.OwnershipGuideNumber : null,
             external ? loan.LenderNationalId : null,
-            WeaponRemoved: !external && loan.LenderOwnedWeaponId is null);
+            WeaponRemoved: !external && loan.LenderOwnedWeaponId is null && loan.ErasedAt is null,
+            LenderErased: loan.ErasedAt is not null);
     }
 
     /// <summary>The live weapon while it is in the registry, else the entry's copy with its guide, marked removed.</summary>

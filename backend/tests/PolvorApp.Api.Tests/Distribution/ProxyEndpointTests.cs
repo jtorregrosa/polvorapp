@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using PolvorApp.Api.Tests.Infrastructure;
 using PolvorApp.ArquebusierRegistry.Contracts;
@@ -116,6 +118,39 @@ public sealed class ProxyEndpointTests(PostgresFixture postgres, MailpitFixture 
             using var response = await _orders.FiringChief.RegisterProxyAsync(_orders.Current.Id, _holder.Id, proxy);
             Assert.Equal("licenseInvalid", (await ErrorsAsync(response))["proxyEntryId"]);
         }
+    }
+
+    [Fact]
+    public async Task An_erased_holder_or_proxy_is_refused_and_nothing_is_stored()
+    {
+        var erased = await _orders.AddLicensedEntryAsync(_order, "Borrada Sintética", ValidThrough, powderKg: 1);
+        await _orders.EraseEntryAsync(erased.Id);
+
+        using var asProxy = await _orders.FiringChief.RegisterProxyAsync(_orders.Current.Id, _holder.Id, erased.Id);
+        using var asHolder = await _orders.FiringChief.RegisterProxyAsync(_orders.Current.Id, erased.Id, _reserve.Id);
+
+        Assert.Equal("entryErased", (await ErrorsAsync(asProxy))["proxyEntryId"]);
+        Assert.Equal("entryErased", (await ErrorsAsync(asHolder))["holderEntryId"]);
+        Assert.Empty(await _orders.Host.AuditEntriesAsync("PickupProxyAuthorised"));
+    }
+
+    [Fact]
+    public async Task The_write_lock_tells_whether_an_entry_was_erased()
+    {
+        await using var scope = _orders.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<DistributionDbContext>();
+        var entries = scope.ServiceProvider.GetRequiredService<IEditionEntries>();
+        await using var transaction = await db.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
+        var dbTransaction = transaction.GetDbTransaction();
+
+        var before = await entries.AnyErasedForWriteAsync([_holder.Id, _reserve.Id], dbTransaction, TestContext.Current.CancellationToken);
+        await transaction.RollbackAsync(TestContext.Current.CancellationToken);
+        await _orders.EraseEntryAsync(_reserve.Id);
+        await using var again = await db.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
+        var after = await entries.AnyErasedForWriteAsync([_holder.Id, _reserve.Id], again.GetDbTransaction(), TestContext.Current.CancellationToken);
+
+        Assert.False(before);
+        Assert.True(after);
     }
 
     [Fact]

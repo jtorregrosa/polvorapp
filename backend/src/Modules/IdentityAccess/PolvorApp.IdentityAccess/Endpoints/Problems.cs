@@ -23,6 +23,7 @@ internal static class Problems
     public const string LastAdmin = "users.lastAdmin";
     public const string NotInvited = "users.notInvited";
     public const string NotEnrolled = "users.notEnrolled";
+    public const string UserErased = "users.erased";
     public const string UserNotFound = "users.notFound";
     public const string EmailSendFailed = "email.sendFailed";
     public const string Validation = ProblemResults.Validation;

@@ -11,8 +11,11 @@ using PolvorApp.ArquebusierRegistry.Lock;
 using PolvorApp.ArquebusierRegistry.OwnedWeapons;
 using PolvorApp.ArquebusierRegistry.Persistence;
 using PolvorApp.ArquebusierRegistry.Photos;
+using PolvorApp.ArquebusierRegistry.Privacy;
 using PolvorApp.ArquebusierRegistry.Seeding;
+using PolvorApp.AuditPrivacy.Contracts;
 using PolvorApp.FederationCatalog.Contracts;
+using PolvorApp.SharedKernel.Auditing;
 using PolvorApp.SharedKernel.Modules;
 using PolvorApp.SharedKernel.Persistence;
 using PolvorApp.SharedKernel.Seeding;
@@ -32,6 +35,8 @@ public sealed class ArquebusierRegistryModule : IModule
 
     public void AddServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddAuditActions(ArquebusierRegistryAuditActions.All);
+        services.AddAuditRecordResolver<ArquebusierRegistryDbContext, Arquebusiers.Arquebusier>(ArquebusierAdministration.EntityType);
         services.AddHttpContextAccessor();
         services.TryAddSingleton(TimeProvider.System);
         services.AddModuleDbContext<ArquebusierRegistryDbContext>(ArquebusierRegistryDbContext.Schema, MigrationOrder);
@@ -40,6 +45,7 @@ public sealed class ArquebusierRegistryModule : IModule
         services.AddScoped<ICatalogUsage, RegistryCatalogUsage>();
         services.AddScoped<RegistryWriteGuard>();
         services.AddScoped<ArquebusierAdministration>();
+        services.AddScoped<IPersonalDataParticipant, RegistryPersonalData>();
         services.AddScoped<OwnedWeaponAdministration>();
         services.AddScoped<ArquebusierPhotoAdministration>();
         services.AddScoped<PhotoObjects>();
