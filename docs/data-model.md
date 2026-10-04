@@ -291,9 +291,11 @@ Derived document — nothing new is stored. Current badge (reference photo in `s
   Federation name ("Unión de Comparsas de Moros y Cristianos \"Ber-Largas\"").
 - Federation coat of arms.
 - ID photo.
-- Labelled fields: **Apellidos**, **Nombre**, **DNI**, **Código** (`federationId`),
-  **Fecha de caducidad** (license `expiresOn`), **Comparsa**.
+- Labelled fields: **Apellidos** (`lastName`), **Nombre** (`firstName`), **DNI/NIE**
+  (`nationalId`), **Código** (`federationId`), **Fecha de caducidad** (license `expiresOn`,
+  `dd/MM/yyyy`), **Comparsa**. Nothing else of the person is printed.
 - Free area where the Federation **stamps its seal by hand** — keep it empty in the PDF.
+- Values are printed in full, never cut: a long one shrinks and, if needed, takes a second line.
 
 **Physical format**
 
@@ -303,8 +305,23 @@ Derived document — nothing new is stored. Current badge (reference photo in `s
   with **crop marks**, so badges can be cut by hand. Printing at 100 % scale (no "fit to page").
 - Safe area: keep text and photo ≥ 3 mm from the card edge; background band may bleed to the edge.
 - ID photo slot **3:4 portrait** (~20 × 26.7 mm); source photo ≥ 600 × 800 px so it prints sharp at 300 dpi.
-- Batch generation per comparsa or per selection (e.g. only new or renewed licenses).
-- Badge labels stay in Spanish (official document) ❓ — to confirm with the Federation.
+- The PDF embeds each ID photo scaled to 300 × 400 px (about 380 dpi in the slot).
+
+**Generation** (`add-badges`, maintainer decisions)
+
+- Admins only. A batch is either **a whole comparsa** (`ACTIVE` and `RESERVE`, in Spanish order of
+  surname and name) or **a selection** of arquebusiers ticked in the registry list (any comparsa
+  and status, ordered by comparsa, then surname and name). At most **200 badges** per PDF.
+- **Labels' language**: chosen for each download among es-ES, ca-ES-valencia and en, while Q-49 is
+  open; names, comparsas and identifiers are never translated.
+- **Incomplete badges are warnings** (BR-04): no ID photo → an empty frame; no issued license
+  (none or pending) → an empty expiry line, both to complete by hand; an expired license prints
+  its date; no Federation logo → printed without it. The screen counts them before the download.
+  A photo the registry holds but cannot read is blocking instead: the download is refused naming
+  the arquebusiers, so a badge never loses its photo unnoticed.
+- Nothing is stored (no print history); every download is audited with the arquebusiers' ids.
+- The Federation green and the layout are constants of one writer (`PdfBadgeSheetWriter`),
+  provisional until the Federation checks a printed proof.
 
 ## 5. Derived data (never stored)
 

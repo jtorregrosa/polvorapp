@@ -78,7 +78,7 @@ their date.
 |---|---|---|
 | Q-43 | Meaning of traceability 1 / 2 at powder handover | `add-offline-distribution-capture` |
 | Q-44 | Export templates: powder supplier, rental company, Arms Authority | `add-exports` go-live |
-| Q-49 | Badge: labels only in Spanish? (size answered: ID-1 credit card on cardstock, plastic sleeve) | `add-badges` |
+| Q-49 | Badge: labels only in Spanish? (size answered: ID-1 credit card on cardstock, plastic sleeve). Meanwhile the Admin chooses es-ES, ca-ES-valencia or en for each download (maintainer decision, 2026-10-04) | Go-live |
 | Q-50 | DPO, updated privacy notice, hosting able to run containers | Go-live |
 | Q-51 | Federation buy-in (project presentation / demo) | Go-live |
 | Q-53 | Official weapon catalogue labels and whether kind must follow the side (Q-07 says Christian = trabuco, but Federation lists show "ARCABUZ CRISTIANO"); PolvorApp allows any combination meanwhile | Go-live |
@@ -104,3 +104,5 @@ their date.
 | Q-67 | Whose GDPR requests PolvorApp handles | Arquebusiers and external weapon owners (by DNI/NIE), and users (Admins and FiringChiefs, from their page) (maintainer decision, 2026-10-04). | ✅ |
 | Q-68 | Format of a GDPR export | A ZIP with one spreadsheet of everything held and the person's photos (maintainer decision, 2026-10-04). | ✅ |
 | Q-69 | Audit retention | Security events 1 year, everything else 5 years, purged daily (maintainer decision, 2026-10-04). | ✅ |
+| Q-70 | Which arquebusiers a badge batch covers | A whole comparsa, `ACTIVE` and `RESERVE`, or a selection ticked in the registry list, at most 200 per PDF (maintainer decision, 2026-10-04; `add-badges`). | ✅ |
+| Q-71 | Badges with missing data | Printed with an empty photo frame or expiry line to complete by hand, with a warning before the download; never blocked (BR-04). A photo the registry holds but cannot read blocks the download, naming the arquebusiers (maintainer decision, 2026-10-04). | ✅ |
