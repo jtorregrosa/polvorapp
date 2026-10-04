@@ -29,6 +29,8 @@ COPY src/Modules/Distribution/PolvorApp.Distribution/PolvorApp.Distribution.cspr
 COPY src/Modules/Distribution/PolvorApp.Distribution.Contracts/PolvorApp.Distribution.Contracts.csproj src/Modules/Distribution/PolvorApp.Distribution.Contracts/
 COPY src/Modules/Notifications/PolvorApp.Notifications/PolvorApp.Notifications.csproj src/Modules/Notifications/PolvorApp.Notifications/
 COPY src/Modules/Notifications/PolvorApp.Notifications.Contracts/PolvorApp.Notifications.Contracts.csproj src/Modules/Notifications/PolvorApp.Notifications.Contracts/
+COPY src/Modules/Badges/PolvorApp.Badges/PolvorApp.Badges.csproj src/Modules/Badges/PolvorApp.Badges/
+COPY src/Modules/Badges/PolvorApp.Badges.Contracts/PolvorApp.Badges.Contracts.csproj src/Modules/Badges/PolvorApp.Badges.Contracts/
 RUN dotnet restore src/PolvorApp.Api/PolvorApp.Api.csproj
 
 COPY src/ src/
