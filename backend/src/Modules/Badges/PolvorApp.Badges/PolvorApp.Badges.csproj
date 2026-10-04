@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>PolvorApp.Badges</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PolvorApp.Api.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\PolvorApp.SharedKernel\PolvorApp.SharedKernel.csproj" />
+    <ProjectReference Include="..\PolvorApp.Badges.Contracts\PolvorApp.Badges.Contracts.csproj" />
+    <ProjectReference Include="..\..\ArquebusierRegistry\PolvorApp.ArquebusierRegistry.Contracts\PolvorApp.ArquebusierRegistry.Contracts.csproj" />
+    <ProjectReference Include="..\..\Exports\PolvorApp.Exports.Contracts\PolvorApp.Exports.Contracts.csproj" />
+    <ProjectReference Include="..\..\FederationCatalog\PolvorApp.FederationCatalog.Contracts\PolvorApp.FederationCatalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\IdentityAccess\PolvorApp.IdentityAccess.Contracts\PolvorApp.IdentityAccess.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

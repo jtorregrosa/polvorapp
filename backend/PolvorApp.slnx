@@ -16,6 +16,10 @@
     <Project Path="src/Modules/AuditPrivacy/PolvorApp.AuditPrivacy.Contracts/PolvorApp.AuditPrivacy.Contracts.csproj" />
     <Project Path="src/Modules/AuditPrivacy/PolvorApp.AuditPrivacy/PolvorApp.AuditPrivacy.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/Badges/">
+    <Project Path="src/Modules/Badges/PolvorApp.Badges.Contracts/PolvorApp.Badges.Contracts.csproj" />
+    <Project Path="src/Modules/Badges/PolvorApp.Badges/PolvorApp.Badges.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/Billing/">
     <Project Path="src/Modules/Billing/PolvorApp.Billing.Contracts/PolvorApp.Billing.Contracts.csproj" />
     <Project Path="src/Modules/Billing/PolvorApp.Billing/PolvorApp.Billing.csproj" />

@@ -263,3 +263,22 @@ reference fails even before any of its types is used.
   transaction's connection, never commits, and refuses a blocking rule with
   `PersonalDataErasureRefusedException`. `PersonalDataCoverageTests` fails when a module with a column
   such as `national_id`, `first_name`, `email` or `user_id` registers no participant.
+
+## Conventions shared by modules (from `add-badges`)
+
+- **Card documents**: `Exports.Contracts.DocumentBadgeSheet` is the arquebusier badge layout (ID-1
+  cards, 2 × 5 on an exact 210 × 297 mm page, crop marks), rendered by
+  `IDocumentRenderer.RenderBadgeSheet`. The calling module picks the words, values and order; the
+  writer owns the geometry and the Federation green. A value that does not fit shrinks and wraps,
+  and is never cut.
+- **Images in documents**: `DocumentImage.FromPng` and `DocumentImage.FromJpeg` read the size from
+  the image header (1 to 4096 px a side, at most 4 MB); `FromJpeg` takes only complete 8-bit grey or
+  colour baseline, extended or progressive JPEGs, which the writers draw as they are. QuestPDF resamples images to 288 dpi by
+  default, so a photo already scaled for print is drawn with `UseOriginalImage()`.
+- **The Federation's name** printed on documents comes from `Exports.Contracts.FederationNames`
+  (`Spanish`, `Valencian`; English documents use the Spanish proper name), so documents never drift.
+- **ID photos for documents**: `ArquebusierRegistry.Contracts.IIdPhotoReader.ReadAsync` returns the
+  stored JPEG, read again if it was replaced meanwhile, or null when there is none, or its image is
+  gone, larger than 4 MB or not a JPEG (logged as an error). The read never goes past the limit. It is unscoped: only Admin-only callers may use it. It throws
+  `StorageUnavailableException`, which the caller answers with `503`, never with a missing photo.
+  `IArquebusierRoster.FindManyAsync` may take request ids on Admin-only routes, for the same reason.

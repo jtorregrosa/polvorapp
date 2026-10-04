@@ -9260,6 +9260,123 @@
           }
         ]
       }
+    },
+    "/api/badges/sheet": {
+      "post": {
+        "tags": [
+          "Badges"
+        ],
+        "summary": "Arquebusier badges of a comparsa or a selection as a pdf to print at 100 % and cut, in the chosen language; audited (Admins).",
+        "operationId": "DownloadBadgeSheet",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BadgeSheetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stream"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -9791,6 +9908,7 @@
               "ArquebusierUpdated",
               "ArquebusiersImported",
               "AuditEntriesPurged",
+              "BadgesDownloaded",
               "CalendarMilestoneAdded",
               "CalendarMilestoneRemoved",
               "CalendarMilestoneUpdated",
@@ -9866,6 +9984,7 @@
             "enum": [
               "Arquebusier",
               "AuditTrail",
+              "Badges",
               "CalendarMilestone",
               "Comparsa",
               "ComparsaOrder",
@@ -10005,6 +10124,39 @@
             }
           },
           "nextCursor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "BadgeSheetRequest": {
+        "required": [
+          "comparsaId",
+          "arquebusierIds",
+          "language"
+        ],
+        "type": "object",
+        "properties": {
+          "comparsaId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "arquebusierIds": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "language": {
             "type": [
               "null",
               "string"
@@ -14148,6 +14300,9 @@
     },
     {
       "name": "Notifications"
+    },
+    {
+      "name": "Badges"
     }
   ]
 }
