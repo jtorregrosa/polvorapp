@@ -286,5 +286,12 @@
       "YES": "Sí",
       "NO": "No"
     }
+  },
+  "chart": {
+    "legend": "Leyenda",
+    "showTable": "Mostrar tabla",
+    "hideTable": "Ocultar tabla",
+    "provisional": "provisional",
+    "provisionalLabel": "{{label}} (provisional)"
   }
 }

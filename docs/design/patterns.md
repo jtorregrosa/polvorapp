@@ -352,6 +352,33 @@ changed from the picture itself (`PhotoUpload variant="picture"`), not from butt
 - A table inside a `SectionCard` gets a caption distinct from the card's title ("Firing chiefs of
   Comparsa Norte"), so no two regions share a name.
 
+## Charts
+
+Charts are for change over time and for comparing a few series; a single figure is a `StatCard`
+and a share of one total is a `Breakdown` (ADR-0014). Feature screens use the `BarChart` and
+`LineChart` composites, never Recharts or the `chart` primitive directly.
+
+- **Heading, summary, table.** Each chart is a `SectionCard` with its `h2`, a one-sentence summary
+  that states the latest figure against the previous one, and a "Show table" toggle with every value
+  of the drawing (a `DataTable` named by the heading). No figure is only in the drawing. With too few
+  points to chart, use `ChartFrame` without a drawing: it shows the table directly.
+- **Not by colour alone.** Series take the categorical `chart-1…5` tokens (3:1 on `card` and
+  `background`, checked in `contrast.test.ts`) and a legend with their names. Bars also get a pattern
+  per series (solid, diagonal lines, dots, cross-hatch, horizontal lines) and lines a marker shape
+  (circle, square, triangle, diamond, cross), shown in the legend too.
+- **Keyboard.** The chart takes focus (2 px focus outline) and the arrow keys move between categories,
+  each showing its values in the tooltip (Recharts' accessibility layer). The table remains the
+  accessible source of truth.
+- **Numbers.** Values, percentages and axis ticks go through `formatValue` or the language's number
+  format; never `toLocaleString()` without the app's language.
+- **Provisional values** (an edition in progress): the category label in the axis gets
+  "provisional" under it, its bars a dashed outline, the segment of a line into it is dashed with a
+  hollow marker, and the tooltip and the table say "(provisional)". The summary says so too.
+- **Layout.** Bars are `grouped`, `stacked` or `percent` (100 % stacked). Charts fill their card's
+  width (256 px high) and fit a 360 px screen; side-by-side charts stack on phones.
+- Charts are loaded with the screen that uses them (`React.lazy`), so Recharts stays out of the main
+  bundle.
+
 ## Destructive and irreversible actions
 
 - Always go through `ConfirmDialog`: the title states the action and its object, the description
@@ -405,9 +432,11 @@ changed from the picture itself (`PhotoUpload variant="picture"`), not from butt
 - Only opacity and transforms move, never layout. Durations come from the tokens: colour and
   border changes 100 ms; menus, selects and tooltips 150 ms (a fade and a 4 px slide); dialogs
   200 ms (a fade and a slight scale); side panels, bottom sheets and the drawer 250 ms with the
-  drawer easing. Leaving is shorter than appearing.
+  drawer easing. Leaving is shorter than appearing. Charts fade in once, in 200 ms, on first
+  render; their bars and lines never animate, and new data is not animated.
 - Not animated: route changes, sorting, filtering, paging, validation messages, theme and language
   changes, the sidebar collapsing (it never animates its width), and table rows on hover.
 - No decorative motion: no looping animations (skeletons fade in after 150 ms and do not pulse),
   no staggered lists, no hover scaling of rows. Buttons press to 98 %.
-- Under reduced motion, movement and scaling are removed and fades last at most 100 ms.
+- Under reduced motion, movement and scaling are removed and fades last at most 100 ms; charts do
+  not fade at all.

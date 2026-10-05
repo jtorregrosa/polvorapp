@@ -286,5 +286,12 @@
       "YES": "Yes",
       "NO": "No"
     }
+  },
+  "chart": {
+    "legend": "Legend",
+    "showTable": "Show table",
+    "hideTable": "Hide table",
+    "provisional": "provisional",
+    "provisionalLabel": "{{label}} (provisional)"
   }
 }
