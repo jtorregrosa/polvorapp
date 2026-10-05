@@ -108,7 +108,12 @@
     },
     "noMatches": "No arquebusier matches the filters.",
     "resultCount_one": "Showing {{count, number}} arquebusier",
-    "resultCount_other": "Showing {{count, number}} arquebusiers"
+    "resultCount_other": "Showing {{count, number}} arquebusiers",
+    "tabs": {
+      "label": "Statistics views",
+      "today": "Today",
+      "trends": "Trends"
+    }
   },
   "warnings": {
     "title": "Compliance warnings",
@@ -121,5 +126,74 @@
     "UNDER_AGE": "Under 18: {{age}} years old.",
     "ID_PHOTO_MISSING": "The ID photo is missing; the arquebusier badge needs it.",
     "LICENSE_PHOTOS_MISSING": "License photos are missing (front or back)."
+  },
+  "trends": {
+    "edition": "Edition",
+    "change": {
+      "up": "{{change}} more than {{previous}}",
+      "down": "{{change}} less than {{previous}}",
+      "same": "the same as {{previous}}"
+    },
+    "fewEditions": "Trends need at least two editions with orders. These are the figures of {{year}}.",
+    "noEditions": "Trends need at least two editions with orders, and none has orders yet.",
+    "single": {
+      "title": "Figures of {{year}}"
+    },
+    "arquebusiers": {
+      "title": "Arquebusiers per edition",
+      "summary": "{{year}}: {{active}} active, {{change}}.",
+      "summaryAlone": "{{year}}: {{active}} active."
+    },
+    "women": {
+      "title": "Women among active arquebusiers",
+      "series": "Women",
+      "unknown": "Gender unknown",
+      "summary": "{{year}}: {{share}} women among active arquebusiers ({{previousShare}} in {{previous}}).",
+      "summaryAlone": "{{year}}: {{share}} women among active arquebusiers.",
+      "note_one": "Gender as recorded in the registry today. In {{year}}, {{count}} active arquebusier is no longer in it and counts as gender unknown.",
+      "note_other": "Gender as recorded in the registry today. In {{year}}, {{count}} active arquebusiers are no longer in it and count as gender unknown.",
+      "noteNone": "Gender as recorded in the registry today."
+    },
+    "firstYear": {
+      "title": "Arquebusiers in their first year",
+      "series": "First year",
+      "summary": "{{year}}: {{count}} in their first year, {{change}}.",
+      "summaryAlone": "{{year}}: {{count}} in their first year.",
+      "note": "The oldest edition with orders is left out: there is no earlier edition to tell who is new."
+    },
+    "powder": {
+      "title": "Powder",
+      "series": "Powder (kg)",
+      "summary": "{{year}}: {{value}} kg of powder, {{change}}.",
+      "summaryAlone": "{{year}}: {{value}} kg of powder."
+    },
+    "caps": {
+      "title": "Caps",
+      "series": "Caps (boxes)",
+      "summary": "{{year}}: {{value}} boxes of caps, {{change}}.",
+      "summaryAlone": "{{year}}: {{value}} boxes of caps."
+    },
+    "weapons": {
+      "title": "Weapon of active arquebusiers",
+      "owned": "Own weapon",
+      "rental": "Rental",
+      "loan": "Loan",
+      "none": "No weapon",
+      "summary": "{{year}}: {{share}} of active arquebusiers carry their own weapon ({{previousShare}} in {{previous}}).",
+      "summaryAlone": "{{year}}: {{share}} of active arquebusiers carry their own weapon."
+    },
+    "rentals": {
+      "title": "Rentals by weapon kind",
+      "flasks": "Flasks",
+      "summary": "Rented weapons in {{year}}: {{weapons}} ({{previousWeapons}} in {{previous}}). Rented flasks: {{flasks}}.",
+      "summaryAlone": "Rented weapons in {{year}}: {{weapons}}. Rented flasks: {{flasks}}."
+    },
+    "comparsas": {
+      "title": "Active arquebusiers per comparsa",
+      "summary": "Each comparsa's active arquebusiers per edition, with the change in {{year}}.",
+      "caption": "Active arquebusiers per comparsa and edition",
+      "comparsa": "Comparsa",
+      "change": "Change on {{previous}}"
+    }
   }
 }

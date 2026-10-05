@@ -101,6 +101,17 @@ describe('shadcn/ui primitives (local edits)', () => {
     },
   );
 
+  it('draw a full-opacity 2 px focus outline on the keyboard-focusable chart surface', () => {
+    const [container] = classLists('chart.tsx', 'recharts-surface');
+    expect(container).toEqual(
+      expect.arrayContaining([
+        '[&_.recharts-surface:focus-visible]:outline-2',
+        '[&_.recharts-surface:focus-visible]:outline-ring',
+      ]),
+    );
+    expect(container).not.toContain('[&_.recharts-surface]:outline-hidden');
+  });
+
   it.each(['checkbox.tsx', 'radio-group.tsx'])('give the 20 px box of %s a larger hit area', (file) => {
     const [box] = classLists(file, 'size-5');
     expect(box).toEqual(

@@ -28,6 +28,8 @@ const NOT_COMPOSITES = new Set([
   'save-notice.ts',
   'clear-field.tsx',
   'picture-trigger.tsx',
+  'chart-data.ts',
+  'chart-parts.tsx',
 ]);
 
 /** A text that is a translation key left untranslated, e.g. `status.license.VALID`. */

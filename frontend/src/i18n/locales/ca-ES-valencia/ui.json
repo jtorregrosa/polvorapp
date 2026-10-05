@@ -286,5 +286,12 @@
       "YES": "Sí",
       "NO": "No"
     }
+  },
+  "chart": {
+    "legend": "Llegenda",
+    "showTable": "Mostra la taula",
+    "hideTable": "Amaga la taula",
+    "provisional": "provisional",
+    "provisionalLabel": "{{label}} (provisional)"
   }
 }

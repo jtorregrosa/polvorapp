@@ -55,6 +55,11 @@ contrast of every text, state and UI pair is verified by `src/styles/contrast.te
 | `tag-4-foreground` | `#3f4670` | `#b4bce0` | Tag text on `tag-4`. |
 | `tag-neutral` | `#f4f3f7` | `#221e2d` | Tag background for "no", "none" and unknown values (same as `muted`). |
 | `tag-neutral-foreground` | `#5e5970` | `#a7a1b8` | Tag text on `tag-neutral`. |
+| `chart-1` | `#b8430b` | `#ff8a4a` | First chart series (ember), with its own pattern; 3:1 on `card` and `background`. |
+| `chart-2` | `#1f6fb2` | `#6cb4f5` | Second chart series (blue), with its own pattern; 3:1 on `card` and `background`. |
+| `chart-3` | `#0f766e` | `#4fd1b5` | Third chart series (teal), with its own pattern; 3:1 on `card` and `background`. |
+| `chart-4` | `#7c3aed` | `#b79cfa` | Fourth chart series (violet), with its own pattern; 3:1 on `card` and `background`. |
+| `chart-5` | `#a16207` | `#f2c14e` | Fifth chart series (ochre), with its own pattern; 3:1 on `card` and `background`. |
 | `border` | `#e4e2ea` | `#2a2636` | Hairline borders of cards, tables and separators (decorative). |
 | `input` | `#8b8799` | `#7a748c` | Borders of form controls (3:1 against the background). |
 | `ring` | `#b8430b` | `#ff8a4a` | Focus indicator (3:1 against every surface). |

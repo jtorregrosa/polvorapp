@@ -58,6 +58,11 @@ const PAIRS: ContrastPair[] = [
     background: tone,
     minimum: TEXT,
   })),
+  // Chart series: categorical tones as graphical objects on the card and the page (add-statistics-trends D4).
+  ...(['chart-1', 'chart-2', 'chart-3', 'chart-4', 'chart-5'] as const).flatMap((tone) => [
+    { foreground: tone, background: 'card', minimum: UI },
+    { foreground: tone, background: 'background', minimum: UI },
+  ]),
   { foreground: 'destructive', background: 'muted', minimum: TEXT },
   { foreground: 'destructive', background: 'surface-2', minimum: TEXT },
   // The night sidebar is dark in both themes (ADR-0013): its own text, accent and focus pairs.

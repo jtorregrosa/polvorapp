@@ -108,7 +108,12 @@
     },
     "noMatches": "Ningún arcabucero coincide con los filtros.",
     "resultCount_one": "Mostrando {{count, number}} arcabucero",
-    "resultCount_other": "Mostrando {{count, number}} arcabuceros"
+    "resultCount_other": "Mostrando {{count, number}} arcabuceros",
+    "tabs": {
+      "label": "Vistas de las estadísticas",
+      "today": "Hoy",
+      "trends": "Tendencias"
+    }
   },
   "warnings": {
     "title": "Avisos de cumplimiento",
@@ -121,5 +126,74 @@
     "UNDER_AGE": "Es menor de edad: tiene {{age}} años.",
     "ID_PHOTO_MISSING": "Falta la foto de carnet, necesaria para el carnet de arcabucero.",
     "LICENSE_PHOTOS_MISSING": "Faltan fotos de la licencia (anverso o reverso)."
+  },
+  "trends": {
+    "edition": "Edición",
+    "change": {
+      "up": "{{change}} más que en {{previous}}",
+      "down": "{{change}} menos que en {{previous}}",
+      "same": "igual que en {{previous}}"
+    },
+    "fewEditions": "Las tendencias necesitan al menos dos ediciones con pedidos. Estas son las cifras de {{year}}.",
+    "noEditions": "Las tendencias necesitan al menos dos ediciones con pedidos, y todavía no hay ninguna.",
+    "single": {
+      "title": "Cifras de {{year}}"
+    },
+    "arquebusiers": {
+      "title": "Arcabuceros por edición",
+      "summary": "{{year}}: {{active}} en activo, {{change}}.",
+      "summaryAlone": "{{year}}: {{active}} en activo."
+    },
+    "women": {
+      "title": "Mujeres entre los arcabuceros en activo",
+      "series": "Mujeres",
+      "unknown": "Género desconocido",
+      "summary": "{{year}}: {{share}} de mujeres entre los arcabuceros en activo ({{previousShare}} en {{previous}}).",
+      "summaryAlone": "{{year}}: {{share}} de mujeres entre los arcabuceros en activo.",
+      "note_one": "Género según el registro de hoy. En {{year}}, {{count}} arcabucero en activo ya no está en él y cuenta como género desconocido.",
+      "note_other": "Género según el registro de hoy. En {{year}}, {{count}} arcabuceros en activo ya no están en él y cuentan como género desconocido.",
+      "noteNone": "Género según el registro de hoy."
+    },
+    "firstYear": {
+      "title": "Arcabuceros en su primer año",
+      "series": "Primer año",
+      "summary": "{{year}}: {{count}} en su primer año, {{change}}.",
+      "summaryAlone": "{{year}}: {{count}} en su primer año.",
+      "note": "La edición más antigua con pedidos no aparece: no hay una edición anterior para saber quién es nuevo."
+    },
+    "powder": {
+      "title": "Pólvora",
+      "series": "Pólvora (kg)",
+      "summary": "{{year}}: {{value}} kg de pólvora, {{change}}.",
+      "summaryAlone": "{{year}}: {{value}} kg de pólvora."
+    },
+    "caps": {
+      "title": "Pistones",
+      "series": "Pistones (cajas)",
+      "summary": "{{year}}: {{value}} cajas de pistones, {{change}}.",
+      "summaryAlone": "{{year}}: {{value}} cajas de pistones."
+    },
+    "weapons": {
+      "title": "Arma de los arcabuceros en activo",
+      "owned": "Arma propia",
+      "rental": "Alquiler",
+      "loan": "Préstamo",
+      "none": "Sin arma",
+      "summary": "{{year}}: el {{share}} de los arcabuceros en activo lleva arma propia ({{previousShare}} en {{previous}}).",
+      "summaryAlone": "{{year}}: el {{share}} de los arcabuceros en activo lleva arma propia."
+    },
+    "rentals": {
+      "title": "Alquileres por tipo de arma",
+      "flasks": "Cantimploras",
+      "summary": "Armas alquiladas en {{year}}: {{weapons}} ({{previousWeapons}} en {{previous}}). Cantimploras alquiladas: {{flasks}}.",
+      "summaryAlone": "Armas alquiladas en {{year}}: {{weapons}}. Cantimploras alquiladas: {{flasks}}."
+    },
+    "comparsas": {
+      "title": "Arcabuceros en activo por comparsa",
+      "summary": "Los arcabuceros en activo de cada comparsa por edición, con el cambio en {{year}}.",
+      "caption": "Arcabuceros en activo por comparsa y edición",
+      "comparsa": "Comparsa",
+      "change": "Cambio sobre {{previous}}"
+    }
   }
 }

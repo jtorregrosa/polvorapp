@@ -66,6 +66,14 @@
   --tag-neutral: #f4f3f7;
   --tag-neutral-foreground: #5e5970;
 
+  /* Chart series (add-statistics-trends D4): categorical tones at 3:1 on the card and the page,
+     always paired with a pattern or marker so a series is never told by colour alone. */
+  --chart-1: #b8430b;
+  --chart-2: #1f6fb2;
+  --chart-3: #0f766e;
+  --chart-4: #7c3aed;
+  --chart-5: #a16207;
+
   --border: #e4e2ea;
   --input: #8b8799;
   --ring: #b8430b;
@@ -142,6 +150,12 @@
   --tag-4-foreground: #b4bce0;
   --tag-neutral: #221e2d;
   --tag-neutral-foreground: #a7a1b8;
+
+  --chart-1: #ff8a4a;
+  --chart-2: #6cb4f5;
+  --chart-3: #4fd1b5;
+  --chart-4: #b79cfa;
+  --chart-5: #f2c14e;
 
   --border: #2a2636;
   --input: #7a748c;
@@ -323,6 +337,11 @@
   --color-tag-4-foreground: var(--tag-4-foreground);
   --color-tag-neutral: var(--tag-neutral);
   --color-tag-neutral-foreground: var(--tag-neutral-foreground);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);

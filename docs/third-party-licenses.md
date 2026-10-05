@@ -103,7 +103,9 @@ MPL-2.0 packages (`axe-core`, `@axe-core/playwright`) are used unmodified in tes
 | `react-hook-form` | MIT | runtime |
 | `react-i18next` | MIT | runtime |
 | `react-image-crop` | ISC | runtime (photo cropping) |
+| `react-is` | MIT | runtime (peer dependency of `recharts`) |
 | `react-router` | MIT | runtime |
+| `recharts` | MIT | runtime (charts, ADR-0014; loaded with the trends tab only) |
 | `storybook` | MIT | dev |
 | `@storybook/addon-a11y` | MIT | dev |
 | `@storybook/react-vite` | MIT | dev |

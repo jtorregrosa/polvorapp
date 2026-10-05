@@ -108,7 +108,12 @@
     },
     "noMatches": "Cap arcabusser no coincidix amb els filtres.",
     "resultCount_one": "Es mostra {{count, number}} arcabusser",
-    "resultCount_other": "Es mostren {{count, number}} arcabussers"
+    "resultCount_other": "Es mostren {{count, number}} arcabussers",
+    "tabs": {
+      "label": "Vistes de les estadístiques",
+      "today": "Hui",
+      "trends": "Tendències"
+    }
   },
   "warnings": {
     "title": "Avisos de compliment",
@@ -121,5 +126,74 @@
     "UNDER_AGE": "És menor d'edat: té {{age}} anys.",
     "ID_PHOTO_MISSING": "Falta la foto de carnet, necessària per al carnet d'arcabusser.",
     "LICENSE_PHOTOS_MISSING": "Falten fotos de la llicència (anvers o revers)."
+  },
+  "trends": {
+    "edition": "Edició",
+    "change": {
+      "up": "{{change}} més que en {{previous}}",
+      "down": "{{change}} menys que en {{previous}}",
+      "same": "igual que en {{previous}}"
+    },
+    "fewEditions": "Les tendències necessiten almenys dues edicions amb comandes. Estes són les xifres de {{year}}.",
+    "noEditions": "Les tendències necessiten almenys dues edicions amb comandes, i encara no n'hi ha cap.",
+    "single": {
+      "title": "Xifres de {{year}}"
+    },
+    "arquebusiers": {
+      "title": "Arcabussers per edició",
+      "summary": "{{year}}: {{active}} en actiu, {{change}}.",
+      "summaryAlone": "{{year}}: {{active}} en actiu."
+    },
+    "women": {
+      "title": "Dones entre els arcabussers en actiu",
+      "series": "Dones",
+      "unknown": "Gènere desconegut",
+      "summary": "{{year}}: {{share}} de dones entre els arcabussers en actiu ({{previousShare}} en {{previous}}).",
+      "summaryAlone": "{{year}}: {{share}} de dones entre els arcabussers en actiu.",
+      "note_one": "Gènere segons el registre de hui. En {{year}}, {{count}} arcabusser en actiu ja no hi és i compta com a gènere desconegut.",
+      "note_other": "Gènere segons el registre de hui. En {{year}}, {{count}} arcabussers en actiu ja no hi són i compten com a gènere desconegut.",
+      "noteNone": "Gènere segons el registre de hui."
+    },
+    "firstYear": {
+      "title": "Arcabussers en el seu primer any",
+      "series": "Primer any",
+      "summary": "{{year}}: {{count}} en el seu primer any, {{change}}.",
+      "summaryAlone": "{{year}}: {{count}} en el seu primer any.",
+      "note": "L'edició més antiga amb comandes no apareix: no hi ha una edició anterior per a saber qui és nou."
+    },
+    "powder": {
+      "title": "Pólvora",
+      "series": "Pólvora (kg)",
+      "summary": "{{year}}: {{value}} kg de pólvora, {{change}}.",
+      "summaryAlone": "{{year}}: {{value}} kg de pólvora."
+    },
+    "caps": {
+      "title": "Pistons",
+      "series": "Pistons (caixes)",
+      "summary": "{{year}}: {{value}} caixes de pistons, {{change}}.",
+      "summaryAlone": "{{year}}: {{value}} caixes de pistons."
+    },
+    "weapons": {
+      "title": "Arma dels arcabussers en actiu",
+      "owned": "Arma pròpia",
+      "rental": "Lloguer",
+      "loan": "Préstec",
+      "none": "Sense arma",
+      "summary": "{{year}}: el {{share}} dels arcabussers en actiu porta arma pròpia ({{previousShare}} en {{previous}}).",
+      "summaryAlone": "{{year}}: el {{share}} dels arcabussers en actiu porta arma pròpia."
+    },
+    "rentals": {
+      "title": "Lloguers per tipus d'arma",
+      "flasks": "Cantimplores",
+      "summary": "Armes llogades en {{year}}: {{weapons}} ({{previousWeapons}} en {{previous}}). Cantimplores llogades: {{flasks}}.",
+      "summaryAlone": "Armes llogades en {{year}}: {{weapons}}. Cantimplores llogades: {{flasks}}."
+    },
+    "comparsas": {
+      "title": "Arcabussers en actiu per comparsa",
+      "summary": "Els arcabussers en actiu de cada comparsa per edició, amb el canvi en {{year}}.",
+      "caption": "Arcabussers en actiu per comparsa i edició",
+      "comparsa": "Comparsa",
+      "change": "Canvi sobre {{previous}}"
+    }
   }
 }
