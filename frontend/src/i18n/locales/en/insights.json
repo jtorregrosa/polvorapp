@@ -128,6 +128,7 @@
     "LICENSE_PHOTOS_MISSING": "License photos are missing (front or back)."
   },
   "trends": {
+    "loading": "Loading the trends…",
     "edition": "Edition",
     "change": {
       "up": "{{change}} more than {{previous}}",
@@ -193,7 +194,9 @@
       "summary": "Each comparsa's active arquebusiers per edition, with the change in {{year}}.",
       "caption": "Active arquebusiers per comparsa and edition",
       "comparsa": "Comparsa",
-      "change": "Change on {{previous}}"
+      "change": "Change on {{previous}}",
+      "yearCount": "{{year}}: {{count}}",
+      "changeText": "Change on {{previous}}: {{change}}"
     }
   }
 }

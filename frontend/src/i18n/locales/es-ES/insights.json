@@ -128,6 +128,7 @@
     "LICENSE_PHOTOS_MISSING": "Faltan fotos de la licencia (anverso o reverso)."
   },
   "trends": {
+    "loading": "Cargando las tendencias…",
     "edition": "Edición",
     "change": {
       "up": "{{change}} más que en {{previous}}",
@@ -193,7 +194,9 @@
       "summary": "Los arcabuceros en activo de cada comparsa por edición, con el cambio en {{year}}.",
       "caption": "Arcabuceros en activo por comparsa y edición",
       "comparsa": "Comparsa",
-      "change": "Cambio sobre {{previous}}"
+      "change": "Cambio sobre {{previous}}",
+      "yearCount": "{{year}}: {{count}}",
+      "changeText": "Cambio sobre {{previous}}: {{change}}"
     }
   }
 }

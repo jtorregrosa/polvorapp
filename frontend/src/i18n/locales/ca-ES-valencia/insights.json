@@ -128,6 +128,7 @@
     "LICENSE_PHOTOS_MISSING": "Falten fotos de la llicència (anvers o revers)."
   },
   "trends": {
+    "loading": "Carregant les tendències…",
     "edition": "Edició",
     "change": {
       "up": "{{change}} més que en {{previous}}",
@@ -193,7 +194,9 @@
       "summary": "Els arcabussers en actiu de cada comparsa per edició, amb el canvi en {{year}}.",
       "caption": "Arcabussers en actiu per comparsa i edició",
       "comparsa": "Comparsa",
-      "change": "Canvi sobre {{previous}}"
+      "change": "Canvi sobre {{previous}}",
+      "yearCount": "{{year}}: {{count}}",
+      "changeText": "Canvi sobre {{previous}}: {{change}}"
     }
   }
 }
