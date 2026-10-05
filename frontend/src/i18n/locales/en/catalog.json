@@ -90,6 +90,74 @@
       "removed": "Logo removed"
     }
   },
+  "settings": {
+    "title": "Settings",
+    "description": "The Unión de Comparsas' details used by documents, emails and reminders. Each section is saved on its own.",
+    "loading": "Loading the settings…",
+    "loadFailed": "The settings could not be loaded.",
+    "staleFailed": "The settings could not be refreshed: what you see may be out of date.",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "daysBefore_one": "{{count}} day before",
+    "daysBefore_other": "{{count}} days before",
+    "identity": {
+      "title": "Identity",
+      "name": "the identity",
+      "edit": "Edit the identity",
+      "usedIn": "The official name is printed on badges and the pickup authorisation; the short name and the contact appear at the end of notification emails.",
+      "officialNameEs": "Official name in Spanish",
+      "officialNameCa": "Official name in Valencian",
+      "shortName": "Short name",
+      "shortNameHint": "For example, “Unión de Comparsas”.",
+      "contactEmail": "Contact email",
+      "website": "Website",
+      "websiteHint": "A full https address, for example https://www.example.org.",
+      "federationOnly": "The email and website must be the Federation's, never a person's: they are sent with every notification."
+    },
+    "emails": {
+      "title": "Emails",
+      "name": "the emails",
+      "edit": "Edit the emails",
+      "usedIn": "Used in every PolvorApp email: notifications, invitations and password changes.",
+      "sender": "Sender",
+      "senderLine": "{{name}} <{{address}}>",
+      "senderName": "Sender name",
+      "senderNameHint": "Shown with the address {{address}}, which is set on the server.",
+      "replyTo": "Reply to",
+      "replyToHint": "Replies to the emails go to this address. Without it, they go to the sender address."
+    },
+    "orders": {
+      "title": "Orders",
+      "name": "the orders",
+      "edit": "Edit the orders",
+      "usedIn": "When FiringChiefs get the first reminder that the orders are closing.",
+      "closeReminderLeadDays": "First closing reminder",
+      "closeReminderHint": "Sent once between that day and two days before the planned close. Bringing it forward can send a reminder earlier than planned."
+    },
+    "calendar": {
+      "title": "Calendar",
+      "name": "the calendar",
+      "edit": "Edit the calendar",
+      "usedIn": "When calendar milestones with reminders on are announced.",
+      "milestoneLeadDays": "Milestone reminder"
+    },
+    "validation": {
+      "tooLong40": "At most 40 characters.",
+      "tooLong80": "At most 80 characters.",
+      "tooLong150": "At most 150 characters.",
+      "tooLong200": "At most 200 characters.",
+      "tooLong254": "At most 254 characters.",
+      "email": "Enter a full email address, such as info@example.org.",
+      "website": "Enter a full https address without spaces or quotes, such as https://www.example.org.",
+      "senderName": "The name cannot contain <, >, \" or @.",
+      "outOfRange": "Choose one of the values in the list."
+    },
+    "errors": {
+      "modified": "Someone else changed the settings while you were editing. Check the current values and save again.",
+      "busy": "The settings are being saved from another session. Try again in a few seconds.",
+      "tooManyRequests": "You saved too many changes in a row. Wait a minute and try again."
+    }
+  },
   "firingChiefs": {
     "title": "Firing chiefs",
     "description": "Users who manage this comparsa. They only see the comparsas assigned to them.",

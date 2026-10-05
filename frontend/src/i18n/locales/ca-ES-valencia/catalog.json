@@ -90,6 +90,74 @@
       "removed": "Logo llevat"
     }
   },
+  "settings": {
+    "title": "Ajustos",
+    "description": "Dades de la Unió de Comparses que usen els documents, els correus i els recordatoris. Cada secció es guarda per separat.",
+    "loading": "Carregant els ajustos…",
+    "loadFailed": "No s'han pogut carregar els ajustos.",
+    "staleFailed": "No s'han pogut actualitzar els ajustos: pot ser que el que veus no estiga al dia.",
+    "days_one": "{{count}} dia",
+    "days_other": "{{count}} dies",
+    "daysBefore_one": "{{count}} dia abans",
+    "daysBefore_other": "{{count}} dies abans",
+    "identity": {
+      "title": "Identitat",
+      "name": "la identitat",
+      "edit": "Editar la identitat",
+      "usedIn": "El nom oficial s'imprimix en les acreditacions i en l'autorització de recollida; el nom curt i el contacte apareixen al final dels avisos per correu.",
+      "officialNameEs": "Nom oficial en castellà",
+      "officialNameCa": "Nom oficial en valencià",
+      "shortName": "Nom curt",
+      "shortNameHint": "Per exemple, «Unió de Comparses».",
+      "contactEmail": "Correu de contacte",
+      "website": "Lloc web",
+      "websiteHint": "Una adreça https completa, per exemple https://www.exemple.org.",
+      "federationOnly": "El correu i la web han de ser els de la Unió, mai els d'una persona: s'envien en cada avís."
+    },
+    "emails": {
+      "title": "Correus",
+      "name": "els correus",
+      "edit": "Editar els correus",
+      "usedIn": "S'usen en tots els correus de PolvorApp: avisos, invitacions i canvis de contrasenya.",
+      "sender": "Remitent",
+      "senderLine": "{{name}} <{{address}}>",
+      "senderName": "Nom del remitent",
+      "senderNameHint": "Es mostra junt amb l'adreça {{address}}, que es configura en el servidor.",
+      "replyTo": "Respondre a",
+      "replyToHint": "Les respostes als correus arribaran a esta adreça. Sense ella, van a l'adreça del remitent."
+    },
+    "orders": {
+      "title": "Comandes",
+      "name": "les comandes",
+      "edit": "Editar les comandes",
+      "usedIn": "Quan reben els caps de disparada el primer recordatori del tancament de comandes.",
+      "closeReminderLeadDays": "Primer recordatori de tancament",
+      "closeReminderHint": "S'envia una vegada entre eixe dia i dos dies abans del tancament previst. Si l'avances, pot enviar-se un recordatori abans del previst."
+    },
+    "calendar": {
+      "title": "Calendari",
+      "name": "el calendari",
+      "edit": "Editar el calendari",
+      "usedIn": "Quan s'avisa de les fites del calendari que tenen l'avís activat.",
+      "milestoneLeadDays": "Recordatori de fites"
+    },
+    "validation": {
+      "tooLong40": "40 caràcters com a màxim.",
+      "tooLong80": "80 caràcters com a màxim.",
+      "tooLong150": "150 caràcters com a màxim.",
+      "tooLong200": "200 caràcters com a màxim.",
+      "tooLong254": "254 caràcters com a màxim.",
+      "email": "Escriu una adreça de correu completa, com info@exemple.org.",
+      "website": "Escriu una adreça https completa, sense espais ni cometes, com https://www.exemple.org.",
+      "senderName": "El nom no pot contindre <, >, \" ni @.",
+      "outOfRange": "Tria un dels valors de la llista."
+    },
+    "errors": {
+      "modified": "Una altra persona ha canviat els ajustos mentres editaves. Revisa els valors actuals i torna a guardar.",
+      "busy": "Els ajustos s'estan guardant des d'una altra sessió. Torna-ho a intentar d'ací a uns segons.",
+      "tooManyRequests": "Has guardat massa canvis seguits. Espera un minut i torna-ho a intentar."
+    }
+  },
   "firingChiefs": {
     "title": "Caps de disparada",
     "description": "Usuaris que gestionen esta comparsa. Només veuen les comparses que tenen assignades.",

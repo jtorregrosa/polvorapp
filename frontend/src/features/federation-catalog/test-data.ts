@@ -1,6 +1,7 @@
 import type {
   ComparsaLogoResponse,
   ComparsaResponse,
+  FederationSettingsResponse,
   FiringChiefResponse,
   UserResponse,
   WeaponModelResponse,
@@ -12,6 +13,21 @@ export const LOGO: ComparsaLogoResponse = {
   width: 512,
   height: 512,
   uploadedAt: '2026-10-02T08:00:00Z',
+};
+
+/** The Federation settings as they start (add-federation-settings), with synthetic names. */
+export const SETTINGS: FederationSettingsResponse = {
+  version: 1234,
+  identity: {
+    officialNameEs: 'Unión Sintética de Comparsas',
+    officialNameCa: 'Unió Sintètica de Comparses',
+    shortName: 'Unión Sintética',
+    contactEmail: null,
+    website: null,
+  },
+  emails: { senderName: 'PolvorApp', replyTo: null, senderAddress: 'no-reply@polvorapp.example' },
+  orders: { closeReminderLeadDays: 7 },
+  calendar: { milestoneLeadDays: 7 },
 };
 
 /** Synthetic catalogue data for component tests (never real comparsas or people). */

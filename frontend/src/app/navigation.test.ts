@@ -16,7 +16,7 @@ describe('navigation sections', () => {
       ['home', ['/']],
       ['registry', ['/arquebusiers', '/comparsas', '/statistics']],
       ['festival', ['/editions', '/orders', '/distribution']],
-      ['administration', ['/weapon-models', '/users', '/audit-log', '/privacy']],
+      ['administration', ['/weapon-models', '/users', '/audit-log', '/privacy', '/settings']],
     ]);
   });
 

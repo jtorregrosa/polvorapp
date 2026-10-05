@@ -60,7 +60,7 @@ describe('AppLayout (platform: Application shell)', () => {
       [null, ['Inicio']],
       ['Registro', ['Arcabuceros', 'Comparsas', 'Estadísticas']],
       ['Fiestas', ['Ediciones', 'Pedidos', 'Reparto']],
-      ['Administración', ['Modelos de arma', 'Usuarios', 'Auditoría', 'Privacidad']],
+      ['Administración', ['Modelos de arma', 'Usuarios', 'Auditoría', 'Privacidad', 'Ajustes']],
     ]);
     expect(screen.getByRole('group', { name: 'Administración' })).toBeInTheDocument();
   });
