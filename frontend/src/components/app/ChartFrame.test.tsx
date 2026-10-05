@@ -20,6 +20,14 @@ const props: ChartFrameProps = {
   ],
 };
 
+function cellsOf(table: HTMLElement, rowHeader: string): string[] {
+  const row = within(table).getByRole('rowheader', { name: rowHeader }).closest('tr');
+  if (!row) throw new Error('No row');
+  return within(row)
+    .getAllByRole('cell')
+    .map((cell) => cell.textContent);
+}
+
 describe('ChartFrame', () => {
   it('names the chart with a heading, then its summary and note', async () => {
     await renderWithProviders(<ChartFrame {...props} />);
@@ -35,23 +43,18 @@ describe('ChartFrame', () => {
   it('shows the table directly without a drawing, with every value and the provisional row marked', async () => {
     await renderWithProviders(<ChartFrame {...props} />);
 
-    const table = screen.getByRole('table', { name: 'Arcabuceros por edición' });
-    expect(screen.queryByRole('button', { name: 'Mostrar tabla' })).not.toBeInTheDocument();
+    const table = screen.getByRole('table', { name: 'Arcabuceros por edición: datos' });
+    expect(screen.queryByRole('button', { name: /Tabla de datos/ })).not.toBeInTheDocument();
     expect(
       within(table)
         .getAllByRole('columnheader')
         .map((cell) => cell.textContent),
     ).toEqual(['Edición', 'En activo', 'Reserva']);
-    const provisional = within(table).getByRole('rowheader', { name: '2031 (provisional)' });
-    expect(
-      within(provisional.closest('tr') as HTMLElement)
-        .getAllByRole('cell')
-        .map((cell) => cell.textContent),
-    ).toEqual(['1412', '30']);
+    expect(cellsOf(table, '2031 (provisional)')).toEqual(['1412', '30']);
     expect(within(table).getByRole('rowheader', { name: '2030' })).toBeInTheDocument();
   });
 
-  it('hides the table behind a toggle under a drawing', async () => {
+  it('hides the table behind a toggle named after the chart under a drawing', async () => {
     const user = userEvent.setup();
     await renderWithProviders(
       <ChartFrame {...props}>
@@ -59,28 +62,37 @@ describe('ChartFrame', () => {
       </ChartFrame>,
     );
 
-    const toggle = screen.getByRole('button', { name: 'Mostrar tabla' });
+    const toggle = screen.getByRole('button', { name: 'Tabla de datos: Arcabuceros por edición' });
+    expect(toggle).toHaveTextContent('Tabla de datos');
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
 
     await user.click(toggle);
 
-    expect(screen.getByRole('button', { name: 'Ocultar tabla' })).toHaveAttribute('aria-expanded', 'true');
-    const table = screen.getByRole('table', { name: 'Arcabuceros por edición' });
-    expect(toggle).toHaveAttribute('aria-controls', table.closest('[id]:not(table)')?.id ?? 'missing');
-    expect(within(table).getByRole('rowheader', { name: '2031 (provisional)' })).toBeInTheDocument();
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    const table = screen.getByRole('table', { name: 'Arcabuceros por edición: datos' });
+    expect(document.getElementById(toggle.getAttribute('aria-controls') ?? '')).toContainElement(table);
+
+    await user.click(toggle);
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
-  it('formats the values with the given formatter', async () => {
+  it('formats values with the chart or series formatter, adds table-only series and shows no value as a dash', async () => {
     await renderWithProviders(
       <ChartFrame
         {...props}
         formatValue={(value) => `${String(value)} u.`}
         series={props.series.slice(0, 1)}
+        tableSeries={[{ key: 'reserve', label: 'Reserva', formatValue: (value) => `R${String(value)}` }]}
+        data={[...props.data, { id: '2032', label: '2032', values: { active: null } }]}
       />,
     );
 
-    expect(screen.getByRole('cell', { name: '1412 u.' })).toBeInTheDocument();
+    const table = screen.getByRole('table');
+    expect(cellsOf(table, '2030')).toEqual(['1399 u.', 'R44']);
+    expect(cellsOf(table, '2032')).toEqual(['—sin datos', '—sin datos']);
   });
 
   it.each(['es-ES', 'ca-ES-valencia', 'en'])('has no accessibility violations in %s', async (language) => {

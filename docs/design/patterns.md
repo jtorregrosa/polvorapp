@@ -359,21 +359,25 @@ and a share of one total is a `Breakdown` (ADR-0014). Feature screens use the `B
 `LineChart` composites, never Recharts or the `chart` primitive directly.
 
 - **Heading, summary, table.** Each chart is a `SectionCard` with its `h2`, a one-sentence summary
-  that states the latest figure against the previous one, and a "Show table" toggle with every value
-  of the drawing (a `DataTable` named by the heading). No figure is only in the drawing. With too few
-  points to chart, use `ChartFrame` without a drawing: it shows the table directly.
+  that states the latest figure against the previous one, and a "Data table" toggle (named after the
+  chart, with `aria-expanded`) with every value of the drawing; a missing value is "—", never 0. No
+  figure is only in the drawing. With too few points to chart, use `ChartFrame` without a drawing: it
+  shows the table directly.
 - **Not by colour alone.** Series take the categorical `chart-1…5` tokens (3:1 on `card` and
   `background`, checked in `contrast.test.ts`) and a legend with their names. Bars also get a pattern
   per series (solid, diagonal lines, dots, cross-hatch, horizontal lines) and lines a marker shape
-  (circle, square, triangle, diamond, cross), shown in the legend too.
-- **Keyboard.** The chart takes focus (2 px focus outline) and the arrow keys move between categories,
-  each showing its values in the tooltip (Recharts' accessibility layer). The table remains the
-  accessible source of truth.
+  (circle, square, triangle, diamond, cross), shown in the legend too. Stacked segments are separated
+  by a hairline in the card colour.
+- **Keyboard.** The chart takes focus (2 px focus outline), is named by its heading, and is described
+  by a hint on the arrow keys; they move between categories, each showing its values in the tooltip
+  (Recharts' accessibility layer) and saying them in a polite live region. The table remains the
+  accessible source of truth. The tooltip is not dismissed with Escape: it only repeats the table.
 - **Numbers.** Values, percentages and axis ticks go through `formatValue` or the language's number
   format; never `toLocaleString()` without the app's language.
-- **Provisional values** (an edition in progress): the category label in the axis gets
-  "provisional" under it, its bars a dashed outline, the segment of a line into it is dashed with a
-  hollow marker, and the tooltip and the table say "(provisional)". The summary says so too.
+- **Provisional values** (an edition in progress): its bars get a dashed outline, the segments of a
+  line that touch it are dashed and its marker hollow, the legend explains the marking, and the
+  tooltip, the live region and the table say "(provisional)". The summary says so too. Axis labels
+  stay one line, so they fit a phone.
 - **Layout.** Bars are `grouped`, `stacked` or `percent` (100 % stacked). Charts fill their card's
   width (256 px high) and fit a 360 px screen; side-by-side charts stack on phones.
 - Charts are loaded with the screen that uses them (`React.lazy`), so Recharts stays out of the main

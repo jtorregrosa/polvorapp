@@ -1,10 +1,14 @@
+import { useMemo } from 'react';
 import type { ChartConfig } from '@/components/ui/chart';
+import { useFormatters } from '@/lib/format';
 
 /** One series of a chart: its values come from `ChartPoint.values[key]`. */
 export interface ChartSeries {
   key: string;
   /** Already translated; shown in the legend, the tooltip and the table header. */
   label: string;
+  /** Formats this series' values instead of the chart's `formatValue` (e.g. a count beside shares). */
+  formatValue?: (value: number) => string;
 }
 
 /** One category of a chart (e.g. an edition), with a value per series. */
@@ -14,10 +18,15 @@ export interface ChartPoint {
   label: string;
   /** Marks the point's values as provisional in the chart, the tooltip and the table. */
   provisional?: boolean;
-  values: Readonly<Record<string, number>>;
+  /** A value per series key; null (or missing) when there is no figure, shown as "—", never as 0. */
+  values: Readonly<Record<string, number | null>>;
 }
 
-/** The data every chart composite takes and turns into a drawing, a legend and a table. */
+/**
+ * The data every chart composite takes and turns into a drawing, a legend and a table. Keep `series`,
+ * `tableSeries`, `data` and `formatValue` stable (module constants or memoised): the table's columns
+ * are derived from them.
+ */
 export interface ChartDataProps {
   /** Already translated; the chart's heading. */
   title: string;
@@ -28,9 +37,18 @@ export interface ChartDataProps {
   /** Header of the category column of the table, e.g. "Edition". */
   categoryLabel: string;
   series: readonly ChartSeries[];
+  /** Series shown only in the table, after the drawn ones, e.g. a count that explains a share. */
+  tableSeries?: readonly ChartSeries[];
+  /** The categories in order; each label is unique. */
   data: readonly ChartPoint[];
   /** Formats a value for the table, the tooltip and the axis; numbers in the user's language otherwise. */
   formatValue?: (value: number) => string;
+}
+
+/** Formats a chart's values: `formatValue`, or numbers in the user's language. */
+export function useValueText(formatValue?: (value: number) => string): (value: number) => string {
+  const format = useFormatters();
+  return useMemo(() => formatValue ?? ((value: number) => format.number(value)), [formatValue, format]);
 }
 
 /** Series colours, one categorical token each (spec: Charts; contrast in contrast.test.ts). */
@@ -51,12 +69,18 @@ export function patternId(chartId: string, index: number): string {
   return `${chartId}-pattern-${String(index)}`;
 }
 
-/** The rows Recharts draws: the category label plus one value per series, under `seriesKey`. */
-export function drawingData(series: readonly ChartSeries[], data: readonly ChartPoint[]) {
+/** A row Recharts draws: the category label plus one value per series, under `seriesKey`. */
+export type DrawnRow = { label: string; provisional: boolean } & Record<
+  string,
+  number | string | boolean | null
+>;
+
+/** The rows Recharts draws; a missing value stays null, so it is not drawn as 0. */
+export function drawingData(series: readonly ChartSeries[], data: readonly ChartPoint[]): DrawnRow[] {
   return data.map((point) => ({
+    ...Object.fromEntries(series.map((item, index) => [seriesKey(index), point.values[item.key] ?? null])),
     label: point.label,
     provisional: point.provisional === true,
-    ...Object.fromEntries(series.map((item, index) => [seriesKey(index), point.values[item.key] ?? 0])),
   }));
 }
 

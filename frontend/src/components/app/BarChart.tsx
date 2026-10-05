@@ -1,9 +1,9 @@
-import { useId, useMemo } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as Recharts from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { useFormatters } from '@/lib/format';
-import { CategoryTick, ChartLegendList, SeriesPatterns } from './chart-parts';
+import { ChartAnnouncer, ChartKeyboardHint, ChartLegendList, SeriesPatterns } from './chart-parts';
 import {
   categoryHeading,
   chartConfig,
@@ -12,6 +12,7 @@ import {
   isProvisionalRow,
   patternId,
   seriesKey,
+  useValueText,
 } from './chart-data';
 import { ChartFrame } from './ChartFrame';
 
@@ -25,64 +26,48 @@ export interface BarChartProps extends ChartDataProps {
 
 /**
  * Bars per category with their heading, summary, legend and table (spec: Charts). Each series has a
- * colour token and a pattern; a provisional category has a dashed outline and "provisional" under
- * its label. The chart takes focus and the arrow keys move between categories, each showing its
- * values in a tooltip (Recharts' accessibility layer). It fades in once, on first render, unless the
- * user asks for reduced motion; data changes are not animated.
+ * colour token and a pattern; a provisional category has a dashed outline, explained in the legend.
+ * The chart takes focus and the arrow keys move between categories, each showing its values in a
+ * tooltip (Recharts' accessibility layer) and saying them in a live region. It fades in once, on
+ * first render, unless the user asks for reduced motion; data changes are not animated.
  */
 export function BarChart({ layout = 'grouped', ...props }: BarChartProps) {
   const { t } = useTranslation('ui');
   const format = useFormatters();
-  const chartId = `bars-${useId().replace(/:/g, '')}`;
-  const { title, summary, series, data, formatValue } = props;
-  const valueText = useMemo(
-    () => formatValue ?? ((value: number) => format.number(value)),
-    [formatValue, format],
-  );
+  const id = useId();
+  const chartId = `bars${id.replace(/[^A-Za-z0-9_-]/g, '')}`;
+  const [liveRegion, setLiveRegion] = useState<HTMLElement | null>(null);
+  const { title, series, data, formatValue } = props;
+  const valueText = useValueText(formatValue);
   const rows = useMemo(() => drawingData(series, data), [series, data]);
   const config = useMemo(() => chartConfig(series), [series]);
-  const provisional = useMemo(
-    () => new Set(data.filter((point) => point.provisional).map((point) => point.label)),
-    [data],
-  );
-  const stackId = layout === 'grouped' ? undefined : 'total';
+  const hasProvisional = data.some((point) => point.provisional);
+  const stacked = layout !== 'grouped';
   const percent = (value: number) => format.number(value, { style: 'percent', maximumFractionDigits: 0 });
 
   return (
     <ChartFrame {...props}>
       <div className="flex flex-col gap-3 motion-safe:animate-in motion-safe:duration-200 motion-safe:fade-in-0">
         <SeriesPatterns chartId={chartId} count={series.length} />
+        <ChartKeyboardHint id={`${chartId}-hint`} />
         <ChartContainer config={config} className="aspect-auto h-64 w-full">
           <Recharts.BarChart
             accessibilityLayer
-            title={title}
-            desc={summary}
+            aria-label={title}
+            aria-roledescription={t('chart.roleDescription')}
+            aria-describedby={`${chartId}-hint`}
             data={rows}
             stackOffset={layout === 'percent' ? 'expand' : 'none'}
             margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
           >
             <Recharts.CartesianGrid vertical={false} />
-            <Recharts.XAxis
-              dataKey="label"
-              tickLine={false}
-              axisLine={false}
-              interval={0}
-              height={provisional.size > 0 ? 40 : 24}
-              tick={(tick: Recharts.XAxisTickContentProps) => (
-                <CategoryTick
-                  x={tick.x}
-                  y={tick.y}
-                  payload={tick.payload}
-                  provisional={provisional}
-                  provisionalText={t('chart.provisional')}
-                />
-              )}
-            />
+            <Recharts.XAxis dataKey="label" tickLine={false} axisLine={false} interval="preserveStartEnd" />
             <Recharts.YAxis
               tickLine={false}
               axisLine={false}
               width={48}
-              allowDecimals={false}
+              interval={0}
+              allowDecimals={layout === 'percent'}
               tickFormatter={(value: number) => (layout === 'percent' ? percent(value) : valueText(value))}
             />
             <ChartTooltip
@@ -102,7 +87,7 @@ export function BarChart({ layout = 'grouped', ...props }: BarChartProps) {
                 key={item.key}
                 dataKey={seriesKey(index)}
                 name={item.label}
-                stackId={stackId}
+                stackId={stacked ? 'total' : undefined}
                 fill={`url(#${patternId(chartId, index)})`}
                 isAnimationActive={false}
                 shape={(bar: Recharts.BarShapeProps) =>
@@ -114,14 +99,23 @@ export function BarChart({ layout = 'grouped', ...props }: BarChartProps) {
                       strokeDasharray="4 2"
                     />
                   ) : (
-                    <Recharts.Rectangle {...bar} />
+                    // A hairline in the card colour separates stacked segments (WCAG 1.4.11).
+                    <Recharts.Rectangle {...bar} stroke={stacked ? 'var(--card)' : 'none'} strokeWidth={1} />
                   )
                 }
               />
             ))}
+            <ChartAnnouncer target={liveRegion} data={data} series={series} valueText={valueText} />
           </Recharts.BarChart>
         </ChartContainer>
-        <ChartLegendList chartId={chartId} series={series} kind="bar" />
+        <div ref={setLiveRegion} role="status" aria-atomic="true" className="sr-only" />
+        <ChartLegendList
+          chartId={chartId}
+          title={title}
+          series={series}
+          kind="bar"
+          hasProvisional={hasProvisional}
+        />
       </div>
     </ChartFrame>
   );

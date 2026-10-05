@@ -288,10 +288,16 @@
     }
   },
   "chart": {
-    "legend": "Llegenda",
-    "showTable": "Mostra la taula",
-    "hideTable": "Amaga la taula",
-    "provisional": "provisional",
-    "provisionalLabel": "{{label}} (provisional)"
+    "legendFor": "Llegenda: {{title}}",
+    "table": "Taula de dades",
+    "tableFor": "Taula de dades: {{title}}",
+    "tableCaption": "{{title}}: dades",
+    "noValue": "sense dades",
+    "provisionalLabel": "{{label}} (provisional)",
+    "provisionalBars": "Contorn discontinu: provisional",
+    "provisionalLines": "Línia discontínua i marca buida: provisional",
+    "roleDescription": "gràfic",
+    "keyboardHint": "Usa les fletxes esquerra i dreta per a sentir els valors de cada categoria.",
+    "announcement": "{{category}}: {{values}}"
   }
 }

@@ -217,8 +217,9 @@ export default tseslint.config(
     },
   },
   {
-    // Upstream chart reads Recharts' payloads, typed `any`, and builds config keys from data keys
-    // (`'value'` is a key, not a text): only those rules are relaxed (add-statistics-trends, D4).
+    // Upstream chart reads Recharts' payloads, typed `any` (hence the unsafe, template and assertion
+    // rules), and builds config keys from data keys (`'value'` is a key, not a text): only those rules
+    // are relaxed (add-statistics-trends, D4).
     files: ['src/components/ui/chart.tsx'],
     rules: {
       '@typescript-eslint/no-unsafe-assignment': 'off',
@@ -226,7 +227,6 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/restrict-template-expressions': 'off',
       '@typescript-eslint/no-unnecessary-type-assertion': 'off',
-      '@typescript-eslint/no-deprecated': 'off',
       'i18next/no-literal-string': 'off',
     },
   },

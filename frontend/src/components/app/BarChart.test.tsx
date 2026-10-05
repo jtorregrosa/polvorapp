@@ -6,6 +6,8 @@ import { stubChartSize } from '@/test/chart-size';
 import { renderWithProviders } from '@/test/render';
 import { BarChart, type BarChartProps } from './BarChart';
 
+// The drawing is checked through Recharts' own class names (recharts is pinned, design D4).
+
 const props: BarChartProps = {
   title: 'Procedencia del arma',
   summary: 'En 2031, la mayoría lleva arma propia.',
@@ -29,32 +31,44 @@ function surface(container: HTMLElement): SVGElement {
   return svg;
 }
 
+function bars(container: HTMLElement, series: string): Element[] {
+  return [...container.querySelectorAll(`path.recharts-rectangle[name="${series}"]`)];
+}
+
+function yTicks(container: HTMLElement): string[] {
+  // Intl writes "50 %" with a no-break space in Spanish.
+  return [...container.querySelectorAll('.recharts-yAxis-tick-labels text')].map((text) =>
+    text.textContent.replace(/\s/g, ' '),
+  );
+}
+
 describe('BarChart', () => {
   beforeEach(stubChartSize);
 
-  it('draws a focusable chart named by its heading and described by its summary', async () => {
+  it('draws a focusable chart named by its heading and described by how to use it', async () => {
     const { container } = await renderWithProviders(<BarChart {...props} />);
 
     const svg = surface(container);
     expect(svg).toHaveAttribute('tabindex', '0');
-    expect(svg.querySelector('title')?.textContent).toBe('Procedencia del arma');
-    expect(svg.querySelector('desc')?.textContent).toBe(props.summary);
-    expect(screen.getByRole('heading', { level: 2, name: 'Procedencia del arma' })).toBeInTheDocument();
+    expect(svg).toHaveAccessibleName('Procedencia del arma');
+    expect(svg).toHaveAttribute('aria-roledescription', 'gráfico');
+    expect(svg).toHaveAccessibleDescription(
+      'Usa las flechas izquierda y derecha para oír los valores de cada categoría.',
+    );
+    // An empty <title>, so browsers show no native tooltip over the whole chart.
+    expect(svg.querySelector('title')?.textContent).toBe('');
   });
 
-  it('names every series in the legend and gives each its own pattern', async () => {
+  it('names every series in the legend, keys the provisional outline and gives each series its own pattern', async () => {
     const { container } = await renderWithProviders(<BarChart {...props} />);
 
-    const legend = screen.getByRole('list', { name: 'Leyenda' });
+    const legend = screen.getByRole('list', { name: 'Leyenda: Procedencia del arma' });
     expect(
       within(legend)
         .getAllByRole('listitem')
         .map((item) => item.textContent),
-    ).toEqual(['Propia', 'Alquiler', 'Préstamo', 'Sin arma']);
-    const fills = props.series.map((item) => {
-      const bar = container.querySelector(`path.recharts-rectangle[name="${item.label}"]`);
-      return bar?.getAttribute('fill') ?? '';
-    });
+    ).toEqual(['Propia', 'Alquiler', 'Préstamo', 'Sin arma', 'Contorno discontinuo: provisional']);
+    const fills = props.series.map((item) => bars(container, item.label)[0]?.getAttribute('fill') ?? '');
     expect(new Set(fills).size).toBe(4);
     for (const fill of fills) {
       const id = /^url\(#(.+)\)$/.exec(fill)?.[1] ?? '';
@@ -62,18 +76,37 @@ describe('BarChart', () => {
     }
   });
 
-  it('marks the provisional category in the axis and with a dashed outline', async () => {
+  it('outlines the provisional category with a dashed line', async () => {
     const { container } = await renderWithProviders(<BarChart {...props} />);
 
-    const ticks = [...container.querySelectorAll('.recharts-xAxis-tick-labels text')].map(
-      (text) => text.textContent,
-    );
-    expect(ticks).toEqual(['2030', '2031', 'provisional']);
-    const bars = [...container.querySelectorAll('path.recharts-rectangle[name="Propia"]')];
-    expect(bars.map((bar) => bar.getAttribute('stroke-dasharray'))).toEqual([null, '4 2']);
+    expect(bars(container, 'Propia').map((bar) => bar.getAttribute('stroke-dasharray'))).toEqual([
+      null,
+      '4 2',
+    ]);
   });
 
-  it('shows the values of a category in a tooltip from the keyboard, in the user language', async () => {
+  it('stacks to 100 % with percentage ticks', async () => {
+    const { container } = await renderWithProviders(<BarChart {...props} />);
+
+    expect(yTicks(container)).toEqual(['0 %', '25 %', '50 %', '75 %', '100 %']);
+  });
+
+  it.each([
+    ['grouped', false],
+    ['stacked', true],
+  ] as const)('draws %s bars', async (layout, sharesBase) => {
+    const { container } = await renderWithProviders(<BarChart {...props} layout={layout} />);
+
+    // Stacked series start where the one below ends; grouped ones sit side by side on the axis.
+    const [owned] = bars(container, 'Propia');
+    const [rental] = bars(container, 'Alquiler');
+    const top = (bar: Element | undefined) => Number(bar?.getAttribute('y'));
+    const bottom = (bar: Element | undefined) => top(bar) + Number(bar?.getAttribute('height'));
+    expect(Math.abs(bottom(rental) - top(owned)) < 0.01).toBe(sharesBase);
+    expect(yTicks(container).every((tick) => !tick.includes('%'))).toBe(true);
+  });
+
+  it('shows and says the values of a category from the keyboard, in the user language', async () => {
     const { container } = await renderWithProviders(<BarChart {...props} />, 'en');
 
     const svg = surface(container);
@@ -83,19 +116,19 @@ describe('BarChart', () => {
     fireEvent.keyDown(svg, { key: 'ArrowRight' });
 
     const heading = await within(container).findByText('2031 (provisional)');
-    const tooltip = heading.parentElement;
-    if (!tooltip) throw new Error('No tooltip');
-    expect(within(tooltip).getByText('Propia').parentElement?.nextElementSibling?.textContent).toBe('1,318');
-    expect(tooltip).toHaveTextContent('Sin arma12');
+    expect(heading.parentElement).toHaveTextContent('Propia1,318');
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '2031 (provisional): Propia 1,318, Alquiler 61, Préstamo 21 and Sin arma 12',
+    );
   });
 
   it('offers every value in the table', async () => {
     const user = userEvent.setup();
     await renderWithProviders(<BarChart {...props} />);
 
-    await user.click(screen.getByRole('button', { name: 'Mostrar tabla' }));
+    await user.click(screen.getByRole('button', { name: 'Tabla de datos: Procedencia del arma' }));
 
-    const table = screen.getByRole('table', { name: 'Procedencia del arma' });
+    const table = screen.getByRole('table', { name: 'Procedencia del arma: datos' });
     expect(
       within(table)
         .getAllByRole('cell')

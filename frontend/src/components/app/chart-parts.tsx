@@ -1,5 +1,8 @@
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { markerPath, patternId, seriesColor, type ChartSeries } from './chart-data';
+import { useActiveTooltipLabel } from 'recharts';
+import { useFormatters } from '@/lib/format';
+import { markerPath, patternId, seriesColor, type ChartPoint, type ChartSeries } from './chart-data';
 
 /**
  * The patterns that tell bar series apart beyond colour (spec: Charts): solid, diagonal lines, dots,
@@ -44,17 +47,26 @@ function PatternMarks({ variant }: { variant: number }) {
 /** The legend under a chart: each series name with its swatch (pattern for bars, marker for lines). */
 export function ChartLegendList({
   chartId,
+  title,
   series,
   kind,
+  hasProvisional,
 }: {
   chartId: string;
+  /** The chart's heading, so each legend has its own name. */
+  title: string;
   series: readonly ChartSeries[];
   kind: 'bar' | 'line';
+  /** Adds the key of the provisional marking. */
+  hasProvisional: boolean;
 }) {
   const { t } = useTranslation('ui');
   return (
+    // An unbulleted list keeps its list role in Safari only when it is explicit.
+    // eslint-disable-next-line jsx-a11y/no-redundant-roles
     <ul
-      aria-label={t('chart.legend')}
+      role="list"
+      aria-label={t('chart.legendFor', { title })}
       className="flex flex-wrap gap-x-4 gap-y-1 text-help text-muted-foreground"
     >
       {series.map((item, index) => (
@@ -74,35 +86,72 @@ export function ChartLegendList({
           {item.label}
         </li>
       ))}
+      {hasProvisional && (
+        <li className="flex items-center gap-1.5">
+          <svg aria-hidden="true" focusable="false" viewBox="0 0 12 12" className="size-3 shrink-0">
+            {kind === 'bar' ? (
+              <rect
+                x="1"
+                y="1"
+                width="10"
+                height="10"
+                fill="none"
+                className="stroke-foreground"
+                strokeWidth="1.5"
+                strokeDasharray="3 2"
+              />
+            ) : (
+              <path d="M0,6 H12" className="stroke-foreground" strokeWidth="1.5" strokeDasharray="3 2" />
+            )}
+          </svg>
+          {kind === 'bar' ? t('chart.provisionalBars') : t('chart.provisionalLines')}
+        </li>
+      )}
     </ul>
   );
 }
 
-/** An axis tick of the category axis: the label, and "provisional" under a provisional one. */
-export function CategoryTick({
-  x,
-  y,
-  payload,
-  provisional,
-  provisionalText,
-}: {
-  x?: number | string;
-  y?: number | string;
-  payload?: { value?: unknown };
-  provisional: ReadonlySet<string>;
-  provisionalText: string;
-}) {
-  const label = typeof payload?.value === 'string' ? payload.value : '';
+/** How to use the focusable drawing from the keyboard, for its `aria-describedby`. */
+export function ChartKeyboardHint({ id }: { id: string }) {
+  const { t } = useTranslation('ui');
   return (
-    <g transform={`translate(${String(x ?? 0)},${String(y ?? 0)})`}>
-      <text dy="0.71em" y={4} textAnchor="middle" className="fill-muted-foreground">
-        {label}
-      </text>
-      {provisional.has(label) && (
-        <text dy="0.71em" y={18} textAnchor="middle" className="fill-muted-foreground italic">
-          {provisionalText}
-        </text>
-      )}
-    </g>
+    <p id={id} className="sr-only">
+      {t('chart.keyboardHint')}
+    </p>
   );
+}
+
+/**
+ * Says the active category's values in `target`, a polite live region outside the drawing: the
+ * tooltip is drawn, not announced, so moving with the arrow keys is heard through this (spec:
+ * Charts, keyboard tooltip). Rendered inside the Recharts chart to read its active category.
+ */
+export function ChartAnnouncer({
+  target,
+  data,
+  series,
+  valueText,
+}: {
+  target: HTMLElement | null;
+  data: readonly ChartPoint[];
+  series: readonly ChartSeries[];
+  valueText: (value: number) => string;
+}) {
+  const { t } = useTranslation('ui');
+  const format = useFormatters();
+  const label = useActiveTooltipLabel();
+  if (!target) return null;
+  const point = data.find((candidate) => candidate.label === label);
+  const text = point
+    ? t('chart.announcement', {
+        category: point.provisional ? t('chart.provisionalLabel', { label: point.label }) : point.label,
+        values: format.list(
+          series.map((item) => {
+            const value = point.values[item.key];
+            return `${item.label} ${value === null || value === undefined ? t('chart.noValue') : (item.formatValue ?? valueText)(value)}`;
+          }),
+        ),
+      })
+    : '';
+  return createPortal(text, target);
 }

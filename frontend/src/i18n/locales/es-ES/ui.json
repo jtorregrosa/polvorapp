@@ -288,10 +288,16 @@
     }
   },
   "chart": {
-    "legend": "Leyenda",
-    "showTable": "Mostrar tabla",
-    "hideTable": "Ocultar tabla",
-    "provisional": "provisional",
-    "provisionalLabel": "{{label}} (provisional)"
+    "legendFor": "Leyenda: {{title}}",
+    "table": "Tabla de datos",
+    "tableFor": "Tabla de datos: {{title}}",
+    "tableCaption": "{{title}}: datos",
+    "noValue": "sin datos",
+    "provisionalLabel": "{{label}} (provisional)",
+    "provisionalBars": "Contorno discontinuo: provisional",
+    "provisionalLines": "Línea discontinua y marca hueca: provisional",
+    "roleDescription": "gráfico",
+    "keyboardHint": "Usa las flechas izquierda y derecha para oír los valores de cada categoría.",
+    "announcement": "{{category}}: {{values}}"
   }
 }

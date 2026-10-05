@@ -288,10 +288,16 @@
     }
   },
   "chart": {
-    "legend": "Legend",
-    "showTable": "Show table",
-    "hideTable": "Hide table",
-    "provisional": "provisional",
-    "provisionalLabel": "{{label}} (provisional)"
+    "legendFor": "Legend: {{title}}",
+    "table": "Data table",
+    "tableFor": "Data table: {{title}}",
+    "tableCaption": "{{title}}: data",
+    "noValue": "no data",
+    "provisionalLabel": "{{label}} (provisional)",
+    "provisionalBars": "Dashed outline: provisional",
+    "provisionalLines": "Dashed line and hollow marker: provisional",
+    "roleDescription": "chart",
+    "keyboardHint": "Use the left and right arrow keys to hear the values of each category.",
+    "announcement": "{{category}}: {{values}}"
   }
 }
