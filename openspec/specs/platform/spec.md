@@ -181,7 +181,7 @@ are.
 The UI SHALL render a shell on every signed-in route consisting of:
 - a sidebar with the dark "night" surface in both themes, holding the PolvorApp mark and name, the
   primary navigation (icons and optional counters, showing only the destinations allowed for the
-  user's role) and the API version obtained from the system information endpoint. For a
+  user's role, in labelled sections) and the API version obtained from the system information endpoint. For a
   FiringChief, the sidebar SHALL also show, between the mark and the navigation, one card for each
   active comparsa assigned to them, sorted by name. Each card SHALL show the comparsa's logo, or
   the placeholder when it has none, and its name, and SHALL link to the comparsa's detail page.
@@ -191,6 +191,30 @@ The UI SHALL render a shell on every signed-in route consisting of:
   the language switcher, the theme switcher, a link to the account page and a sign-out action;
 - a main content area that uses the width beside the sidebar up to 1680 px. The top bar's
   breadcrumbs and user menu SHALL be aligned with the edges of that content.
+
+The primary navigation SHALL be grouped in sections, in this order, each showing only the entries
+allowed for the user's role and hidden when it has none:
+- no label: Home;
+- "Registry": Arquebusiers, Comparsas, Statistics;
+- "Festival": Editions, Orders, Distribution;
+- "Administration" (Admins only): Weapon models, Users, Audit log, Privacy.
+
+Each section SHALL be a labelled group for assistive technology. The current entry SHALL be the one
+that owns the page: Orders on an edition's orders and exports pages, Distribution on an edition's
+distribution page, and Editions on the other edition pages.
+
+On screens from the sidebar breakpoint upwards, the sidebar SHALL collapse to an icon rail instead
+of disappearing, from a button in the top bar or with its keyboard shortcut. In the rail:
+- each entry SHALL show its icon only, keep its translated name as its accessible name, and show
+  the name in a tooltip on pointer hover and keyboard focus;
+- a counter SHALL become a dot, with the count kept in the entry's accessible name;
+- section labels SHALL be replaced by separators;
+- the FiringChief's comparsa cards SHALL show only the logo, or the placeholder, with the comparsa
+  name as accessible name and tooltip;
+- the API version SHALL be hidden.
+
+Every entry SHALL stay reachable with the keyboard in both states. The expanded or collapsed state
+SHALL be remembered on the device and restored on the next visit; it SHALL default to expanded.
 
 Signed-out pages (sign-in, two-factor, invitation, enrolment, password reset) SHALL render in a
 public layout with the PolvorApp mark, the language and theme switchers and the API version,
@@ -255,6 +279,34 @@ weight and an indicator bar, not by colour alone. They SHALL have no automatical
 #### Scenario: Accessibility check
 - **WHEN** the shell, the not-found page and the sign-in page are scanned by an automated accessibility checker in the light and dark themes
 - **THEN** no WCAG 2.2 A or AA violations are reported
+
+#### Scenario: Navigation sections
+- **WHEN** an Admin is signed in with the sidebar expanded
+- **THEN** the navigation shows Home, then the "Registry", "Festival" and "Administration" sections with their entries, each section announced as a named group
+
+#### Scenario: No administration section for FiringChiefs
+- **WHEN** a FiringChief is signed in
+- **THEN** the "Administration" section and its label are not shown
+
+#### Scenario: Edition sub-page marks its entry
+- **WHEN** a user opens the distribution page of the current edition at `/editions/{id}/distribution`
+- **THEN** Distribution is marked as the current entry, and Editions is not
+
+#### Scenario: Icon rail
+- **WHEN** a user on a 1440 px screen collapses the sidebar and moves focus to the Orders entry
+- **THEN** the sidebar shows only icons, the Orders entry is named "Orders" for assistive technology, and a tooltip shows its name
+
+#### Scenario: Counter in the rail
+- **WHEN** the sidebar is collapsed and 5 arquebusiers have warnings
+- **THEN** the Arquebusiers entry shows a dot and its accessible name still says 5 with warnings
+
+#### Scenario: Remembered state
+- **WHEN** a user collapses the sidebar and reloads the page
+- **THEN** the sidebar is still collapsed
+
+#### Scenario: Phones keep the drawer
+- **WHEN** a user on a 360 px screen opens the navigation from the top bar
+- **THEN** the full navigation opens in a drawer with section labels, never as an icon rail
 
 ### Requirement: Switch UI language (UC-27)
 The UI SHALL be available in `es-ES`, `ca-ES-valencia` and `en`, and the language switcher SHALL
