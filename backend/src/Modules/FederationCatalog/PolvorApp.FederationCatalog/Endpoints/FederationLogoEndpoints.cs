@@ -5,15 +5,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using PolvorApp.FederationCatalog.Logos;
+using PolvorApp.FederationCatalog.Settings;
 using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.SharedKernel.Http;
 using PolvorApp.SharedKernel.Security;
 
 namespace PolvorApp.FederationCatalog.Endpoints;
 
-/// <summary>The Federation's settings as every signed-in user reads them.</summary>
+/// <summary>The Federation's identity and logo as every signed-in user reads them (spec: Federation settings).</summary>
+/// <param name="OfficialNameEs">The official name in Spanish.</param>
+/// <param name="OfficialNameCa">The official name in Valencian.</param>
+/// <param name="ShortName">The short name for the interface.</param>
 /// <param name="Logo">The logo printed in documents, or null until an Admin uploads it.</param>
-internal sealed record FederationSettingsResponse(ComparsaLogoResponse? Logo);
+internal sealed record FederationSettingsResponse(string OfficialNameEs, string OfficialNameCa, string ShortName, ComparsaLogoResponse? Logo);
 
 /// <summary>
 /// Spec "Federation logo" (add-distribution-planning, design D11): Admins upload, replace and remove it;
@@ -30,7 +34,7 @@ internal static class FederationLogoEndpoints
         var group = endpoints.MapGroup(string.Empty).WithTags("Federation")
             .ProducesProblem(StatusCodes.Status401Unauthorized);
         group.MapGet("/federation", SettingsAsync).WithName("GetFederationSettings")
-            .WithSummary("The Federation's settings: whether its logo for documents was uploaded.");
+            .WithSummary("The Federation's names and whether its logo for documents was uploaded.");
         group.MapGet("/federation-logo", GetAsync).WithName("GetFederationLogo")
             .WithSummary("The Federation's logo as a PNG image; never cached.")
             .Produces<Stream>(StatusCodes.Status200OK, LogoStorage.ContentType)
@@ -50,8 +54,12 @@ internal static class FederationLogoEndpoints
         return endpoints;
     }
 
-    private static async Task<Ok<FederationSettingsResponse>> SettingsAsync(FederationLogoAdministration administration, CancellationToken cancellationToken) =>
-        TypedResults.Ok(new FederationSettingsResponse(await administration.FindAsync(cancellationToken) is { } logo ? ComparsaLogoResponse.From(logo) : null));
+    private static async Task<Ok<FederationSettingsResponse>> SettingsAsync(FederationSettingsAdministration administration, CancellationToken cancellationToken)
+    {
+        var settings = await administration.GetAsync(cancellationToken);
+        return TypedResults.Ok(new FederationSettingsResponse(
+            settings.OfficialNameEs, settings.OfficialNameCa, settings.ShortName, settings.Logo is { } logo ? ComparsaLogoResponse.From(logo) : null));
+    }
 
     private static async Task<Results<Ok<ComparsaLogoResponse>, ProblemHttpResult>> UploadAsync(
         HttpRequest request, FederationLogoAdministration administration, ILoggerFactory loggers, CancellationToken cancellationToken)
