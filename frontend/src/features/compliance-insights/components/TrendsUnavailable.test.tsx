@@ -22,7 +22,7 @@ describe('TrendsUnavailable', () => {
 
   it('reloads the page to try again', async () => {
     const reload = vi.fn();
-    Object.defineProperty(window, 'location', { configurable: true, value: { ...original, reload } });
+    Object.defineProperty(window, 'location', { configurable: true, value: { href: original.href, reload } });
     const user = userEvent.setup();
     await renderWithProviders(<TrendsUnavailable />);
 
