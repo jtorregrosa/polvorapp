@@ -387,6 +387,50 @@ describe('DataTable rows that lead to a record (spec: Data tables)', () => {
     expect(await screen.findByRole('heading', { name: 'Ficha' })).toBeInTheDocument();
   });
 
+  it('lets a link inside a cell open its own target, while another cell opens the record', async () => {
+    const user = userEvent.setup();
+    const router = createMemoryRouter(
+      [
+        {
+          path: '/people',
+          element: (
+            <DataTable
+              caption="Personas"
+              data={PEOPLE}
+              columns={[
+                {
+                  id: 'name',
+                  header: 'Nombre',
+                  cell: (row) => <Link to={`/people/${row.id}`}>{row.name}</Link>,
+                },
+                {
+                  id: 'comparsa',
+                  header: 'Comparsa',
+                  cell: (row) => <Link to={`/comparsas/${row.comparsa}`}>{row.comparsa}</Link>,
+                },
+                { id: 'nationalId', header: 'DNI/NIE', cell: (row) => row.nationalId },
+              ]}
+              getRowId={(row) => row.id}
+              getRowHref={(row) => `/people/${row.id}`}
+            />
+          ),
+        },
+        { path: '/people/:id', element: <h1>Ficha</h1> },
+        { path: '/comparsas/:name', element: <h1>Comparsa</h1> },
+      ],
+      { initialEntries: ['/people'] },
+    );
+    await renderWithProviders(<RouterProvider router={router} />);
+
+    await user.click(screen.getByRole('link', { name: 'Comparsa Sur' }));
+    expect(await screen.findByRole('heading', { name: 'Comparsa' })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe('/comparsas/Comparsa Sur');
+
+    await router.navigate('/people');
+    await user.click(await screen.findByRole('cell', { name: '00000002W' }));
+    expect(await screen.findByRole('heading', { name: 'Ficha' })).toBeInTheDocument();
+  });
+
   it('leaves modified clicks and clicks on controls to the browser', async () => {
     const user = userEvent.setup();
     await renderPeople();

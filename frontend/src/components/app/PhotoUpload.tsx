@@ -4,13 +4,14 @@ import {
   ArrowRight,
   ArrowUp,
   ImageOff,
+  ImagePlus,
   Minus,
   Plus,
   RotateCcw,
   RotateCw,
   type LucideIcon,
 } from 'lucide-react';
-import { useEffect, useId, useRef, useState, type ChangeEvent } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactCrop, { centerCrop, makeAspectCrop, type PercentCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
@@ -27,6 +28,7 @@ import { cn } from '@/lib/cn';
 import { AlertBanner } from './AlertBanner';
 import { Button } from './Button';
 import { ConfirmDialog } from './ConfirmDialog';
+import { PictureTrigger } from './picture-trigger';
 import {
   cropImage,
   loadImage,
@@ -72,7 +74,10 @@ export interface PhotoUploadProps extends PhotoRules {
   photoUrl: string | null;
   /** Describes the current photo, e.g. "ID photo of Ana Pérez". */
   photoAlt: string;
-  /** Shown in place of a missing photo, e.g. "No ID photo"; a generic "No photo" by default. */
+  /**
+   * Shown in place of a missing photo, e.g. "No ID photo"; a generic "No photo" by default. Not
+   * used by the `picture` variant, whose placeholder is the "Add {label}" button.
+   */
   emptyText?: string;
   /** Announced after `onUpload` succeeds; "Saved: <label>" by default. */
   uploadedText?: string;
@@ -96,6 +101,12 @@ export interface PhotoUploadProps extends PhotoRules {
   disabledHint?: string;
   /** Shows the image only, without choose, replace or remove (e.g. a locked registry). */
   readOnly?: boolean;
+  /**
+   * `section` (default): the image with add, replace and remove buttons under it (arquebusier
+   * photos). `picture`: the image itself is the button, with a replace/remove menu, or the add
+   * action when there is none (spec: Picture actions; logos).
+   */
+  variant?: 'section' | 'picture';
 }
 
 type Status = 'idle' | 'uploading' | 'uploaded' | 'removed';
@@ -224,6 +235,7 @@ export function PhotoUpload({
   disabled = false,
   disabledHint,
   readOnly = false,
+  variant = 'section',
   ...rules
 }: PhotoUploadProps) {
   const { t } = useTranslation('ui');
@@ -247,6 +259,21 @@ export function PhotoUpload({
       };
   const fileInput = useRef<HTMLInputElement>(null);
   const chooseButton = useRef<HTMLButtonElement>(null);
+  /**
+   * Focus is meant to be on the add/replace action. The picture variant's button is replaced when
+   * the picture appears or goes away (often after the owner's refetch, once a dialog has closed):
+   * the new button then takes the focus the old one lost, unless the user has moved on.
+   */
+  const keepFocus = useRef(false);
+  const focusChooser = () => {
+    keepFocus.current = true;
+    chooseButton.current?.focus();
+  };
+  const pictureButton = useCallback((element: HTMLButtonElement | null) => {
+    chooseButton.current = element;
+    const lost = document.activeElement === null || document.activeElement === document.body;
+    if (element && keepFocus.current && lost) element.focus();
+  }, []);
   const hintId = useId();
   const [image, setImage] = useState<LoadedImage>();
   const [preview, setPreview] = useState<LoadedImage>();
@@ -258,6 +285,8 @@ export function PhotoUpload({
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
   const [opening, setOpening] = useState(false);
+  /** The removal confirmation of the picture variant, opened from its menu. */
+  const [confirmingRemoval, setConfirmingRemoval] = useState(false);
   /** Set when an upload succeeded: announced once the dialog has closed (a closing dialog hides the page from screen readers). */
   const uploaded = useRef(false);
   const loadFailed = photoUrl !== null && failedUrl === photoUrl;
@@ -427,34 +456,86 @@ export function PhotoUpload({
         ? (removedText ?? t('photoUpload.removed', { label }))
         : '';
 
+  const picture = variant === 'picture' && !readOnly;
+  const pickFile = () => fileInput.current?.click();
+  /** The image, or a placeholder saying why there is none; inside the picture button the image is decorative. */
+  const content = (emptyLabel: string, EmptyIcon = ImageOff) =>
+    photoUrl && !loadFailed ? (
+      <img
+        src={photoUrl}
+        alt={picture ? '' : photoAlt}
+        className="h-auto w-full"
+        onError={() => {
+          setFailedUrl(photoUrl);
+        }}
+      />
+    ) : (
+      <span className="flex min-h-32 flex-col items-center justify-center gap-2 p-3 text-center text-sm text-muted-foreground">
+        {photoUrl ? (
+          <ImageOff aria-hidden="true" className="size-6" />
+        ) : (
+          <EmptyIcon aria-hidden="true" className="size-6" />
+        )}
+        <span>{photoUrl ? copy.loadFailed : emptyLabel}</span>
+      </span>
+    );
+
   return (
     <div className="flex flex-col gap-3">
-      <div
-        className={cn(
-          'flex w-40 items-center justify-center overflow-hidden rounded-md border',
-          // A transparent logo is judged on the checkerboard, as in the crop dialog.
-          transparencyClass ?? 'bg-muted',
-        )}
-      >
-        {photoUrl && !loadFailed ? (
-          <img
-            src={photoUrl}
-            alt={photoAlt}
-            className="h-auto w-full"
-            onError={() => {
-              setFailedUrl(photoUrl);
-            }}
-          />
-        ) : (
-          <div className="flex min-h-32 flex-col items-center justify-center gap-2 p-3 text-center text-sm text-muted-foreground">
-            <ImageOff aria-hidden="true" className="size-6" />
-            <span>{photoUrl ? copy.loadFailed : (emptyText ?? t('photoUpload.empty', { label }))}</span>
-          </div>
-        )}
-      </div>
+      {picture ? (
+        <PictureTrigger
+          ref={pictureButton}
+          frameClassName={transparencyClass}
+          // A picture that failed to load is named by what it shows first (WCAG 2.5.3).
+          menuName={
+            photoUrl
+              ? `${loadFailed ? `${copy.loadFailed}. ` : ''}${t('pictureActions.options', { label: photoAlt })}`
+              : undefined
+          }
+          canRemove={removal !== undefined}
+          disabled={disabled}
+          busy={opening}
+          describedBy={disabled && disabledHint ? hintId : undefined}
+          onReplace={pickFile}
+          onRemove={() => {
+            setConfirmingRemoval(true);
+          }}
+          onFocusMovedAway={() => {
+            keepFocus.current = false;
+          }}
+        >
+          {content(t('pictureActions.add', { label }), ImagePlus)}
+        </PictureTrigger>
+      ) : (
+        <div
+          className={cn(
+            'flex w-40 items-center justify-center overflow-hidden rounded-md border',
+            // A transparent logo is judged on the checkerboard, as in the crop dialog.
+            transparencyClass ?? 'bg-muted',
+          )}
+        >
+          {content(emptyText ?? t('photoUpload.empty', { label }))}
+        </div>
+      )}
+      {picture && removal && (
+        <ConfirmDialog
+          open={confirmingRemoval}
+          onOpenChange={setConfirmingRemoval}
+          title={removal.title}
+          description={removal.description}
+          confirmLabel={removal.confirmLabel}
+          onConfirm={removal.onRemove}
+          returnFocus={chooseButton}
+          onConfirmed={() => {
+            // Back to the picture, which becomes the add action once the logo is gone (WCAG 2.4.3).
+            focusChooser();
+            setStatus('removed');
+          }}
+        />
+      )}
 
       {/* Long labels ("Replace front of the license") wrap inside narrow columns (WCAG 1.4.10). */}
-      {!readOnly && (
+      {!readOnly && !picture && (
         <div className="flex min-w-0 flex-wrap gap-2">
           <Button
             ref={chooseButton}
@@ -464,7 +545,7 @@ export function PhotoUpload({
             pending={opening}
             disabled={disabled}
             aria-describedby={disabled && disabledHint ? hintId : undefined}
-            onClick={() => fileInput.current?.click()}
+            onClick={pickFile}
           >
             {t(photoUrl ? 'photoUpload.replace' : 'photoUpload.choose', { label })}
           </Button>
@@ -530,7 +611,7 @@ export function PhotoUpload({
           // Opened from the file picker, not from a button: return focus to the add action.
           onCloseAutoFocus={(event) => {
             event.preventDefault();
-            chooseButton.current?.focus();
+            focusChooser();
             if (uploaded.current) {
               uploaded.current = false;
               setStatus('uploaded');

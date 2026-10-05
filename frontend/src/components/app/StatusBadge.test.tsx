@@ -71,6 +71,17 @@ describe('StatusBadge', () => {
     expect(badge).toHaveAttribute('data-tone', 'destructive');
   });
 
+  it.each([
+    ['ENABLED', 'Enabled', 'success'],
+    ['NOT_SET', 'Not set up', 'muted'],
+  ])('shows two-step verification %s as "%s" with the %s tone and an icon', async (value, label, tone) => {
+    await renderWithProviders(<StatusBadge kind="twoFactor" value={value} />, 'en');
+
+    const badge = screen.getByText(label).closest('[data-status-badge]');
+    expect(badge).toHaveAttribute('data-tone', tone);
+    expect(badge?.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
+  });
+
   it('shows an inactive comparsa or weapon model as a neutral badge in Spanish', async () => {
     await renderWithProviders(<StatusBadge kind="catalog" value="INACTIVE" />, 'es-ES');
 

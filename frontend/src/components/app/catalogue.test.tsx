@@ -19,6 +19,7 @@ const THEMES = ['light', 'dark'] as const;
 /** Files in this folder that are not composites and need no stories (add helpers here). */
 const NOT_COMPOSITES = new Set([
   'status.ts',
+  'tags.ts',
   'navigation-match.ts',
   'confirm-failure.ts',
   'photo-image.ts',
@@ -26,6 +27,7 @@ const NOT_COMPOSITES = new Set([
   'use-app-form.ts',
   'save-notice.ts',
   'clear-field.tsx',
+  'picture-trigger.tsx',
 ]);
 
 /** A text that is a translation key left untranslated, e.g. `status.license.VALID`. */

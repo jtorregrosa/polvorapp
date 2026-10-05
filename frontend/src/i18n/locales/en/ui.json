@@ -13,7 +13,14 @@
     "mobileTitle": "Navigation",
     "mobileDescription": "Application navigation menu",
     "open": "Open navigation",
-    "close": "Close navigation"
+    "close": "Close navigation",
+    "sections": {
+      "registry": "Registry",
+      "festival": "Festival",
+      "administration": "Administration"
+    },
+    "expand": "Expand navigation",
+    "collapse": "Collapse navigation"
   },
   "theme": {
     "label": "Theme",
@@ -109,6 +116,10 @@
     "orders": {
       "OPEN": "Orders open",
       "CLOSED": "Orders closed"
+    },
+    "twoFactor": {
+      "ENABLED": "Enabled",
+      "NOT_SET": "Not set up"
     },
     "catalog": {
       "ACTIVE": "Active",
@@ -216,6 +227,12 @@
       }
     }
   },
+  "pictureActions": {
+    "options": "{{label}}, options",
+    "replace": "Replace",
+    "remove": "Remove",
+    "add": "Add {{label}}"
+  },
   "filters": {
     "clear": "Clear filters"
   },
@@ -250,5 +267,24 @@
   },
   "moneyInput": {
     "currency": "in euros"
+  },
+  "tag": {
+    "side": {
+      "MOORISH": "Moorish",
+      "CHRISTIAN": "Christian"
+    },
+    "role": {
+      "ADMIN": "Administrator",
+      "FIRING_CHIEF": "Firing chief"
+    },
+    "weaponKind": {
+      "TRABUCO": "Trabuco",
+      "ARCABUZ": "Arcabuz",
+      "PISTOL": "Pistol"
+    },
+    "yesNo": {
+      "YES": "Yes",
+      "NO": "No"
+    }
   }
 }

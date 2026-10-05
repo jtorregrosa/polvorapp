@@ -31,6 +31,30 @@ from the current code and shape the approach.
 - **Weapon catalogue.** `WeaponModelsPage` sends `includeInactive` only when its checkbox is on. The
   API defaults to active models only, and the order forms rely on that default.
 
+## Research (task 1.1)
+
+Checked against the installed sources, since the cloud session had no Context7 and code search
+outside the repository is out of scope there:
+- **shadcn sidebar** (`components/ui/sidebar.tsx`, local copy): `collapsible="icon"` sets
+  `data-collapsible="icon"` on the `group` element; the gap and container take
+  `--sidebar-width-icon`; `SidebarMenuButton` forces `size-8` and `p-2` in icon mode, which D1
+  overrides to 40 px. `SidebarMenuButton`'s `tooltip` renders a Radix `Tooltip` whose content is
+  `hidden` unless collapsed and not mobile. `SidebarGroupLabel` is a plain `div` (`asChild`
+  available), so the `h2` and `aria-labelledby` of D4 are ours to add.
+- **Radix Tooltip 1.2.16** (`radix-ui` 1.6.7): the trigger opens on `focus` at once, not after
+  `delayDuration`, unless the focus follows a pointer press, and closes on `blur`. The content is a
+  `DismissableLayer`, so Escape closes it (WCAG 1.4.13). The provider's 500 ms delay (local edit of
+  `redesign-design-system` D5) only applies to hover.
+- **Radix DropdownMenu 2.1.24**: on close, `onCloseAutoFocus` focuses the trigger unless the user
+  interacted outside. Opening a file chooser or a dialog from a menu item therefore needs the
+  trigger ref of D7 to return focus after those close.
+- **Tailwind 4.3.3**: `motion-reduce:` compiles to `@media (prefers-reduced-motion: reduce)`.
+  `tokens.css` exposes `ease-drawer` as a utility, and its durations are used through the numeric
+  utilities (`duration-200` is `--duration-moderate`, `duration-100` is `--duration-fast`), so D3
+  needs no custom CSS beyond the reduced-motion override.
+
+No workaround is needed and no question is open.
+
 ## Goals / Non-Goals
 
 **Goals:**
@@ -138,8 +162,12 @@ arquebusier photos unchanged.
   - with an image, the trigger opens a `DropdownMenu` (shadcn primitive, already used by
     `UserMenu`) with "Replace" and "Remove";
   - without an image, the trigger opens the file chooser directly.
-- The overlay is a `Pencil` icon on a translucent token scrim, shown on `group-hover` and
-  `group-focus-visible` with a `duration-fast` opacity fade.
+- The overlay is a `Pencil` icon in a small opaque `card` chip at the top right of the picture,
+  shown on `group-hover` and `group-focus-visible` with a `duration-100` opacity fade. *Implemented
+  as a chip instead of the translucent scrim first planned*: a scrim needs an opacity modifier on a
+  contrast token, which the ESLint guardrails forbid, and the chip keeps the picture visible.
+- The trigger lives in `components/app/picture-trigger.tsx`, a helper of `PhotoUpload` (kept out of
+  the catalogue like `clear-field.tsx`), so `PhotoUpload.tsx` stays under the 800-line ceiling.
 - After the crop dialog, the confirmation or the menu closes, focus is returned to the trigger
   through a ref.
 - Announcements reuse the existing live region.

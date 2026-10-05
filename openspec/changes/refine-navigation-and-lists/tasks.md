@@ -2,7 +2,7 @@
 
 ## 1. Research
 
-- [ ] 1.1 Check with Context7, and with `gh search code` for real-world use, what D1–D3 and D7 rely
+- [x] 1.1 Check with Context7, and with `gh search code` for real-world use, what D1–D3 and D7 rely
   on:
   - the shadcn/ui sidebar `collapsible="icon"`;
   - `SidebarMenuButton` `tooltip`;
@@ -16,10 +16,10 @@
 
 ## 2. Tokens and composites
 
-- [ ] 2.1 Write `contrast.test.ts` cases for `--tag-{1..4}` and `--tag-neutral` (4.5:1, both themes),
+- [x] 2.1 Write `contrast.test.ts` cases for `--tag-{1..4}` and `--tag-neutral` (4.5:1, both themes),
   then add the tokens to `tokens.css` and `docs/design/tokens.md` (D5). Verify: the contrast and
   design-docs tests pass.
-- [ ] 2.2 Write tests and stories for `Tag` and `CategoryTag`, then implement them with the mappings
+- [x] 2.2 Write tests and stories for `Tag` and `CategoryTag`, then implement them with the mappings
   in `tags.ts` (D5):
   - side, role, weapon kind and yes/no in three languages;
   - no icon;
@@ -27,9 +27,9 @@
   - an unknown value shows a neutral tag and a development warning.
 
   Verify: the tests and the catalogue test pass.
-- [ ] 2.3 Write `StatusBadge` tests for `twoFactor` `ENABLED` and `NOT_SET`, then add the mapping
+- [x] 2.3 Write `StatusBadge` tests for `twoFactor` `ENABLED` and `NOT_SET`, then add the mapping
   and the `ui:status.twoFactor.*` texts (D6). Verify: the tests pass.
-- [ ] 2.4 Write `PhotoUpload` tests for `variant="picture"`, then implement it (D7):
+- [x] 2.4 Write `PhotoUpload` tests for `variant="picture"`, then implement it (D7):
   - with an image, the trigger is named "{{label}}, options" and opens a menu with Replace and
     Remove;
   - without an image, the trigger opens the file chooser;
@@ -40,7 +40,7 @@
   - `variant="section"` is unchanged.
 
   Verify: the tests, the existing PhotoUpload tests and the stories pass.
-- [ ] 2.5 Update `DataTable`'s documentation and add a test for a cell link: clicking it opens its
+- [x] 2.5 Update `DataTable`'s documentation and add a test for a cell link: clicking it opens its
   own target, and another cell opens the record. Update `docs/design/patterns.md`:
   - tags vs statuses;
   - picture actions;
@@ -49,7 +49,7 @@
   - muted missing values.
 
   Verify: the test passes.
-- [ ] 2.6 Review group 2 in parallel with `react-reviewer` and `a11y-architect`. Fix CRITICAL/HIGH
+- [x] 2.6 Review group 2 in parallel with `react-reviewer` and `a11y-architect`. Fix CRITICAL/HIGH
   findings.
 
 ## 3. Shell: sections, icon rail and motion

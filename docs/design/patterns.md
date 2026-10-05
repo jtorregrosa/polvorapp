@@ -66,8 +66,8 @@ declare their breadcrumb with a `handle: { breadcrumb: '<common key>' } satisfie
 - The tile is light in both themes and on the night sidebar, so a black emblem on transparency
   stays visible. Never place a logo directly on a dark surface.
 - Admins manage the logo in a "Logo" `SectionCard` with `PhotoUpload` in PNG mode (`output="png"`,
-  free crop starting with the whole image, `maxSideRatio` 3, `minLongSide` 256, at most 1024 px).
-  FiringChiefs see the logo without that section.
+  free crop starting with the whole image, `maxSideRatio` 3, `minLongSide` 256, at most 1024 px)
+  and `variant="picture"` (see "Picture actions"). FiringChiefs see the logo without that section.
 - `AppLayout`'s `sidebarCards` show a FiringChief's active comparsas above the navigation (logo
   and name, linking to the comparsa, the open one marked as current). Names wrap, never clipped.
   Admins get no cards.
@@ -297,6 +297,20 @@ The form rules follow the GOV.UK Design System (direction "Registro", design D8 
   (BR-04, `docs/data-model.md`): show them with the warning tone and let the user save. They never
   appear in the error summary. Data-integrity rules are blocking errors.
 
+### Picture actions (logos)
+
+A single picture that its owner manages, such as a comparsa logo or the Federation logo, is
+changed from the picture itself (`PhotoUpload variant="picture"`), not from buttons under it:
+- **With a picture**, the picture is a button named "{picture}, options" that opens a menu with
+  "Replace" and "Remove". "Remove" asks first with a `ConfirmDialog`.
+- **Without one**, the placeholder is the "Add {label}" button and opens the file chooser directly.
+- A pencil chip appears on hover and keyboard focus. It is a hint only: the button's name already
+  says what it does, and touch works without hover.
+- Focus returns to the picture after the menu, the crop dialog or the confirmation; saving and
+  removing are announced as in "Photo upload with cropping".
+- Arquebusier photos keep the `section` variant (buttons under the photo): several photos share a
+  section there, and each action names its photo.
+
 ## Tables
 
 - `DataTable` takes a `caption` (its accessible name and the pagination label), `columns`
@@ -311,6 +325,17 @@ The form rules follow the GOV.UK Design System (direction "Registro", design D8 
   When a list has never had data, render `EmptyState` instead of the table.
 - Statuses in cells use `StatusBadge`; numbers are right-aligned and formatted for the active
   language.
+- **Tags vs statuses.** A status says how something is doing (a license, an order) and uses
+  `StatusBadge`: a semantic tone and an icon. A fixed value that says what something is (a role,
+  a side, a weapon kind, a yes/no flag) uses `CategoryTag`: a categorical tone from `tags.ts`, no
+  icon, the same tone everywhere. Never show a fixed value as a status, or a status as a tag.
+- **Every orderable column is sortable**, by the value it shows (the translated label of a tag or
+  status, not its code). Columns of actions are not.
+- **Missing values** are shown in the muted text colour. A lone dash gets a screen-reader text that
+  says what is missing ("No side").
+- **Links in rows.** A row that leads to a record (`getRowHref`) opens it from any cell. A cell may
+  hold its own link to a related record, e.g. an arquebusier's comparsa: that link opens its own
+  target, and the rest of the row still opens the row's record.
 - A list page gives every table a `mobileRow`: the name as the link first, then what the other
   columns say, so nothing is lost on a phone (WCAG 1.4.10).
 - A table inside a `SectionCard` gets a caption distinct from the card's title ("Firing chiefs of

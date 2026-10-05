@@ -53,6 +53,19 @@
   --info-soft: #eaf0fe;
   --info-soft-foreground: #1e40af;
 
+  /* Tags for fixed values (refine-navigation-and-lists D5): categorical hues away from the status
+     tones (violet, teal, rose, slate-indigo), so a tag never reads as a status. */
+  --tag-1: #f1ebfd;
+  --tag-1-foreground: #5b21b6;
+  --tag-2: #e1f5f2;
+  --tag-2-foreground: #115e59;
+  --tag-3: #fce8f1;
+  --tag-3-foreground: #9d174d;
+  --tag-4: #e8eaf2;
+  --tag-4-foreground: #3f4670;
+  --tag-neutral: #f4f3f7;
+  --tag-neutral-foreground: #5e5970;
+
   --border: #e4e2ea;
   --input: #8b8799;
   --ring: #b8430b;
@@ -118,6 +131,17 @@
   --info-foreground: #172554;
   --info-soft: #141f3d;
   --info-soft-foreground: #a5bffd;
+
+  --tag-1: #251a3d;
+  --tag-1-foreground: #c4b5fd;
+  --tag-2: #0f2a28;
+  --tag-2-foreground: #5eead4;
+  --tag-3: #331425;
+  --tag-3-foreground: #f9a8d4;
+  --tag-4: #1e2236;
+  --tag-4-foreground: #b4bce0;
+  --tag-neutral: #221e2d;
+  --tag-neutral-foreground: #a7a1b8;
 
   --border: #2a2636;
   --input: #7a748c;
@@ -289,6 +313,16 @@
   --color-info-foreground: var(--info-foreground);
   --color-info-soft: var(--info-soft);
   --color-info-soft-foreground: var(--info-soft-foreground);
+  --color-tag-1: var(--tag-1);
+  --color-tag-1-foreground: var(--tag-1-foreground);
+  --color-tag-2: var(--tag-2);
+  --color-tag-2-foreground: var(--tag-2-foreground);
+  --color-tag-3: var(--tag-3);
+  --color-tag-3-foreground: var(--tag-3-foreground);
+  --color-tag-4: var(--tag-4);
+  --color-tag-4-foreground: var(--tag-4-foreground);
+  --color-tag-neutral: var(--tag-neutral);
+  --color-tag-neutral-foreground: var(--tag-neutral-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);

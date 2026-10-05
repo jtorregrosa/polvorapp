@@ -52,6 +52,12 @@ const PAIRS: ContrastPair[] = [
     { foreground: `${tone}-soft-foreground`, background: 'card', minimum: TEXT },
     { foreground: `${tone}-soft-foreground`, background: 'background', minimum: TEXT },
   ]),
+  // Tags for fixed values: categorical tones, never semantic ones (refine-navigation-and-lists D5).
+  ...(['tag-1', 'tag-2', 'tag-3', 'tag-4', 'tag-neutral'] as const).map((tone) => ({
+    foreground: `${tone}-foreground`,
+    background: tone,
+    minimum: TEXT,
+  })),
   { foreground: 'destructive', background: 'muted', minimum: TEXT },
   { foreground: 'destructive', background: 'surface-2', minimum: TEXT },
   // The night sidebar is dark in both themes (ADR-0013): its own text, accent and focus pairs.

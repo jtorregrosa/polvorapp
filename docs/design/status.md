@@ -70,6 +70,13 @@ neutral pill with the raw code and a development-only console warning.
 | `DEACTIVATED` | muted | CircleX | Desactivado | Desactivat | Deactivated |
 | `ERASED` | muted | Eraser | Borrado | Esborrat | Erased |
 
+## `twoFactor`
+
+| Value | Tone | Icon | es-ES | ca-ES-valencia | en |
+|---|---|---|---|---|---|
+| `ENABLED` | success | ShieldCheck | Activada | Activada | Enabled |
+| `NOT_SET` | muted | ShieldOff | No configurada | No configurada | Not set up |
+
 ## `catalog`
 
 | Value | Tone | Icon | es-ES | ca-ES-valencia | en |
