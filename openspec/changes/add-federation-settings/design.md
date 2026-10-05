@@ -100,6 +100,32 @@ A navigation entry `{ to: '/settings', section: 'administration', icon: Settings
 - `ui:nav.settings`;
 - `notifications` footer templates: short name and contact lines.
 
+## Research findings (task 1.1)
+
+Context7, `gh` and the vendors' sites are not reachable from the implementation environment, so
+the findings come from the pinned packages (MailKit/MimeKit 4.18.1, EF Core 10.0.12, Npgsql EF
+Core 10.0.3), probed with a throwaway script, and from patterns already proven in this codebase.
+
+- **MimeKit display name.** `new MailboxAddress(name, address)` writes a non-ASCII name as an
+  RFC 2047 encoded word (`=?utf-8?b?…?=`). A name with CR/LF is also encoded
+  (`=?utf-8?q?Evil=0D=0ABcc=3A?=`), so MimeKit itself does not allow header injection. D2's
+  refusal of `< > "` and control characters stays as defence in depth and to keep names readable.
+- **Reply-To.** `MimeMessage.ReplyTo` is an `InternetAddressList`; adding a `MailboxAddress` writes
+  a `Reply-To:` header. Nothing is written when the list is empty.
+- **Address parsing.** `MailboxAddress.TryParse` accepts `nodomain` (empty `Domain`) and
+  `Name <a@b.c>` (with a display name). The settings validation therefore also requires a
+  non-empty domain, no display name, and the parsed address to equal the trimmed input.
+- **`xmin` concurrency.** `ComparsaOrders` already maps `uint Version` with `IsRowVersion()`, which
+  Npgsql maps to the `xmin` system column with no migration column. The settings row follows it,
+  and its writes lock the row first (`SELECT … FOR UPDATE`), as editions do.
+- **Check constraints** are declared with `ToTable(t => t.HasCheckConstraint(...))`, as the other
+  catalogue constraints, and the migration emits them.
+- **Per-section forms.** The detail pages here already save each `SectionCard` from its own
+  `EditSheet` with `use-app-form` and a version (editions), which is the pattern D5 follows; no
+  external example is needed.
+
+No new open question.
+
 ## Risks / Trade-offs
 
 - [A wrong reply-to or sender name affects every email] → Admin only, audited, and the panel shows

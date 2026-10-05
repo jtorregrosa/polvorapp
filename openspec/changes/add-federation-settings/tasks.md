@@ -2,7 +2,7 @@
 
 ## 1. Research
 
-- [ ] 1.1 Check with Context7:
+- [x] 1.1 Check with Context7:
   - MimeKit `MailboxAddress` display-name encoding and `ReplyTo`;
   - EF Core 10 `xmin` concurrency on a singleton row and check constraints in migrations.
 
