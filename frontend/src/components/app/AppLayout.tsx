@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { useEffect, useId, useRef, type ReactNode, type RefObject } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router';
 import { cn } from '@/lib/cn';
@@ -115,7 +115,10 @@ function NavigationMenu({ sections }: { sections: readonly NavigationSection[] }
   );
 }
 
-/** One section: an `h2` naming a `role="group"`, so screen readers announce where an entry belongs. */
+/**
+ * One section: its label names a `role="group"`, so screen readers announce where an entry
+ * belongs. Not a heading: three of them on every page would come before the page's `h1`.
+ */
 function NavigationGroup({
   section: { label, items },
   currentTarget,
@@ -139,18 +142,20 @@ function NavigationGroup({
           asChild
           className="relative group-data-[collapsible=icon]:mt-0 group-data-[collapsible=icon]:opacity-100 after:pointer-events-none after:absolute after:inset-x-2 after:top-1/2 after:h-px after:bg-sidebar-border after:opacity-0 after:transition-opacity after:duration-100 group-data-[collapsible=icon]:after:opacity-100"
         >
-          <h2 id={headingId}>
+          <div id={headingId}>
             <span data-sidebar-label="" className={SIDEBAR_LABEL}>
               {label}
             </span>
-          </h2>
+          </div>
         </SidebarGroupLabel>
       )}
       <SidebarMenu>
-        {items.map(({ to, label: itemLabel, icon: Icon, count, countLabel }) => {
+        {items.map((item) => {
+          const { to, label: itemLabel, icon: Icon } = item;
           const current = to === currentTarget;
-          const counted = count !== undefined && count > 0;
-          const name = counted ? `${itemLabel}, ${countLabel}` : itemLabel;
+          const counted = item.count !== undefined && item.count > 0;
+          const name =
+            item.count !== undefined && item.count > 0 ? `${itemLabel}, ${item.countLabel}` : itemLabel;
           return (
             <SidebarMenuItem key={to}>
               <SidebarMenuButton
@@ -177,7 +182,7 @@ function NavigationGroup({
                   </span>
                 </Link>
               </SidebarMenuButton>
-              {counted && !rail && <SidebarMenuBadge aria-hidden="true">{count}</SidebarMenuBadge>}
+              {counted && !rail && <SidebarMenuBadge aria-hidden="true">{item.count}</SidebarMenuBadge>}
               {/* In the rail the counter is a dot; the count stays in the link's name and tooltip. */}
               {counted && rail && (
                 <span
@@ -191,6 +196,46 @@ function NavigationGroup({
         })}
       </SidebarMenu>
     </SidebarGroup>
+  );
+}
+
+/**
+ * One sidebar card: in the icon rail only its logo shows, with the name in a tooltip (D1). The
+ * tooltip is controlled and stays closed outside the rail, so the link gets no repeated description.
+ */
+function SidebarCardLink({
+  to,
+  label,
+  media,
+  current,
+  rail,
+  onChoose,
+}: SidebarCard & { current: boolean; rail: boolean; onChoose: () => void }) {
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  return (
+    <Tooltip open={rail && tooltipOpen} onOpenChange={setTooltipOpen}>
+      <TooltipTrigger asChild>
+        <Link
+          to={to}
+          aria-current={current ? 'page' : undefined}
+          // In the rail only the logo shows; the name stays for assistive technology (D1).
+          className="relative flex min-h-11 items-center gap-2.5 rounded-md bg-sidebar-accent py-1.5 pr-2 pl-3 text-label text-sidebar-foreground group-data-[collapsible=icon]:overflow-hidden group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:p-0 before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-full hover:bg-sidebar-border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring aria-[current=page]:font-semibold aria-[current=page]:before:bg-sidebar-primary"
+          onClick={onChoose}
+        >
+          {media}
+          <span
+            data-card-label=""
+            data-sidebar-label=""
+            className={cn('min-w-0 wrap-break-word', SIDEBAR_LABEL)}
+          >
+            {label}
+          </span>
+        </Link>
+      </TooltipTrigger>
+      <TooltipContent side="right" align="center">
+        {label}
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -213,29 +258,14 @@ function SidebarCards({ cards }: { cards: readonly SidebarCard[] }) {
           const current = isCurrentPath(pathname, to);
           return (
             <li key={to}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Link
-                    to={to}
-                    aria-current={current ? 'page' : undefined}
-                    // In the rail only the logo shows; the name stays for assistive technology (D1).
-                    className="relative flex min-h-11 items-center gap-2.5 rounded-md bg-sidebar-accent py-1.5 pr-2 pl-3 text-label text-sidebar-foreground group-data-[collapsible=icon]:overflow-hidden group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:p-0 before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-full hover:bg-sidebar-border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring aria-[current=page]:font-semibold aria-[current=page]:before:bg-sidebar-primary"
-                    onClick={closeDrawer}
-                  >
-                    {media}
-                    <span
-                      data-card-label=""
-                      data-sidebar-label=""
-                      className={cn('min-w-0 wrap-break-word', SIDEBAR_LABEL)}
-                    >
-                      {label}
-                    </span>
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right" align="center" hidden={!rail}>
-                  {label}
-                </TooltipContent>
-              </Tooltip>
+              <SidebarCardLink
+                to={to}
+                label={label}
+                media={media}
+                current={current}
+                rail={rail}
+                onChoose={closeDrawer}
+              />
             </li>
           );
         })}
@@ -267,6 +297,7 @@ function NavigationTrigger() {
       ref={trigger}
       aria-expanded={isMobile ? openMobile : undefined}
       aria-label={isMobile ? undefined : t(open ? 'nav.collapse' : 'nav.expand')}
+      aria-keyshortcuts={isMobile ? undefined : 'Control+B Meta+B'}
       className="size-control"
     />
   );
@@ -330,7 +361,8 @@ export function AppLayout({
             </Link>
           </SidebarHeader>
           {/* The cards scroll with the navigation: they never squeeze it out on short screens (1.4.10). */}
-          <SidebarContent className="gap-group px-2">
+          {/* Vertical room for the focus ring of the first and last entries (WCAG 2.4.7). */}
+          <SidebarContent className="gap-group px-2 py-1">
             {sidebarCards && sidebarCards.length > 0 && <SidebarCards cards={sidebarCards} />}
             <NavigationMenu sections={navigation} />
           </SidebarContent>
@@ -339,7 +371,7 @@ export function AppLayout({
             <SidebarFooter
               data-sidebar-label=""
               className={cn(
-                'px-4 text-xs text-sidebar-muted-foreground group-data-[collapsible=icon]:invisible',
+                'px-4 text-xs text-sidebar-muted-foreground group-data-[collapsible=icon]:hidden',
                 SIDEBAR_LABEL,
               )}
             >

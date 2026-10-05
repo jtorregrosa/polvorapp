@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { currentNavigationTarget } from '@/components/app/navigation-match';
-import { NAVIGATION, navigationSections, type NavigationEntry } from './navigation';
+import type { UserRole } from '@/api/generated/model';
+import { NAVIGATION, navigationFor, navigationSections, type NavigationEntry } from './navigation';
 
 // Spec: Application shell, grouped navigation (refine-navigation-and-lists D4).
 
-const visibleTo = (role: 'ADMIN' | 'FIRING_CHIEF') =>
-  NAVIGATION.filter((entry) => !entry.roles || entry.roles.includes(role));
+const visibleTo = (role: UserRole) => navigationFor(role);
 
 const shape = (entries: readonly NavigationEntry[]) =>
   navigationSections(entries).map(({ section, entries: items }) => [section, items.map((entry) => entry.to)]);
@@ -26,6 +26,10 @@ describe('navigation sections', () => {
       'registry',
       'festival',
     ]);
+  });
+
+  it('shows no role-restricted entry without a role', () => {
+    expect(navigationFor(undefined).some((entry) => entry.roles)).toBe(false);
   });
 
   it.each([

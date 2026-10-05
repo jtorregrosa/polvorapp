@@ -82,7 +82,7 @@
   animates" note. Verify: the motion tests pass.
 - [x] 3.5 Add the `ui:nav.sections.*`, `nav.expand` and `nav.collapse` texts in es-ES,
   ca-ES-valencia and en. Verify: `npm run check-i18n` passes.
-- [ ] 3.6 Review group 3 in parallel with `react-reviewer`, `a11y-architect` and
+- [x] 3.6 Review group 3 in parallel with `react-reviewer`, `a11y-architect` and
   `typescript-reviewer`. Fix CRITICAL/HIGH findings.
 
 ## 4. Screens

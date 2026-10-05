@@ -83,7 +83,11 @@ function SidebarProvider({
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
-  const [_open, _setOpen] = React.useState(() => storedOpen(defaultOpen));
+  // Local edit (D2): an uncontrolled sidebar starts from the stored state. The app is a client-only
+  // SPA, so reading storage in the initialiser causes no hydration mismatch.
+  const [_open, _setOpen] = React.useState(() =>
+    openProp === undefined ? storedOpen(defaultOpen) : defaultOpen,
+  );
   const [moving, setMoving] = React.useState(false);
   const movingTimer = React.useRef<number | undefined>(undefined);
   React.useEffect(() => () => window.clearTimeout(movingTimer.current), []);
@@ -103,8 +107,9 @@ function SidebarProvider({
       }
 
       // This sets the cookie to keep the sidebar state.
-      // Local edit (D2): kept in localStorage instead (no cookie; the app has no server rendering).
-      storeOpen(openState);
+      // Local edit (D2): kept in localStorage instead (no cookie; the app has no server rendering);
+      // a controlled sidebar is left to its owner.
+      if (!setOpenProp && openState !== open) storeOpen(openState);
     },
     [setOpenProp, open],
   );
@@ -122,7 +127,14 @@ function SidebarProvider({
       const editable =
         target !== null &&
         (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
-      if (!editable && event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
+      // Local edit (D3): a held key does not toggle again and again; AltGr+B (Ctrl+Alt) types.
+      if (
+        !editable &&
+        !event.repeat &&
+        !event.altKey &&
+        event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
+        (event.metaKey || event.ctrlKey)
+      ) {
         event.preventDefault();
         toggleSidebar();
       }
@@ -398,8 +410,9 @@ function SidebarContent({ className, ...props }: React.ComponentProps<'div'>) {
       data-slot="sidebar-content"
       data-sidebar="content"
       className={cn(
-        // Local edit (refine-navigation-and-lists D1): the rail still scrolls on short screens.
-        'flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-x-hidden',
+        // Local edit (refine-navigation-and-lists D1): the rail still scrolls on short screens,
+        // without a scrollbar that would squeeze its 40 px entries (wheel, touch and focus scroll).
+        'flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:[scrollbar-width:none] group-data-[collapsible=icon]:overflow-x-hidden',
         className,
       )}
       {...props}
@@ -535,6 +548,10 @@ function SidebarMenuButton({
 } & VariantProps<typeof sidebarMenuButtonVariants>) {
   const Comp = asChild ? Slot.Root : 'button';
   const { isMobile, state } = useSidebar();
+  // Local edit (refine-navigation-and-lists D1): the tooltip opens only in the icon rail. Kept
+  // controlled, so an expanded entry gets no hidden description that repeats its name.
+  const [tooltipOpen, setTooltipOpen] = React.useState(false);
+  const rail = state === 'collapsed' && !isMobile;
 
   const button = (
     <Comp
@@ -558,9 +575,9 @@ function SidebarMenuButton({
   }
 
   return (
-    <Tooltip>
+    <Tooltip open={rail && tooltipOpen} onOpenChange={setTooltipOpen}>
       <TooltipTrigger asChild>{button}</TooltipTrigger>
-      <TooltipContent side="right" align="center" hidden={state !== 'collapsed' || isMobile} {...tooltip} />
+      <TooltipContent side="right" align="center" {...tooltip} />
     </Tooltip>
   );
 }
