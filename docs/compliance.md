@@ -36,6 +36,11 @@ Implications for the product:
 | Orders, loans, proxies | Operation of the edition | Normal |
 | External weapon owners (`add-comparsa-orders`): name, surnames, DNI/NIE, weapon model, number and ownership guide | A weapon lent by someone who is not in PolvorApp; the Arms Authority lists will need it | **High** (identity document, weapon ownership) of people who are **not arquebusiers**; typed by the borrower's FiringChief, kept with the loan, replaced or deleted only while the order is editable, then kept as the edition's history |
 
+The Federation settings (`add-federation-settings`) hold no personal data and no secrets: the official
+and short names, the Federation's public contact address and website (the screen says they must never
+be a person's), the email sender name and reply-to address, and reminder lead times. Their changes are
+audited with previous and new values. SMTP credentials and the sender address stay environment variables.
+
 No special-category data (Art. 9 GDPR) is processed. Photos are **not** used for automated identification.
 
 ## 3. Roles (GDPR)

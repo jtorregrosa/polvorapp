@@ -409,6 +409,12 @@ node ../scripts/check-coverage.mjs TestResults 80          # 80 % line gate
   default 5), `Audit__SecurityRetentionDays` (365–36500, default 365), …). Outside `Development` and `Testing` the API requires TLS for SMTP and an
   https `App__PublicBaseUrl`. The
   API refuses to start when a required setting is missing, naming the setting.
+- **Environment variable or setting?** Anything secret or tied to the deployment is an environment
+  variable: the database, SMTP host, port, security and credentials, the sender **address**
+  (`Email__From`; only its address counts, since it depends on the mail domain's SPF/DKIM), the public
+  address and the storage. What the Federation decides is a setting an Admin edits on the Settings page
+  (`add-federation-settings`): its official and short names, public contact and website, the sender
+  **name** and reply-to, and the reminder lead times. Settings never hold secrets or personal data.
 - Logs are JSON on stdout and never include query strings, bodies or personal data (NFR-12).
 
 ### Notifications

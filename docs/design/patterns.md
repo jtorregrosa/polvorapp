@@ -133,6 +133,17 @@ of email of the user's role with its state as text ("On"/"Off") and what it cove
 `/account?section=notifications`, and the page scrolls to the section and moves focus to it. A load
 failure stays inside the section (`LoadFailure` with retry) and never hides the rest of the page.
 
+### Settings page (Federation settings)
+
+`/settings` (Admins, "Administration" in the navigation; `add-federation-settings`) is a detail page in
+read mode without a record header: a `PageHeader` and a `SectionGrid` with one `SectionCard` per group
+(Identity, Federation logo, Emails, Orders, Calendar). Each card's description says in one sentence
+where its values are used, the values are a `DescriptionList`, and "Edit" opens an `EditSheet` saved
+on its own with the settings version. A stale version reloads the settings and keeps the panel open
+with the reason. Lead times are a `SelectInput` of day counts, never free numbers. The Identity panel
+says that the contact must be the Federation's, never a person's. A new group is a new card: the
+existing ones do not change.
+
 ### Order page (comparsa orders)
 
 A record made of many rows that are edited one by one and never removed (`add-comparsa-orders`)
