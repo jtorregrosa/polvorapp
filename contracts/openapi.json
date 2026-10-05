@@ -6343,6 +6343,62 @@
         ]
       }
     },
+    "/api/compliance/trends": {
+      "get": {
+        "tags": [
+          "Compliance"
+        ],
+        "summary": "Participation counts of the caller's comparsas in the 10 most recent started editions, optionally of one comparsa.",
+        "operationId": "GetComplianceTrends",
+        "parameters": [
+          {
+            "name": "comparsaId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrendsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
     "/api/editions": {
       "get": {
         "tags": [
@@ -11033,6 +11089,23 @@
           }
         }
       },
+      "ComparsaTrendCount": {
+        "required": [
+          "comparsaId",
+          "active"
+        ],
+        "type": "object",
+        "properties": {
+          "comparsaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "active": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "ComplianceStatisticsResponse": {
         "required": [
           "total",
@@ -14431,6 +14504,141 @@
         },
         "additionalProperties": false
       },
+      "TrendComparsaResponse": {
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "TrendGenderCounts": {
+        "required": [
+          "male",
+          "female",
+          "unspecified",
+          "unknown"
+        ],
+        "type": "object",
+        "properties": {
+          "male": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "female": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unspecified": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unknown": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TrendRowResponse": {
+        "required": [
+          "year",
+          "provisional",
+          "active",
+          "reserve",
+          "gender",
+          "firstYear",
+          "powderKg",
+          "capsBoxes",
+          "weaponSources",
+          "rentalsByKind",
+          "flaskRentals",
+          "comparsas"
+        ],
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "provisional": {
+            "type": "boolean"
+          },
+          "active": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "reserve": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "gender": {
+            "$ref": "#/components/schemas/TrendGenderCounts"
+          },
+          "firstYear": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "powderKg": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "capsBoxes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "weaponSources": {
+            "$ref": "#/components/schemas/WeaponSourceCounts"
+          },
+          "rentalsByKind": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WeaponKindCount"
+            }
+          },
+          "flaskRentals": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "comparsas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComparsaTrendCount"
+            }
+          }
+        }
+      },
+      "TrendsResponse": {
+        "required": [
+          "rows",
+          "comparsas"
+        ],
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrendRowResponse"
+            }
+          },
+          "comparsas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrendComparsaResponse"
+            }
+          }
+        }
+      },
       "UpdateArquebusierRequest": {
         "required": [
           "federationId",
@@ -14994,6 +15202,33 @@
           "LOAN",
           "NONE"
         ]
+      },
+      "WeaponSourceCounts": {
+        "required": [
+          "owned",
+          "rental",
+          "loan",
+          "none"
+        ],
+        "type": "object",
+        "properties": {
+          "owned": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "rental": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "loan": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "none": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
       }
     },
     "securitySchemes": {

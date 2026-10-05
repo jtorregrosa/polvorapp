@@ -21,6 +21,17 @@ internal sealed class EditionDirectory(FestivalEditionsDbContext db, ICatalogDir
             ? await SnapshotAsync(EditionRow.Of(edition), cancellationToken)
             : null;
 
+    public async Task<IReadOnlyList<EditionHeader>> ListStartedAsync(int count, CancellationToken cancellationToken)
+    {
+        var recent = await db.Editions.AsNoTracking()
+            .Where(e => e.Status != EditionStatus.Draft)
+            .OrderByDescending(e => e.Year)
+            .Take(count)
+            .Select(e => new EditionHeader(e.Id, e.Year, e.Status))
+            .ToListAsync(cancellationToken);
+        return [.. recent.OrderBy(e => e.Year)];
+    }
+
     public async Task<EditionSnapshot?> FindAsync(Guid editionId, CancellationToken cancellationToken) =>
         await db.Editions.AsNoTracking().SingleOrDefaultAsync(e => e.Id == editionId, cancellationToken) is { } edition
             ? await SnapshotAsync(EditionRow.Of(edition), cancellationToken)

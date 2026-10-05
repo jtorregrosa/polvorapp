@@ -65,4 +65,16 @@ public interface IEditionDirectory
     /// inclusive, of editions that are not closed, in no particular order (add-notifications, design D10).
     /// </summary>
     Task<IReadOnlyList<MilestoneFacts>> ListMilestonesToNotifyAsync(DateOnly firstDate, DateOnly lastDate, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The <paramref name="count"/> most recent editions that are not drafts, oldest first
+    /// (add-statistics-trends, design D1).
+    /// </summary>
+    Task<IReadOnlyList<EditionHeader>> ListStartedAsync(int count, CancellationToken cancellationToken);
 }
+
+/// <summary>An edition's identity and status, for lists across editions (add-statistics-trends).</summary>
+/// <param name="Id">Edition identifier.</param>
+/// <param name="Year">The edition's year.</param>
+/// <param name="Status">Never <see cref="EditionStatus.Draft"/> from <see cref="IEditionDirectory.ListStartedAsync"/>.</param>
+public sealed record EditionHeader(Guid Id, int Year, EditionStatus Status);
