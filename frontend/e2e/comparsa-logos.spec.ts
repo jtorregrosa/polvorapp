@@ -89,6 +89,45 @@ async function showSidebar(page: Page): Promise<void> {
 }
 
 test.describe('comparsa logos', () => {
+  test('an Admin replaces a logo from its own menu with the keyboard, and focus returns to it', async ({
+    page,
+    newComparsa,
+  }) => {
+    const { id, name } = await newComparsa();
+    await page.goto(`/comparsas/${id}`);
+    await waitForShell(page);
+    // Add one first, from the placeholder, which opens the file chooser at once.
+    const chooser = page.waitForEvent('filechooser');
+    await page.getByRole('button', { name: 'Añadir logo de la comparsa' }).click();
+    await (
+      await chooser
+    ).setFiles({ name: 'emblema.png', mimeType: 'image/png', buffer: await transparentEmblem(page) });
+    await page.getByRole('dialog').getByRole('button', { name: 'Usar logo' }).click();
+    const logo = page.getByRole('button', { name: `Logo de ${name}, opciones` });
+    await expect(logo).toBeFocused();
+
+    // Keyboard only: Enter opens the menu on its first item, "Sustituir".
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('menuitem', { name: 'Sustituir' })).toBeFocused();
+    const replacement = page.waitForEvent('filechooser');
+    await page.keyboard.press('Enter');
+    await (
+      await replacement
+    ).setFiles({ name: 'emblema.png', mimeType: 'image/png', buffer: await transparentEmblem(page) });
+    const dialog = page.getByRole('dialog', { name: 'Recortar logo de la comparsa' });
+    await dialog.getByRole('button', { name: 'Usar logo' }).focus();
+    const uploaded = page.waitForResponse(
+      (response) =>
+        response.request().method() === 'PUT' && response.url().endsWith(`/api/comparsas/${id}/logo`),
+    );
+    await page.keyboard.press('Enter');
+    expect((await uploaded).status()).toBe(200);
+
+    await expect(dialog).toBeHidden();
+    await expect(logo).toBeFocused();
+    await expect(page.getByRole('status').filter({ hasText: 'Logo guardado' })).toBeAttached();
+  });
+
   test('an Admin uploads a transparent logo, sees it in the header and the list, and removes it', async ({
     page,
     newComparsa,

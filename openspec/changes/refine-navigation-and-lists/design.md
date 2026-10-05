@@ -184,6 +184,10 @@ arquebusier photos unchanged.
   shown on `group-hover` and `group-focus-visible` with a `duration-100` opacity fade. *Implemented
   as a chip instead of the translucent scrim first planned*: a scrim needs an opacity modifier on a
   contrast token, which the ESLint guardrails forbid, and the chip keeps the picture visible.
+- *Found by the E2E run*: a file chooser opened from a menu item while the menu was still closing
+  was not shown about one time in four (Chromium, keyboard). The chosen item now runs from the
+  menu's `onCloseAutoFocus`, after focus is back on the picture; the keystroke's user activation
+  still holds then. 24 repeated runs passed after the change, 9 of 12 before.
 - The trigger lives in `components/app/picture-trigger.tsx`, a helper of `PhotoUpload` (kept out of
   the catalogue like `clear-field.tsx`), so `PhotoUpload.tsx` stays under the 800-line ceiling.
 - After the crop dialog, the confirmation or the menu closes, focus is returned to the trigger

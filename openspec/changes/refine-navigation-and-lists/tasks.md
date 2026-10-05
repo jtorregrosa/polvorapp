@@ -110,7 +110,7 @@
 
 ## 5. End-to-end and verification
 
-- [ ] 5.1 Extend the Playwright specs on the seeded stack:
+- [x] 5.1 Extend the Playwright specs on the seeded stack:
   - collapse the sidebar, reload, expand with Ctrl+B, and check the tooltip and accessible names;
   - with reduced motion emulated, the width changes at once;
   - Distribution is current on the edition's distribution page;

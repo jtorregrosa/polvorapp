@@ -120,6 +120,36 @@ test.describe('federation catalogue as an Admin', () => {
     await expect(page.getByRole('link', { name })).toHaveCount(0);
   });
 
+  test('lists an inactive model by default, and hides it with "Solo activos"', async ({
+    page,
+    deleteAfter,
+  }) => {
+    const label = unique('PISTOLA E2E');
+    const headers = await antiforgeryHeaders(page);
+    const created = await page.request.post('/api/weapon-models', {
+      headers,
+      data: { kind: 'PISTOL', rentable: false, label },
+    });
+    expect(created.status()).toBe(201);
+    const { id } = (await created.json()) as { id: string };
+    deleteAfter(`/api/weapon-models/${id}`);
+    expect((await page.request.post(`/api/weapon-models/${id}/deactivate`, { headers })).ok()).toBe(true);
+
+    await page.goto('/weapon-models');
+    await waitForShell(page);
+    const list = rows(page, 'Modelos de arma');
+    await expect(list.getByRole('link', { name: label })).toBeVisible();
+    // The status as a badge, the kind and the rentable flag as tags.
+    const row = list.getByRole('row').or(list.getByRole('listitem')).filter({ hasText: label });
+    await expect(row.locator('[data-status-badge]')).toHaveText('Inactivo');
+    await expect(row.locator('[data-tag]').first()).toHaveText('Pistola');
+
+    await page.getByRole('checkbox', { name: 'Solo activos' }).check();
+    await expect(page).toHaveURL(/onlyActive=true/);
+    await expect(list.getByRole('link', { name: 'PISTOLA', exact: true })).toBeVisible();
+    await expect(list.getByRole('link', { name: label })).toHaveCount(0);
+  });
+
   test('creates a pistol, which can never be rented, and deletes it', async ({ page, deleteAfter }) => {
     const label = unique('PISTOLA E2E');
 
