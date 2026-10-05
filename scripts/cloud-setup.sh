@@ -58,20 +58,22 @@ ensure_node() {
   $SUDO tar -xJf "/tmp/$tarball" -C "$NODE_DIR" --strip-components=1
 }
 
-# The session's later commands read CLAUDE_ENV_FILE.
+# The session's later commands read CLAUDE_ENV_FILE. The hook also runs on resume: a line already
+# there is not added again.
+add_to_session() {
+  [ -n "${CLAUDE_ENV_FILE:-}" ] || return 0
+  grep -qxF -- "$1" "$CLAUDE_ENV_FILE" 2>/dev/null || echo "$1" >> "$CLAUDE_ENV_FILE"
+}
+
 export_for_session() {
   export "$1=$2"
-  if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
-    echo "export $1=\"$2\"" >> "$CLAUDE_ENV_FILE"
-  fi
+  add_to_session "$(printf 'export %s=%q' "$1" "$2")"
 }
 
 # The image puts Node 22 first on PATH; the session's PATH is expanded when the file is read.
 use_node_for_session() {
   export PATH="$NODE_DIR/bin:$PATH"
-  if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
-    echo "export PATH=\"$NODE_DIR/bin:\$PATH\"" >> "$CLAUDE_ENV_FILE"
-  fi
+  add_to_session "export PATH=\"$NODE_DIR/bin:\$PATH\""
   export_for_session DOTNET_ROOT "$DOTNET_DIR"
 }
 
@@ -81,6 +83,8 @@ use_proxy_ca_for_compose() {
   local bundle="${PROXY_CA_BUNDLE:-/root/.ccr/ca-bundle.crt}"
   if [ ! -f "$bundle" ]; then
     log "no proxy CA bundle at $bundle; image builds use the default trust store"
+    unset COMPOSE_FILE PROXY_CA_BUNDLE
+    add_to_session "unset COMPOSE_FILE PROXY_CA_BUNDLE"
     return
   fi
   export_for_session PROXY_CA_BUNDLE "$bundle"
@@ -88,14 +92,16 @@ use_proxy_ca_for_compose() {
 }
 
 # The settings of CI's E2E job: .env.example, raised rate limits and the Scenarios dataset the
-# specs rely on. An existing .env is left alone.
+# specs rely on. An existing .env is left alone; a new one appears complete or not at all.
 ensure_env_file() {
   [ -f "$ROOT/.env" ] && return
   log "creating .env from .env.example with the E2E settings"
+  local tmp="$ROOT/.env.cloud-setup.$$"
   {
-    sed 's/^SEED_DATASET=.*/SEED_DATASET=Scenarios/' "$ROOT/.env.example"
+    grep -v '^SEED_DATASET=' "$ROOT/.env.example"
     echo
     echo "# Added by scripts/cloud-setup.sh: the settings of CI's E2E job."
+    echo "SEED_DATASET=Scenarios"
     echo "RATE_LIMIT_AUTH_PER_MINUTE=300"
     echo "RATE_LIMIT_AUTH_EMAIL_PER_15_MINUTES=100"
     echo "RATE_LIMIT_PERSONAL_DATA_WRITES_PER_MINUTE=600"
@@ -104,7 +110,8 @@ ensure_env_file() {
     echo "RATE_LIMIT_EXPORTS_PER_MINUTE=300"
     echo "RATE_LIMIT_PRIVACY_PER_MINUTE=100"
     echo "NOTIFICATIONS_DISPATCH_INTERVAL_SECONDS=2"
-  } > "$ROOT/.env"
+  } > "$tmp"
+  mv "$tmp" "$ROOT/.env"
 }
 
 ensure_dockerd() {
