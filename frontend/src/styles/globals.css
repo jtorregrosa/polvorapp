@@ -121,9 +121,13 @@ meter[data-slot='meter']::-moz-meter-bar {
     appearance: base-select;
   }
 
+  /* The native picker icon replaces the absolute one: drop the room reserved for it (pr-9) so the
+     icon sits where the absolute one did, against the right edge. */
   [data-slot='native-select-wrapper'] > select {
     display: flex;
     align-items: center;
+    column-gap: 0.5rem;
+    padding-inline-end: 0.875rem;
     cursor: pointer;
   }
 
