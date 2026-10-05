@@ -17,7 +17,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Breadcrumbs } from './Breadcrumbs';
-import { isCurrentPath } from './navigation-match';
+import { currentNavigationTarget, isCurrentPath } from './navigation-match';
 import { PolvorAppMark } from './PolvorAppMark';
 import { SaveNoticeProvider } from './SaveNotice';
 
@@ -26,6 +26,8 @@ interface NavigationLink {
   /** Already translated label. */
   label: string;
   icon: LucideIcon;
+  /** Other paths the entry owns, a `*` segment matching any one segment (e.g. an edition's orders). */
+  matches?: readonly string[];
 }
 
 /**
@@ -70,12 +72,13 @@ function NavigationMenu({ items }: { items: readonly NavigationItem[] }) {
   const { t } = useTranslation('ui');
   const { pathname } = useLocation();
   const closeDrawer = useCloseDrawer();
+  const currentTarget = currentNavigationTarget(pathname, items);
 
   return (
     <nav aria-label={t('nav.label')}>
       <SidebarMenu>
         {items.map(({ to, label, icon: Icon, count, countLabel }) => {
-          const current = isCurrentPath(pathname, to);
+          const current = to === currentTarget;
           const counted = count !== undefined && count > 0;
           return (
             <SidebarMenuItem key={to}>

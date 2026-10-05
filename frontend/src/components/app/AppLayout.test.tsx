@@ -165,3 +165,25 @@ describe('AppLayout navigation counts (compliance-insights: Warning count in the
     expect(document.querySelector('[data-sidebar="menu-badge"]')).toBeNull();
   });
 });
+
+describe('AppLayout current navigation item (platform: Application shell)', () => {
+  it("marks the entry that owns an edition's sub-page, not Editions", async () => {
+    const page = (
+      <AppLayout
+        navigation={[
+          { to: '/editions', label: 'Ediciones', icon: House },
+          { to: '/distribution', label: 'Reparto', icon: House, matches: ['/editions/*/distribution'] },
+        ]}
+      >
+        <h1>Reparto de 2027</h1>
+      </AppLayout>
+    );
+    const router = createMemoryRouter([{ path: '/editions/:id/distribution', element: page }], {
+      initialEntries: ['/editions/7/distribution'],
+    });
+    await renderWithProviders(<RouterProvider router={router} />);
+
+    expect(await screen.findByRole('link', { name: 'Reparto' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('link', { name: 'Ediciones' })).not.toHaveAttribute('aria-current');
+  });
+});

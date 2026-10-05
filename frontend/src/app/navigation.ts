@@ -21,6 +21,8 @@ export interface NavigationEntry {
   icon: LucideIcon;
   /** Roles that see the entry; every signed-in user when omitted. */
   roles?: readonly UserRole[];
+  /** Other paths the entry owns, `*` being any one segment: an edition's orders belong to Orders. */
+  matches?: readonly string[];
   /** A counter the shell shows on the entry: `warnings`, the arquebusiers with compliance warnings. */
   count?: 'warnings';
 }
@@ -33,8 +35,13 @@ export const NAVIGATION: readonly NavigationEntry[] = [
   { to: '/', labelKey: 'nav.home', icon: House },
   { to: '/arquebusiers', labelKey: 'nav.arquebusiers', icon: IdCard, count: 'warnings' },
   { to: '/editions', labelKey: 'nav.editions', icon: CalendarDays },
-  { to: '/orders', labelKey: 'nav.orders', icon: ClipboardList },
-  { to: '/distribution', labelKey: 'nav.distribution', icon: Truck },
+  {
+    to: '/orders',
+    labelKey: 'nav.orders',
+    icon: ClipboardList,
+    matches: ['/editions/*/orders', '/editions/*/exports'],
+  },
+  { to: '/distribution', labelKey: 'nav.distribution', icon: Truck, matches: ['/editions/*/distribution'] },
   { to: '/statistics', labelKey: 'nav.statistics', icon: ChartColumn },
   { to: '/comparsas', labelKey: 'nav.comparsas', icon: Flag },
   { to: '/weapon-models', labelKey: 'nav.weaponModels', icon: Crosshair, roles: ['ADMIN'] },
