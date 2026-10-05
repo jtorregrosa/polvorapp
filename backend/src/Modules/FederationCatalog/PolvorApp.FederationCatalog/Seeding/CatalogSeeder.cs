@@ -1,4 +1,6 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PolvorApp.FederationCatalog.Assignments;
@@ -16,58 +18,44 @@ namespace PolvorApp.FederationCatalog.Seeding;
 
 /// <summary>
 /// Synthetic catalogue for development, staging and E2E tests (spec: Synthetic catalogue data,
-/// SEC-11, design D7): fictional comparsas of both sides (one inactive), assignments for the
-/// seeded FiringChiefs (one comparsa with two chiefs, one chief with two comparsas), generated logos
-/// for all comparsas but Sur (change add-comparsa-logos) and a weapon catalogue with every kind.
-/// Fixed identifiers; existing rows are left untouched and a row whose name, label or combination
-/// another row already uses is skipped with a warning, so it can run again. The rows are saved at
-/// once; the logos need the object storage and are stored after them, so a failure there leaves the
-/// rows without logos until a rerun completes them. A seeded logo an Admin removed is added again;
-/// one an Admin replaced is kept locally and refused as real data elsewhere. Like the identity
-/// seeder it writes no audit entries (it is not a user action). The assignments rely on the
-/// identity seeder (order 10) having created the two FiringChiefs; there is no cross-module key.
+/// SEC-11, design D7; realistic-seed-data, design D2 and D8): the invented comparsas of
+/// <see cref="SyntheticComparsas"/> (four in the scenarios dataset, twenty in the full one, one
+/// inactive), assignments for the seeded FiringChiefs (one comparsa with two chiefs, one chief with
+/// two comparsas, and one chief per added comparsa in the full dataset), the committed generated
+/// emblems for every comparsa but Abencerrajes (Cruzados' is dark), and a weapon catalogue with
+/// every kind. Fixed identifiers; existing rows are left untouched and a row whose name, label or
+/// combination another row already uses is skipped with a warning, so it can run again. The rows
+/// are saved at once; the logos need the object storage and are stored after them, so a failure
+/// there leaves the rows without logos until a rerun completes them. A seeded logo an Admin removed
+/// is added again; one an Admin replaced is kept locally and refused as real data elsewhere. Like
+/// the identity seeder it writes no audit entries (it is not a user action). The assignments rely on
+/// the identity seeder (order 10) having created the FiringChiefs; there is no cross-module key.
 /// Real comparsas and models are entered by an Admin (maintainer decision).
 /// </summary>
 internal sealed partial class CatalogSeeder(
     FederationCatalogDbContext db,
     IObjectStorage storage,
     IImageNormalizer images,
+    SyntheticImages syntheticImages,
+    IConfiguration configuration,
     TimeProvider time,
     IHostEnvironment environment,
     ILogger<CatalogSeeder> logger) : IDataSeeder
 {
-    /// <summary>"Jefe Sintético Uno" of the identity seeder, which this module cannot reference; a test keeps it equal.</summary>
+    /// <summary>"Joan Moltó Sala" (jefe.uno@) of the identity seeder, which this module cannot reference; a test keeps it equal.</summary>
     internal static readonly Guid JefeUno = new("0193a000-0000-7000-8000-000000000002");
 
-    /// <summary>"Jefa Sintética Dos" of the identity seeder; a test keeps it equal.</summary>
+    /// <summary>"Elena Verdú Ivorra" (jefa.dos@) of the identity seeder; a test keeps it equal.</summary>
     internal static readonly Guid JefaDos = new("0193a000-0000-7000-8000-000000000003");
 
-    internal static readonly Guid Norte = new("0193a100-0000-7000-8000-000000000001");
-    internal static readonly Guid Sur = new("0193a100-0000-7000-8000-000000000002");
-    private static readonly Guid Este = new("0193a100-0000-7000-8000-000000000003");
-    private static readonly Guid Oeste = new("0193a100-0000-7000-8000-000000000004");
+    /// <summary>Cruzados: both scenario FiringChiefs and the dark emblem.</summary>
+    internal static readonly Guid Norte = SyntheticComparsas.ByNumber(1).Id;
 
-    private static readonly IReadOnlyList<(Guid Id, string Name, Side Side, bool Active)> Comparsas =
-    [
-        (Norte, "Comparsa Sintética Norte", Side.Christian, true),
-        (Sur, "Comparsa Sintética Sur", Side.Moorish, true),
-        (Este, "Comparsa Sintética Este", Side.Christian, true),
-        (Oeste, "Comparsa Sintética Oeste", Side.Moorish, false),
-    ];
+    /// <summary>Abencerrajes: Jefe Uno's second comparsa, never a logo.</summary>
+    internal static readonly Guid Sur = SyntheticComparsas.ByNumber(2).Id;
 
     internal static readonly IReadOnlyList<(Guid ComparsaId, Guid UserId)> Assignments =
         [(Norte, JefeUno), (Sur, JefeUno), (Norte, JefaDos)];
-
-    /// <summary>
-    /// Generated logos with fixed ids (design D9). Sur has none, so "Jefe Sintético Uno" sees one
-    /// comparsa with a logo and one with the placeholder; Norte's crescent is near-black.
-    /// </summary>
-    internal static readonly IReadOnlyList<(Guid ComparsaId, Guid LogoId, Func<byte[]> Image)> Logos =
-    [
-        (Norte, new("0193a600-0000-7000-8000-000000000001"), SyntheticLogos.Crescent),
-        (Este, new("0193a600-0000-7000-8000-000000000003"), SyntheticLogos.BandedDisc),
-        (Oeste, new("0193a600-0000-7000-8000-000000000004"), SyntheticLogos.Diamond),
-    ];
 
     private static readonly IReadOnlyList<WeaponModelSeed> Models =
     [
@@ -85,16 +73,30 @@ internal sealed partial class CatalogSeeder(
     /// <summary>After the identity seeder (10): the assignments refer to its users.</summary>
     public int Order => 20;
 
+    /// <summary>The assignments of <paramref name="dataset"/>: the scenario ones, plus each added comparsa's FiringChief.</summary>
+    internal static IReadOnlyList<(Guid ComparsaId, Guid UserId)> AssignmentsFor(SeedDataset dataset) => dataset == SeedDataset.Full
+        ? [.. Assignments, .. SyntheticPeople.FiringChiefs.Select(c => (SyntheticComparsas.ByNumber(c.ComparsaNumber).Id, c.Id))]
+        : Assignments;
+
+    /// <summary>One fixed logo id per seeded comparsa that has a logo, and the comparsa's name to find its emblem.</summary>
+    internal static IReadOnlyList<(Guid ComparsaId, Guid LogoId, string Comparsa)> LogosFor(SeedDataset dataset) =>
+    [
+        .. SyntheticComparsas.Of(dataset).Where(c => c.HasLogo).Select(c =>
+            (c.Id, new Guid($"0193a600-0000-7000-8000-{c.Number.ToString("D12", CultureInfo.InvariantCulture)}"), c.Name)),
+    ];
+
     public async Task SeedAsync(CancellationToken cancellationToken)
     {
+        var dataset = SeedDatasets.Read(configuration);
         await RefuseRealDataOutsideLocalAsync(cancellationToken);
         var now = time.GetUtcNow();
-        await AddComparsasAsync(now, cancellationToken);
-        await AddAssignmentsAsync(now, cancellationToken);
+        await AddComparsasAsync(dataset, now, cancellationToken);
+        await AddAssignmentsAsync(dataset, now, cancellationToken);
         await AddModelsAsync(now, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
-        var logos = await AddLogosAsync(now, cancellationToken);
-        LogSeeded(logger, Comparsas.Count, Assignments.Count, Models.Count, logos);
+        var logos = await AddLogosAsync(dataset, now, cancellationToken);
+        var (comparsas, assignments) = (SyntheticComparsas.Of(dataset).Count, AssignmentsFor(dataset).Count);
+        LogSeeded(logger, dataset, comparsas, assignments, Models.Count, logos);
     }
 
     /// <summary>
@@ -102,26 +104,38 @@ internal sealed partial class CatalogSeeder(
     /// logo ids, so a rerun overwrites the same objects and restores one that went missing. A seeded
     /// comparsa whose logo an Admin replaced keeps it.
     /// </summary>
-    private async Task<int> AddLogosAsync(DateTimeOffset now, CancellationToken cancellationToken)
+    private async Task<int> AddLogosAsync(SeedDataset dataset, DateTimeOffset now, CancellationToken cancellationToken)
     {
-        var ids = Logos.Select(l => l.ComparsaId).ToList();
+        var logos = LogosFor(dataset)
+            .Select(l => (l.ComparsaId, l.LogoId, Image: syntheticImages.LogoFor(l.Comparsa)
+                ?? throw new InvalidOperationException($"The committed emblems have no logo for the seeded comparsa {l.Comparsa}.")))
+            .ToList();
+        var ids = logos.Select(l => l.ComparsaId).ToList();
         var comparsas = await db.Comparsas.Where(c => ids.Contains(c.Id)).ToDictionaryAsync(c => c.Id, cancellationToken);
         var added = 0;
-        foreach (var (comparsaId, logoId, draw) in Logos)
+        foreach (var (comparsaId, logoId, emblem) in logos)
         {
-            if (!comparsas.TryGetValue(comparsaId, out var comparsa) || (comparsa.Logo is { } current && current.Id != logoId))
+            var source = (Name: emblem.File, Read: (Func<byte[]>)(() => syntheticImages.Read(emblem)));
+            if (!comparsas.TryGetValue(comparsaId, out var comparsa))
             {
+                LogTaken(logger, "logo (its comparsa was skipped)", logoId);
+                continue;
+            }
+
+            if (comparsa.Logo is { } current && current.Id != logoId)
+            {
+                // An Admin replaced it locally: theirs is kept (documented above).
                 continue;
             }
 
             if (comparsa.Logo is { } seeded)
             {
-                await RestoreImageAsync(seeded.ObjectKey, draw, cancellationToken);
+                await RestoreImageAsync(seeded.ObjectKey, source, cancellationToken);
                 continue;
             }
 
             var key = LogoStorage.KeyFor(logoId);
-            var image = await StoreImageAsync(key, draw, cancellationToken);
+            var image = await StoreImageAsync(key, source, cancellationToken);
             comparsa.Logo = new ComparsaLogo
             {
                 Id = logoId,
@@ -138,7 +152,7 @@ internal sealed partial class CatalogSeeder(
         return added;
     }
 
-    private async Task RestoreImageAsync(string key, Func<byte[]> draw, CancellationToken cancellationToken)
+    private async Task RestoreImageAsync(string key, (string Name, Func<byte[]> Read) source, CancellationToken cancellationToken)
     {
         if (await storage.GetAsync(key, cancellationToken) is { } present)
         {
@@ -146,40 +160,47 @@ internal sealed partial class CatalogSeeder(
             return;
         }
 
-        await StoreImageAsync(key, draw, cancellationToken);
+        await StoreImageAsync(key, source, cancellationToken);
     }
 
-    private async Task<NormalizedImage> StoreImageAsync(string key, Func<byte[]> draw, CancellationToken cancellationToken)
+    private async Task<NormalizedImage> StoreImageAsync(string key, (string Name, Func<byte[]> Read) source, CancellationToken cancellationToken)
     {
-        using var stream = new MemoryStream(draw());
+        using var stream = new MemoryStream(source.Read());
         var image = await images.NormalizeAsync(stream, LogoStorage.Rules, cancellationToken) switch
         {
             NormalizedImage normalized => normalized,
-            RejectedImage rejected => throw new InvalidOperationException($"A synthetic logo breaks the logo rules ({rejected.Reason})."),
-            _ => throw new InvalidOperationException("A synthetic logo could not be normalised."),
+            RejectedImage rejected => throw new InvalidOperationException($"The synthetic logo {source.Name} breaks the logo rules ({rejected.Reason})."),
+            _ => throw new InvalidOperationException($"The synthetic logo {source.Name} could not be normalised."),
         };
         await storage.PutAsync(key, image.Content, LogoStorage.ContentType, cancellationToken);
         return image;
     }
 
-    private async Task AddComparsasAsync(DateTimeOffset now, CancellationToken cancellationToken)
+    private async Task AddComparsasAsync(SeedDataset dataset, DateTimeOffset now, CancellationToken cancellationToken)
     {
         var existing = await db.Comparsas.AsNoTracking().Select(c => new { c.Id, c.Name }).ToListAsync(cancellationToken);
         var ids = existing.Select(c => c.Id).ToHashSet();
         var names = existing.Select(c => c.Name.ToLowerInvariant()).ToHashSet();
-        foreach (var (id, name, side, active) in Comparsas.Where(c => !ids.Contains(c.Id)))
+        foreach (var comparsa in SyntheticComparsas.Of(dataset).Where(c => !ids.Contains(c.Id)))
         {
-            if (!names.Add(name.ToLowerInvariant()))
+            if (!names.Add(comparsa.Name.ToLowerInvariant()))
             {
-                LogTaken(logger, "comparsa", id);
+                LogTaken(logger, "comparsa", comparsa.Id);
                 continue;
             }
 
-            db.Comparsas.Add(new Comparsa { Id = id, Name = name, Side = side, Active = active, CreatedAt = now });
+            db.Comparsas.Add(new Comparsa
+            {
+                Id = comparsa.Id,
+                Name = comparsa.Name,
+                Side = comparsa.Christian ? Side.Christian : Side.Moorish,
+                Active = comparsa.Active,
+                CreatedAt = now,
+            });
         }
     }
 
-    private async Task AddAssignmentsAsync(DateTimeOffset now, CancellationToken cancellationToken)
+    private async Task AddAssignmentsAsync(SeedDataset dataset, DateTimeOffset now, CancellationToken cancellationToken)
     {
         var existing = (await db.Assignments.AsNoTracking().Select(a => new { a.ComparsaId, a.UserId }).ToListAsync(cancellationToken))
             .Select(a => (a.ComparsaId, a.UserId))
@@ -187,7 +208,7 @@ internal sealed partial class CatalogSeeder(
         var comparsas = db.ChangeTracker.Entries<Comparsa>().Select(e => e.Entity.Id)
             .Concat(await db.Comparsas.AsNoTracking().Select(c => c.Id).ToListAsync(cancellationToken))
             .ToHashSet();
-        foreach (var (comparsaId, userId) in Assignments.Where(a => !existing.Contains(a) && comparsas.Contains(a.ComparsaId)))
+        foreach (var (comparsaId, userId) in AssignmentsFor(dataset).Where(a => !existing.Contains(a) && comparsas.Contains(a.ComparsaId)))
         {
             db.Assignments.Add(new FiringChiefAssignment { ComparsaId = comparsaId, UserId = userId, AssignedAt = now });
         }
@@ -238,10 +259,12 @@ internal sealed partial class CatalogSeeder(
             return;
         }
 
-        var comparsaIds = Comparsas.Select(c => c.Id).ToList();
-        var logoIds = Logos.Select(l => l.LogoId).ToList();
+        // The full dataset is a superset: a database seeded with it may later run the scenarios.
+        var comparsaIds = SyntheticComparsas.All.Select(c => c.Id).ToList();
+        var logoIds = LogosFor(SeedDataset.Full).Select(l => l.LogoId).ToList();
         var modelIds = Models.Select(m => m.Id).ToList();
-        var userIds = new List<Guid> { JefeUno, JefaDos };
+        var assignments = AssignmentsFor(SeedDataset.Full);
+        var userIds = assignments.Select(a => a.UserId).Distinct().ToList();
         if (await db.Comparsas.AnyAsync(c => !comparsaIds.Contains(c.Id), cancellationToken)
             || await db.Comparsas.AnyAsync(c => c.Logo != null && !logoIds.Contains(c.Logo.Id), cancellationToken)
             || await db.WeaponModels.AnyAsync(m => !modelIds.Contains(m.Id), cancellationToken)
@@ -251,8 +274,8 @@ internal sealed partial class CatalogSeeder(
         }
     }
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "Synthetic catalogue ensured: {Comparsas} comparsas, {Assignments} assignments, {Models} weapon models, {Logos} new logos")]
-    private static partial void LogSeeded(ILogger logger, int comparsas, int assignments, int models, int logos);
+    [LoggerMessage(Level = LogLevel.Information, Message = "Synthetic catalogue ({Dataset}) planned {Comparsas} comparsas, {Assignments} assignments and {Models} weapon models, each added unless present or skipped above; {Logos} new logos")]
+    private static partial void LogSeeded(ILogger logger, SeedDataset dataset, int comparsas, int assignments, int models, int logos);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Synthetic {Kind} {Id} skipped: another row already uses its name, label or combination")]
     private static partial void LogTaken(ILogger logger, string kind, Guid id);

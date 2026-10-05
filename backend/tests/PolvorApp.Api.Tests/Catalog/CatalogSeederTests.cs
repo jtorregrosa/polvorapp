@@ -1,5 +1,6 @@
 using System.Net;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
@@ -18,12 +19,13 @@ using PolvorApp.IdentityAccess.Endpoints;
 using PolvorApp.IdentityAccess.Security;
 using PolvorApp.IdentityAccess.Users;
 using PolvorApp.SharedKernel.Images;
+using PolvorApp.SharedKernel.Seeding;
 using PolvorApp.SharedKernel.Storage;
 using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 
 namespace PolvorApp.Api.Tests.Catalog;
 
-/// <summary>Spec "Synthetic catalogue data" (SEC-11): fictional, deterministic, safe to run again.</summary>
+/// <summary>Spec "Synthetic catalogue data" (SEC-11; realistic-seed-data): invented, deterministic, safe to run again.</summary>
 public sealed class CatalogSeederTests(PostgresFixture postgres, MailpitFixture mailpit, MinioFixture minio)
 {
     private const string SeedPassword = "semilla-sintetica-local";
@@ -40,10 +42,9 @@ public sealed class CatalogSeederTests(PostgresFixture postgres, MailpitFixture 
         await using var scope = host.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<FederationCatalogDbContext>();
         var comparsas = await db.Comparsas.AsNoTracking().ToListAsync(TestContext.Current.CancellationToken);
-        Assert.Equal(4, comparsas.Count);
-        Assert.All(comparsas, c => Assert.StartsWith("Comparsa Sintética", c.Name, StringComparison.Ordinal));
+        Assert.Equal(["Abencerrajes", "Cruzados", "Hospitalarios", "Zegríes"], comparsas.Select(c => c.Name).Order(StringComparer.Ordinal));
         Assert.Equal([Side.Moorish, Side.Christian], comparsas.Select(c => c.Side).Distinct().Order());
-        Assert.Single(comparsas, c => !c.Active);
+        Assert.Equal("Zegríes", Assert.Single(comparsas, c => !c.Active).Name);
 
         var models = await db.WeaponModels.AsNoTracking().ToListAsync(TestContext.Current.CancellationToken);
         Assert.Equal(9, models.Count);
@@ -80,7 +81,7 @@ public sealed class CatalogSeederTests(PostgresFixture postgres, MailpitFixture 
 
         using var response = await client.GetAsync("/api/comparsas?includeInactive=true", TestContext.Current.CancellationToken);
 
-        Assert.Equal(["Comparsa Sintética Norte", "Comparsa Sintética Sur"], (await ReadAsync<List<ComparsaResponse>>(response)).Select(c => c.Name));
+        Assert.Equal(["Abencerrajes", "Cruzados"], (await ReadAsync<List<ComparsaResponse>>(response)).Select(c => c.Name).Order(StringComparer.Ordinal));
     }
 
     [Fact]
@@ -97,7 +98,7 @@ public sealed class CatalogSeederTests(PostgresFixture postgres, MailpitFixture 
             .ToDictionaryAsync(c => c.Id, TestContext.Current.CancellationToken);
         Assert.Null(comparsas[CatalogSeeder.Sur].Logo);
         var logos = comparsas.Values.Where(c => c.Logo is not null).Select(c => c.Logo!).ToList();
-        Assert.Equal(CatalogSeeder.Logos.Select(l => l.LogoId).Order(), logos.Select(l => l.Id).Order());
+        Assert.Equal(CatalogSeeder.LogosFor(SeedDataset.Scenarios).Select(l => l.LogoId).Order(), logos.Select(l => l.Id).Order());
         Assert.Equal(logos.Select(l => LogoStorage.KeyFor(l.Id)).Order(StringComparer.Ordinal), await minio.ListKeysAsync(bucket, LogoStorage.Prefix));
 
         var storage = scope.ServiceProvider.GetRequiredService<IObjectStorage>();
@@ -117,6 +118,28 @@ public sealed class CatalogSeederTests(PostgresFixture postgres, MailpitFixture 
 
         // At least one emblem needs the light tile in the dark theme.
         Assert.True(darkest < 40, $"The darkest seeded logo averages {darkest:F0}.");
+    }
+
+    [Fact]
+    public async Task The_full_dataset_adds_sixteen_comparsas_with_a_firing_chief_and_an_emblem_each()
+    {
+        var bucket = await minio.CreateBucketAsync();
+        await using var host = await StartAsync(minio.SettingsFor(bucket), SeedDataset.Full);
+
+        Assert.Equal(0, await SeedAsync(host));
+        Assert.Equal(0, await SeedAsync(host));
+
+        await using var scope = host.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<FederationCatalogDbContext>();
+        var comparsas = await db.Comparsas.AsNoTracking().ToListAsync(TestContext.Current.CancellationToken);
+        Assert.Equal(SyntheticComparsas.All.Select(c => c.Name).Order(StringComparer.Ordinal), comparsas.Select(c => c.Name).Order(StringComparer.Ordinal));
+        Assert.Equal(10, comparsas.Count(c => c.Side == Side.Christian));
+        Assert.Equal(["Abencerrajes"], comparsas.Where(c => c.Logo is null).Select(c => c.Name));
+
+        var assignments = await db.Assignments.AsNoTracking().Select(a => new { a.ComparsaId, a.UserId }).ToListAsync(TestContext.Current.CancellationToken);
+        Assert.Equal(CatalogSeeder.AssignmentsFor(SeedDataset.Full).ToHashSet(), assignments.Select(a => (a.ComparsaId, a.UserId)).ToHashSet());
+        Assert.All(SyntheticComparsas.Added, c => Assert.Single(assignments, a => a.ComparsaId == c.Id));
+        Assert.Equal(19, (await minio.ListKeysAsync(bucket, LogoStorage.Prefix)).Count);
     }
 
     [Fact]
@@ -172,7 +195,7 @@ public sealed class CatalogSeederTests(PostgresFixture postgres, MailpitFixture 
         await using (var scope = host.Services.CreateAsyncScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<FederationCatalogDbContext>();
-            db.Comparsas.Add(new Comparsa { Id = Guid.CreateVersion7(), Name = "comparsa sintética norte", Side = Side.Christian, CreatedAt = host.Time.GetUtcNow() });
+            db.Comparsas.Add(new Comparsa { Id = Guid.CreateVersion7(), Name = "cruzados", Side = Side.Christian, CreatedAt = host.Time.GetUtcNow() });
             db.WeaponModels.Add(new WeaponModel { Id = Guid.CreateVersion7(), Kind = WeaponKind.Trabuco, Side = Side.Christian, Handedness = Handedness.Right, Size = WeaponSize.Normal, Rentable = true, Label = "Trabuco de prueba", CreatedAt = host.Time.GetUtcNow() });
             await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
@@ -201,6 +224,8 @@ public sealed class CatalogSeederTests(PostgresFixture postgres, MailpitFixture 
             db,
             scope.ServiceProvider.GetRequiredService<IObjectStorage>(),
             scope.ServiceProvider.GetRequiredService<IImageNormalizer>(),
+            scope.ServiceProvider.GetRequiredService<SyntheticImages>(),
+            scope.ServiceProvider.GetRequiredService<IConfiguration>(),
             host.Time,
             new HostingEnvironment { EnvironmentName = "Staging" },
             NullLogger<CatalogSeeder>.Instance);
@@ -209,7 +234,7 @@ public sealed class CatalogSeederTests(PostgresFixture postgres, MailpitFixture 
         switch (real)
         {
             case "comparsa":
-                db.Comparsas.Add(new Comparsa { Id = Guid.CreateVersion7(), Name = "Comparsa No Sintética", Side = Side.Moorish, CreatedAt = host.Time.GetUtcNow() });
+                db.Comparsas.Add(new Comparsa { Id = Guid.CreateVersion7(), Name = "Comparsa Real", Side = Side.Moorish, CreatedAt = host.Time.GetUtcNow() });
                 comparsas++;
                 break;
             case "model":
@@ -226,7 +251,7 @@ public sealed class CatalogSeederTests(PostgresFixture postgres, MailpitFixture 
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         db.ChangeTracker.Clear();
         var keys = await minio.ListKeysAsync(bucket, LogoStorage.Prefix);
-        await scope.ServiceProvider.GetRequiredService<IObjectStorage>().DeleteAsync(LogoStorage.KeyFor(CatalogSeeder.Logos[1].LogoId), TestContext.Current.CancellationToken);
+        await scope.ServiceProvider.GetRequiredService<IObjectStorage>().DeleteAsync(LogoStorage.KeyFor(CatalogSeeder.LogosFor(SeedDataset.Scenarios)[1].LogoId), TestContext.Current.CancellationToken);
         var keysBefore = await minio.ListKeysAsync(bucket, LogoStorage.Prefix);
 
         var error = await Assert.ThrowsAsync<InvalidOperationException>(() => staging.SeedAsync(TestContext.Current.CancellationToken));
@@ -268,9 +293,14 @@ public sealed class CatalogSeederTests(PostgresFixture postgres, MailpitFixture 
         return logo;
     }
 
-    private Task<IdentityTestHost> StartAsync(IReadOnlyDictionary<string, string?>? storage = null)
+    private Task<IdentityTestHost> StartAsync(IReadOnlyDictionary<string, string?>? storage = null, SeedDataset dataset = SeedDataset.Scenarios)
     {
-        var settings = new Dictionary<string, string?> { [IdentitySeeder.PasswordKey] = SeedPassword, [IdentitySeeder.AuthenticatorKeyKey] = SeedKey };
+        var settings = new Dictionary<string, string?>
+        {
+            [IdentitySeeder.PasswordKey] = SeedPassword,
+            [IdentitySeeder.AuthenticatorKeyKey] = SeedKey,
+            [SeedDatasets.Key] = dataset.ToString(),
+        };
         foreach (var (key, value) in storage ?? new Dictionary<string, string?>())
         {
             settings[key] = value;

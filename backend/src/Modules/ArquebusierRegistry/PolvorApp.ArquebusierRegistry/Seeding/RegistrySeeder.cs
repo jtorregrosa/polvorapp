@@ -1,5 +1,6 @@
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PolvorApp.ArquebusierRegistry.Arquebusiers;
@@ -18,57 +19,66 @@ namespace PolvorApp.ArquebusierRegistry.Seeding;
 
 /// <summary>
 /// Synthetic registry for development, staging and E2E tests (spec: Synthetic registry data, SEC-11,
-/// design D9). Fictional arquebusiers in the seeded comparsas with valid synthetic DNI/NIE built from
-/// very low numbers unlikely to be in use, covering both statuses, every license state (dates relative to the seed
-/// date, so "valid" and "expired" stay true over time), no license, course done and not done, and owned
-/// weapons of every kind. Fixed identifiers; existing rows are left untouched and a row whose comparsa,
-/// model or unique value is missing or taken is skipped with a warning, so it can run again. It writes
-/// no audit entries (it is not a user action). The comparsas and models come from the catalogue seeder
-/// (order 20); this module cannot reference it, so their ids are repeated here and tests keep them equal.
-/// The phones are in the Spanish mobile range (there is no reserved fictional range): PolvorApp never
-/// calls or messages them. Some arquebusiers get generated placeholder photos (flat shapes, no faces or
-/// text; add-arquebusier-photos, design D10), stored through the same normaliser as uploads; a photo
-/// whose image went missing from the storage is stored again. Together the arquebusiers show every
-/// compliance warning (add-compliance-insights, design D9), including an expiring license and an
-/// arquebusier under 18, on a freshly seeded database; existing rows are never refreshed.
+/// design D9; realistic-seed-data, designs D2–D6). The scenarios dataset holds 14 fictional
+/// arquebusiers with realistic names in the scenario comparsas, covering both statuses, every license
+/// state (dates relative to the seed date, so "valid" and "expired" stay true over time), no license,
+/// course done and not done, and owned weapons of every kind; together they show every compliance
+/// warning, including an expiring license and an arquebusier under 18. The full dataset adds the
+/// <see cref="SyntheticPeople"/> population of the added comparsas. DNI/NIE come from
+/// <see cref="SyntheticNationalIds"/>; emails use the reserved <c>polvorapp.example</c> domain; the
+/// phones are in the Spanish mobile range (there is no reserved fictional range): PolvorApp never
+/// calls or messages them. ID photos are the committed generated faces of people who do not exist,
+/// matched by gender and age; license photos are specimen cards drawn from the holder's own data.
+/// Every image goes through the same normaliser as uploads, and one that went missing from the
+/// storage is stored again. Fixed identifiers; existing rows are left untouched and a row whose
+/// comparsa, model or unique value is missing or taken is skipped with a warning, so it can run
+/// again. It writes no audit entries (it is not a user action). The comparsas and models come from
+/// the catalogue seeder (order 20); this module cannot reference it, so the model ids are repeated
+/// here and tests keep them equal.
 /// </summary>
 internal sealed partial class RegistrySeeder(
     ArquebusierRegistryDbContext db,
     ICatalogDirectory catalog,
     IObjectStorage storage,
     IImageNormalizer images,
+    SyntheticImages syntheticImages,
+    ISpecimenCardPainter cards,
+    IConfiguration configuration,
     TimeProvider time,
     IHostEnvironment environment,
     ILogger<RegistrySeeder> logger) : IDataSeeder
 {
-    private static readonly Guid Norte = new("0193a100-0000-7000-8000-000000000001");
-    private static readonly Guid Sur = new("0193a100-0000-7000-8000-000000000002");
-    private static readonly Guid Este = new("0193a100-0000-7000-8000-000000000003");
-    private static readonly Guid Oeste = new("0193a100-0000-7000-8000-000000000004");
+    private const int PhotoProgressStep = 100;
 
-    private static readonly IReadOnlyList<ArquebusierSeed> Arquebusiers =
+    private static readonly Guid Norte = SyntheticComparsas.ByNumber(1).Id;
+    private static readonly Guid Sur = SyntheticComparsas.ByNumber(2).Id;
+    private static readonly Guid Este = SyntheticComparsas.ByNumber(3).Id;
+    private static readonly Guid Oeste = SyntheticComparsas.ByNumber(4).Id;
+
+    /// <summary>The scenario arquebusiers (realistic-seed-data, design D2): Norte is Cruzados, Sur Abencerrajes, Este Hospitalarios, Oeste Zegríes.</summary>
+    private static readonly IReadOnlyList<ArquebusierSeed> Scenarios =
     [
-        new(1, Norte, "Arcabucero", "Sintético Uno", Gender.Male, ArquebusierStatus.Active, LicenseSeed.Valid, Course: true),
-        new(2, Norte, "Arcabucera", "Sintética Dos", Gender.Female, ArquebusierStatus.Active, LicenseSeed.ValidProf, Course: true),
-        new(3, Norte, "Arcabucero", "Sintético Tres", Gender.Unspecified, ArquebusierStatus.Active, LicenseSeed.Expired, Course: false),
-        new(4, Norte, "Arcabucera", "Sintética Cuatro", Gender.Female, ArquebusierStatus.Reserve, LicenseSeed.None, Course: true),
-        new(5, Norte, "Arcabucero", "Sintético Cinco", Gender.Male, ArquebusierStatus.Active, LicenseSeed.Pending, Course: false, Nie: true),
-        new(6, Sur, "Arcabucera", "Sintética Seis", Gender.Female, ArquebusierStatus.Active, LicenseSeed.Valid, Course: true),
-        new(7, Sur, "Arcabucero", "Sintético Siete", Gender.Male, ArquebusierStatus.Active, LicenseSeed.Valid, Course: true),
-        new(8, Sur, "Arcabucera", "Sintética Ocho", Gender.Female, ArquebusierStatus.Reserve, LicenseSeed.Expired, Course: true),
-        new(9, Sur, "Arcabucero", "Sintético Nueve", Gender.Male, ArquebusierStatus.Active, LicenseSeed.Pending, Course: false),
-        new(10, Este, "Arcabucera", "Sintética Diez", Gender.Female, ArquebusierStatus.Active, LicenseSeed.Valid, Course: true, Nie: true),
-        new(11, Este, "Arcabucero", "Sintético Once", Gender.Male, ArquebusierStatus.Active, LicenseSeed.None, Course: false),
-        new(12, Este, "Arcabucera", "Sintética Doce", Gender.Unspecified, ArquebusierStatus.Reserve, LicenseSeed.Valid, Course: true),
-        new(13, Oeste, "Arcabucero", "Sintético Trece", Gender.Male, ArquebusierStatus.Reserve, LicenseSeed.Expired, Course: true),
+        new(1, Norte, "Vicent", "Sempere Llorens", Gender.Male, ArquebusierStatus.Active, LicenseSeed.Valid, Course: true),
+        new(2, Norte, "Amparo", "Pastor Gomis", Gender.Female, ArquebusierStatus.Active, LicenseSeed.ValidProf, Course: true),
+        new(3, Norte, "Pau", "Alberola Navarro", Gender.Unspecified, ArquebusierStatus.Active, LicenseSeed.Expired, Course: false),
+        new(4, Norte, "Remedios", "Lledó Pérez", Gender.Female, ArquebusierStatus.Reserve, LicenseSeed.None, Course: true),
+        new(5, Norte, "Youssef", "El Amrani", Gender.Male, ArquebusierStatus.Active, LicenseSeed.Pending, Course: false, Nie: true),
+        new(6, Sur, "Mari Carmen", "Ferrándiz Soler", Gender.Female, ArquebusierStatus.Active, LicenseSeed.Valid, Course: true),
+        new(7, Sur, "Josep Ramon", "Candela Martínez", Gender.Male, ArquebusierStatus.Active, LicenseSeed.Valid, Course: true),
+        new(8, Sur, "Pepa", "Mira Carbonell", Gender.Female, ArquebusierStatus.Reserve, LicenseSeed.Expired, Course: true),
+        new(9, Sur, "Toni", "Baeza Ripoll", Gender.Male, ArquebusierStatus.Active, LicenseSeed.Pending, Course: false),
+        new(10, Este, "Ioana", "Popescu", Gender.Female, ArquebusierStatus.Active, LicenseSeed.Valid, Course: true, Nie: true),
+        new(11, Este, "Rafael", "Climent Esteve", Gender.Male, ArquebusierStatus.Active, LicenseSeed.None, Course: false),
+        new(12, Este, "Àlex", "Beltrà Riquelme", Gender.Unspecified, ArquebusierStatus.Reserve, LicenseSeed.Valid, Course: true),
+        new(13, Oeste, "Francisco", "Asensi Mollà", Gender.Male, ArquebusierStatus.Reserve, LicenseSeed.Expired, Course: true),
 
         // Under 18, with a license expiring within 12 months, no course and no ID photo: four warnings
         // (change add-compliance-insights, design D9).
-        new(14, Norte, "Arcabucera", "Sintética Catorce", Gender.Female, ArquebusierStatus.Active, LicenseSeed.Expiring, Course: false, AgeYears: 16),
+        new(14, Norte, "Laia", "Sempere Pastor", Gender.Female, ArquebusierStatus.Active, LicenseSeed.Expiring, Course: false, AgeYears: 16),
     ];
 
-    /// <summary>Owner number, catalogue model number (see the catalogue seeder) and guide number.</summary>
-    private static readonly IReadOnlyList<(int Owner, int Model, int Number)> OwnedWeapons =
+    /// <summary>Owner number, catalogue model number (see the catalogue seeder) and weapon number.</summary>
+    private static readonly IReadOnlyList<(int Owner, int Model, int Number)> ScenarioWeapons =
     [
         (1, 1, 1),  // TRABUCO CRISTIANO DIESTRO
         (2, 9, 2),  // PISTOLA
@@ -77,8 +87,8 @@ internal sealed partial class RegistrySeeder(
         (10, 8, 5), // ARCABUZ MORO ZURDO (PEQUEÑO), deactivated: an existing weapon keeps its model
     ];
 
-    /// <summary>Arquebusiers with an ID photo, and those of them (licensed) with both license photos.</summary>
-    private static readonly IReadOnlyList<(int Owner, ArquebusierPhotoKind Kind)> Photos =
+    /// <summary>Scenario arquebusiers with an ID photo, and those of them (licensed) with both license photos.</summary>
+    private static readonly IReadOnlyList<(int Owner, ArquebusierPhotoKind Kind)> ScenarioPhotos =
     [
         .. new[] { 1, 2, 3, 6, 7, 10, 12 }.Select(owner => (owner, ArquebusierPhotoKind.Id)),
         .. new[] { 1, 2, 6 }.SelectMany(owner => new[] { (owner, ArquebusierPhotoKind.LicenseFront), (owner, ArquebusierPhotoKind.LicenseBack) }),
@@ -101,63 +111,171 @@ internal sealed partial class RegistrySeeder(
         Expired,
     }
 
-    public static int ArquebusierCount => Arquebusiers.Count;
+    public static int ArquebusierCount => Scenarios.Count;
 
-    public static int OwnedWeaponCount => OwnedWeapons.Count;
+    public static int OwnedWeaponCount => ScenarioWeapons.Count;
 
-    public static int PhotoCount => Photos.Count;
+    public static int PhotoCount => ScenarioPhotos.Count;
 
     /// <summary>The seeded arquebusier with all three photos (E2E and tests rely on it).</summary>
-    public static Guid AllPhotosArquebusier => ArquebusierSeed.IdOf(1);
+    public static Guid AllPhotosArquebusier => SyntheticPeople.ArquebusierId(1);
 
     /// <summary>A seeded arquebusier without any photo.</summary>
-    public static Guid NoPhotosArquebusier => ArquebusierSeed.IdOf(4);
+    public static Guid NoPhotosArquebusier => SyntheticPeople.ArquebusierId(4);
 
     /// <summary>After the catalogue seeder (20): arquebusiers refer to its comparsas and models.</summary>
     public int Order => 30;
 
     public async Task SeedAsync(CancellationToken cancellationToken)
     {
-        await RefuseRealDataOutsideLocalAsync(cancellationToken);
-        var now = time.GetUtcNow();
+        var dataset = SeedDatasets.Read(configuration);
         var today = FederationCalendar.Today(time);
-        var added = await AddArquebusiersAsync(now, today, cancellationToken);
-        var weapons = await AddOwnedWeaponsAsync(now, cancellationToken);
+        var now = time.GetUtcNow();
+        var plan = Plan(dataset, today, now);
+        // The full dataset is a superset: a database seeded with it may later run the scenarios.
+        await RefuseRealDataOutsideLocalAsync(dataset == SeedDataset.Full ? plan : Plan(SeedDataset.Full, today, now), cancellationToken);
+        var added = await AddArquebusiersAsync(plan, cancellationToken);
+        var weapons = await AddOwnedWeaponsAsync(plan, now, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
-        var photos = await AddPhotosAsync(now, cancellationToken);
+        var photos = await AddPhotosAsync(plan, today, now, cancellationToken);
         LogSeeded(logger, added, weapons, photos);
     }
+
+    /// <summary>Everything the dataset holds, built in memory: a pure function of the dataset and the day.</summary>
+    private static SeedPlan Plan(SeedDataset dataset, DateOnly today, DateTimeOffset now)
+    {
+        var arquebusiers = Scenarios.Select(s => s.ToArquebusier(today, now)).ToList();
+        var weapons = ScenarioWeapons
+            .Select(w => new WeaponSeed(WeaponId(w.Number), SyntheticPeople.ArquebusierId(w.Owner), ModelId(w.Model),
+                (1000 + w.Number).ToString(CultureInfo.InvariantCulture), ScenarioGuide(w.Number)))
+            .ToList();
+        var photos = ScenarioPhotos.Select(p => (Owner: SyntheticPeople.ArquebusierId(p.Owner), p.Kind)).ToList();
+
+        if (dataset == SeedDataset.Full)
+        {
+            foreach (var person in SyntheticPeople.Population(today))
+            {
+                arquebusiers.Add(ToArquebusier(person, now));
+                if (person.Weapon is { } weapon)
+                {
+                    weapons.Add(new WeaponSeed(WeaponId(person.Number), person.Id, ModelId(ModelNumber(weapon)), weapon.WeaponNumber, weapon.Guide));
+                }
+
+                if (person.IdPhoto)
+                {
+                    photos.Add((person.Id, ArquebusierPhotoKind.Id));
+                }
+
+                if (person.LicensePhotos != SyntheticLicensePhotos.None)
+                {
+                    photos.Add((person.Id, ArquebusierPhotoKind.LicenseFront));
+                }
+
+                if (person.LicensePhotos == SyntheticLicensePhotos.Both)
+                {
+                    photos.Add((person.Id, ArquebusierPhotoKind.LicenseBack));
+                }
+            }
+        }
+
+        // A duplicate inside the plan is a generator bug, not a conflict with existing data: fail.
+        RequireUnique(arquebusiers.Select(a => a.NationalId), "national ID");
+        RequireUnique(arquebusiers.Select(a => a.FederationId.ToString(CultureInfo.InvariantCulture)), "federation ID");
+        RequireUnique(weapons.Select(w => w.Guide), "ownership guide");
+        return new SeedPlan(arquebusiers, weapons, photos);
+    }
+
+    private static void RequireUnique(IEnumerable<string> values, string what)
+    {
+        if (values.GroupBy(v => v, StringComparer.Ordinal).FirstOrDefault(g => g.Count() > 1) is { } duplicate)
+        {
+            throw new InvalidOperationException($"The synthetic registry plan repeats the {what} {duplicate.Key}.");
+        }
+    }
+
+    private static Arquebusier ToArquebusier(SyntheticPerson person, DateTimeOffset now)
+    {
+        var license = person.License;
+        return new Arquebusier
+        {
+            Id = person.Id,
+            ComparsaId = SyntheticComparsas.ByNumber(person.ComparsaNumber).Id,
+            FederationId = FederationIdOf(person.Number),
+            NationalId = person.NationalId,
+            FirstName = person.FirstName,
+            LastName = person.LastName,
+            BirthDate = person.BirthDate,
+            Email = person.Email,
+            Phone = person.Phone,
+            Gender = person.Gender == SyntheticGender.Male ? Gender.Male : Gender.Female,
+            Status = person.Reserve ? ArquebusierStatus.Reserve : ArquebusierStatus.Active,
+            TrainingCompletedOn = person.CourseCompletedOn,
+            LicenseType = license.Type switch
+            {
+                SyntheticLicenseType.Ae => LicenseType.Ae,
+                SyntheticLicenseType.AProf => LicenseType.AProf,
+                _ => null,
+            },
+            LicensePending = license.Pending,
+            LicenseIssuedOn = license.IssuedOn,
+            LicenseExpiresOn = license.ExpiresOn,
+            CreatedAt = now,
+        };
+    }
+
+    /// <summary>The catalogue seeder's model numbers: trabucos 1–4, arcabuces 5–8 (right/left, normal/small), pistol 9.</summary>
+    private static int ModelNumber(SyntheticOwnedWeapon weapon) => weapon.Kind switch
+    {
+        SyntheticWeaponKind.Pistol => 9,
+        SyntheticWeaponKind.Trabuco => 1 + (weapon.LeftHanded ? 2 : 0) + (weapon.Small ? 1 : 0),
+        _ => 5 + (weapon.LeftHanded ? 2 : 0) + (weapon.Small ? 1 : 0),
+    };
 
     /// <summary>
     /// Stores each image before its reference, as uploads do (design D2). Keys derive from the fixed
     /// photo ids, so a rerun overwrites the same objects and restores one that went missing.
     /// </summary>
-    private async Task<int> AddPhotosAsync(DateTimeOffset now, CancellationToken cancellationToken)
+    private async Task<int> AddPhotosAsync(SeedPlan plan, DateOnly today, DateTimeOffset now, CancellationToken cancellationToken)
     {
         var existing = await db.Photos.AsNoTracking().ToDictionaryAsync(p => p.Id, cancellationToken);
-        var owners = await db.Arquebusiers.AsNoTracking()
-            .Select(a => new { a.Id, HasLicense = a.LicenseType != null })
-            .ToDictionaryAsync(a => a.Id, a => a.HasLicense, cancellationToken);
+        var owners = await db.Arquebusiers.AsNoTracking().ToDictionaryAsync(a => a.Id, cancellationToken);
+        var faces = AssignFaces(plan, today);
         var taken = existing.Values.Select(p => (p.ArquebusierId, p.Kind)).ToHashSet();
-        var added = 0;
-        foreach (var (owner, kind) in Photos)
+        var (added, handled) = (0, 0);
+        foreach (var (ownerId, kind) in plan.Photos)
         {
-            var id = PhotoIdOf(owner, kind);
-            if (existing.TryGetValue(id, out var stored))
+            if (++handled % PhotoProgressStep == 0)
             {
-                await RestoreImageAsync(owner, kind, stored.ObjectKey, cancellationToken);
+                LogPhotoProgress(logger, handled, plan.Photos.Count);
+            }
+
+            var id = PhotoIdOf(ownerId, kind);
+            if (!owners.TryGetValue(ownerId, out var owner))
+            {
+                LogSkipped(logger, "photo", id, "owner missing (skipped above)");
                 continue;
             }
 
-            var ownerId = ArquebusierSeed.IdOf(owner);
-            if (!owners.TryGetValue(ownerId, out var hasLicense) || (PhotoStorage.NeedsLicense(kind) && !hasLicense) || !taken.Add((ownerId, kind)))
+            if (existing.TryGetValue(id, out var stored))
             {
-                LogSkipped(logger, "photo", id);
+                await RestoreImageAsync(owner, kind, faces, stored.ObjectKey, cancellationToken);
+                continue;
+            }
+
+            if (PhotoStorage.NeedsLicense(kind) && owner.LicenseIssuedOn is null)
+            {
+                LogSkipped(logger, "photo", id, "the owner has no issued license");
+                continue;
+            }
+
+            if (!taken.Add((ownerId, kind)))
+            {
+                LogSkipped(logger, "photo", id, "the owner already has another photo of this kind");
                 continue;
             }
 
             var key = ArquebusierPhoto.KeyFor(id);
-            var image = await StoreImageAsync(owner, kind, key, cancellationToken);
+            var image = await StoreImageAsync(owner, kind, faces, key, cancellationToken);
             db.Photos.Add(new ArquebusierPhoto
             {
                 Id = id,
@@ -176,7 +294,31 @@ internal sealed partial class RegistrySeeder(
         return added;
     }
 
-    private async Task RestoreImageAsync(int owner, ArquebusierPhotoKind kind, string key, CancellationToken cancellationToken)
+    /// <summary>One generated face per ID photo of the plan, by gender and age band (design D5).</summary>
+    private Dictionary<Guid, SyntheticFace> AssignFaces(SeedPlan plan, DateOnly today)
+    {
+        var people = plan.Arquebusiers.ToDictionary(a => a.Id);
+        var requests = plan.Photos
+            .Where(p => p.Kind == ArquebusierPhotoKind.Id && people.ContainsKey(p.Owner))
+            .Select((p, index) => (Request: new SyntheticFaceRequest(index, GenderOf(people[p.Owner].Gender), people[p.Owner].BirthDate), p.Owner))
+            .ToList();
+        var assignment = syntheticImages.AssignFaces(requests.Select(r => r.Request), today);
+        if (assignment.Reused > 0 || assignment.OutsideBand > 0)
+        {
+            LogFacesStretched(logger, requests.Count, assignment.Reused, assignment.OutsideBand);
+        }
+
+        return requests.ToDictionary(r => r.Owner, r => assignment.Faces[r.Request.Key]);
+    }
+
+    private static SyntheticGender? GenderOf(Gender gender) => gender switch
+    {
+        Gender.Male => SyntheticGender.Male,
+        Gender.Female => SyntheticGender.Female,
+        _ => null,
+    };
+
+    private async Task RestoreImageAsync(Arquebusier owner, ArquebusierPhotoKind kind, IReadOnlyDictionary<Guid, SyntheticFace> faces, string key, CancellationToken cancellationToken)
     {
         if (await storage.GetAsync(key, cancellationToken) is { } present)
         {
@@ -184,32 +326,45 @@ internal sealed partial class RegistrySeeder(
             return;
         }
 
-        await StoreImageAsync(owner, kind, key, cancellationToken);
+        await StoreImageAsync(owner, kind, faces, key, cancellationToken);
     }
 
-    private async Task<NormalizedImage> StoreImageAsync(int owner, ArquebusierPhotoKind kind, string key, CancellationToken cancellationToken)
+    private async Task<NormalizedImage> StoreImageAsync(Arquebusier owner, ArquebusierPhotoKind kind, IReadOnlyDictionary<Guid, SyntheticFace> faces, string key, CancellationToken cancellationToken)
     {
-        var source = kind switch
+        var (source, name) = kind switch
         {
-            ArquebusierPhotoKind.Id => SyntheticPhotos.IdPhoto(owner),
-            ArquebusierPhotoKind.LicenseFront => SyntheticPhotos.LicenseSide(front: true, owner),
-            _ => SyntheticPhotos.LicenseSide(front: false, owner),
+            ArquebusierPhotoKind.Id when faces.TryGetValue(owner.Id, out var face) => (syntheticImages.Read(face), face.File),
+            ArquebusierPhotoKind.Id => throw new InvalidOperationException($"No generated face was assigned to the seeded arquebusier {owner.Id}."),
+            ArquebusierPhotoKind.LicenseFront => (cards.Front(CardOf(owner)), "license front"),
+            _ => (cards.Back(CardOf(owner)), "license back"),
         };
         using var stream = new MemoryStream(source);
         var image = await images.NormalizeAsync(stream, PhotoStorage.RulesFor(kind), cancellationToken) switch
         {
             NormalizedImage normalized => normalized,
-            RejectedImage rejected => throw new InvalidOperationException($"The synthetic {kind} photo breaks the photo rules ({rejected.Reason})."),
-            _ => throw new InvalidOperationException($"The synthetic {kind} photo could not be normalised."),
+            RejectedImage rejected => throw new InvalidOperationException($"The synthetic {kind} photo {name} breaks the photo rules ({rejected.Reason})."),
+            _ => throw new InvalidOperationException($"The synthetic {kind} photo {name} could not be normalised."),
         };
         await storage.PutAsync(key, image.Content, PhotoStorage.ContentType, cancellationToken);
         return image;
     }
 
-    private static Guid PhotoIdOf(int owner, ArquebusierPhotoKind kind) =>
-        new($"0193a500-0000-7000-8000-{owner:D6}{(int)kind:D6}");
+    private static SpecimenCardData CardOf(Arquebusier owner) => new(
+        owner.NationalId,
+        owner.FirstName,
+        owner.LastName,
+        owner.BirthDate,
+        owner.LicenseType == LicenseType.AProf ? SyntheticLicenseType.AProf : SyntheticLicenseType.Ae,
+        owner.LicenseIssuedOn ?? throw new InvalidOperationException($"The seeded arquebusier {owner.Id} has no issued license for its license photos."),
+        owner.LicenseExpiresOn ?? throw new InvalidOperationException($"The seeded arquebusier {owner.Id} has no license expiry for its license photos."));
 
-    private async Task<int> AddArquebusiersAsync(DateTimeOffset now, DateOnly today, CancellationToken cancellationToken)
+    private static Guid PhotoIdOf(Guid owner, ArquebusierPhotoKind kind) =>
+        new($"0193a500-0000-7000-8000-{NumberOf(owner):D6}{(int)kind:D6}");
+
+    /// <summary>The number in an arquebusier's fixed id (its last 12 digits).</summary>
+    private static long NumberOf(Guid arquebusier) => long.Parse(arquebusier.ToString()[^12..], CultureInfo.InvariantCulture);
+
+    private async Task<int> AddArquebusiersAsync(SeedPlan plan, CancellationToken cancellationToken)
     {
         var existing = await db.Arquebusiers.AsNoTracking()
             .Select(a => new { a.Id, a.NationalId, a.FederationId })
@@ -217,26 +372,35 @@ internal sealed partial class RegistrySeeder(
         var ids = existing.Select(a => a.Id).ToHashSet();
         var nationalIds = existing.Select(a => a.NationalId).ToHashSet(StringComparer.Ordinal);
         var federationIds = existing.Select(a => a.FederationId).ToHashSet();
-        var comparsas = (await catalog.FindComparsasAsync([.. Arquebusiers.Select(a => a.ComparsaId).Distinct()], cancellationToken))
+        var comparsas = (await catalog.FindComparsasAsync([.. plan.Arquebusiers.Select(a => a.ComparsaId).Distinct()], cancellationToken))
             .Select(c => c.Id)
             .ToHashSet();
         var added = 0;
-        foreach (var seed in Arquebusiers.Where(a => !ids.Contains(a.Id)))
+        var skipped = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var arquebusier in plan.Arquebusiers.Where(a => !ids.Contains(a.Id)))
         {
-            if (!comparsas.Contains(seed.ComparsaId) || !nationalIds.Add(seed.NationalId) || !federationIds.Add(seed.FederationId))
+            var reason = !comparsas.Contains(arquebusier.ComparsaId) ? "comparsa missing"
+                : nationalIds.Contains(arquebusier.NationalId) ? "national ID taken"
+                : federationIds.Contains(arquebusier.FederationId) ? "federation ID taken"
+                : null;
+            if (reason is not null)
             {
-                LogSkipped(logger, "arquebusier", seed.Id);
+                LogSkipped(logger, "arquebusier", arquebusier.Id, reason);
+                skipped[reason] = skipped.GetValueOrDefault(reason) + 1;
                 continue;
             }
 
-            db.Arquebusiers.Add(seed.ToArquebusier(now, today));
+            nationalIds.Add(arquebusier.NationalId);
+            federationIds.Add(arquebusier.FederationId);
+            db.Arquebusiers.Add(arquebusier);
             added++;
         }
 
+        LogSkippedTotals(logger, "arquebusiers", skipped);
         return added;
     }
 
-    private async Task<int> AddOwnedWeaponsAsync(DateTimeOffset now, CancellationToken cancellationToken)
+    private async Task<int> AddOwnedWeaponsAsync(SeedPlan plan, DateTimeOffset now, CancellationToken cancellationToken)
     {
         var existing = await db.OwnedWeapons.AsNoTracking().Select(w => new { w.Id, w.OwnershipGuideNumber }).ToListAsync(cancellationToken);
         var ids = existing.Select(w => w.Id).ToHashSet();
@@ -244,111 +408,131 @@ internal sealed partial class RegistrySeeder(
         var owners = db.ChangeTracker.Entries<Arquebusier>().Select(e => e.Entity.Id)
             .Concat(await db.Arquebusiers.AsNoTracking().Select(a => a.Id).ToListAsync(cancellationToken))
             .ToHashSet();
-        var models = (await catalog.FindWeaponModelsAsync([.. OwnedWeapons.Select(w => ModelId(w.Model)).Distinct()], cancellationToken))
+        var models = (await catalog.FindWeaponModelsAsync([.. plan.Weapons.Select(w => w.ModelId).Distinct()], cancellationToken))
             .Select(m => m.Id)
             .ToHashSet();
         var added = 0;
-        foreach (var (owner, model, number) in OwnedWeapons)
+        var skipped = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var weapon in plan.Weapons.Where(w => !ids.Contains(w.Id)))
         {
-            var id = new Guid($"0193a400-0000-7000-8000-{number:D12}");
-            var guide = $"SINT-{number:D4}";
-            if (ids.Contains(id))
+            var reason = !owners.Contains(weapon.OwnerId) ? "owner missing (skipped above)"
+                : !models.Contains(weapon.ModelId) ? "catalogue model missing"
+                : guides.Contains(weapon.Guide) ? "ownership guide taken"
+                : null;
+            if (reason is not null)
             {
+                LogSkipped(logger, "owned weapon", weapon.Id, reason);
+                skipped[reason] = skipped.GetValueOrDefault(reason) + 1;
                 continue;
             }
 
-            if (!owners.Contains(ArquebusierSeed.IdOf(owner)) || !models.Contains(ModelId(model)) || !guides.Add(guide))
-            {
-                LogSkipped(logger, "owned weapon", id);
-                continue;
-            }
+            guides.Add(weapon.Guide);
 
             db.OwnedWeapons.Add(new OwnedWeapon
             {
-                Id = id,
-                ArquebusierId = ArquebusierSeed.IdOf(owner),
-                WeaponModelId = ModelId(model),
-                WeaponNumber = (1000 + number).ToString(CultureInfo.InvariantCulture),
-                OwnershipGuideNumber = guide,
+                Id = weapon.Id,
+                ArquebusierId = weapon.OwnerId,
+                WeaponModelId = weapon.ModelId,
+                WeaponNumber = weapon.Number,
+                OwnershipGuideNumber = weapon.Guide,
                 CreatedAt = now,
             });
             added++;
         }
 
+        LogSkippedTotals(logger, "owned weapons", skipped);
         return added;
+    }
+
+    private static void LogSkippedTotals(ILogger logger, string what, Dictionary<string, int> skipped)
+    {
+        if (skipped.Count > 0)
+        {
+            LogSkippedSummary(logger, skipped.Values.Sum(), what, string.Join(", ", skipped.Select(s => $"{s.Value} {s.Key}")));
+        }
     }
 
     private static Guid ModelId(int number) => new($"0193a200-0000-7000-8000-{number:D12}");
 
+    private static Guid WeaponId(int number) => new($"0193a400-0000-7000-8000-{number:D12}");
+
+    /// <summary>Below 100000, so a scenario guide never equals a population one (<c>GP-</c> and 6 digits from 100000).</summary>
+    private static string ScenarioGuide(int number) => $"GP-{number:D6}";
+
+    private static int FederationIdOf(int number) => 100_000 + number;
+
     /// <summary>
     /// Staging may be reachable and must only ever hold synthetic data (NFR-13): before writing anything,
-    /// refuse a database with any arquebusier or owned weapon this seeder would not have created.
+    /// refuse a database with any arquebusier, owned weapon or photo this seeder would not have created.
     /// </summary>
-    private async Task RefuseRealDataOutsideLocalAsync(CancellationToken cancellationToken)
+    private async Task RefuseRealDataOutsideLocalAsync(SeedPlan plan, CancellationToken cancellationToken)
     {
         if (LocalEnvironments.IsLocal(environment))
         {
             return;
         }
 
-        var arquebusierIds = Arquebusiers.Select(a => a.Id).ToList();
-        var weaponIds = OwnedWeapons.Select(w => new Guid($"0193a400-0000-7000-8000-{w.Number:D12}")).ToList();
-        var photoIds = Photos.Select(p => PhotoIdOf(p.Owner, p.Kind)).ToList();
+        var arquebusierIds = plan.Arquebusiers.Select(a => a.Id).ToList();
+        var weaponIds = plan.Weapons.Select(w => w.Id).ToList();
+        var photoIds = plan.Photos.Select(p => PhotoIdOf(p.Owner, p.Kind)).ToList();
         if (await db.Arquebusiers.AnyAsync(a => !arquebusierIds.Contains(a.Id), cancellationToken)
             || await db.OwnedWeapons.AnyAsync(w => !weaponIds.Contains(w.Id), cancellationToken)
             || await db.Photos.AnyAsync(p => !photoIds.Contains(p.Id), cancellationToken))
         {
             // A photo uploaded or replaced by hand counts as real: reset the database to seed it again.
-            throw new InvalidOperationException("The database holds registry data that is not synthetic (rows or photos this seeder did not create); refusing to seed it (NFR-13).");
+            throw new InvalidOperationException("The database holds registry data that is not synthetic (rows or photos this seeder did not create); refusing to seed it (NFR-13). Reset the database to seed it again.");
         }
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Synthetic registry ensured: {Arquebusiers} arquebusiers, {Weapons} owned weapons and {Photos} photos added")]
     private static partial void LogSeeded(ILogger logger, int arquebusiers, int weapons, int photos);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Synthetic {Kind} {Id} skipped: its comparsa, model, owner or license is missing, or another row uses its unique values")]
-    private static partial void LogSkipped(ILogger logger, string kind, Guid id);
+    [LoggerMessage(Level = LogLevel.Information, Message = "Synthetic photos: {Done} of {Total} handled")]
+    private static partial void LogPhotoProgress(ILogger logger, int done, int total);
 
-    /// <param name="Number">Last part of the fixed identifier; also gives the synthetic DNI/NIE and federation id.</param>
+    [LoggerMessage(Level = LogLevel.Information, Message = "Synthetic faces stretched: of {Photos} ID photos, {Reused} reuse a face and {OutsideBand} use a face of another age band")]
+    private static partial void LogFacesStretched(ILogger logger, int photos, int reused, int outsideBand);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Synthetic {Kind} {Id} skipped: {Reason}")]
+    private static partial void LogSkipped(ILogger logger, string kind, Guid id, string reason);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "{Count} synthetic {What} skipped: {Reasons}")]
+    private static partial void LogSkippedSummary(ILogger logger, int count, string what, string reasons);
+
+    private sealed record WeaponSeed(Guid Id, Guid OwnerId, Guid ModelId, string Number, string Guide);
+
+    private sealed record SeedPlan(
+        IReadOnlyList<Arquebusier> Arquebusiers,
+        IReadOnlyList<WeaponSeed> Weapons,
+        IReadOnlyList<(Guid Owner, ArquebusierPhotoKind Kind)> Photos);
+
+    /// <param name="Number">Last part of the fixed identifier; also gives the DNI/NIE and federation id.</param>
     /// <param name="ComparsaId">Seeded comparsa.</param>
-    /// <param name="FirstName">Synthetic first name.</param>
-    /// <param name="LastName">Synthetic last name.</param>
+    /// <param name="FirstName">Invented first name.</param>
+    /// <param name="LastName">Invented surnames.</param>
     /// <param name="Gender">Gender.</param>
     /// <param name="Status">Active or Reserve.</param>
     /// <param name="License">Which license state the arquebusier has.</param>
     /// <param name="Course">Whether the course is done.</param>
-    /// <param name="Nie">An NIE (X prefix) instead of a DNI.</param>
+    /// <param name="Nie">An NIE instead of a DNI.</param>
     /// <param name="AgeYears">A fixed age on the seed day; otherwise 20 + Number years.</param>
     private sealed record ArquebusierSeed(
         int Number, Guid ComparsaId, string FirstName, string LastName, Gender Gender, ArquebusierStatus Status,
         LicenseSeed License, bool Course, bool Nie = false, int? AgeYears = null)
     {
-        private const string Letters = "TRWAGMYFPDXBNJZSQVHLCKE";
-
-        public Guid Id => IdOf(Number);
-
-        /// <summary>Very low numbers, unlikely to be in use; the check letter is computed as BR-01 requires.</summary>
-        public string NationalId => Nie
-            ? $"X{Number:D7}{Letters[Number % Letters.Length]}"
-            : $"{Number:D8}{Letters[Number % Letters.Length]}";
-
-        public int FederationId => 100_000 + Number;
-
-        public static Guid IdOf(int number) => new($"0193a300-0000-7000-8000-{number:D12}");
-
-        public Arquebusier ToArquebusier(DateTimeOffset now, DateOnly today)
+        public Arquebusier ToArquebusier(DateOnly today, DateTimeOffset now)
         {
             var arquebusier = new Arquebusier
             {
-                Id = Id,
+                Id = SyntheticPeople.ArquebusierId(Number),
                 ComparsaId = ComparsaId,
-                FederationId = FederationId,
-                NationalId = NationalId,
+                FederationId = FederationIdOf(Number),
+                NationalId = Nie ? SyntheticNationalIds.ScenarioNie(Number) : SyntheticNationalIds.ScenarioDni(Number),
                 FirstName = FirstName,
                 LastName = LastName,
                 BirthDate = today.AddYears(-(AgeYears ?? 20 + Number)).AddDays(-Number * 7),
-                Email = Number % 4 == 0 ? null : $"arcabucero.{Number:D2}@polvorapp.example",
-                Phone = Number % 3 == 0 ? null : $"+34 600 000 {Number:D3}",
+                Email = Number % 4 == 0 ? null : SyntheticPeople.EmailFor(FirstName, Nie ? LastName : LastName.Split(' ')[0]),
+                Phone = Number % 3 == 0 ? null : string.Create(CultureInfo.InvariantCulture, $"+34 6{Number * 37 % 100:D2} {Number * 271 % 1000:D3} {Number * 613 % 1000:D3}"),
                 Gender = Gender,
                 Status = Status,
                 TrainingCompletedOn = Course ? today.AddYears(-1).AddDays(-Number) : null,
