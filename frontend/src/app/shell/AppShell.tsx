@@ -2,12 +2,12 @@ import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet } from 'react-router';
 import { AlertBanner } from '@/components/app/AlertBanner';
-import { AppLayout, type NavigationItem } from '@/components/app/AppLayout';
+import { AppLayout, type NavigationItem, type NavigationSection } from '@/components/app/AppLayout';
 import { UserMenu } from '@/components/app/UserMenu';
 import { useWarningCount } from '@/features/compliance-insights/components/useWarningCount';
 import { useFiringChiefComparsaCards } from '@/features/federation-catalog/components/useFiringChiefComparsaCards';
 import { useSaveLanguage, useSession, useSignOut } from '@/features/identity-access/session';
-import { NAVIGATION } from '../navigation';
+import { NAVIGATION, navigationSections } from '../navigation';
 import { useFocusMainOnNavigation } from './useFocusMainOnNavigation';
 import { VersionFooter } from './VersionFooter';
 
@@ -22,6 +22,7 @@ type ShellProblem = 'signOutFailed' | 'languageNotSaved';
 export function AppShell() {
   const { t } = useTranslation();
   const { t: tIdentity } = useTranslation('identity');
+  const { t: tUi } = useTranslation('ui');
   const main = useRef<HTMLElement>(null);
   useFocusMainOnNavigation(main);
   const session = useSession();
@@ -33,18 +34,22 @@ export function AppShell() {
   const comparsaCards = useFiringChiefComparsaCards();
   const warningCount = useWarningCount();
 
-  const navigation = useMemo(
-    () =>
-      NAVIGATION.filter((entry) => !entry.roles || (role !== undefined && entry.roles.includes(role))).map(
-        ({ to, labelKey, icon, matches, count }): NavigationItem => {
-          const item = { to, icon, matches, label: t(labelKey) };
-          return count === 'warnings' && warningCount
-            ? { ...item, count: warningCount, countLabel: t('nav.warningCount', { count: warningCount }) }
-            : item;
-        },
-      ),
-    [t, role, warningCount],
-  );
+  const navigation = useMemo((): NavigationSection[] => {
+    const allowed = NAVIGATION.filter(
+      (entry) => !entry.roles || (role !== undefined && entry.roles.includes(role)),
+    );
+    // Sections left empty by the role filter are left out (refine-navigation-and-lists D4).
+    return navigationSections(allowed).map(({ section, entries }) => ({
+      id: section,
+      label: section === 'home' ? undefined : tUi(`nav.sections.${section}`),
+      items: entries.map(({ to, labelKey, icon, matches, count }): NavigationItem => {
+        const item = { to, icon, matches, label: t(labelKey) };
+        return count === 'warnings' && warningCount
+          ? { ...item, count: warningCount, countLabel: t('nav.warningCount', { count: warningCount }) }
+          : item;
+      }),
+    }));
+  }, [t, tUi, role, warningCount]);
 
   /** Runs a shell action and shows its problem, if any, above the page; only the latest counts. */
   const attempt = (action: () => Promise<boolean>, failure: ShellProblem): void => {

@@ -21,7 +21,10 @@ const CARDS: SidebarCard[] = [
 
 function renderLayout(cards: readonly SidebarCard[] | undefined, path = '/') {
   const layout = (heading: string) => (
-    <AppLayout navigation={[{ to: '/', label: 'Inicio', icon: House }]} sidebarCards={cards}>
+    <AppLayout
+      navigation={[{ id: 'home', items: [{ to: '/', label: 'Inicio', icon: House }] }]}
+      sidebarCards={cards}
+    >
       <h1>{heading}</h1>
     </AppLayout>
   );
@@ -129,13 +132,18 @@ describe('AppLayout navigation counts (compliance-insights: Warning count in the
           element: (
             <AppLayout
               navigation={[
-                { to: '/', label: 'Inicio', icon: House },
                 {
-                  to: '/arquebusiers',
-                  label: 'Arcabuceros',
-                  icon: House,
-                  count,
-                  countLabel: `${count} con avisos`,
+                  id: 'main',
+                  items: [
+                    { to: '/', label: 'Inicio', icon: House },
+                    {
+                      to: '/arquebusiers',
+                      label: 'Arcabuceros',
+                      icon: House,
+                      count,
+                      countLabel: `${count} con avisos`,
+                    },
+                  ],
                 },
               ]}
             >
@@ -171,8 +179,14 @@ describe('AppLayout current navigation item (platform: Application shell)', () =
     const page = (
       <AppLayout
         navigation={[
-          { to: '/editions', label: 'Ediciones', icon: House },
-          { to: '/distribution', label: 'Reparto', icon: House, matches: ['/editions/*/distribution'] },
+          {
+            id: 'festival',
+            label: 'Fiestas',
+            items: [
+              { to: '/editions', label: 'Ediciones', icon: House },
+              { to: '/distribution', label: 'Reparto', icon: House, matches: ['/editions/*/distribution'] },
+            ],
+          },
         ]}
       >
         <h1>Reparto de 2027</h1>
@@ -185,5 +199,68 @@ describe('AppLayout current navigation item (platform: Application shell)', () =
 
     expect(await screen.findByRole('link', { name: 'Reparto' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('link', { name: 'Ediciones' })).not.toHaveAttribute('aria-current');
+  });
+});
+
+describe('AppLayout navigation sections (platform: Application shell)', () => {
+  const SECTIONS = [
+    { id: 'home', items: [{ to: '/', label: 'Inicio', icon: House }] },
+    {
+      id: 'registry',
+      label: 'Registro',
+      items: [
+        { to: '/arquebusiers', label: 'Arcabuceros', icon: House },
+        { to: '/comparsas', label: 'Comparsas', icon: House },
+      ],
+    },
+    { id: 'festival', label: 'Fiestas', items: [{ to: '/editions', label: 'Ediciones', icon: House }] },
+  ];
+
+  async function renderSections() {
+    const router = createMemoryRouter(
+      [
+        {
+          path: '/',
+          element: (
+            <AppLayout navigation={SECTIONS}>
+              <h1>Bienvenida</h1>
+            </AppLayout>
+          ),
+        },
+      ],
+      { initialEntries: ['/'] },
+    );
+    return renderWithProviders(<RouterProvider router={router} />);
+  }
+
+  it('shows each labelled section as a named group with its entries, in order', async () => {
+    await renderSections();
+
+    const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
+    const groups = within(navigation).getAllByRole('group');
+    expect(
+      groups.map((group) =>
+        within(group)
+          .getAllByRole('link')
+          .map((link) => link.textContent),
+      ),
+    ).toEqual([['Arcabuceros', 'Comparsas'], ['Ediciones']]);
+    expect(within(navigation).getByRole('group', { name: 'Registro' })).toBeInTheDocument();
+    expect(within(navigation).getByRole('heading', { level: 2, name: 'Fiestas' })).toBeInTheDocument();
+  });
+
+  it('shows the unlabelled first section without a group and separates the sections', async () => {
+    await renderSections();
+
+    const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
+    const home = within(navigation).getByRole('link', { name: 'Inicio' });
+    expect(home.closest('[role="group"]')).toBeNull();
+    expect(navigation.querySelectorAll('[data-sidebar="separator"]')).toHaveLength(2);
+  });
+
+  it('has no automatically detectable accessibility violations with sections', async () => {
+    const { container } = await renderSections();
+
+    expect(await axeViolations(container)).toEqual([]);
   });
 });
