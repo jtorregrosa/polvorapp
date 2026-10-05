@@ -70,7 +70,7 @@
 
 ## 5. Docs and verification
 
-- [ ] 5.1 Update the docs:
+- [x] 5.1 Update the docs:
   - `docs/development.md`: settings vs environment variables;
   - `docs/compliance.md`: no personal data or secrets in settings;
   - `docs/data-model.md`: `FederationSettings`;

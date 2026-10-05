@@ -43,6 +43,14 @@ Admin; change `add-comparsa-logos`). Real comparsa logos are third-party brand a
 The Federation's own logo (`FederationSettings`, one row) follows the same rules: uploaded at run time
 by an Admin, printed on the pickup authorisation form and later the badges, never committed
 (`add-distribution-planning`).
+
+**FederationSettings** (one row, Admins only; `add-federation-settings`) — the identity printed in
+documents and emails: `officialNameEs` and `officialNameCa` (1–150 characters; English documents use the
+Spanish form), `shortName` (1–40), optional public `contactEmail` and https `website` (the Federation's,
+never a person's); the email `senderName` (1–80, no `<`, `>`, `"`, `@` or line breaks) and optional
+`replyTo`; `closeReminderLeadDays` (2–14, default 7) and `milestoneLeadDays` (1–14, default 7); the logo;
+an `xmin` version. Each section is saved on its own and audited (`FederationSettingsChanged`, previous
+and new values). The sender address, the SMTP server and its credentials stay environment variables.
 Logo rules (blocking): JPEG, PNG or WebP of at most 10 MB and 40 megapixels (no SVG); the long side at
 least 256 px and at most 3 times the short side. The server re-encodes it as PNG keeping its
 transparency, strips its metadata and scales it down to at most 1024 px. Only Admins add, replace
