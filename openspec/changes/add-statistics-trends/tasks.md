@@ -35,7 +35,7 @@
 
   Then implement the endpoint (D2, D3) with OpenAPI docs. Verify: the tests pass and the OpenAPI
   document lists the endpoint.
-- [ ] 2.3 Review group 2 in parallel with `csharp-reviewer`, `database-reviewer` and
+- [x] 2.3 Review group 2 in parallel with `csharp-reviewer`, `database-reviewer` and
   `security-reviewer`. Fix CRITICAL/HIGH findings.
 
 ## 3. Chart composites
@@ -58,7 +58,7 @@
   pass.
 - [x] 3.4 Document charts in `docs/design/patterns.md`: when to chart, table always, patterns,
   provisional. Verify: the design-docs test passes.
-- [ ] 3.5 Review group 3 in parallel with `react-reviewer`, `a11y-architect` and
+- [x] 3.5 Review group 3 in parallel with `react-reviewer`, `a11y-architect` and
   `typescript-reviewer`. Fix CRITICAL/HIGH findings.
 
 ## 4. Trends screen
