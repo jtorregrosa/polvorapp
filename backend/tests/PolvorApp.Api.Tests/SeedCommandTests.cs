@@ -96,6 +96,42 @@ public sealed class SeedCommandTests(PostgresFixture postgres)
     }
 
     [Fact]
+    public async Task An_unknown_dataset_is_refused_before_any_seeder_runs()
+    {
+        var calls = new List<int>();
+        var logs = new CapturingLoggerProvider();
+        await using var services = Services(logs, s =>
+        {
+            s.AddSingleton(SharedKernel.SeedDatasetTests.Configuration("huge"));
+            s.AddSingleton<IDataSeeder>(new RecordingSeeder(1, calls));
+        });
+
+        var exitCode = await SeedCommand.RunAsync(services, Environment(Environments.Development), TestContext.Current.CancellationToken);
+
+        Assert.Equal(1, exitCode);
+        Assert.Empty(calls);
+        Assert.Contains(logs.Entries, e => e.Level == LogLevel.Error && e.Exception?.Contains("huge", StringComparison.Ordinal) == true);
+    }
+
+    [Fact]
+    public async Task The_full_dataset_runs_every_seeder_and_is_logged()
+    {
+        var calls = new List<int>();
+        var logs = new CapturingLoggerProvider();
+        await using var services = Services(logs, s =>
+        {
+            s.AddSingleton(SharedKernel.SeedDatasetTests.Configuration("full"));
+            s.AddSingleton<IDataSeeder>(new RecordingSeeder(1, calls));
+        });
+
+        var exitCode = await SeedCommand.RunAsync(services, Environment(Environments.Development), TestContext.Current.CancellationToken);
+
+        Assert.Equal(0, exitCode);
+        Assert.Equal([1], calls);
+        Assert.Contains(logs.Entries, e => e.Message.Contains("Full", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task Invalid_configuration_while_resolving_seeders_fails_the_command_with_a_log()
     {
         var logs = new CapturingLoggerProvider();
@@ -184,6 +220,7 @@ public sealed class SeedCommandTests(PostgresFixture postgres)
     {
         var services = new ServiceCollection();
         services.AddLogging(logging => logging.AddProvider(logs));
+        services.AddSingleton(SharedKernel.SeedDatasetTests.Configuration(null));
         configure(services);
         return services.BuildServiceProvider();
     }

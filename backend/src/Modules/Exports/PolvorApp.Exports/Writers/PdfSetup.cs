@@ -1,4 +1,5 @@
 using PolvorApp.Exports.Contracts;
+using PolvorApp.SharedKernel.Fonts;
 using QuestPDF;
 using QuestPDF.Drawing;
 using QuestPDF.Fluent;
@@ -51,8 +52,19 @@ internal static class PdfSetup
         Settings.UseSystemFonts = false;
         // A glyph Geist lacks fails the PDF (the Excel file still works) rather than print a wrong name.
         Settings.ThrowOnMissingTextGlyphs = true;
-        FontManager.RegisterFontFromEmbeddedResource("PolvorApp.Exports.Fonts.Geist-Regular.ttf");
-        FontManager.RegisterFontFromEmbeddedResource("PolvorApp.Exports.Fonts.Geist-Bold.ttf");
+        foreach (var font in Enum.GetValues<EmbeddedFont>())
+        {
+            try
+            {
+                using var stream = EmbeddedFonts.Open(font);
+                FontManager.RegisterFontFromStream(stream);
+            }
+            catch (Exception exception) when (exception is not OutOfMemoryException)
+            {
+                throw new InvalidOperationException($"The embedded font {font} could not be registered for the PDFs.", exception);
+            }
+        }
+
         return true;
     }
 }
