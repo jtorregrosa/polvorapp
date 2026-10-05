@@ -7,6 +7,7 @@ import { problem, recordBodies, renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN, SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
+import { sortableColumns } from '@/test/table';
 import { ARCABUZ_RETIRADO, PISTOLA, TRABUCO } from '../test-data';
 
 function asAdmin(path: string) {
@@ -58,6 +59,15 @@ describe('WeaponModelsPage (specs: Weapon models, Weapon catalogue access)', () 
     expect(within(pistola).getAllByText('—')).toHaveLength(3);
     expect(pistola).toHaveTextContent('No');
     expect(screen.getByRole('link', { name: 'Nuevo modelo' })).toHaveAttribute('href', '/weapon-models/new');
+  });
+
+  it('sorts by every column', async () => {
+    server.use(mock.get('/api/weapon-models', () => HttpResponse.json([PISTOLA, TRABUCO])));
+    await asAdmin('/weapon-models');
+    const table = await screen.findByRole('table', { name: 'Modelos de arma' });
+    await within(table).findByRole('link', { name: TRABUCO.label });
+
+    expect(sortableColumns(table)).toHaveLength(7);
   });
 
   it('filters by kind and includes inactive models through the API', async () => {

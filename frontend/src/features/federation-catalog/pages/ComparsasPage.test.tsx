@@ -7,6 +7,7 @@ import { problem, renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN, SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
+import { sortableColumns } from '@/test/table';
 import { LOGO, NORTE, OESTE, SUR } from '../test-data';
 
 function comparsas(respond: (query: URLSearchParams) => ComparsaResponse[]) {
@@ -43,6 +44,23 @@ describe('ComparsasPage (specs: Comparsas, Comparsa visibility)', () => {
       `/comparsas/${NORTE.id}`,
     );
     expect(screen.getByRole('link', { name: 'Nueva comparsa' })).toHaveAttribute('href', '/comparsas/new');
+  });
+
+  it('sorts by name, side and status', async () => {
+    const user = userEvent.setup();
+    comparsas(() => [NORTE, OESTE]);
+    await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
+    const table = await screen.findByRole('table', { name: 'Comparsas' });
+    await within(table).findByRole('link', { name: NORTE.name });
+
+    expect(sortableColumns(table)).toEqual(['Nombre', 'Bando', 'Estado']);
+    // "Moro" after "Cristiano": twice for descending, the opposite of the server's order.
+    await user.click(within(table).getByRole('button', { name: /^Bando/ }));
+    await user.click(within(table).getByRole('button', { name: /^Bando/ }));
+    const names = within(table)
+      .getAllByRole('link')
+      .map((link) => link.textContent);
+    expect(names).toEqual([OESTE.name, NORTE.name]);
   });
 
   it('filters by side and includes inactive comparsas through the API, keeping the filters in the address', async () => {

@@ -32,6 +32,7 @@ const SIDES = Object.values(Side);
  */
 export function ComparsasPage() {
   const { t } = useTranslation('catalog');
+  const { t: tUi } = useTranslation('ui');
   useDocumentTitle(t('comparsas.title'));
   const session = useSession();
   const isAdmin = session.account?.role === 'ADMIN';
@@ -59,14 +60,20 @@ export function ComparsasPage() {
           </span>
         ),
       },
-      { id: 'side', header: t('comparsas.columns.side'), cell: (comparsa) => t(`side.${comparsa.side}`) },
+      {
+        id: 'side',
+        header: t('comparsas.columns.side'),
+        sortValue: (comparsa) => t(`side.${comparsa.side}`),
+        cell: (comparsa) => t(`side.${comparsa.side}`),
+      },
       {
         id: 'status',
         header: t('comparsas.columns.status'),
+        sortValue: (comparsa) => tUi(`status.catalog.${comparsa.active ? 'ACTIVE' : 'INACTIVE'}`),
         cell: (comparsa) => <StatusBadge kind="catalog" value={comparsa.active ? 'ACTIVE' : 'INACTIVE'} />,
       },
     ],
-    [t],
+    [t, tUi],
   );
 
   const setFilter = (key: 'side' | 'includeInactive', value: string): void => {

@@ -7,6 +7,7 @@ import { problem, recordBodies, renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN } from '@/test/identity';
 import { server } from '@/test/server';
+import { sortableColumns } from '@/test/table';
 
 const CHIEF: UserResponse = {
   id: '00000000-0000-4000-8000-000000000010',
@@ -72,6 +73,30 @@ describe('UsersPage (spec: User management by Admins)', () => {
     const invited = rowOf('Persona Invitada');
     expect(within(invited).getByText('Invitado')).toBeInTheDocument();
     expect(within(invited).getByText('Nunca')).toBeInTheDocument();
+  });
+
+  it('sorts by every column, e.g. two-step verification', async () => {
+    const user = userEvent.setup();
+    server.use(mock.get('/api/users', () => HttpResponse.json([CHIEF, INVITED])));
+    await asAdmin('/users');
+    const table = await screen.findByRole('table', { name: 'Usuarios' });
+    await within(table).findByRole('link', { name: 'Jefa Sintética' });
+
+    expect(sortableColumns(table)).toEqual([
+      'Nombre',
+      'Correo',
+      'Rol',
+      'Estado',
+      'Verificación en dos pasos',
+      'Último acceso',
+    ]);
+    // "No configurada" after "Activada": twice for descending, the opposite of the server's order.
+    await user.click(within(table).getByRole('button', { name: /^Verificación en dos pasos/ }));
+    await user.click(within(table).getByRole('button', { name: /^Verificación en dos pasos/ }));
+    const names = within(table)
+      .getAllByRole('link')
+      .map((link) => link.textContent);
+    expect(names).toEqual(['Persona Invitada', 'Jefa Sintética']);
   });
 
   it('filters by role and status through the API and keeps the filters in the address', async () => {

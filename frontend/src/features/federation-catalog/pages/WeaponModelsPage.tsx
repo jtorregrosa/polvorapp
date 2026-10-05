@@ -22,6 +22,7 @@ const KINDS = Object.values(WeaponKind);
 /** Specs "Weapon models" and "Weapon catalogue access": the catalogue, for Admins. */
 export function WeaponModelsPage() {
   const { t } = useTranslation('catalog');
+  const { t: tUi } = useTranslation('ui');
   useDocumentTitle(t('weaponModels.title'));
   const [notice] = useNotice();
   const [search, setSearch] = useSearchParams();
@@ -37,11 +38,12 @@ export function WeaponModelsPage() {
   const columns = useMemo<DataTableColumn<WeaponModelResponse>[]>(() => {
     // A dash for sighted users, words for screen readers (a lone dash is often skipped).
     const none = (
-      <>
+      <span className="text-muted-foreground">
         <span aria-hidden="true">{t('weaponModels.none')}</span>
         <span className="sr-only">{t('weaponModels.form.notSet')}</span>
-      </>
+      </span>
     );
+    const yesNo = (value: boolean) => (value ? t('weaponModels.yes') : t('weaponModels.no'));
     return [
       {
         id: 'label',
@@ -53,34 +55,44 @@ export function WeaponModelsPage() {
           </Link>
         ),
       },
-      { id: 'kind', header: t('weaponModels.columns.kind'), cell: (model) => t(`kind.${model.kind}`) },
+      {
+        id: 'kind',
+        header: t('weaponModels.columns.kind'),
+        sortValue: (model) => t(`kind.${model.kind}`),
+        cell: (model) => t(`kind.${model.kind}`),
+      },
       {
         id: 'side',
         header: t('weaponModels.columns.side'),
+        sortValue: (model) => (model.side ? t(`side.${model.side}`) : ''),
         cell: (model) => (model.side ? t(`side.${model.side}`) : none),
       },
       {
         id: 'handedness',
         header: t('weaponModels.columns.handedness'),
+        sortValue: (model) => (model.handedness ? t(`handedness.${model.handedness}`) : ''),
         cell: (model) => (model.handedness ? t(`handedness.${model.handedness}`) : none),
       },
       {
         id: 'size',
         header: t('weaponModels.columns.size'),
+        sortValue: (model) => (model.size ? t(`size.${model.size}`) : ''),
         cell: (model) => (model.size ? t(`size.${model.size}`) : none),
       },
       {
         id: 'rentable',
         header: t('weaponModels.columns.rentable'),
-        cell: (model) => (model.rentable ? t('weaponModels.yes') : t('weaponModels.no')),
+        sortValue: (model) => yesNo(model.rentable),
+        cell: (model) => yesNo(model.rentable),
       },
       {
         id: 'status',
         header: t('weaponModels.columns.status'),
+        sortValue: (model) => tUi(`status.catalog.${model.active ? 'ACTIVE' : 'INACTIVE'}`),
         cell: (model) => <StatusBadge kind="catalog" value={model.active ? 'ACTIVE' : 'INACTIVE'} />,
       },
     ];
-  }, [t]);
+  }, [t, tUi]);
 
   const setFilter = (key: 'kind' | 'includeInactive', value: string): void => {
     setSearch(withFilter(search, key, value), { replace: true });
