@@ -49,7 +49,8 @@ but whose history must stay visible. Deletion is for a comparsa entered by mista
 - **THEN** the API responds `403 Forbidden` and nothing is changed
 
 ### Requirement: Comparsa visibility (BR-12)
-The list of comparsas SHALL be sorted by name. It SHALL be filterable by side and by active state,
+The list of comparsas SHALL be sorted by name, and every column SHALL be sortable; the side SHALL be a
+tag (see "Tags for fixed values"). It SHALL be filterable by side and by active state,
 and by default it SHALL show only active comparsas. An Admin SHALL see every comparsa. A FiringChief
 SHALL see only the comparsas assigned to them, active or not, and read-only. A comparsa outside the
 user's scope SHALL be answered as if it did not exist (`404 Not Found`). This rule is blocking and
@@ -57,7 +58,7 @@ SHALL be enforced on the server.
 
 #### Scenario: Admin lists comparsas
 - **WHEN** an Admin opens the comparsas page
-- **THEN** every active comparsa is listed with its name, side and state
+- **THEN** every active comparsa is listed with its name, side as a tag and state
 - **AND** the Admin can include the inactive ones and filter by side
 
 #### Scenario: FiringChief lists comparsas
@@ -209,12 +210,15 @@ The kind and the side MAY be combined freely.
 - **THEN** the request is rejected with `400 Bad Request` naming the invalid field
 
 ### Requirement: Weapon catalogue access
-Every signed-in user SHALL be able to list weapon models. The list SHALL be sorted by label,
-filterable by kind and active state, and by default it SHALL show only active models. Only Admins
+Every signed-in user SHALL be able to list weapon models. The API list SHALL be sorted by label,
+filterable by kind and active state, and by default it SHALL return only active models. The
+weapon catalogue page SHALL list every model, active and inactive, by default, with a filter to
+show only the active ones kept in the address. Only Admins
 SHALL create, edit, deactivate, reactivate and delete models. FiringChiefs SHALL receive `403 Forbidden`
 from these operations and SHALL NOT see the weapon catalogue pages in the UI navigation. The UI
 SHALL show kind, side, handedness and size as translated labels, and the Federation `label` as
-entered.
+entered. In the list, the kind, the side and the rentable flag SHALL be tags (see "Tags for fixed
+values") and the state a status badge; every column SHALL be sortable.
 
 #### Scenario: FiringChief reads the catalogue through the API
 - **WHEN** a signed-in FiringChief requests the weapon models
@@ -226,7 +230,15 @@ entered.
 
 #### Scenario: Admin deactivates a model
 - **WHEN** an Admin deactivates a model and confirms
-- **THEN** the model is inactive, hidden from the default list and shown when inactive models are included
+- **THEN** the model is inactive, still listed on the weapon catalogue page with the inactive state, hidden when the Admin filters to active models only, and no longer returned by the API's default list
+
+#### Scenario: Catalogue page lists inactive models by default
+- **WHEN** an Admin opens the weapon catalogue page without filters
+- **THEN** active and inactive models are listed, the inactive ones with the inactive status badge
+
+#### Scenario: Only active models
+- **WHEN** an Admin chooses "Only active" on the weapon catalogue page
+- **THEN** only active models are listed and the filter is kept in the address
 
 #### Scenario: Admin edits a model
 - **WHEN** an Admin changes the label and size of a model
@@ -487,8 +499,9 @@ tile that keeps any logo visible in both themes, including a dark logo with a tr
 background in the dark theme, and SHALL keep its shape inside the tile. When a logo cannot be
 loaded, the placeholder SHALL be shown instead of a broken image.
 
-For Admins, the comparsa detail page SHALL have a logo section to add, replace and remove the logo.
-To add a logo the Admin SHALL choose an image file and MAY crop it freely before uploading; the
+For Admins, the comparsa detail page SHALL have a logo section where the logo itself offers to add,
+replace and remove it (see "Picture actions"), with no separate buttons. To add a logo the Admin
+SHALL choose an image file and MAY crop it freely before uploading; the
 crop SHALL start with the whole image selected. Removing a logo SHALL ask for confirmation first.
 FiringChiefs SHALL see the logo but SHALL NOT be offered these actions. Every text SHALL be
 available in es-ES, ca-ES-valencia and en.
@@ -499,15 +512,19 @@ available in es-ES, ca-ES-valencia and en.
 
 #### Scenario: Placeholder without a logo
 - **WHEN** an Admin opens the detail page of a comparsa without a logo
-- **THEN** the record header shows the placeholder next to the name, and the logo section offers to add one
+- **THEN** the record header shows the placeholder next to the name, and the logo section's placeholder is an "Add logo" button
 
 #### Scenario: Admin adds a logo from the detail page
 - **WHEN** an Admin chooses a PNG image in the logo section, keeps the whole image selected and confirms
 - **THEN** the logo is uploaded, and the record header and the comparsas list show it
 
 #### Scenario: Removing a logo asks first
-- **WHEN** an Admin chooses to remove a comparsa's logo and then cancels the confirmation
+- **WHEN** an Admin opens the menu of a comparsa's logo, chooses to remove it and then cancels the confirmation
 - **THEN** the logo is kept
+
+#### Scenario: Actions on the logo
+- **WHEN** an Admin opens the detail page of a comparsa with a logo
+- **THEN** the logo section shows the logo as a button that opens a menu with "Replace" and "Remove", and no other replace or remove button
 
 #### Scenario: FiringChief has no logo actions
 - **WHEN** a FiringChief opens the detail page of their comparsa
@@ -540,8 +557,9 @@ it. When the storage cannot be reached, uploading or reading it SHALL answer `50
 Unavailable`, and documents SHALL then fail with a translated, retryable message rather than be
 printed without it. Every upload, replacement and removal SHALL be audited, without the image.
 
-For Admins, the comparsas page SHALL have a "Federation logo" section to add (with free cropping,
-starting with the whole image), replace and remove it (removal confirmed in a dialog). FiringChiefs
+For Admins, the comparsas page SHALL have a "Federation logo" section where the logo itself offers
+to add (with free cropping, starting with the whole image), replace and remove it (removal
+confirmed in a dialog), as in "Picture actions". FiringChiefs
 SHALL NOT be offered these actions. Every text SHALL be available in es-ES, ca-ES-valencia and en,
 and the section SHALL pass automated accessibility checks (NFR-07).
 

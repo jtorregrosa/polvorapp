@@ -223,7 +223,10 @@ and these steps SHALL be rate limited.
 - **THEN** all their sessions end, remembered devices are forgotten and the user is taken to the sign-in page
 
 ### Requirement: User management by Admins
-Admins SHALL be able to list users (name, email, role, status, two-factor enabled, last sign-in),
+Admins SHALL be able to list users (name, email, role, status, two-factor enabled, last sign-in) in
+a table where every column is sortable, the role is a tag (see "Tags for fixed values"), the status
+and two-step verification are status badges, and a user who never signed in shows "never" in the
+muted text colour,
 filter them by role and status (including `ERASED`), edit a user's name, role and locale, deactivate and reactivate
 users, resend invitations and reset a user's two-factor authentication. Every one of these
 operations SHALL be available only to Admins; FiringChiefs SHALL receive `403 Forbidden` from the
@@ -233,7 +236,7 @@ or have their two-factor authentication reset (blocking, `409 Conflict`). Destru
 
 #### Scenario: Admin lists users
 - **WHEN** an Admin opens the users page
-- **THEN** a table of all users with name, email, role, status, two-factor state and last sign-in is shown
+- **THEN** a table of all users with name, email, role as a tag, status and two-factor state as badges, and last sign-in is shown, sortable by every column
 
 #### Scenario: FiringChief opens the users page
 - **WHEN** a FiringChief navigates to the users page
