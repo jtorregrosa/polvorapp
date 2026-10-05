@@ -65,7 +65,7 @@
   updating its tests. Verify: the AppShell and ComparsasPage tests pass.
 - [x] 4.3 Add the `catalog:settings.*`, `ui:nav.settings` and notification footer texts in es-ES,
   ca-ES-valencia and en. Verify: `npm run check-i18n` passes.
-- [ ] 4.4 Review group 4 in parallel with `react-reviewer` and `a11y-architect`. Fix CRITICAL/HIGH
+- [x] 4.4 Review group 4 in parallel with `react-reviewer` and `a11y-architect`. Fix CRITICAL/HIGH
   findings.
 
 ## 5. Docs and verification

@@ -92,7 +92,7 @@
   },
   "settings": {
     "title": "Settings",
-    "description": "The Unión de Comparsas' details used by documents, emails and reminders. Each section is saved on its own.",
+    "description": "The Federation's details used by documents, emails and reminders. Each section is saved on its own.",
     "loading": "Loading the settings…",
     "loadFailed": "The settings could not be loaded.",
     "staleFailed": "The settings could not be refreshed: what you see may be out of date.",
@@ -120,9 +120,9 @@
       "edit": "Edit the emails",
       "usedIn": "Used in every PolvorApp email: notifications, invitations and password changes.",
       "sender": "Sender",
-      "senderLine": "{{name}} <{{address}}>",
+      "senderLine": "{{name}} ({{address}})",
       "senderName": "Sender name",
-      "senderNameHint": "Shown with the address {{address}}, which is set on the server.",
+      "senderNameHint": "Shown with the address {{address}}, which is set on the server. It cannot contain quotation marks, angle brackets or the at sign.",
       "replyTo": "Reply to",
       "replyToHint": "Replies to the emails go to this address. Without it, they go to the sender address."
     },
@@ -130,16 +130,17 @@
       "title": "Orders",
       "name": "the orders",
       "edit": "Edit the orders",
-      "usedIn": "When FiringChiefs get the first reminder that the orders are closing.",
+      "usedIn": "Sets when firing chiefs get the first reminder that the orders are closing.",
       "closeReminderLeadDays": "First closing reminder",
-      "closeReminderHint": "Sent once between that day and two days before the planned close. Bringing it forward can send a reminder earlier than planned."
+      "closeReminderHint": "The first reminder is sent between this many days and two days before the planned close. Raising it can send a reminder sooner than expected."
     },
     "calendar": {
       "title": "Calendar",
       "name": "the calendar",
       "edit": "Edit the calendar",
-      "usedIn": "When calendar milestones with reminders on are announced.",
-      "milestoneLeadDays": "Milestone reminder"
+      "usedIn": "Sets when milestones with reminders on are announced.",
+      "milestoneLeadDays": "Milestone reminder",
+      "milestoneLeadHint": "How many days before a milestone its reminder is sent."
     },
     "validation": {
       "tooLong40": "At most 40 characters.",
@@ -149,13 +150,14 @@
       "tooLong254": "At most 254 characters.",
       "email": "Enter a full email address, such as info@example.org.",
       "website": "Enter a full https address without spaces or quotes, such as https://www.example.org.",
-      "senderName": "The name cannot contain <, >, \" or @.",
+      "senderName": "The name cannot contain quotation marks, angle brackets (< >) or the at sign (@).",
       "outOfRange": "Choose one of the values in the list."
     },
     "errors": {
       "modified": "Someone else changed the settings while you were editing. Check the current values and save again.",
       "busy": "The settings are being saved from another session. Try again in a few seconds.",
-      "tooManyRequests": "You saved too many changes in a row. Wait a minute and try again."
+      "tooManyRequests": "You saved too many changes in a row. Wait a minute and try again.",
+      "reloadFailed": "The current values could not be loaded: try again in a few seconds."
     }
   },
   "firingChiefs": {

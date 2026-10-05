@@ -26,9 +26,9 @@ export const settingsMessages = {
 /** A plain address with a dotted domain, as the API's `IsPlainEmail` accepts it. */
 const PLAIN_EMAIL = /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$/;
 
-// Control and invisible characters (line breaks, bidi marks) are refused by the API in every text.
-// eslint-disable-next-line no-control-regex -- the point is to find control characters
-const UNPRINTABLE = /[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u2028-\u202e\u2060-\u2064\ufeff]/;
+// Control, format (zero-width, bidi), private-use and unassigned characters and line or paragraph
+// separators are refused by the API in every text (InputFields.IsPrintable).
+const UNPRINTABLE = /[\p{Cc}\p{Cf}\p{Co}\p{Cn}\p{Zl}\p{Zp}]/u;
 
 /** Characters a sender name may not hold: address syntax and `@` (design D2). */
 const SENDER_FORBIDDEN = /[<>"@]/;
@@ -51,8 +51,9 @@ const optionalEmail = z
   .transform((value) => (value === '' ? null : value));
 
 /**
- * Whether `value` is a website the API keeps: an absolute https address with a dotted ASCII host,
- * no credentials, written in its canonical form (quotes, spaces or backslashes would be escaped).
+ * Whether `value` is a website the API keeps: an absolute https address with a dotted ASCII host
+ * (no punycode labels, which can hide lookalike names), no credentials, written in its canonical form
+ * (quotes, spaces or backslashes would be escaped).
  */
 export function isWebsite(value: string): boolean {
   if (!value.startsWith('https://') || /[\s"<>\\]/.test(value)) return false;

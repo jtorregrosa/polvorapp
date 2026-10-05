@@ -34,30 +34,26 @@ export function SettingsPage() {
           onRetry={() => query.refetch()}
         />
       )}
-      {settings && (
-        <>
-          {/* A failed refresh keeps what was loaded, and says it may be outdated. */}
-          {query.isRefetchError && (
-            <LoadFailure
-              error={query.error}
-              consequence={t('settings.staleFailed')}
-              onRetry={() => query.refetch()}
-            />
-          )}
-          <SectionGrid>
-            <IdentitySection settings={settings} />
-            <FederationLogoSection />
-            <EmailsSection settings={settings} />
-            <OrdersSection settings={settings} />
-            <CalendarSection settings={settings} />
-          </SectionGrid>
-        </>
+      {/* A failed refresh keeps what was loaded, and says it may be outdated. */}
+      {settings && query.isRefetchError && (
+        <LoadFailure
+          error={query.error}
+          consequence={t('settings.staleFailed')}
+          onRetry={() => query.refetch()}
+        />
       )}
-      {!settings && !query.isError && (
-        <p role="status" className="text-help text-muted-foreground">
-          {t('settings.loading')}
-        </p>
-      )}
+      <SectionGrid>
+        {settings && <IdentitySection settings={settings} />}
+        {/* The logo has its own request: it stays usable when the settings cannot be loaded. */}
+        <FederationLogoSection />
+        {settings && <EmailsSection settings={settings} />}
+        {settings && <OrdersSection settings={settings} />}
+        {settings && <CalendarSection settings={settings} />}
+      </SectionGrid>
+      {/* Mounted from the start, so its text is announced when it changes. */}
+      <p role="status" className="text-help text-muted-foreground">
+        {!settings && !query.isError ? t('settings.loading') : ''}
+      </p>
     </>
   );
 }

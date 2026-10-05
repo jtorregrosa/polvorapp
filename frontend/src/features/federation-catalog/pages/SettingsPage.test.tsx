@@ -65,10 +65,14 @@ describe('SettingsPage (specs: Settings screen, Federation settings)', () => {
     expect(identity).toHaveTextContent('Unión Sintética de Comparsas');
     expect(identity).toHaveTextContent('info@federacion.example');
     expect(identity).toHaveTextContent(/se imprime en las acreditaciones/);
-    expect(within(identity).getByText('Unió Sintètica de Comparses')).toHaveAttribute('lang', 'ca');
+    expect(within(identity).getByText('Unió Sintètica de Comparses')).toHaveAttribute(
+      'lang',
+      'ca-ES-valencia',
+    );
+    expect(within(identity).getByText('Unión Sintética de Comparsas')).toHaveAttribute('lang', 'es');
     expect(await section('Logo de la Federación')).toBeInTheDocument();
     const emails = await section('Correos');
-    expect(emails).toHaveTextContent('PolvorApp <no-reply@polvorapp.example>');
+    expect(emails).toHaveTextContent('PolvorApp (no-reply@polvorapp.example)');
     expect(emails).toHaveTextContent('secretaria@federacion.example');
     expect(emails).toHaveTextContent(/invitaciones y cambios de contraseña/);
     expect(await section('Pedidos')).toHaveTextContent('10 días antes');
@@ -86,7 +90,7 @@ describe('SettingsPage (specs: Settings screen, Federation settings)', () => {
     await asAdmin();
 
     const panel = await openPanel(user, 'la identidad');
-    expect(within(panel).getByText(/nunca los de una persona/)).toBeInTheDocument();
+    expect(panel).toHaveAccessibleDescription(/nunca los de una persona/);
     const shortName = within(panel).getByRole('textbox', { name: 'Nombre corto' });
     await user.clear(shortName);
     await user.type(shortName, 'Unión Nueva');
@@ -156,9 +160,12 @@ describe('SettingsPage (specs: Settings screen, Federation settings)', () => {
     await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
 
     expect(
-      await within(panel).findByText('El nombre no puede contener <, >, " ni @.', {
-        selector: '[data-slot="form-message"]',
-      }),
+      await within(panel).findByText(
+        'El nombre no puede llevar comillas, signos de menor o mayor que (< >) ni arroba (@).',
+        {
+          selector: '[data-slot="form-message"]',
+        },
+      ),
     ).toBeInTheDocument();
     expect(called).toBe(false);
   });
@@ -187,26 +194,75 @@ describe('SettingsPage (specs: Settings screen, Federation settings)', () => {
     ).toBeInTheDocument();
   });
 
-  it('reloads the settings and keeps the panel open when another Admin saved first', async () => {
+  it("shows the other Admin's values after a conflict and saves on top of their version", async () => {
     const user = userEvent.setup();
     const api = settings();
+    let first = true;
+    const { bodies, resolver } = recordBodies(() => HttpResponse.json(SETTINGS));
+    server.use(
+      mock.put('/api/federation-settings/calendar', (info) => {
+        if (first) {
+          first = false;
+          api.set({ ...SETTINGS, version: 1300, calendar: { milestoneLeadDays: 3 } });
+          return problem(409, 'federationSettings.modified');
+        }
+        return resolver(info);
+      }),
+    );
+    await asAdmin();
+
+    const panel = await openPanel(user, 'el calendario');
+    const select = within(panel).getByRole('combobox', { name: 'Recordatorio de hitos' });
+    await user.selectOptions(select, '5');
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
+
+    expect(await within(panel).findByRole('group', { name: 'Hay un problema' })).toHaveTextContent(
+      'Otra persona ha cambiado los ajustes mientras editabas.',
+    );
+    // The panel now shows the other Admin's value, to be reviewed before saving again.
+    await waitFor(() => {
+      expect(select).toHaveValue('3');
+    });
+    await user.selectOptions(select, '4');
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
+
+    await expectSaved();
+    expect(bodies).toEqual([{ milestoneLeadDays: 4, version: 1300 }]);
+  });
+
+  it('keeps what was typed and says why when the newer values cannot be loaded after a conflict', async () => {
+    const user = userEvent.setup();
+    settings();
     server.use(
       mock.put('/api/federation-settings/calendar', () => {
-        api.set({ ...SETTINGS, version: 1300, calendar: { milestoneLeadDays: 3 } });
+        server.use(mock.get('/api/federation-settings', () => problem(500, 'unexpected')));
         return problem(409, 'federationSettings.modified');
       }),
     );
     await asAdmin();
 
     const panel = await openPanel(user, 'el calendario');
-    await user.selectOptions(within(panel).getByRole('combobox', { name: 'Recordatorio de hitos' }), '5');
+    const select = within(panel).getByRole('combobox', { name: 'Recordatorio de hitos' });
+    await user.selectOptions(select, '5');
     await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
 
-    expect(await within(panel).findByRole('group', { name: 'Hay un problema' })).toHaveTextContent(
-      'Otra persona ha cambiado los ajustes mientras editabas.',
-    );
-    await user.click(within(panel).getByRole('button', { name: 'Cancelar' }));
-    expect(await section('Calendario')).toHaveTextContent('3 días antes');
+    expect(
+      await within(panel).findByRole('group', { name: 'Hay un problema' }, { timeout: 5000 }),
+    ).toHaveTextContent('No se han podido cargar los valores actuales');
+    expect(select).toHaveValue('5');
+  });
+
+  it('has no accessibility violations with a panel open and its errors shown', async () => {
+    const user = userEvent.setup();
+    settings();
+    const { container } = await asAdmin();
+
+    const panel = await openPanel(user, 'la identidad');
+    await user.clear(within(panel).getByRole('textbox', { name: 'Nombre corto' }));
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
+    await within(panel).findByRole('group', { name: 'Hay un problema' });
+
+    expect(await axeViolations(container.ownerDocument.body)).toEqual([]);
   });
 
   it('saves a lead time chosen from the list as a number', async () => {
@@ -222,7 +278,7 @@ describe('SettingsPage (specs: Settings screen, Federation settings)', () => {
       within(select)
         .getAllByRole('option')
         .map((option) => option.textContent),
-    ).toEqual(Array.from({ length: 13 }, (_, index) => `${index + 2} días`));
+    ).toEqual(Array.from({ length: 13 }, (_, index) => `${index + 2} días antes`));
     await user.selectOptions(select, '10');
     await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
 
