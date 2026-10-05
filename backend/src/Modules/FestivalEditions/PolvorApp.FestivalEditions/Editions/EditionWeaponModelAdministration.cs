@@ -6,7 +6,7 @@ using PolvorApp.SharedKernel.Auditing;
 namespace PolvorApp.FestivalEditions.Editions;
 
 /// <summary>
-/// The rental models offered in an edition (spec: Rental models offered in an edition (BR-07)). The
+/// The rental models offered in an edition (spec: Rental models offered in an edition). The
 /// set is saved as a whole; only models added to it must be active and rentable, so a model retired
 /// after being offered can stay until an Admin removes it.
 /// </summary>

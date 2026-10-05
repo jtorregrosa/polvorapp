@@ -43,7 +43,7 @@ internal sealed record ChangeEditionStatusRequest(string? Status, uint? Version)
 /// <param name="Version">The version the change is based on.</param>
 internal sealed record SetEditionOrdersRequest(bool? Open, uint? Version);
 
-/// <summary>The whole set of rental models offered in an edition (spec: Rental models offered in an edition (BR-07)).</summary>
+/// <summary>The whole set of rental models offered in an edition (spec: Rental models offered in an edition).</summary>
 /// <param name="WeaponModelIds">Catalogue weapon model identifiers, at most 100.</param>
 internal sealed record EditionWeaponModelsRequest(IReadOnlyList<Guid>? WeaponModelIds);
 

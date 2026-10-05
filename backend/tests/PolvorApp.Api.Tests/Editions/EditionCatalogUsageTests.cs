@@ -10,7 +10,7 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Editions;
 
 /// <summary>
-/// Spec "Rental models offered in an edition (BR-07)", scenario "Offered model cannot be deleted from
+/// Spec "Rental models offered in an edition", scenario "Offered model cannot be deleted from
 /// the catalogue": the editions veto it through the catalogue usage contract (design D7), with the
 /// cross-schema foreign key as a backstop.
 /// </summary>

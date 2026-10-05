@@ -163,7 +163,7 @@
       "size": "Tamaño",
       "notSet": "Sin indicar",
       "rentable": "Se puede alquilar",
-      "pistolHint": "Las pistolas nunca se alquilan; bando, mano y tamaño son opcionales.",
+      "pistolHint": "En las pistolas, bando, mano y tamaño son opcionales.",
       "create": "Crear modelo",
       "save": "Guardar cambios",
       "created": "Modelo de arma creado.",
@@ -219,7 +219,6 @@
     "required": "Este campo es obligatorio.",
     "invalid": "Este valor no es válido.",
     "tooLong": "100 caracteres como máximo.",
-    "pistolNotRentable": "Las pistolas nunca se alquilan.",
     "choice": "Elige una opción.",
     "file": {
       "required": "No se ha recibido ninguna imagen. Vuelve a elegirla.",

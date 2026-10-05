@@ -27,7 +27,7 @@ interface ModelChoice {
 
 /**
  * The choices of the edit panel: the catalogue's active, rentable models, and any model already in
- * the set that is no longer rentable (spec: Rental models offered in an edition (BR-07)).
+ * the set that is no longer rentable (spec: Rental models offered in an edition).
  */
 function choicesOf(edition: EditionResponse, catalogue: readonly WeaponModelResponse[]): ModelChoice[] {
   const rentable = catalogue

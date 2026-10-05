@@ -154,7 +154,7 @@ test.describe('federation catalogue as an Admin', () => {
     await expect(list.getByRole('link', { name: label })).toHaveCount(0);
   });
 
-  test('creates a pistol, which can never be rented, and deletes it', async ({ page, deleteAfter }) => {
+  test('creates a rentable pistol and deletes it', async ({ page, deleteAfter }) => {
     const label = unique('PISTOLA E2E');
 
     await page.goto('/weapon-models/new');
@@ -163,8 +163,8 @@ test.describe('federation catalogue as an Admin', () => {
     const rentable = page.getByRole('checkbox', { name: 'Se puede alquilar' });
     await rentable.check();
     await page.getByRole('radio', { name: 'Pistola' }).click();
-    // A pistol is never rented (BR-07): the option is not offered.
-    await expect(rentable).toHaveCount(0);
+    // Any kind may be rented (BR-07): changing the kind keeps the choice.
+    await expect(rentable).toBeChecked();
     await page.getByRole('textbox', { name: /Nombre/ }).fill(label);
     await page.getByRole('button', { name: 'Crear modelo' }).click();
 
@@ -172,6 +172,7 @@ test.describe('federation catalogue as an Admin', () => {
     deleteAfter(`/api/weapon-models/${idFromUrl(page)}`);
     const data = page.getByRole('region', { name: 'Modelo de arma' });
     await expect(data).toContainText('Se puede alquilar');
+    await expect(data.getByText('Sí', { exact: true })).toBeVisible();
     await expect(data).toContainText('Sin indicar');
 
     await moreAction(page, 'Eliminar modelo');

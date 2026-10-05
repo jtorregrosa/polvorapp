@@ -24,7 +24,7 @@ export const CATALOG_PROBLEM_CODES = [
 type CatalogProblemCode = (typeof CATALOG_PROBLEM_CODES)[number];
 
 /** Field reasons the API reports in a `validation` problem; each has a text in `catalog:validation`. */
-const FIELD_REASONS = ['required', 'invalid', 'tooLong', 'pistolNotRentable'] as const;
+const FIELD_REASONS = ['required', 'invalid', 'tooLong'] as const;
 
 type FieldReason = (typeof FIELD_REASONS)[number];
 
@@ -118,7 +118,6 @@ export const messages = {
   required: 'catalog:validation.required',
   invalid: 'catalog:validation.invalid',
   tooLong: 'catalog:validation.tooLong',
-  pistolNotRentable: 'catalog:validation.pistolNotRentable',
   choice: 'catalog:validation.choice',
 } as const;
 

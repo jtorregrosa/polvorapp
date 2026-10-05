@@ -176,7 +176,7 @@ export function pricesSchema(required: boolean) {
 export type PricesValues = z.input<ReturnType<typeof pricesSchema>>;
 export type PricesInput = z.output<ReturnType<typeof pricesSchema>>;
 
-/** The offered models section: the whole set (spec: Rental models offered in an edition (BR-07)). */
+/** The offered models section: the whole set (spec: Rental models offered in an edition). */
 export const modelsSchema = z.object({ weaponModelIds: z.array(z.string()) });
 
 export type ModelsValues = z.infer<typeof modelsSchema>;

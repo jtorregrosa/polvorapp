@@ -8,17 +8,17 @@ using PolvorApp.SharedKernel.Auditing;
 
 namespace PolvorApp.FederationCatalog.WeaponModels;
 
-/// <summary>A validated create or edit request (spec: Weapon models).</summary>
+/// <summary>A validated create or edit request (spec: Weapon models (BR-07)).</summary>
 /// <param name="Kind">Weapon kind.</param>
 /// <param name="Side">Side; null only for a pistol.</param>
 /// <param name="Handedness">Handedness; null only for a pistol.</param>
 /// <param name="Size">Size; null only for a pistol.</param>
-/// <param name="Rentable">False for a pistol (BR-07).</param>
+/// <param name="Rentable">Whether editions may offer it for rental, for any kind (BR-07).</param>
 /// <param name="Label">Trimmed, NFC-normalised Federation label.</param>
 internal sealed record WeaponModelInput(WeaponKind Kind, Side? Side, Handedness? Handedness, WeaponSize? Size, bool Rentable, string Label);
 
 /// <summary>
-/// Weapon catalogue management by Admins (specs: Weapon models, Weapon catalogue access, Deleting
+/// Weapon catalogue management by Admins (specs: Weapon models (BR-07), Weapon catalogue access, Deleting
 /// comparsas and weapon models). Same rules as comparsas: audited in the same transaction, no-ops
 /// not recorded, existing rows locked before a change (design D4/D10).
 /// </summary>

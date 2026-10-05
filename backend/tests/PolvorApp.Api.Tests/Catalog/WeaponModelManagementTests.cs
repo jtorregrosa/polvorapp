@@ -9,7 +9,7 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 
 namespace PolvorApp.Api.Tests.Catalog;
 
-/// <summary>Specs "Weapon models" (BR-07) and the model part of "Catalogue changes are audited".</summary>
+/// <summary>Specs "Weapon models (BR-07)" and the model part of "Catalogue changes are audited".</summary>
 public sealed class WeaponModelManagementTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;
@@ -57,18 +57,31 @@ public sealed class WeaponModelManagementTests(PostgresFixture postgres, Mailpit
     }
 
     [Fact]
-    public async Task A_rentable_pistol_is_blocking_on_create_and_edit()
+    public async Task A_pistol_can_be_created_as_rentable()
+    {
+        using var response = await _admin.PostAsync("/api/weapon-models", new { kind = "PISTOL", label = "PISTOLA DE ALQUILER", rentable = true });
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var model = await ReadAsync<WeaponModelResponse>(response);
+        Assert.Equal(
+            (WeaponKind.Pistol, (Side?)null, (Handedness?)null, (WeaponSize?)null, true, true),
+            (model.Kind, model.Side, model.Handedness, model.Size, model.Rentable, model.Active));
+        using var data = JsonDocument.Parse(Assert.Single(await _host.AuditEntriesAsync("WeaponModelCreated")).Data!);
+        Assert.True(data.RootElement.GetProperty("rentable").GetBoolean());
+    }
+
+    [Fact]
+    public async Task A_pistol_made_rentable_later_is_audited_with_previous_and_new_values()
     {
         var pistol = await CreateAsync(new { kind = "PISTOL", label = "PISTOLA", rentable = false });
 
-        using var create = await _admin.PostAsync("/api/weapon-models", new { kind = "PISTOL", label = "PISTOLA DE ALQUILER", rentable = true });
-        using var edit = await _admin.PutAsJsonAsync($"/api/weapon-models/{pistol.Id}", new { kind = "PISTOL", label = "PISTOLA", rentable = true }, TestContext.Current.CancellationToken);
+        using var response = await _admin.PutAsJsonAsync($"/api/weapon-models/{pistol.Id}", new { kind = "PISTOL", label = "PISTOLA", rentable = true }, TestContext.Current.CancellationToken);
 
-        foreach (var response in new[] { create, edit })
-        {
-            await AssertProblemAsync(response, HttpStatusCode.BadRequest, "validation");
-            Assert.Equal("pistolNotRentable", (await ErrorsAsync(response))["rentable"]);
-        }
+        Assert.True((await ReadAsync<WeaponModelResponse>(response)).Rentable);
+        var entry = Assert.Single(await _host.AuditEntriesAsync("WeaponModelUpdated"));
+        using var data = JsonDocument.Parse(entry.Data!);
+        Assert.False(data.RootElement.GetProperty("previous").GetProperty("rentable").GetBoolean());
+        Assert.True(data.RootElement.GetProperty("current").GetProperty("rentable").GetBoolean());
     }
 
     [Theory]
@@ -211,12 +224,14 @@ public sealed class WeaponModelManagementTests(PostgresFixture postgres, Mailpit
     public async Task Rentable_is_required_on_create_and_edit()
     {
         var model = await CreateAsync(Trabuco("TRABUCO ALQUILABLE"));
+        var pistol = await CreateAsync(new { kind = "PISTOL", label = "PISTOLA CON FLAG", rentable = true });
 
         using var create = await _admin.PostAsync("/api/weapon-models", new { kind = "PISTOL", label = "PISTOLA SIN FLAG" });
         using var edit = await _admin.PutAsJsonAsync(
             $"/api/weapon-models/{model.Id}", new { kind = "TRABUCO", side = "CHRISTIAN", handedness = "LEFT", size = "SMALL", label = "TRABUCO ALQUILABLE" }, TestContext.Current.CancellationToken);
+        using var editPistol = await _admin.PutAsJsonAsync($"/api/weapon-models/{pistol.Id}", new { kind = "PISTOL", label = "PISTOLA CON FLAG" }, TestContext.Current.CancellationToken);
 
-        foreach (var response in new[] { create, edit })
+        foreach (var response in new[] { create, edit, editPistol })
         {
             await AssertProblemAsync(response, HttpStatusCode.BadRequest, "validation");
             Assert.Equal("required", (await ErrorsAsync(response))["rentable"]);
@@ -232,7 +247,7 @@ public sealed class WeaponModelManagementTests(PostgresFixture postgres, Mailpit
 
         Assert.Equal(new Dictionary<string, string> { ["side"] = "invalid", ["handedness"] = "required" }, await ErrorsAsync(arcabuz));
         Assert.Equal(new Dictionary<string, string> { ["side"] = "required" }, await ErrorsAsync(empty));
-        Assert.Equal(new Dictionary<string, string> { ["size"] = "invalid", ["rentable"] = "pistolNotRentable" }, await ErrorsAsync(pistol));
+        Assert.Equal(new Dictionary<string, string> { ["size"] = "invalid" }, await ErrorsAsync(pistol));
     }
 
     [Fact]

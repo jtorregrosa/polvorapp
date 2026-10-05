@@ -8,9 +8,9 @@ const KINDS: readonly string[] = Object.values(WeaponKind);
 const isKind = (value: string): value is WeaponKind => KINDS.includes(value);
 
 /**
- * A weapon model as the create and edit forms validate it (spec: Weapon models), mirroring the
- * server: every kind but a pistol needs side, handedness and size; a pistol is never rentable
- * (BR-07). Selects hold `''` until chosen; a pistol's empty attributes are submitted as `null`.
+ * A weapon model as the create and edit forms validate it (spec: Weapon models (BR-07)), mirroring
+ * the server: every kind but a pistol needs side, handedness and size; any kind may be rentable.
+ * Selects hold `''` until chosen; a pistol's empty attributes are submitted as `null`.
  * Every rule is checked in one pass, so all the errors of a submission show at once.
  */
 export const weaponModelSchema = z
@@ -35,9 +35,6 @@ export const weaponModelSchema = z
       return;
     }
     if (model.kind === WeaponKind.PISTOL) {
-      if (model.rentable) {
-        context.addIssue({ code: 'custom', path: ['rentable'], message: messages.pistolNotRentable });
-      }
       return;
     }
     for (const attribute of ATTRIBUTES) {

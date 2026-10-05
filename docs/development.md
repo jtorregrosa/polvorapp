@@ -176,7 +176,7 @@ Beduinos, Kábilas, Califas and Sarracenos (Moorish). Each has its own generated
 signs in like the seeded users below.
 
 Weapon models: trabuco (Christian) and arcabuz (Moorish) in every handedness and size, one of them
-inactive ("ARCABUZ MORO ZURDO (PEQUEÑO)"), plus a non-rentable "PISTOLA" without attributes.
+inactive ("ARCABUZ MORO ZURDO (PEQUEÑO)"), plus a "PISTOLA" without attributes, kept non-rentable to cover that case (any kind may be rentable, BR-07).
 
 #### Arquebusiers
 

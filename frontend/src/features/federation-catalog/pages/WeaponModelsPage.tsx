@@ -21,7 +21,7 @@ import { problemMessage } from '../problems';
 
 const KINDS = Object.values(WeaponKind);
 
-/** Specs "Weapon models" and "Weapon catalogue access": the catalogue, for Admins. */
+/** Specs "Weapon models (BR-07)" and "Weapon catalogue access": the catalogue, for Admins. */
 export function WeaponModelsPage() {
   const { t } = useTranslation('catalog');
   const { t: tUi } = useTranslation('ui');

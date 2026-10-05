@@ -14,7 +14,7 @@ their date.
 | Q-04 | Photos | Store license front/back and ID photo. | ✅ |
 | Q-05 | External app | PolvorApp is authoritative for arquebusier data; keep `federationId` reference. | ✅ |
 | Q-06 | Roles | Several FiringChiefs per comparsa; Federation = Admin only. | ✅ |
-| Q-07 | Weapon catalogue | Side × handedness × size; Christian = trabuco, Moorish = arcabuz; pistols never rented; availability varies per year. | ✅ |
+| Q-07 | Weapon catalogue | Side × handedness × size; Christian = trabuco, Moorish = arcabuz; availability varies per year. "Pistols never rented" was dropped: any kind may be rentable, as the Admin sets it per model (maintainer decision, 2026-10-05; `allow-rentable-pistols`). | ✅ |
 | Q-08 | Weapon number | Engraved on stock; rental numbers stamped by provider; one unit per person, non-transferable; returned and checked by provider. | ✅ |
 | Q-09 | Loans | Can cross comparsas; no limit. | ✅ |
 | Q-10 | Powder unit | Per arquebusier per year. | ✅ |

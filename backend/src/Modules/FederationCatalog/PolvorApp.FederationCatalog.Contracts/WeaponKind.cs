@@ -3,7 +3,7 @@ using PolvorApp.SharedKernel.Codes;
 
 namespace PolvorApp.FederationCatalog.Contracts;
 
-/// <summary>Weapon kind (glossary: <c>WeaponKind</c>). Pistols are never rentable (BR-07).</summary>
+/// <summary>Weapon kind (glossary: <c>WeaponKind</c>). Any kind may be rentable (BR-07).</summary>
 [JsonConverter(typeof(CodeEnumConverter<WeaponKind>))]
 public enum WeaponKind
 {
