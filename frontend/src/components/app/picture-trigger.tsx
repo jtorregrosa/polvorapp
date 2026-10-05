@@ -1,5 +1,5 @@
 import { ImageUp, Pencil, Trash2 } from 'lucide-react';
-import { useState, type ReactNode, type Ref } from 'react';
+import { useRef, useState, type ReactNode, type Ref } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   DropdownMenu,
@@ -52,6 +52,11 @@ export function PictureTrigger({
 }: PictureTriggerProps) {
   const { t } = useTranslation('ui');
   const [menuOpen, setMenuOpen] = useState(false);
+  /**
+   * The item chosen in the menu, run once the menu has closed and returned focus to the picture:
+   * a file chooser opened while the menu is still closing is sometimes not shown (Chromium).
+   */
+  const chosen = useRef<(() => void) | undefined>(undefined);
   const button = (
     <button
       ref={ref}
@@ -97,13 +102,30 @@ export function PictureTrigger({
       <DropdownMenuTrigger asChild disabled={disabled}>
         {button}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="min-w-44">
-        <DropdownMenuItem onSelect={onReplace}>
+      <DropdownMenuContent
+        align="start"
+        className="min-w-44"
+        onCloseAutoFocus={() => {
+          const action = chosen.current;
+          chosen.current = undefined;
+          action?.();
+        }}
+      >
+        <DropdownMenuItem
+          onSelect={() => {
+            chosen.current = onReplace;
+          }}
+        >
           <ImageUp aria-hidden="true" />
           {t('pictureActions.replace')}
         </DropdownMenuItem>
         {canRemove && (
-          <DropdownMenuItem variant="destructive" onSelect={onRemove}>
+          <DropdownMenuItem
+            variant="destructive"
+            onSelect={() => {
+              chosen.current = onRemove;
+            }}
+          >
             <Trash2 aria-hidden="true" />
             {t('pictureActions.remove')}
           </DropdownMenuItem>
