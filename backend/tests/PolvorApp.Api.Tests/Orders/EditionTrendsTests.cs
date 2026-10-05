@@ -92,6 +92,36 @@ public sealed class EditionTrendsTests(PostgresFixture postgres, MailpitFixture 
     }
 
     [Fact]
+    public async Task Within_one_comparsa_an_arquebusier_active_earlier_in_another_is_not_in_their_first_year()
+    {
+        var veteran = await PersonAsync();
+        var previous = NewOrder(_orders.Previous, _orders.Own.Id, OrderStatus.Validated);
+        var current = NewOrder(_orders.Current, _orders.Other.Id);
+        await _orders.Services.SaveOrdersAsync(previous, NewEntry(previous, veteran), current, NewEntry(current, veteran), NewEntry(current, await PersonAsync()));
+
+        var row = (await TrendsAsync([_orders.Other.Id])).Single(r => r.Year == 2031);
+
+        Assert.Equal((2, 1), (row.Active, row.FirstYear));
+    }
+
+    [Fact]
+    public async Task The_oldest_edition_of_the_window_knows_its_first_year_when_older_editions_have_orders()
+    {
+        var older = Enumerable.Range(2019, 11).Select(year => NewEdition(year, EditionStatus.Closed)).ToList();
+        await _orders.Services.SaveEditionsAsync([.. older.Cast<object>()]);
+        var veteran = await PersonAsync();
+        var first = NewOrder(older[0], _orders.Own.Id, OrderStatus.Validated);
+        var windowStart = NewOrder(older[3], _orders.Own.Id, OrderStatus.Validated);
+        await _orders.Services.SaveOrdersAsync(first, NewEntry(first, veteran), windowStart, NewEntry(windowStart, veteran), NewEntry(windowStart, await PersonAsync()));
+
+        var rows = await TrendsAsync(null);
+
+        // 2019–2021 fall out of the 10 most recent (2022–2031), yet their orders make 2022 known.
+        Assert.Equal(2022, rows[0].Year);
+        Assert.Equal(1, rows[0].FirstYear);
+    }
+
+    [Fact]
     public async Task Active_entries_are_counted_per_comparsa_with_their_arquebusiers_for_the_gender_count()
     {
         var own = NewOrder(_orders.Current, _orders.Own.Id);
