@@ -2,7 +2,7 @@
 
 ## 1. Research and decision
 
-- [ ] 1.1 Check with Context7, and with `gh search code` for real-world use:
+- [x] 1.1 Check with Context7, and with `gh search code` for real-world use:
   - shadcn/ui `chart` (Recharts 3): `ChartContainer`, `ChartConfig`, `ChartTooltipContent`,
     `ChartLegendContent`;
   - Recharts 3 `accessibilityLayer` keyboard behaviour, SVG pattern fills, `isAnimationActive`,
@@ -11,7 +11,7 @@
 
   Record versions and workarounds in design.md. Verify: design.md is updated, with no new open
   question.
-- [ ] 1.2 Move `docs/adr/0014-charts.md` to "Accepted" with the maintainer's approval, and update
+- [x] 1.2 Move `docs/adr/0014-charts.md` to "Accepted" with the maintainer's approval, and update
   the ADR index. Verify: the ADR index lists it as accepted.
 
 ## 2. Backend
