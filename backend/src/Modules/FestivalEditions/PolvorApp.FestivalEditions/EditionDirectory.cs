@@ -23,6 +23,7 @@ internal sealed class EditionDirectory(FestivalEditionsDbContext db, ICatalogDir
 
     public async Task<IReadOnlyList<EditionHeader>> ListStartedAsync(int count, CancellationToken cancellationToken)
     {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(count);
         var recent = await db.Editions.AsNoTracking()
             .Where(e => e.Status != EditionStatus.Draft)
             .OrderByDescending(e => e.Year)

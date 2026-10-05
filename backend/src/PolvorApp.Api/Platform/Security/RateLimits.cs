@@ -27,6 +27,7 @@ internal static class RateLimits
         var orderWrites = Limit(configuration, "RateLimits:OrderWrites:PermitLimit", 120);
         var exports = Limit(configuration, "RateLimits:Exports:PermitLimit", 30);
         var privacy = Limit(configuration, "RateLimits:Privacy:PermitLimit", 10);
+        var insightsReads = Limit(configuration, "RateLimits:InsightsReads:PermitLimit", 60);
 
         services.AddRateLimiter(options =>
         {
@@ -39,6 +40,7 @@ internal static class RateLimits
             options.AddPolicy(RateLimitPolicies.OrderWrites, context => PerUser(context, orderWrites, TimeSpan.FromMinutes(1)));
             options.AddPolicy(RateLimitPolicies.Exports, context => PerUser(context, exports, TimeSpan.FromMinutes(1)));
             options.AddPolicy(RateLimitPolicies.Privacy, context => PerUser(context, privacy, TimeSpan.FromMinutes(1)));
+            options.AddPolicy(RateLimitPolicies.InsightsReads, context => PerUser(context, insightsReads, TimeSpan.FromMinutes(1)));
         });
 
         services.Configure<ForwardedHeadersOptions>(options =>

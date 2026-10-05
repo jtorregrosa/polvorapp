@@ -14,11 +14,11 @@ namespace PolvorApp.ComparsaOrders.History;
 internal sealed class EditionTrends(ComparsaOrdersDbContext db, IEditionDirectory editions) : IEditionTrends
 {
     /// <summary>How many editions a trend covers (spec: Edition trends (UC-07)).</summary>
-    public const int Editions = 10;
+    public const int EditionCount = 10;
 
     public async Task<IReadOnlyList<EditionTrendRow>> ListAsync(IReadOnlyCollection<Guid>? comparsaIds, CancellationToken cancellationToken)
     {
-        var started = await editions.ListStartedAsync(Editions, cancellationToken);
+        var started = await editions.ListStartedAsync(EditionCount, cancellationToken);
         if (started.Count == 0)
         {
             return [];

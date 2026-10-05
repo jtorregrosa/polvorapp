@@ -83,6 +83,8 @@ services:
       RateLimits__Exports__PermitLimit: ${RATE_LIMIT_EXPORTS_PER_MINUTE:-30}
       # GDPR lookups, exports and erasures (add-audit-privacy) per user and minute.
       RateLimits__Privacy__PermitLimit: ${RATE_LIMIT_PRIVACY_PER_MINUTE:-10}
+      # Statistics trends across editions (add-statistics-trends) per user and minute.
+      RateLimits__InsightsReads__PermitLimit: ${RATE_LIMIT_INSIGHTS_READS_PER_MINUTE:-60}
       # How often notification emails are sent (add-notifications); the E2E run shortens it.
       Notifications__DispatchIntervalSeconds: ${NOTIFICATIONS_DISPATCH_INTERVAL_SECONDS:-30}
       # Private photo bucket (ADR-0005). Locally the API uses the MinIO root credentials; real

@@ -47,4 +47,10 @@ public static class RateLimitPolicies
     /// Admin, so a lookup by DNI/NIE cannot be used to probe the registry at speed (add-audit-privacy D11).
     /// </summary>
     public const string Privacy = "privacy";
+
+    /// <summary>
+    /// Aggregate reads across editions (the statistics trends): 60 per minute per signed-in user, so a
+    /// single account cannot keep the grouped queries over ten editions busy (add-statistics-trends).
+    /// </summary>
+    public const string InsightsReads = "insights-reads";
 }
