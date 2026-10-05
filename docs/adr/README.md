@@ -18,7 +18,7 @@ One decision per file, never edited after acceptance — superseded by a new ADR
 | [0011](0011-frontend-react.md) | Frontend: React + Vite SPA, fixed toolset, PWA | Accepted |
 | [0012](0012-polvorapp-visual-identity.md) | PolvorApp visual identity (own brand, no third-party assets in git) | Superseded by 0013 |
 | [0013](0013-polvora-visual-identity.md) | "Pólvora" visual identity: own fonts and palette, night sidebar, ember accent | Accepted |
-| [0014](0014-charts.md) | Charts with Recharts through shadcn/ui | Proposed |
+| [0014](0014-charts.md) | Charts with Recharts through shadcn/ui | Accepted |
 
 ## Template
 

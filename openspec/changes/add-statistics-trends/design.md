@@ -110,6 +110,38 @@ Summary sentences come from i18n with plural and number formatting.
   - series names reuse the existing `ui:status`/`tag` labels where they exist.
 - `ui`: `chart.showTable`, `chart.hideTable`, `chart.provisional`.
 
+## Research findings (task 1.1)
+
+Context7, `gh` and the vendors' sites are not reachable from the implementation environment. The
+npm registry and GitHub raw files are, so the findings come from the published packages and the
+shadcn/ui repository itself.
+
+- **Versions.** `recharts` 3.10.1 (MIT), whose peers are React 16.8–19 and `react-is`, which the
+  project does not list yet: it is added at 19.x beside React. Its own dependencies (`react-redux`,
+  `@reduxjs/toolkit`, `immer`, `victory-vendor`, `es-toolkit`…) are MIT. The shadcn/ui CLI cannot reach
+  its registry here, so `components/ui/chart.tsx` is copied from the repository
+  (`apps/v4/registry/new-york-v4/ui/chart.tsx`, the Tailwind 4 style), with the import of `cn`
+  adapted to `@/lib/cn`, exactly as the CLI would.
+- **`ChartContainer`** wraps `ResponsiveContainer` with an `initialDimension` of 320 × 200, so it
+  renders in jsdom (no layout) without the `ResizeObserver` warnings; tests assert on the table and
+  the legend, never on pixels.
+- **Keyboard.** Recharts 3 turns `accessibilityLayer` on by default in every cartesian chart: the
+  chart is focusable, ← and → move the active point and show the tooltip. The composites keep it
+  on explicitly.
+- **Motion.** `isAnimationActive` defaults to `'auto'`, which already turns animation off under
+  `prefers-reduced-motion`; the composites pass `animationDuration={200}` and keep animation for the
+  first render only (`isAnimationActive` false once mounted), as "Motion" asks.
+- **Patterns.** Bars take `fill="url(#id)"`: the composites render SVG `<pattern>` definitions inside
+  the chart (`<defs>`) with the series colour as the stroke, so every series has a colour and a
+  pattern.
+- **EF Core 10 grouping.** A `GroupBy` over the join of entries and orders with conditional
+  `Count(e => …)` and `Sum` translates to one `GROUP BY` statement (Npgsql 10). The first-year count
+  needs "no earlier ACTIVE entry", which is computed from the per-arquebusier first ACTIVE year in a
+  second grouped query, then counted per edition in memory (at most 10 editions × a few hundred
+  people).
+
+No new open question.
+
 ## Risks / Trade-offs
 
 - [Recharts' keyboard layer is less complete than a table] → The table is always offered, and the

@@ -1,6 +1,6 @@
 # 0014. Charts with Recharts through shadcn/ui
 
-- Status: Proposed
+- Status: Accepted (the maintainer asked to apply `add-statistics-trends`, 2026-10-05)
 - Date: 2026-10-05
 
 ## Context
