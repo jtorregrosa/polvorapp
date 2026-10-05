@@ -48,8 +48,7 @@ const valuesOf = (model: WeaponModelResponse): WeaponModelValues => ({
   side: model.side ?? '',
   handedness: model.handedness ?? '',
   size: model.size ?? '',
-  // A pistol is never rentable (BR-07); never start its form in a state it cannot save.
-  rentable: model.kind === 'PISTOL' ? false : model.rentable,
+  rentable: model.rentable,
   label: model.label,
 });
 
@@ -217,7 +216,7 @@ function WeaponModelDetail({ id }: { id: string }) {
   return <ModelDetail model={details} announce={announce} notice={<NoticeBanner notice={notice} />} />;
 }
 
-/** Spec "Weapon models": one model in read mode; edit, deactivate or delete it (Admins only). */
+/** Spec "Weapon models (BR-07)": one model in read mode; edit, deactivate or delete it (Admins only). */
 export function WeaponModelDetailPage() {
   const { id = '' } = useParams();
   return <WeaponModelDetail key={id} id={id} />;

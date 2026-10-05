@@ -294,6 +294,32 @@ describe('EditionDetailPage edit panels (spec: Detail pages in read mode)', () =
     ]);
   });
 
+  it('offers a rentable pistol like any other model', async () => {
+    const user = userEvent.setup();
+    editionDetails(CURRENT_2031);
+    server.use(
+      mock.get('/api/weapon-models', () =>
+        HttpResponse.json(
+          CATALOGUE.map((model) => (model.kind === 'PISTOL' ? { ...model, rentable: true } : model)),
+        ),
+      ),
+    );
+    const { bodies, resolver } = recordBodies(() => HttpResponse.json(CURRENT_2031));
+    server.use(mock.put(`/api/editions/${CURRENT_2031.id}/weapon-models`, resolver));
+    await asAdmin(CURRENT_2031);
+
+    const panel = await openPanel(user, 'modelos de alquiler');
+    const pistols = within(panel).getByRole('group', { name: 'Pistola' });
+    await user.click(within(pistols).getByRole('checkbox', { name: 'PISTOLA' }));
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
+
+    await expectSaved('Cambios guardados');
+    expect(bodies).toHaveLength(1);
+    expect((bodies[0] as { weaponModelIds: string[] }).weaponModelIds).toContain(
+      '00000000-0000-4000-8000-000000000604',
+    );
+  });
+
   it('adds, edits and removes milestones, and the table follows', async () => {
     const user = userEvent.setup();
     const details = editionDetails(CURRENT_2031);

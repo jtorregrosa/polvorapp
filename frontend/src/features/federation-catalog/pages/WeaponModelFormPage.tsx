@@ -27,7 +27,7 @@ import {
   type WeaponModelValues,
 } from './weaponModelSchema';
 
-/** Spec "Weapon models": an Admin adds a model to the catalogue (form template). */
+/** Spec "Weapon models (BR-07)": an Admin adds a model to the catalogue (form template). */
 export function WeaponModelFormPage() {
   const { t } = useTranslation('catalog');
   useDocumentTitle(t('weaponModels.form.newTitle'));

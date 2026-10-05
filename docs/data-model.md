@@ -108,7 +108,7 @@ side. Uploading a kind that exists replaces it and erases the previous image. Im
 object storage under random names; the database only holds the reference (`registry.arquebusier_photos`),
 so an upload never changes the arquebusier's version.
 
-**WeaponModel** (catalogue) — `kind` (`TRABUCO` | `ARCABUZ` | `PISTOL`), `side`, `handedness` (`RIGHT` | `LEFT`), `size` (`NORMAL` | `SMALL`), `rentable` (never for pistols, BR-07), `label` (Federation naming, e.g. "TRABUCO CRISTIANO DIESTRO (PEQUEÑO)", unique ignoring case), `active`.
+**WeaponModel** (catalogue) — `kind` (`TRABUCO` | `ARCABUZ` | `PISTOL`), `side`, `handedness` (`RIGHT` | `LEFT`), `size` (`NORMAL` | `SMALL`), `rentable` (any kind, pistols included, BR-07), `label` (Federation naming, e.g. "TRABUCO CRISTIANO DIESTRO (PEQUEÑO)", unique ignoring case), `active`.
 Side, handedness and size are required for trabucos and arcabuces, whose kind × side × handedness × size
 combination is unique; for pistols they are optional. Kind and side combine freely (maintainer decision:
 Federation labels such as "ARCABUZ CRISTIANO" do not follow Q-07 strictly; Q-53).
@@ -274,7 +274,7 @@ entries themselves stay.
 | BR-04 | An ACTIVE entry should have: valid license at festival dates, course done, legal age (18). In the registry the same rules are evaluated today, in Europe/Madrid, for `ACTIVE` and `RESERVE` arquebusiers, as compliance warnings (`add-compliance-insights`); edition entries are evaluated on the festival dates in #10. | **Warning** — the FiringChief is accountable and attests on submission |
 | BR-05 | `powderKg` ∈ {0, 1, 2} per edition. A RESERVE entry has no powder, caps, weapon or flask. An ACTIVE entry may have no powder or no weapon (powder carriers, shooters such as the comparsa captains). | Block |
 | BR-06 | A PickupProxy must have an entry (ACTIVE or RESERVE) in the same edition; per the current form, in the same comparsa. | Block |
-| BR-07 | A rental model must be available in the edition. Pistols are never rentable. | Block |
+| BR-07 | A rental model must be offered in the edition (in its rental set, active and rentable). Any kind may be rentable, pistols included (maintainer decision, 2026-10-05). | Block |
 | BR-08 | A rental weapon is assigned to exactly one entry and is non-transferable. | Block |
 | BR-09 | A weapon loan comes from an OwnedWeapon of an arquebusier of any comparsa, or from an external owner who is not in PolvorApp (with their name, DNI/NIE and the weapon's model, number and ownership guide). No limit on loans. | Block (data rules) |
 | BR-10 | The **registry lock** (independent of editions) blocks FiringChief writes to the registry; Admins always write. FiringChiefs can edit orders only while the orders of the current edition are open; otherwise read-only. Admins can always edit orders (exceptional cases). | Block |

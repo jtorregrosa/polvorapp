@@ -238,6 +238,7 @@ internal sealed partial class CatalogSeeder(
                 Side = model.Side,
                 Handedness = model.Handedness,
                 Size = model.Size,
+                // Any kind may be rentable (BR-07); the seed's pistol stays non-rentable to exercise a non-rentable model.
                 Rentable = model.Kind != WeaponKind.Pistol,
                 Label = model.Label,
                 Active = model.Active,

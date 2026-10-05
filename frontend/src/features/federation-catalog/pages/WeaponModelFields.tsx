@@ -49,7 +49,7 @@ function AttributeField({
   );
 }
 
-/** What a chosen kind adds under it (spec: Weapon models, BR-07). */
+/** What a chosen kind adds under it (spec: Weapon models (BR-07)). */
 function KindDetails({ form, isPistol }: { form: WeaponModelForm; isPistol: boolean }) {
   const { t } = useTranslation('catalog');
   const rentable = useController({ control: form.control, name: 'rentable' });
@@ -64,21 +64,19 @@ function KindDetails({ form, isPistol }: { form: WeaponModelForm; isPistol: bool
       <AttributeField control={form.control} name="side" optional={isPistol} />
       <AttributeField control={form.control} name="handedness" optional={isPistol} />
       <AttributeField control={form.control} name="size" optional={isPistol} />
-      {!isPistol && (
-        <CheckboxField
-          label={t('weaponModels.form.rentable')}
-          checked={rentable.field.value}
-          onCheckedChange={rentable.field.onChange}
-        />
-      )}
+      <CheckboxField
+        label={t('weaponModels.form.rentable')}
+        checked={rentable.field.value}
+        onCheckedChange={rentable.field.onChange}
+      />
     </div>
   );
 }
 
 /**
- * Label, then the kind as radio cards; the chosen kind reveals side, handedness, size and, except
- * for a pistol, rentable. Choosing a pistol clears "rentable" and makes the attributes optional
- * (BR-07); any other kind requires them.
+ * Label, then the kind as radio cards; the chosen kind reveals side, handedness, size and rentable.
+ * Any kind may be rentable (BR-07), so changing the kind keeps that choice. A pistol makes the
+ * attributes optional; any other kind requires them.
  */
 export function WeaponModelFields({ form }: { form: WeaponModelForm }) {
   const { t } = useTranslation('catalog');
@@ -105,8 +103,7 @@ export function WeaponModelFields({ form }: { form: WeaponModelForm }) {
             onChange={(value) => {
               field.onChange(value);
               if (value === WeaponKind.PISTOL) {
-                form.setValue('rentable', false, { shouldDirty: true });
-                form.clearErrors(['side', 'handedness', 'size', 'rentable']);
+                form.clearErrors(['side', 'handedness', 'size']);
               }
             }}
             options={Object.values(WeaponKind).map((value) => ({

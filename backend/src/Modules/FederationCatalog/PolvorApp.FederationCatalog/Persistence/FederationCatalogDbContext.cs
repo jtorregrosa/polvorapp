@@ -161,8 +161,7 @@ internal sealed class FederationCatalogDbContext(DbContextOptions<FederationCata
                 table.HasCheckConstraint("ck_weapon_models_size", "size IS NULL OR " + In("size", EnumCodes.All<WeaponSize>()));
                 table.HasCheckConstraint("ck_weapon_models_label_not_blank", "btrim(label) <> ''");
 
-                // BR-07 and the attribute rule (spec: Weapon models), both blocking.
-                table.HasCheckConstraint("ck_weapon_models_pistol_not_rentable", "NOT (kind = " + Quote(Pistol) + " AND rentable)");
+                // The attribute rule (spec: Weapon models (BR-07)), blocking. Any kind may be rentable.
                 table.HasCheckConstraint(
                     "ck_weapon_models_attributes",
                     "kind = " + Quote(Pistol) + " OR (side IS NOT NULL AND handedness IS NOT NULL AND size IS NOT NULL)");

@@ -163,7 +163,7 @@
       "size": "Grandària",
       "notSet": "Sense indicar",
       "rentable": "Es pot llogar",
-      "pistolHint": "Les pistoles no es lloguen mai; bàndol, mà i grandària són opcionals.",
+      "pistolHint": "En les pistoles, bàndol, mà i grandària són opcionals.",
       "create": "Crea el model",
       "save": "Guarda els canvis",
       "created": "Model d'arma creat.",
@@ -219,7 +219,6 @@
     "required": "Este camp és obligatori.",
     "invalid": "Este valor no és vàlid.",
     "tooLong": "100 caràcters com a màxim.",
-    "pistolNotRentable": "Les pistoles no es lloguen mai.",
     "choice": "Tria una opció.",
     "file": {
       "required": "No s'ha rebut cap imatge. Torna a triar-la.",

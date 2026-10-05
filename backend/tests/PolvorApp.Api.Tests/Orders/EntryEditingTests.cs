@@ -7,6 +7,8 @@ using PolvorApp.Api.Tests.Infrastructure;
 using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ArquebusierRegistry.Persistence;
 using PolvorApp.ComparsaOrders.Contracts;
+using PolvorApp.FederationCatalog.Contracts;
+using PolvorApp.FestivalEditions.Editions;
 using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 using static PolvorApp.Api.Tests.Infrastructure.OrderData;
 
@@ -80,6 +82,46 @@ public sealed class EntryEditingTests(PostgresFixture postgres, MailpitFixture m
         Assert.Equal(("RENTAL", _orders.Offered.Label, "RENTAL_1KG"), (rental.GetProperty("weaponSource").GetString(), rental.GetProperty("rentalWeaponModel").GetProperty("label").GetString(), rental.GetProperty("flask").GetString()));
         Assert.Equal(("NONE", 2, "SMALL"), (none.GetProperty("weaponSource").GetString(), none.GetProperty("capsBoxes").GetInt32(), none.GetProperty("capsType").GetString()));
         Assert.Equal(JsonValueKind.Null, none.GetProperty("ownedWeapon").ValueKind);
+    }
+
+    [Fact]
+    public async Task An_entry_rents_an_offered_pistol_and_it_counts_in_totals_and_billing()
+    {
+        var pistol = RegistryData.NewWeaponModel("PISTOLA SINTÉTICA DE ALQUILER", WeaponKind.Pistol);
+        pistol.Rentable = true;
+        await _orders.Services.SaveCatalogAsync(pistol);
+        await _orders.Services.SaveEditionsAsync(new EditionWeaponModel { EditionId = _orders.Current.Id, WeaponModelId = pistol.Id });
+        await _orders.SetPricesAsync(_orders.Current.Id, 55.00m, 4.50m, 30.00m, 6.00m);
+        var (shooter, _) = await _orders.AddArquebusierAsync(_orders.Own.Id, "Pistolero Sintético");
+        var order = await _orders.PrepareAsync(_orders.FiringChief, _orders.Own.Id);
+
+        var saved = await SaveOrderAsync(order, Entry(order, shooter.Id), body => (body["weaponSource"], body["rentalWeaponModelId"]) = ("RENTAL", pistol.Id));
+
+        var entry = Entry(saved, shooter.Id);
+        Assert.Equal(("RENTAL", "PISTOLA SINTÉTICA DE ALQUILER"), (entry.GetProperty("weaponSource").GetString(), entry.GetProperty("rentalWeaponModel").GetProperty("label").GetString()));
+        var rental = Assert.Single(saved.GetProperty("totals").GetProperty("weaponRentals").EnumerateArray());
+        Assert.Equal(("PISTOLA SINTÉTICA DE ALQUILER", 1), (rental.GetProperty("weaponModel").GetProperty("label").GetString(), rental.GetProperty("count").GetInt32()));
+        var weaponRental = saved.GetProperty("billing").GetProperty("lines").EnumerateArray().Single(l => l.GetProperty("concept").GetString() == "WEAPON_RENTAL");
+        Assert.Equal((1, "30.00"), (weaponRental.GetProperty("quantity").GetInt32(), weaponRental.GetProperty("amount").GetRawText()));
+    }
+
+    [Fact]
+    public async Task A_pistol_not_offered_or_no_longer_rentable_cannot_be_rented()
+    {
+        var notInSet = RegistryData.NewWeaponModel("PISTOLA SINTÉTICA FUERA DEL LOTE", WeaponKind.Pistol);
+        notInSet.Rentable = true;
+        var notRentable = RegistryData.NewWeaponModel("PISTOLA SINTÉTICA NO ALQUILABLE", WeaponKind.Pistol);
+        await _orders.Services.SaveCatalogAsync(notInSet, notRentable);
+        await _orders.Services.SaveEditionsAsync(new EditionWeaponModel { EditionId = _orders.Current.Id, WeaponModelId = notRentable.Id });
+        var (shooter, _) = await _orders.AddArquebusierAsync(_orders.Own.Id, "Sin Pistola Sintético");
+        var order = await _orders.PrepareAsync(_orders.FiringChief, _orders.Own.Id);
+        var entry = Entry(order, shooter.Id);
+
+        using var outside = await PutAsync(order, entry, body => (body["weaponSource"], body["rentalWeaponModelId"]) = ("RENTAL", notInSet.Id));
+        using var withdrawn = await PutAsync(order, entry, body => (body["weaponSource"], body["rentalWeaponModelId"]) = ("RENTAL", notRentable.Id));
+
+        Assert.Equal("notOffered", await ErrorAsync(outside, "rentalWeaponModelId"));
+        Assert.Equal("notOffered", await ErrorAsync(withdrawn, "rentalWeaponModelId"));
     }
 
     [Fact]

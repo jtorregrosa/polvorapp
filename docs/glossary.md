@@ -87,7 +87,7 @@ equivalent are kept as-is (e.g. `Comparsa`).
 | Arma | `Weapon` | A physical unit identified by the number engraved on the stock (`weaponNumber`). |
 | Trabuco | `WeaponKind.TRABUCO` | Usually the Christian-side weapon (not enforced, Q-53). |
 | Arcabuz | `WeaponKind.ARCABUZ` | Usually the Moorish-side weapon (not enforced, Q-53). |
-| Pistola | `WeaponKind.PISTOL` | May be owned; **never rented**. |
+| Pistola | `WeaponKind.PISTOL` | May be owned, and rented when the Admin makes its model rentable (BR-07). Side, handedness and size are optional. |
 | Diestro / Zurdo | `Handedness` (`RIGHT`, `LEFT`) | |
 | Normal / Pequeño | `WeaponSize` (`NORMAL`, `SMALL`) | |
 | Modelo de alquiler | `WeaponModel` | Kind × side × handedness × size (pistols need none of the last three), with the Federation's label. The catalogue is stable but availability varies per edition. Deactivated when retired, deleted only if never used. |

@@ -42,7 +42,7 @@ function modelDetails(initial: WeaponModelResponse) {
   };
 }
 
-describe('WeaponModelsPage (specs: Weapon models, Weapon catalogue access)', () => {
+describe('WeaponModelsPage (specs: Weapon models (BR-07), Weapon catalogue access)', () => {
   it('lists models with translated attributes, a dash for a pistol, and whether they can be rented', async () => {
     server.use(mock.get('/api/weapon-models', () => HttpResponse.json([PISTOLA, TRABUCO])));
     await asAdmin('/weapon-models');
@@ -264,7 +264,7 @@ async function expectSaved(text: string): Promise<void> {
   });
 }
 
-describe('WeaponModelFormPage (spec: Weapon models)', () => {
+describe('WeaponModelFormPage (spec: Weapon models (BR-07))', () => {
   it('creates a trabuco with every attribute and continues on its page', async () => {
     const user = userEvent.setup();
     modelDetails(TRABUCO);
@@ -298,30 +298,42 @@ describe('WeaponModelFormPage (spec: Weapon models)', () => {
     expect(app.location()).toBe(`/weapon-models/${TRABUCO.id}`);
   });
 
-  it('creates a pistol: never rentable, attributes optional and "not set" by default', async () => {
+  it('creates a rentable pistol, its attributes optional and "not set" by default', async () => {
     const user = userEvent.setup();
     modelDetails(PISTOLA);
     const { bodies, resolver } = recordBodies(() => HttpResponse.json(PISTOLA, { status: 201 }));
     server.use(mock.post('/api/weapon-models', resolver));
     await asAdmin('/weapon-models/new');
 
-    await user.click(await screen.findByRole('radio', { name: 'Trabuco' }));
-    await user.click(screen.getByRole('checkbox', { name: 'Se puede alquilar' }));
-    await user.click(screen.getByRole('radio', { name: 'Pistola' }));
+    await user.click(await screen.findByRole('radio', { name: 'Pistola' }));
 
-    expect(screen.queryByRole('checkbox', { name: 'Se puede alquilar' })).not.toBeInTheDocument();
-    const hint = 'Las pistolas nunca se alquilan; bando, mano y tamaño son opcionales.';
+    const hint = 'En las pistolas, bando, mano y tamaño son opcionales.';
     // Announced too, since choosing a pistol changed other fields.
     expect(screen.getAllByRole('status').some((status) => status.textContent === hint)).toBe(true);
     const side = screen.getByRole('radiogroup', { name: 'Bando (opcional)' });
     expect(within(side).getByRole('radio', { name: 'Sin indicar' })).toHaveAttribute('aria-checked', 'true');
+    await user.click(screen.getByRole('checkbox', { name: 'Se puede alquilar' }));
     await user.type(screen.getByRole('textbox', { name: /Nombre/ }), 'PISTOLA');
     await user.click(screen.getByRole('button', { name: 'Crear modelo' }));
 
     await screen.findByText('Modelo de arma creado.');
     expect(bodies).toEqual([
-      { kind: 'PISTOL', side: null, handedness: null, size: null, rentable: false, label: 'PISTOLA' },
+      { kind: 'PISTOL', side: null, handedness: null, size: null, rentable: true, label: 'PISTOLA' },
     ]);
+  });
+
+  it.each([
+    ['Trabuco', 'Pistola'],
+    ['Pistola', 'Trabuco'],
+  ])('keeps the rentable choice when the kind changes from %s to %s', async (from, to) => {
+    const user = userEvent.setup();
+    await asAdmin('/weapon-models/new');
+
+    await user.click(await screen.findByRole('radio', { name: from }));
+    await user.click(screen.getByRole('checkbox', { name: 'Se puede alquilar' }));
+    await user.click(screen.getByRole('radio', { name: to }));
+
+    expect(screen.getByRole('checkbox', { name: 'Se puede alquilar' })).toBeChecked();
   });
 
   it('asks for every attribute of a trabuco before calling the API', async () => {
@@ -370,7 +382,7 @@ describe('WeaponModelFormPage (spec: Weapon models)', () => {
   });
 });
 
-describe('WeaponModelDetailPage (specs: Weapon models, Detail pages in read mode)', () => {
+describe('WeaponModelDetailPage (specs: Weapon models (BR-07), Detail pages in read mode)', () => {
   it('shows the model read-only, with "not set" for a pistol attribute', async () => {
     modelDetails(PISTOLA);
     await asAdmin(`/weapon-models/${PISTOLA.id}`);
@@ -473,9 +485,30 @@ describe('WeaponModelDetailPage (specs: Weapon models, Detail pages in read mode
     ]);
   });
 
-  it('asks for the attributes again when a pistol becomes a trabuco, which may be rented', async () => {
+  it('edits a pistol with its rentable flag', async () => {
     const user = userEvent.setup();
-    modelDetails(PISTOLA);
+    const rentable = { ...PISTOLA, rentable: true };
+    modelDetails(rentable);
+    const { bodies, resolver } = recordBodies(() =>
+      HttpResponse.json({ ...rentable, label: 'PISTOLA GRANDE' }),
+    );
+    server.use(mock.put(`/api/weapon-models/${PISTOLA.id}`, resolver));
+    await asAdmin(`/weapon-models/${PISTOLA.id}`);
+
+    const panel = await editModel(user);
+    expect(within(panel).getByRole('checkbox', { name: 'Se puede alquilar' })).toBeChecked();
+    await user.type(within(panel).getByRole('textbox', { name: 'Nombre' }), ' GRANDE');
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
+
+    await expectSaved('Cambios guardados');
+    expect(bodies).toEqual([
+      { kind: 'PISTOL', side: null, handedness: null, size: null, rentable: true, label: 'PISTOLA GRANDE' },
+    ]);
+  });
+
+  it('asks for the attributes again when a pistol becomes a trabuco, keeping its rentable flag', async () => {
+    const user = userEvent.setup();
+    modelDetails({ ...PISTOLA, rentable: true });
     let called = false;
     server.use(
       mock.put(`/api/weapon-models/${PISTOLA.id}`, () => {
@@ -486,9 +519,8 @@ describe('WeaponModelDetailPage (specs: Weapon models, Detail pages in read mode
     await asAdmin(`/weapon-models/${PISTOLA.id}`);
 
     const panel = await editModel(user);
-    expect(within(panel).queryByRole('checkbox', { name: 'Se puede alquilar' })).not.toBeInTheDocument();
     await user.click(within(panel).getByRole('radio', { name: 'Trabuco' }));
-    expect(within(panel).getByRole('checkbox', { name: 'Se puede alquilar' })).not.toBeChecked();
+    expect(within(panel).getByRole('checkbox', { name: 'Se puede alquilar' })).toBeChecked();
     expect(within(panel).queryByRole('radio', { name: 'Sin indicar' })).not.toBeInTheDocument();
     await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
 

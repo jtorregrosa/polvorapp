@@ -12,6 +12,7 @@ internal static class ExportFixtures
     public static readonly Guid Este = Guid.Parse("00000000-0000-4000-8000-000000000103");
     public static readonly Guid Arcabuz = Guid.Parse("00000000-0000-4000-8000-000000000601");
     public static readonly Guid Trabuco = Guid.Parse("00000000-0000-4000-8000-000000000602");
+    public static readonly Guid Pistola = Guid.Parse("00000000-0000-4000-8000-000000000603");
 
     public static readonly IReadOnlyDictionary<Guid, string> Comparsas = new Dictionary<Guid, string>
     {
@@ -23,6 +24,7 @@ internal static class ExportFixtures
     {
         [Arcabuz] = "ARCABUZ MORO DIESTRO",
         [Trabuco] = "TRABUCO CRISTIANO DIESTRO",
+        [Pistola] = "PISTOLA",
     };
 
     /// <summary>An <c>ACTIVE</c> entry with nothing ordered, whose copy names <paramref name="lastName"/>.</summary>

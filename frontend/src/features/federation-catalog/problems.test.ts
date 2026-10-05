@@ -31,7 +31,7 @@ describe('catalogue problems', () => {
     const error = new ApiProblemError(400, {
       status: 400,
       code: 'validation',
-      errors: { rentable: 'pistolNotRentable', label: 'somethingNew', other: 'required' },
+      errors: { rentable: 'required', label: 'somethingNew', other: 'required' },
     });
 
     const applied = applyFieldErrors<{ rentable: boolean; label: string }>(
@@ -43,7 +43,7 @@ describe('catalogue problems', () => {
     expect(applied).toBe(true);
     expect(setError).toHaveBeenCalledWith('rentable', {
       type: 'server',
-      message: messages.pistolNotRentable,
+      message: messages.required,
     });
     expect(setError).toHaveBeenCalledWith('label', { type: 'server', message: messages.invalid });
     expect(setError).toHaveBeenCalledTimes(2);

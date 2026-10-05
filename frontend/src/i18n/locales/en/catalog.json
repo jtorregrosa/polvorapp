@@ -163,7 +163,7 @@
       "size": "Size",
       "notSet": "Not set",
       "rentable": "Can be rented",
-      "pistolHint": "Pistols are never rented; side, handedness and size are optional.",
+      "pistolHint": "For pistols, side, handedness and size are optional.",
       "create": "Create model",
       "save": "Save changes",
       "created": "Weapon model created.",
@@ -219,7 +219,6 @@
     "required": "This field is required.",
     "invalid": "This value is not valid.",
     "tooLong": "100 characters at most.",
-    "pistolNotRentable": "Pistols are never rented.",
     "choice": "Choose an option.",
     "file": {
       "required": "No image was received. Choose it again.",

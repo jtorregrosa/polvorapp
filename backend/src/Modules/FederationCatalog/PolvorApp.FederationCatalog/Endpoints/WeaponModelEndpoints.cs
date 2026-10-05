@@ -15,14 +15,11 @@ using PolvorApp.SharedKernel.Validation;
 namespace PolvorApp.FederationCatalog.Endpoints;
 
 /// <summary>
-/// Specs "Weapon models" (BR-07), "Weapon catalogue access" and "Deleting comparsas and weapon
+/// Specs "Weapon models (BR-07)", "Weapon catalogue access" and "Deleting comparsas and weapon
 /// models". Every signed-in user reads the catalogue; every write is Admin-only.
 /// </summary>
 internal static class WeaponModelEndpoints
 {
-    /// <summary>Validation reason for a rentable pistol (BR-07).</summary>
-    public const string PistolNotRentable = "pistolNotRentable";
-
     public static IEndpointRouteBuilder MapWeaponModelEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var group = endpoints.MapGroup("/weapon-models").WithTags("WeaponModels").ProducesProblem(StatusCodes.Status401Unauthorized);
@@ -126,8 +123,8 @@ internal static class WeaponModelEndpoints
     /// <summary>
     /// Reads a create or edit request, or names every invalid field. Every kind but a pistol needs
     /// side, handedness and size (the database check says the same); a pistol needs only kind and
-    /// label, treats an empty attribute as absent and is never rentable (BR-07). <c>rentable</c> is
-    /// always required: an edit replaces the whole model, so a forgotten flag must not flip it.
+    /// label and treats an empty attribute as absent. Any kind may be rentable (BR-07). <c>rentable</c>
+    /// is always required: an edit replaces the whole model, so a forgotten flag must not flip it.
     /// </summary>
     private static bool TryRead(
         WeaponModelRequest request, [NotNullWhen(true)] out WeaponModelInput? input, [NotNullWhen(false)] out ProblemHttpResult? invalid)
@@ -143,10 +140,6 @@ internal static class WeaponModelEndpoints
         if (request.Rentable is null)
         {
             errors["rentable"] = InputFields.Required;
-        }
-        else if (request.Rentable.Value && kind == WeaponKind.Pistol)
-        {
-            errors["rentable"] = PistolNotRentable;
         }
 
         if (kind is { } validKind && label is not null && request.Rentable is { } rentable && errors.Count == 0)

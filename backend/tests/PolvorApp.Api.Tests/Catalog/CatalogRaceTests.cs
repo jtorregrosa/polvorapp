@@ -10,7 +10,7 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 namespace PolvorApp.Api.Tests.Catalog;
 
 /// <summary>
-/// Specs "Comparsas" and "Weapon models": the unique indexes decide when two requests pass the
+/// Specs "Comparsas" and "Weapon models (BR-07)": the unique indexes decide when two requests pass the
 /// uniqueness check together (design D3). A barrier in the audit trail holds both requests after
 /// their check and before they save, so the race is lost by exactly one of them every time.
 /// </summary>

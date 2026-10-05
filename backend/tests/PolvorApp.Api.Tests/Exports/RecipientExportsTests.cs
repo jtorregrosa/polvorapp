@@ -65,6 +65,17 @@ public sealed class RecipientExportsTests
     }
 
     [Fact]
+    public void Rental_company_lists_a_rented_pistol_like_any_model()
+    {
+        var order = Order(Norte, OrderStatus.Validated,
+            Entry("Pardo", nationalId: "00000006Y") with { WeaponSource = WeaponSource.Rental, RentalWeaponModelId = Pistola });
+
+        var table = new RentalCompanyExport().Build(Data(order), Texts);
+
+        Assert.Equal(["Pardo, Arcabucero | 00000006Y | Comparsa Sintética Norte | PISTOLA | "], Lines(table));
+    }
+
+    [Fact]
     public void Rows_follow_spanish_order_by_comparsa_then_person()
     {
         var norte = Order(Norte, OrderStatus.Validated,

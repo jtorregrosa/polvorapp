@@ -3,8 +3,8 @@ using PolvorApp.FederationCatalog.Contracts;
 namespace PolvorApp.FederationCatalog.WeaponModels;
 
 /// <summary>
-/// A catalogue entry (spec: Weapon models). Side, handedness and size are required for trabucos
-/// and arcabuces and optional for pistols; a pistol is never rentable (BR-07).
+/// A catalogue entry (spec: Weapon models (BR-07)). Side, handedness and size are required for trabucos
+/// and arcabuces and optional for pistols; any kind may be rentable.
 /// </summary>
 internal sealed class WeaponModel
 {

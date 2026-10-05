@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using PolvorApp.Api.Platform.Database;
@@ -17,6 +19,9 @@ namespace PolvorApp.Api.Tests.Catalog;
 /// </summary>
 public sealed class CatalogDatabaseTests(PostgresFixture postgres) : IAsyncLifetime
 {
+    /// <summary>The catalogue migration before <c>AllowRentablePistols</c> dropped the pistol rule.</summary>
+    private const string BeforeRentablePistols = "20261003171820_AddFederationLogo";
+
     private ApiFactory? _factory;
 
     public async ValueTask InitializeAsync()
@@ -75,8 +80,30 @@ public sealed class CatalogDatabaseTests(PostgresFixture postgres) : IAsyncLifet
     }
 
     [Fact]
-    public async Task A_rentable_pistol_is_rejected()
+    public async Task A_rentable_pistol_is_accepted()
     {
+        var pistol = NewModel(WeaponKind.Pistol, "PISTOLA DE ALQUILER", rentable: true, attributes: false);
+
+        await SaveAsync(pistol);
+
+        Assert.True((bool?)await ScalarAsync($"SELECT rentable FROM catalog.weapon_models WHERE id = '{pistol.Id}'"));
+    }
+
+    [Fact]
+    public async Task Rolling_back_the_pistol_rule_is_refused_while_a_rentable_pistol_exists()
+    {
+        await SaveAsync(NewModel(WeaponKind.Pistol, "PISTOLA DE ALQUILER", rentable: true, attributes: false));
+
+        var error = await Assert.ThrowsAsync<PostgresException>(() => RollBackToAsync(BeforeRentablePistols));
+
+        Assert.Contains("Rentable pistols exist", error.MessageText, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Rolling_back_the_pistol_rule_restores_its_constraint()
+    {
+        await RollBackToAsync(BeforeRentablePistols);
+
         var error = await FailAsync(NewModel(WeaponKind.Pistol, "PISTOLA", rentable: true, attributes: false));
 
         Assert.Equal((PostgresErrorCodes.CheckViolation, "ck_weapon_models_pistol_not_rentable"), error);
@@ -196,6 +223,13 @@ public sealed class CatalogDatabaseTests(PostgresFixture postgres) : IAsyncLifet
         var error = await Assert.ThrowsAsync<DbUpdateException>(() => SaveAsync(entity));
         var database = Assert.IsType<PostgresException>(error.InnerException);
         return (database.SqlState, database.ConstraintName);
+    }
+
+    private async Task RollBackToAsync(string migration)
+    {
+        await using var scope = _factory!.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<FederationCatalogDbContext>();
+        await db.GetService<IMigrator>().MigrateAsync(migration, TestContext.Current.CancellationToken);
     }
 
     private async Task<object?> ScalarAsync(string sql)

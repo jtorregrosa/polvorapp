@@ -8,7 +8,7 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 
 namespace PolvorApp.Api.Tests.Editions;
 
-/// <summary>Spec "Rental models offered in an edition (BR-07)" and its audit.</summary>
+/// <summary>Spec "Rental models offered in an edition" and its audit.</summary>
 public sealed class EditionWeaponModelTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private IdentityTestHost _host = null!;
@@ -65,7 +65,20 @@ public sealed class EditionWeaponModelTests(PostgresFixture postgres, MailpitFix
     }
 
     [Fact]
-    public async Task A_pistol_cannot_be_offered()
+    public async Task A_rentable_pistol_can_be_offered()
+    {
+        var (id, _) = await _admin.CreateEditionAsync(2031);
+        using var created = await _admin.PostAsync("/api/weapon-models", new { kind = "PISTOL", label = "PISTOLA", rentable = true });
+        var pistol = (await ReadAsync<IdJson>(created)).Id;
+
+        using var response = await SetAsync(id, pistol);
+
+        var model = Assert.Single((await ReadAsync<EditionJson>(response)).WeaponModels);
+        Assert.Equal(("PISTOLA", true), (model.Label, model.Offered));
+    }
+
+    [Fact]
+    public async Task A_non_rentable_pistol_cannot_be_offered()
     {
         var (id, _) = await _admin.CreateEditionAsync(2031);
         using var created = await _admin.PostAsync("/api/weapon-models", new { kind = "PISTOL", label = "PISTOLA", rentable = false });
