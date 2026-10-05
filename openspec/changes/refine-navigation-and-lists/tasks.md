@@ -54,7 +54,7 @@
 
 ## 3. Shell: sections, icon rail and motion
 
-- [ ] 3.1 Write `AppLayout` and `AppShell` tests for the sections (D4):
+- [x] 3.1 Write `AppLayout` and `AppShell` tests for the sections (D4):
   - the order and the labels;
   - named groups;
   - an empty section hidden for FiringChiefs;

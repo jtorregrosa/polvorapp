@@ -1,11 +1,13 @@
 import type { LucideIcon } from 'lucide-react';
-import { useEffect, useRef, type ReactNode, type RefObject } from 'react';
+import { Fragment, useEffect, useId, useRef, type ReactNode, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router';
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarInset,
   SidebarMenu,
@@ -13,6 +15,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
+  SidebarSeparator,
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
@@ -39,6 +42,17 @@ type NavigationCount = { count?: undefined; countLabel?: undefined } | { count: 
 
 export type NavigationItem = NavigationLink & NavigationCount;
 
+/**
+ * A section of the navigation (refine-navigation-and-lists D4): a labelled group for assistive
+ * technology, or the unlabelled first section (Home).
+ */
+export interface NavigationSection {
+  id: string;
+  /** Already translated; none for the first section. */
+  label?: string;
+  items: readonly NavigationItem[];
+}
+
 /** A link card in the sidebar, under the mark: e.g. a FiringChief's comparsa with its logo. */
 export interface SidebarCard {
   to: string;
@@ -49,7 +63,8 @@ export interface SidebarCard {
 }
 
 export interface AppLayoutProps {
-  navigation: readonly NavigationItem[];
+  /** The sections of the navigation, in order, each with at least one item. */
+  navigation: readonly NavigationSection[];
   /** Cards under the mark, in this order (platform spec: Application shell); none when empty. */
   sidebarCards?: readonly SidebarCard[];
   /** Shown at the bottom of the sidebar (API version). */
@@ -68,16 +83,50 @@ function useCloseDrawer(): () => void {
   };
 }
 
-function NavigationMenu({ items }: { items: readonly NavigationItem[] }) {
+function NavigationMenu({ sections }: { sections: readonly NavigationSection[] }) {
   const { t } = useTranslation('ui');
   const { pathname } = useLocation();
-  const closeDrawer = useCloseDrawer();
-  const currentTarget = currentNavigationTarget(pathname, items);
+  const currentTarget = currentNavigationTarget(
+    pathname,
+    sections.flatMap((section) => section.items),
+  );
 
   return (
     <nav aria-label={t('nav.label')}>
+      {sections.map((section, index) => (
+        <Fragment key={section.id}>
+          {index > 0 && <SidebarSeparator className="my-1" />}
+          <NavigationGroup section={section} currentTarget={currentTarget} />
+        </Fragment>
+      ))}
+    </nav>
+  );
+}
+
+/** One section: an `h2` naming a `role="group"`, so screen readers announce where an entry belongs. */
+function NavigationGroup({
+  section: { label, items },
+  currentTarget,
+}: {
+  section: NavigationSection;
+  currentTarget: string | undefined;
+}) {
+  const closeDrawer = useCloseDrawer();
+  const headingId = useId();
+
+  return (
+    <SidebarGroup
+      className="p-0"
+      role={label ? 'group' : undefined}
+      aria-labelledby={label ? headingId : undefined}
+    >
+      {label && (
+        <SidebarGroupLabel asChild>
+          <h2 id={headingId}>{label}</h2>
+        </SidebarGroupLabel>
+      )}
       <SidebarMenu>
-        {items.map(({ to, label, icon: Icon, count, countLabel }) => {
+        {items.map(({ to, label: itemLabel, icon: Icon, count, countLabel }) => {
           const current = to === currentTarget;
           const counted = count !== undefined && count > 0;
           return (
@@ -93,11 +142,11 @@ function NavigationMenu({ items }: { items: readonly NavigationItem[] }) {
                   aria-current={current ? 'page' : undefined}
                   // The name starts with the visible label (WCAG 2.5.3) and says what the badge counts;
                   // an aria-label is exact, where hidden text gets a space before the comma.
-                  aria-label={counted ? `${label}, ${countLabel}` : undefined}
+                  aria-label={counted ? `${itemLabel}, ${countLabel}` : undefined}
                   onClick={closeDrawer}
                 >
                   <Icon aria-hidden="true" />
-                  <span className="break-words">{label}</span>
+                  <span className="break-words">{itemLabel}</span>
                 </Link>
               </SidebarMenuButton>
               {counted && <SidebarMenuBadge aria-hidden="true">{count}</SidebarMenuBadge>}
@@ -105,7 +154,7 @@ function NavigationMenu({ items }: { items: readonly NavigationItem[] }) {
           );
         })}
       </SidebarMenu>
-    </nav>
+    </SidebarGroup>
   );
 }
 
@@ -222,7 +271,7 @@ export function AppLayout({
           {/* The cards scroll with the navigation: they never squeeze it out on short screens (1.4.10). */}
           <SidebarContent className="gap-group px-2">
             {sidebarCards && sidebarCards.length > 0 && <SidebarCards cards={sidebarCards} />}
-            <NavigationMenu items={navigation} />
+            <NavigationMenu sections={navigation} />
           </SidebarContent>
           {sidebarFooter && (
             <SidebarFooter className="px-4 text-xs text-sidebar-muted-foreground">

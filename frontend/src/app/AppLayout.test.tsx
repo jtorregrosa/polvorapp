@@ -4,14 +4,25 @@ import { http as mock, HttpResponse } from 'msw';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { axeViolations } from '@/test/axe';
-import { SYNTHETIC_ADMIN } from '@/test/identity';
+import { SYNTHETIC_ADMIN, SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { renderWithProviders } from '@/test/render';
 import { server } from '@/test/server';
 import { appRoutes } from './routes';
 
-function renderAt(path: string, language = 'es-ES') {
+function renderAt(path: string, language = 'es-ES', session = SYNTHETIC_ADMIN) {
   const router = createMemoryRouter(appRoutes, { initialEntries: [path] });
-  return renderWithProviders(<RouterProvider router={router} />, language, { session: SYNTHETIC_ADMIN });
+  return renderWithProviders(<RouterProvider router={router} />, language, { session });
+}
+
+/** The navigation's sections: the label of each group (none for the first) and its links. */
+function navigationShape() {
+  const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
+  return [...navigation.querySelectorAll('[data-sidebar="group"]')].map((group) => [
+    group.getAttribute('role') === 'group' ? group.querySelector('h2')?.textContent : null,
+    within(group as HTMLElement)
+      .getAllByRole('link')
+      .map((link) => link.textContent),
+  ]);
 }
 
 function setViewportWidth(width: number) {
@@ -38,6 +49,25 @@ describe('AppLayout (platform: Application shell)', () => {
     expect(within(navigation).getByRole('link', { name: 'Inicio' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('link', { name: 'PolvorApp' })).toHaveAttribute('href', '/');
     expect(await screen.findByText('Versión 1.4.0')).toBeInTheDocument();
+  });
+
+  it('groups the navigation in named sections for an Admin, in the specified order', async () => {
+    await renderAt('/');
+
+    expect(navigationShape()).toEqual([
+      [null, ['Inicio']],
+      ['Registro', ['Arcabuceros', 'Comparsas', 'Estadísticas']],
+      ['Fiestas', ['Ediciones', 'Pedidos', 'Reparto']],
+      ['Administración', ['Modelos de arma', 'Usuarios', 'Auditoría', 'Privacidad']],
+    ]);
+    expect(screen.getByRole('group', { name: 'Administración' })).toBeInTheDocument();
+  });
+
+  it('leaves out the administration section and its label for a FiringChief', async () => {
+    await renderAt('/', 'es-ES', SYNTHETIC_FIRING_CHIEF);
+
+    expect(navigationShape().map(([label]) => label)).toEqual([null, 'Registro', 'Fiestas']);
+    expect(screen.queryByRole('group', { name: 'Administración' })).not.toBeInTheDocument();
   });
 
   it('shows a translated notice in the sidebar when the API is unavailable', async () => {

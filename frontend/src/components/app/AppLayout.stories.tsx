@@ -11,9 +11,21 @@ const meta = {
   parameters: { layout: 'fullscreen' },
   args: {
     navigation: [
-      { to: '/', label: 'Inicio', icon: House },
-      { to: '/arquebusiers', label: 'Arcabuceros', icon: Users, count: 42, countLabel: '42 con avisos' },
-      { to: '/orders', label: 'Pedidos', icon: ClipboardList, count: 3, countLabel: '3 pendientes' },
+      { id: 'home', items: [{ to: '/', label: 'Inicio', icon: House }] },
+      {
+        id: 'registry',
+        label: 'Registro',
+        items: [
+          { to: '/arquebusiers', label: 'Arcabuceros', icon: Users, count: 42, countLabel: '42 con avisos' },
+        ],
+      },
+      {
+        id: 'festival',
+        label: 'Fiestas',
+        items: [
+          { to: '/orders', label: 'Pedidos', icon: ClipboardList, count: 3, countLabel: '3 pendientes' },
+        ],
+      },
     ],
     sidebarFooter: <p className="text-xs text-sidebar-foreground">API 0.1.0</p>,
     children: (
@@ -65,20 +77,32 @@ export const WithComparsaCards: Story = {
 export const LongValencian: Story = {
   args: {
     navigation: [
-      { to: '/', label: 'Inici', icon: House },
+      { id: 'home', items: [{ to: '/', label: 'Inici', icon: House }] },
       {
-        to: '/arquebusiers',
-        label: 'Arcabussers de la comparsa',
-        icon: Users,
-        count: 128,
-        countLabel: '128 amb avisos',
+        id: 'registry',
+        label: 'Registre',
+        items: [
+          {
+            to: '/arquebusiers',
+            label: 'Arcabussers de la comparsa',
+            icon: Users,
+            count: 128,
+            countLabel: '128 amb avisos',
+          },
+        ],
       },
       {
-        to: '/orders',
-        label: 'Comandes de pólvora pendents',
-        icon: ClipboardList,
-        count: 12,
-        countLabel: '12 pendents',
+        id: 'festival',
+        label: 'Festes',
+        items: [
+          {
+            to: '/orders',
+            label: 'Comandes de pólvora pendents',
+            icon: ClipboardList,
+            count: 12,
+            countLabel: '12 pendents',
+          },
+        ],
       },
     ],
   },
