@@ -1,13 +1,12 @@
-using System.Net.Mail;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
 using PolvorApp.FederationCatalog.Logos;
 using PolvorApp.FederationCatalog.Settings;
 using PolvorApp.IdentityAccess.Contracts;
+using PolvorApp.SharedKernel.Email;
 using PolvorApp.SharedKernel.Http;
 using PolvorApp.SharedKernel.Security;
 
@@ -22,6 +21,9 @@ internal static class SettingsEndpoints
 {
     /// <summary>A save based on an older version.</summary>
     public const string Modified = "federationSettings.modified";
+
+    /// <summary>The settings row stayed locked by another change; retryable.</summary>
+    public const string Busy = "federationSettings.busy";
 
     public static IEndpointRouteBuilder MapSettingsEndpoints(this IEndpointRouteBuilder endpoints)
     {
@@ -52,30 +54,30 @@ internal static class SettingsEndpoints
             .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
 
     private static async Task<Ok<FederationSettingsResponse>> GetAsync(
-        FederationSettingsAdministration administration, IConfiguration configuration, CancellationToken cancellationToken) =>
-        TypedResults.Ok(FederationSettingsResponse.From(await administration.GetAsync(cancellationToken), SenderAddress(configuration)));
+        FederationSettingsAdministration administration, IEmailSenderProfile sender, CancellationToken cancellationToken) =>
+        TypedResults.Ok(FederationSettingsResponse.From(await administration.GetAsync(cancellationToken), sender.SenderAddress));
 
     private static Task<Results<Ok<FederationSettingsResponse>, ProblemHttpResult>> SaveIdentityAsync(
-        IdentitySettingsRequest request, FederationSettingsAdministration administration, IConfiguration configuration, CancellationToken cancellationToken) =>
-        SaveAsync(request.Version, errors => SettingsInput.Identity(request, errors), administration.SaveIdentityAsync, configuration, cancellationToken);
+        IdentitySettingsRequest request, FederationSettingsAdministration administration, IEmailSenderProfile sender, CancellationToken cancellationToken) =>
+        SaveAsync(request.Version, errors => SettingsInput.Identity(request, errors), administration.SaveIdentityAsync, sender, cancellationToken);
 
     private static Task<Results<Ok<FederationSettingsResponse>, ProblemHttpResult>> SaveEmailsAsync(
-        EmailSettingsRequest request, FederationSettingsAdministration administration, IConfiguration configuration, CancellationToken cancellationToken) =>
-        SaveAsync(request.Version, errors => SettingsInput.Emails(request, errors), administration.SaveEmailsAsync, configuration, cancellationToken);
+        EmailSettingsRequest request, FederationSettingsAdministration administration, IEmailSenderProfile sender, CancellationToken cancellationToken) =>
+        SaveAsync(request.Version, errors => SettingsInput.Emails(request, errors), administration.SaveEmailsAsync, sender, cancellationToken);
 
     private static Task<Results<Ok<FederationSettingsResponse>, ProblemHttpResult>> SaveOrdersAsync(
-        OrderSettingsRequest request, FederationSettingsAdministration administration, IConfiguration configuration, CancellationToken cancellationToken) =>
-        SaveAsync(request.Version, errors => SettingsInput.Orders(request, errors), administration.SaveOrdersAsync, configuration, cancellationToken);
+        OrderSettingsRequest request, FederationSettingsAdministration administration, IEmailSenderProfile sender, CancellationToken cancellationToken) =>
+        SaveAsync(request.Version, errors => SettingsInput.Orders(request, errors), administration.SaveOrdersAsync, sender, cancellationToken);
 
     private static Task<Results<Ok<FederationSettingsResponse>, ProblemHttpResult>> SaveCalendarAsync(
-        CalendarSettingsRequest request, FederationSettingsAdministration administration, IConfiguration configuration, CancellationToken cancellationToken) =>
-        SaveAsync(request.Version, errors => SettingsInput.Calendar(request, errors), administration.SaveCalendarAsync, configuration, cancellationToken);
+        CalendarSettingsRequest request, FederationSettingsAdministration administration, IEmailSenderProfile sender, CancellationToken cancellationToken) =>
+        SaveAsync(request.Version, errors => SettingsInput.Calendar(request, errors), administration.SaveCalendarAsync, sender, cancellationToken);
 
     private static async Task<Results<Ok<FederationSettingsResponse>, ProblemHttpResult>> SaveAsync<TFields>(
         uint? requestVersion,
         Func<Dictionary<string, string>, TFields?> read,
         Func<uint, TFields, CancellationToken, Task<(SettingsOutcome Outcome, FederationSettings? Settings)>> save,
-        IConfiguration configuration,
+        IEmailSenderProfile sender,
         CancellationToken cancellationToken)
         where TFields : class
     {
@@ -89,13 +91,11 @@ internal static class SettingsEndpoints
 
         return await save(basedOn, fields, cancellationToken) switch
         {
-            (SettingsOutcome.Done, { } settings) => TypedResults.Ok(FederationSettingsResponse.From(settings, SenderAddress(configuration))),
+            (SettingsOutcome.Done, { } settings) => TypedResults.Ok(FederationSettingsResponse.From(settings, sender.SenderAddress)),
             (SettingsOutcome.Modified, _) => ProblemResults.Conflict(Modified),
-            _ => CatalogProblems.From(CatalogOutcome.Busy),
+            (SettingsOutcome.Busy, _) => ProblemResults.Problem(StatusCodes.Status503ServiceUnavailable, Busy),
+            var (outcome, _) => throw new InvalidOperationException($"Unexpected settings outcome {outcome}."),
         };
     }
 
-    /// <summary>The deployment's sender address (<c>Email:From</c>, validated at start-up), without any display name.</summary>
-    private static string SenderAddress(IConfiguration configuration) =>
-        MailAddress.TryCreate(configuration["Email:From"], out var address) ? address.Address : string.Empty;
 }

@@ -123,6 +123,7 @@ internal sealed partial class DistributionDocuments(
         var day = await db.Days.AsNoTracking().SingleOrDefaultAsync(d => d.EditionId == edition.Id && d.Type == proxy.Type, cancellationToken);
         var live = await LiveAsync([holder.ArquebusierId, proxyEntry.ArquebusierId], cancellationToken);
         var texts = DistributionTexts.For(CultureInfo.CurrentUICulture);
+        var federationName = (await federation.GetAsync(cancellationToken)).OfficialName(texts.NameForm);
         var proxyLicense = License(live, proxyEntry);
         var problem = ProxyRules.ProblemOf(holder, proxy.Type, proxyLicense, day?.Date ?? edition.FestivalStartsOn);
         if (problem is { } refused)
@@ -146,7 +147,6 @@ internal sealed partial class DistributionDocuments(
         var comparsa = (await ComparsaNamesAsync([proxy.ComparsaId], cancellationToken)).TryGetValue(proxy.ComparsaId, out var name)
             ? name
             : throw new InvalidOperationException($"Comparsa {proxy.ComparsaId} of pickup proxy {proxy.Id} is missing from the catalogue.");
-        var federationName = (await federation.GetAsync(cancellationToken)).OfficialName(texts.NameForm);
         var data = new PickupFormData(
             edition.Year, proxy.Type, proxy.Id, comparsa, Person(texts, live, holder), Person(texts, live, proxyEntry), day?.Date, day?.Location, logo, federationName);
         var document = renderer.RenderForm(PickupAuthorisationForm.Build(data, texts));

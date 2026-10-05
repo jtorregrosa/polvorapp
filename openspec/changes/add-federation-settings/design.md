@@ -86,11 +86,16 @@ change: the documents keep receiving the name from their callers.
 
 ### D4. Email header handling
 
-`EmailOptions.From` keeps the address. The sender builds
+`EmailOptions.From` keeps the address (only the address counts; a display name in it is ignored).
+The host reads the name and reply-to through `IEmailSenderProfile` (SharedKernel), implemented with
+`IFederationSettings` in a scope of its own for every message, which also gives the settings page
+the sender address. The sender builds
 `new MailboxAddress(settings.SenderName, options.From.Address)`. `MimeKit` encodes the display name.
 D2's validation keeps line breaks out anyway. `ReplyTo` is added when set. When the settings cannot
 be read (database down), sending already fails and is retried by the delivery rules. No fallback
-name is invented.
+name is invented. The failure is recorded as the `Compose` phase with the exception type as its
+code. Invitations and password resets go through the in-memory outbox, which never retried an SMTP
+failure either: a settings outage loses such an email, and the person asks again (group 3 review).
 
 ### D5. Screen
 

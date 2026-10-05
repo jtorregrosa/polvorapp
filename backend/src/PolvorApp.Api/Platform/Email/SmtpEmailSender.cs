@@ -29,7 +29,6 @@ internal sealed partial class SmtpEmailSender(IOptions<EmailOptions> options, IE
         var settings = options.Value;
         // Validated at startup (EmailOptionsValidator); these guards only satisfy nullability.
         var host = settings.SmtpHost ?? throw new InvalidOperationException("The Email:SmtpHost setting is required.");
-        var from = settings.From ?? throw new InvalidOperationException("The Email:From setting is required.");
 
         // MailKit's own timeout applies per socket operation; this deadline bounds the whole send.
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -39,7 +38,7 @@ internal sealed partial class SmtpEmailSender(IOptions<EmailOptions> options, IE
         var phase = Phase.Compose;
         try
         {
-            using var mime = Compose(message, from, await profile.GetAsync(deadline.Token));
+            using var mime = Compose(message, profile.SenderAddress, await profile.GetAsync(deadline.Token));
             phase = Phase.Connect;
             await client.ConnectAsync(host, settings.SmtpPort, ToSocketOptions(settings.Security), deadline.Token);
             if (settings is { Username: { Length: > 0 } username, Password: { } password })
@@ -79,13 +78,19 @@ internal sealed partial class SmtpEmailSender(IOptions<EmailOptions> options, IE
     /// The sender is the profile's name with the configured address (design D4): MimeKit encodes the
     /// name, so it can never add a header. The reply-to is added only when the profile has one.
     /// </summary>
-    private static MimeMessage Compose(EmailMessage message, string from, EmailSenderProfile sender)
+    private static MimeMessage Compose(EmailMessage message, string fromAddress, EmailSenderProfile sender)
     {
         var mime = new MimeMessage { Subject = message.Subject };
-        mime.From.Add(new MailboxAddress(sender.DisplayName, MailboxAddress.Parse(from).Address));
+        mime.From.Add(new MailboxAddress(sender.DisplayName, fromAddress));
         if (sender.ReplyTo is { Length: > 0 } replyTo)
         {
-            mime.ReplyTo.Add(new MailboxAddress(string.Empty, replyTo));
+            // Checked by the settings API; a row written another way fails the message rather than send an odd header.
+            if (!MailboxAddress.TryParse(replyTo, out var replyAddress) || string.IsNullOrEmpty(replyAddress.Domain) || !string.IsNullOrEmpty(replyAddress.Name))
+            {
+                throw new InvalidOperationException("The reply-to address of the settings is not a plain address.");
+            }
+
+            mime.ReplyTo.Add(replyAddress);
         }
 
         mime.To.Add(new MailboxAddress(message.ToName ?? string.Empty, message.ToAddress));
@@ -99,7 +104,9 @@ internal sealed partial class SmtpEmailSender(IOptions<EmailOptions> options, IE
         SmtpCommandException command => $"{(int)command.StatusCode} {command.ErrorCode}",
         SocketException socket => socket.SocketErrorCode.ToString(),
         OperationCanceledException => "Timeout",
-        _ => "-",
+
+        // The type name is free of personal data and tells a settings outage from a broken row.
+        _ => exception.GetType().Name,
     };
 
     private static SecureSocketOptions ToSocketOptions(EmailSecurity security) => security switch

@@ -48,14 +48,10 @@ internal static class Schedule
     }
 
     /// <summary>
-    /// Whether a milestone dated <paramref name="date"/> is due for its reminder today, from
-    /// <paramref name="leadDays"/> days before (the Federation settings) until the date itself.
+    /// The milestone dates due for a reminder today: from today until <paramref name="leadDays"/> days
+    /// ahead (the Federation settings), both included.
     /// </summary>
-    public static bool IsMilestoneDue(DateOnly today, DateOnly date, int leadDays)
-    {
-        var days = date.DayNumber - today.DayNumber;
-        return days >= 0 && days <= leadDays;
-    }
+    public static (DateOnly From, DateOnly To) MilestoneWindow(DateOnly today, int leadDays) => (today, today.AddDays(leadDays));
 
     /// <summary>Whether FiringChiefs may be reminded of a milestone of an edition in that status (BR-12: they cannot see a draft).</summary>
     public static bool RemindsFiringChiefs(EditionStatus status) => status == EditionStatus.InProgress;
