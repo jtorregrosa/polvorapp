@@ -119,7 +119,7 @@
   - axe on the collapsed shell in both themes.
 
   Verify: the specs pass on the compose stack, and the full suite passes twice in a row.
-- [ ] 5.2 Run `verification-loop`:
+- [x] 5.2 Run `verification-loop`:
   - build, types and lint;
   - frontend tests with at least 80 % coverage on the changed composites and pages;
   - a diff review.

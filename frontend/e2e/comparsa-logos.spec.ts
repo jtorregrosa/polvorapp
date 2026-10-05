@@ -106,6 +106,8 @@ test.describe('comparsa logos', () => {
     const logo = page.getByRole('button', { name: `Logo de ${name}, opciones` });
     await expect(logo).toBeFocused();
 
+    const before = await logo.locator('img').getAttribute('src');
+
     // Keyboard only: Enter opens the menu on its first item, "Sustituir".
     await page.keyboard.press('Enter');
     await expect(page.getByRole('menuitem', { name: 'Sustituir' })).toBeFocused();
@@ -115,6 +117,7 @@ test.describe('comparsa logos', () => {
       await replacement
     ).setFiles({ name: 'emblema.png', mimeType: 'image/png', buffer: await transparentEmblem(page) });
     const dialog = page.getByRole('dialog', { name: 'Recortar logo de la comparsa' });
+    // The dialog's own keyboard path is covered by PhotoUpload's tests; here the action itself.
     await dialog.getByRole('button', { name: 'Usar logo' }).focus();
     const uploaded = page.waitForResponse(
       (response) =>
@@ -125,7 +128,28 @@ test.describe('comparsa logos', () => {
 
     await expect(dialog).toBeHidden();
     await expect(logo).toBeFocused();
-    await expect(page.getByRole('status').filter({ hasText: 'Logo guardado' })).toBeAttached();
+    // A new version of the logo, and the change announced.
+    await expect(logo.locator('img')).not.toHaveAttribute('src', before ?? '');
+    await expect(page.getByRole('status').filter({ hasText: 'Logo guardado' })).toHaveText('Logo guardado');
+  });
+
+  test('a tap on the logo opens its menu on a phone', async ({ page, newComparsa, isMobile }) => {
+    test.skip(!isMobile, 'Touch is checked on the phone project.');
+    const { id, name } = await newComparsa();
+    const upload = await page.request.put(`/api/comparsas/${id}/logo`, {
+      headers: await antiforgeryHeaders(page),
+      multipart: {
+        file: { name: 'emblema.png', mimeType: 'image/png', buffer: await transparentEmblem(page) },
+      },
+    });
+    expect(upload.ok()).toBe(true);
+    await page.goto(`/comparsas/${id}`);
+    await waitForShell(page);
+
+    await page.getByRole('button', { name: `Logo de ${name}, opciones` }).tap();
+
+    await expect(page.getByRole('menuitem', { name: 'Sustituir' })).toBeVisible();
+    await expect(page.getByRole('menuitem', { name: 'Quitar' })).toBeVisible();
   });
 
   test('an Admin uploads a transparent logo, sees it in the header and the list, and removes it', async ({

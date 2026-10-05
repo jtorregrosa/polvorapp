@@ -104,6 +104,48 @@ describe('WeaponModelsPage (specs: Weapon models, Weapon catalogue access)', () 
     ).toEqual(descending);
   });
 
+  it.each([
+    // Column, first row ascending, first row descending (none for a tie); a missing value goes first.
+    ['Nombre', ARCABUZ_RETIRADO.label, TRABUCO.label],
+    ['Bando', PISTOLA.label, ARCABUZ_RETIRADO.label],
+    ['Mano', PISTOLA.label, null],
+    ['Tamaño', PISTOLA.label, null],
+    ['Estado', null, ARCABUZ_RETIRADO.label],
+  ])('sorts by %s, by the value shown', async (column, ascending, descending) => {
+    const user = userEvent.setup();
+    server.use(mock.get('/api/weapon-models', () => HttpResponse.json([TRABUCO, PISTOLA, ARCABUZ_RETIRADO])));
+    await asAdmin('/weapon-models');
+    const table = await screen.findByRole('table', { name: 'Modelos de arma' });
+    await within(table).findByRole('link', { name: TRABUCO.label });
+    const first = () => within(table).getAllByRole('link')[0]?.textContent;
+    const header = () => within(table).getByRole('button', { name: new RegExp(`^${column}`) });
+
+    await user.click(header());
+    if (ascending) expect(first()).toBe(ascending);
+    await user.click(header());
+    if (descending) expect(first()).toBe(descending);
+  });
+
+  it('lists every model again when "Solo activos" is cleared', async () => {
+    const user = userEvent.setup();
+    const queries: string[] = [];
+    server.use(
+      mock.get('/api/weapon-models', ({ request }) => {
+        queries.push(new URL(request.url).search);
+        return HttpResponse.json([TRABUCO]);
+      }),
+    );
+    const app = await asAdmin('/weapon-models?onlyActive=true');
+    await screen.findByRole('link', { name: TRABUCO.label });
+
+    await user.click(screen.getByRole('checkbox', { name: 'Solo activos' }));
+
+    await waitFor(() => {
+      expect(queries.at(-1)).toBe('?includeInactive=true');
+    });
+    expect(app.location()).toBe('/weapon-models');
+  });
+
   it('stacks each model on a phone, its kind and side as tags with their terms', async () => {
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: 360 });
     try {
