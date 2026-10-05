@@ -136,9 +136,10 @@
       "same": "igual que en {{previous}}"
     },
     "fewEditions": "Les tendències necessiten almenys dues edicions amb comandes. Estes són les xifres de {{year}}.",
-    "noEditions": "Les tendències necessiten almenys dues edicions amb comandes, i encara no n'hi ha cap.",
+    "noEditions": "Les tendències necessiten almenys dues edicions amb comandes, i encara no hi ha comandes en esta selecció.",
     "single": {
-      "title": "Xifres de {{year}}"
+      "title": "Xifres de {{year}}",
+      "measure": "Xifra"
     },
     "arquebusiers": {
       "title": "Arcabussers per edició",
@@ -194,9 +195,10 @@
       "summary": "Els arcabussers en actiu de cada comparsa per edició, amb el canvi en {{year}}.",
       "caption": "Arcabussers en actiu per comparsa i edició",
       "comparsa": "Comparsa",
-      "change": "Canvi sobre {{previous}}",
+      "change": "Canvi respecte a {{previous}}",
       "yearCount": "{{year}}: {{count}}",
-      "changeText": "Canvi sobre {{previous}}: {{change}}"
-    }
+      "changeText": "Canvi respecte a {{previous}}: {{change}}"
+    },
+    "unavailable": "No s'han pogut carregar les tendències: torna a carregar la pàgina per a tornar-ho a intentar."
   }
 }

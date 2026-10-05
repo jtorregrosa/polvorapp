@@ -136,9 +136,10 @@
       "same": "the same as {{previous}}"
     },
     "fewEditions": "Trends need at least two editions with orders. These are the figures of {{year}}.",
-    "noEditions": "Trends need at least two editions with orders, and none has orders yet.",
+    "noEditions": "Trends need at least two editions with orders, and there are no orders in this selection yet.",
     "single": {
-      "title": "Figures of {{year}}"
+      "title": "Figures of {{year}}",
+      "measure": "Figure"
     },
     "arquebusiers": {
       "title": "Arquebusiers per edition",
@@ -175,7 +176,7 @@
       "summaryAlone": "{{year}}: {{value}} boxes of caps."
     },
     "weapons": {
-      "title": "Weapon of active arquebusiers",
+      "title": "Weapon source of active arquebusiers",
       "owned": "Own weapon",
       "rental": "Rental",
       "loan": "Loan",
@@ -194,9 +195,10 @@
       "summary": "Each comparsa's active arquebusiers per edition, with the change in {{year}}.",
       "caption": "Active arquebusiers per comparsa and edition",
       "comparsa": "Comparsa",
-      "change": "Change on {{previous}}",
+      "change": "Change from {{previous}}",
       "yearCount": "{{year}}: {{count}}",
-      "changeText": "Change on {{previous}}: {{change}}"
-    }
+      "changeText": "Change from {{previous}}: {{change}}"
+    },
+    "unavailable": "The trends could not be loaded: reload the page to try again."
   }
 }

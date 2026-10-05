@@ -180,8 +180,58 @@ test.describe('as the Admin', () => {
   });
 });
 
+test.describe('trends (change add-statistics-trends)', () => {
+  test('an Admin opens "Trends", sees the arquebusiers chart and opens its table', async ({ page }) => {
+    await page.goto('/statistics');
+    await waitForShell(page);
+    await page.getByRole('tab', { name: 'Tendencias' }).click();
+    await expect(page).toHaveURL('/statistics?view=trends');
+
+    const chart = region(page, 'Arcabuceros por edición');
+    await expect(chart.getByRole('application', { name: 'Arcabuceros por edición' })).toBeVisible();
+    await expect(chart).toContainText(/\(provisional\): \d+ en activo/);
+    await chart.getByRole('button', { name: 'Tabla de datos: Arcabuceros por edición' }).click();
+
+    const table = page.getByRole('table', { name: 'Arcabuceros por edición: datos' });
+    await expect(table.getByRole('rowheader')).toHaveCount(2);
+    await expect(table.getByRole('rowheader').last()).toHaveText(/^\d{4} \(provisional\)$/);
+    await expect(
+      page.getByRole('table', { name: 'Arcabuceros en activo por comparsa y edición' }),
+    ).toBeVisible();
+  });
+
+  test('the keyboard moves through the editions and the values are said', async ({ page }) => {
+    await page.goto('/statistics?view=trends');
+    await waitForShell(page);
+    const chart = region(page, 'Arcabuceros por edición');
+    const drawing = chart.getByRole('application', { name: 'Arcabuceros por edición' });
+
+    await drawing.focus();
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('ArrowRight');
+
+    await expect(chart.getByRole('status')).toContainText(
+      /^\d{4} \(provisional\): En activo \d+ y En reserva \d+$/,
+    );
+    await expect(chart.locator('.recharts-tooltip-wrapper')).toContainText('(provisional)');
+  });
+});
+
+test.describe('trends as the seeded FiringChief', () => {
+  test.use({ storageState: FIRING_CHIEF_STATE, locale: 'es-ES' });
+
+  test('only her comparsa is counted, without the per-comparsa table', async ({ page }) => {
+    await page.goto('/statistics?view=trends');
+    await waitForShell(page);
+
+    await expect(region(page, 'Arcabuceros por edición')).toBeVisible();
+    await expect(page.getByRole('combobox', { name: 'Comparsa' })).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Arcabuceros en activo por comparsa' })).toHaveCount(0);
+  });
+});
+
 for (const colorScheme of ['light', 'dark'] as const) {
-  test(`the start page and the statistics pass axe and fit the screen in the ${colorScheme} theme`, async ({
+  test(`the start page, the statistics and the trends pass axe and fit the screen in the ${colorScheme} theme`, async ({
     page,
     axeViolations,
   }) => {
@@ -190,6 +240,8 @@ for (const colorScheme of ['light', 'dark'] as const) {
     const loaded: Record<string, (page: Page) => ReturnType<Page['getByRole']>> = {
       '/': (current) => region(current, 'Avisos').getByRole('link').first(),
       '/statistics': (current) => current.getByRole('table', { name: 'Arcabuceros por género' }),
+      '/statistics?view=trends': (current) =>
+        current.getByRole('table', { name: 'Arcabuceros en activo por comparsa y edición' }),
     };
     for (const [path, marker] of Object.entries(loaded)) {
       await page.goto(path);
