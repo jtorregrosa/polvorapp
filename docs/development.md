@@ -331,11 +331,11 @@ only acts when `CLAUDE_CODE_REMOTE=true`. In the cloud the hook:
   missing;
 - puts that Node first on `PATH` for the session;
 - starts `dockerd`, which the VM does not run at boot (Testcontainers and `docker compose` need it);
-- sets `COMPOSE_FILE` so every `docker compose` command adds `compose.cloud.yaml`. The session's
-  proxy inspects TLS, also from containers: that file hands the proxy's CA bundle
-  (`PROXY_CA_BUNDLE`) to the image builds as the `proxy_ca` build secret, which both Dockerfiles
-  trust for their downloads when it is present. It never enters an image layer, and builds without
-  it (locally, CI) are unchanged;
+- when the proxy's CA bundle is present, sets `COMPOSE_FILE` so every `docker compose` command adds
+  `compose.cloud.yaml`. The session's proxy inspects TLS, also from containers: that file hands
+  the bundle (`PROXY_CA_BUNDLE`) to the image builds as the `proxy_ca` build secret, which both
+  Dockerfiles trust for their downloads when it is present. It never enters an image layer, and
+  builds without it (locally, CI) are unchanged;
 - creates `.env` from `.env.example` with the settings of CI's E2E job (raised rate limits, short
   notification interval, the `Scenarios` dataset), unless `.env` exists;
 - runs `npm ci` in `frontend/` whenever the lockfile changed.
