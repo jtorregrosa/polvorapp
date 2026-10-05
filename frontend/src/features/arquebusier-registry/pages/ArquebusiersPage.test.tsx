@@ -25,6 +25,13 @@ function registry(
   return queries;
 }
 
+/** The links to arquebusiers in `table`, one per listed arquebusier (rows also link their comparsa). */
+function recordLinks(table: HTMLElement): HTMLElement[] {
+  return within(table)
+    .getAllByRole('link')
+    .filter((link) => link.getAttribute('href')?.startsWith('/arquebusiers/'));
+}
+
 /** The table row that contains `text`. */
 function rowOf(text: string): HTMLElement {
   const row = screen.getByText(text).closest('tr');
@@ -42,7 +49,10 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
     expect(link).toHaveAttribute('href', `/arquebusiers/${ROW_UNO.id}`);
     const uno = rowOf('00000001R');
     expect(within(uno).getByText('100001')).toBeInTheDocument();
-    expect(within(uno).getByText(NORTE.name)).toBeInTheDocument();
+    expect(within(uno).getByRole('link', { name: NORTE.name })).toHaveAttribute(
+      'href',
+      `/comparsas/${ROW_UNO.comparsaId}`,
+    );
     expect(within(uno).getByText('Activo')).toBeInTheDocument();
     expect(within(uno).getByText('Vigente')).toBeInTheDocument();
     const dos = rowOf('X0000002T');
@@ -68,11 +78,7 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
 
     await user.type(screen.getByRole('searchbox', { name: 'Buscar arcabuceros' }), term);
 
-    expect(
-      within(table)
-        .getAllByRole('link')
-        .map((link) => link.textContent),
-    ).toEqual([found]);
+    expect(recordLinks(table).map((link) => link.textContent)).toEqual([found]);
     expect(app.location()).toBe('/arquebusiers');
   });
 
@@ -251,18 +257,14 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
       await user.click(counter(/Licencia caducada/));
 
       expect(counter(/Licencia caducada/)).toHaveAttribute('aria-pressed', 'true');
-      expect(
-        within(table)
-          .getAllByRole('link')
-          .map((link) => link.textContent),
-      ).toEqual(['Pérez Sintético, Arcabucero']);
+      expect(recordLinks(table).map((link) => link.textContent)).toEqual(['Pérez Sintético, Arcabucero']);
       expect(await screen.findByText('1 arcabucero', { selector: '[role=status]' })).toBeInTheDocument();
       expect(app.location()).toBe('/arquebusiers?license=EXPIRED');
 
       await user.click(counter(/Licencia caducada/));
 
       expect(counter(/Licencia caducada/)).toHaveAttribute('aria-pressed', 'false');
-      expect(within(table).getAllByRole('link')).toHaveLength(3);
+      expect(recordLinks(table)).toHaveLength(3);
     });
 
     it('combines a status and a license counter with the search', async () => {
@@ -281,7 +283,7 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
       ).toBeInTheDocument();
       await user.click(screen.getByRole('button', { name: 'Quitar los filtros' }));
 
-      expect(within(screen.getByRole('table', { name: 'Arcabuceros' })).getAllByRole('link')).toHaveLength(3);
+      expect(recordLinks(screen.getByRole('table', { name: 'Arcabuceros' }))).toHaveLength(3);
       expect(counter(/En activo/)).toHaveAttribute('aria-pressed', 'false');
       expect(screen.getByRole('searchbox', { name: 'Buscar arcabuceros' })).toHaveValue('');
     });
@@ -317,11 +319,7 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
 
       await user.click(counter(/Licencia caduca pronto/));
 
-      expect(
-        within(table)
-          .getAllByRole('link')
-          .map((link) => link.textContent),
-      ).toEqual(['Sánchez Sintética, Arcabucera']);
+      expect(recordLinks(table).map((link) => link.textContent)).toEqual(['Sánchez Sintética, Arcabucera']);
       expect(app.location()).toBe('/arquebusiers?license=EXPIRING');
       expect(await screen.findByText('1 arcabucero', { selector: '[role=status]' })).toBeInTheDocument();
     });
@@ -334,7 +332,7 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
       expect(
         await within(table).findByRole('link', { name: 'Sánchez Sintética, Arcabucera' }),
       ).toBeInTheDocument();
-      expect(within(table).getAllByRole('link')).toHaveLength(1);
+      expect(recordLinks(table)).toHaveLength(1);
       expect(counter(/Licencia caduca pronto/)).toHaveAttribute('aria-pressed', 'true');
     });
 
@@ -368,11 +366,7 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
 
       await user.selectOptions(warningFilter(), 'Menor de edad');
 
-      expect(
-        within(table)
-          .getAllByRole('link')
-          .map((link) => link.textContent),
-      ).toEqual(['Sánchez Sintética, Arcabucera']);
+      expect(recordLinks(table).map((link) => link.textContent)).toEqual(['Sánchez Sintética, Arcabucera']);
       expect(app.location()).toBe('/arquebusiers?warning=UNDER_AGE');
       expect(await screen.findByText('1 arcabucero', { selector: '[role=status]' })).toBeInTheDocument();
     });
@@ -383,11 +377,10 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
 
       const table = await screen.findByRole('table', { name: 'Arcabuceros' });
       await within(table).findByRole('link', { name: 'Ñúñez Sintética, Arcabucera' });
-      expect(
-        within(table)
-          .getAllByRole('link')
-          .map((link) => link.textContent),
-      ).toEqual(['Ñúñez Sintética, Arcabucera', 'Sánchez Sintética, Arcabucera']);
+      expect(recordLinks(table).map((link) => link.textContent)).toEqual([
+        'Ñúñez Sintética, Arcabucera',
+        'Sánchez Sintética, Arcabucera',
+      ]);
       expect(warningFilter()).toHaveDisplayValue('Cualquier aviso');
     });
 
@@ -405,7 +398,7 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
       ).toBeInTheDocument();
       await user.click(screen.getByRole('button', { name: 'Quitar los filtros' }));
 
-      expect(within(screen.getByRole('table', { name: 'Arcabuceros' })).getAllByRole('link')).toHaveLength(4);
+      expect(recordLinks(screen.getByRole('table', { name: 'Arcabuceros' }))).toHaveLength(4);
       expect(app.location()).toBe('/arquebusiers');
       expect(warningFilter()).toHaveDisplayValue('Con o sin avisos');
     });
@@ -418,7 +411,7 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
       expect(
         await within(table).findByRole('link', { name: 'Sánchez Sintética, Arcabucera' }),
       ).toBeInTheDocument();
-      expect(within(table).getAllByRole('link')).toHaveLength(1);
+      expect(recordLinks(table)).toHaveLength(1);
     });
 
     it('removes the warning from the address when no warning is chosen', async () => {
@@ -430,7 +423,7 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
       await user.selectOptions(warningFilter(), 'Con o sin avisos');
 
       expect(app.location()).toBe('/arquebusiers');
-      expect(within(screen.getByRole('table', { name: 'Arcabuceros' })).getAllByRole('link')).toHaveLength(2);
+      expect(recordLinks(screen.getByRole('table', { name: 'Arcabuceros' }))).toHaveLength(2);
     });
 
     it('ignores an unknown warning in the address', async () => {
@@ -439,7 +432,7 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
 
       const table = await screen.findByRole('table', { name: 'Arcabuceros' });
       await within(table).findByRole('link', { name: 'García Sintético, Arcabucero' });
-      expect(within(table).getAllByRole('link')).toHaveLength(2);
+      expect(recordLinks(table)).toHaveLength(2);
     });
   });
 
@@ -500,9 +493,20 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
       const app = await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
       await screen.findByRole('link', { name: 'García Sintético, Arcabucero' });
 
-      await user.click(within(rowOf('00000001R')).getByText(NORTE.name));
+      await user.click(within(rowOf('00000001R')).getByText('Vigente'));
 
       expect(app.location()).toBe(`/arquebusiers/${ROW_UNO.id}`);
+    });
+
+    it('open the comparsa, not the record, from the comparsa cell', async () => {
+      const user = userEvent.setup();
+      registry(() => [ROW_UNO]);
+      const app = await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
+      await screen.findByRole('link', { name: 'García Sintético, Arcabucero' });
+
+      await user.click(within(rowOf('00000001R')).getByRole('link', { name: NORTE.name }));
+
+      expect(app.location()).toBe(`/comparsas/${ROW_UNO.comparsaId}`);
     });
 
     it('are stacked items on a phone, without a table', async () => {

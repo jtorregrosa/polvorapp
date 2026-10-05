@@ -4,7 +4,7 @@ import { TextInput } from './TextInput';
 export interface SearchFieldProps {
   /** Already translated; names the search box. */
   label: string;
-  /** Already translated; what the search looks at, linked as the box's description. */
+  /** Already translated; what the search looks at, shown as the box's placeholder (the label stays visible). */
   hint?: string;
   value: string;
   onChange: (value: string) => void;
@@ -17,7 +17,6 @@ export interface SearchFieldProps {
  */
 export function SearchField({ label, hint, value, onChange }: SearchFieldProps) {
   const id = useId();
-  const hintId = useId();
   return (
     <div className="grid gap-field">
       <label htmlFor={id} className="text-label">
@@ -30,16 +29,12 @@ export function SearchField({ label, hint, value, onChange }: SearchFieldProps) 
         // Searches by names and identity numbers: never sent to a cloud spellchecker.
         spellCheck={false}
         value={value}
-        aria-describedby={hint ? hintId : undefined}
+        // Inside the box, so the search is as tall as the filters beside it.
+        placeholder={hint}
         onChange={(event) => {
           onChange(event.target.value);
         }}
       />
-      {hint && (
-        <p id={hintId} className="text-help text-muted-foreground">
-          {hint}
-        </p>
-      )}
     </div>
   );
 }

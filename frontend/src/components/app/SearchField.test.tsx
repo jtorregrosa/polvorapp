@@ -6,7 +6,7 @@ import { renderWithProviders } from '@/test/render';
 import { SearchField } from './SearchField';
 
 describe('SearchField', () => {
-  it('is a labelled search box with its hint that reports what is typed', async () => {
+  it('is a labelled search box with its hint as placeholder that reports what is typed', async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
     await renderWithProviders(
@@ -16,7 +16,9 @@ describe('SearchField', () => {
     const box = screen.getByRole('searchbox', { name: 'Buscar' });
     await user.type(box, 'g');
 
-    expect(box).toHaveAccessibleDescription('Por nombre, DNI/NIE o ID Unión.');
+    // Inside the box, so the search is as tall as the selects beside it.
+    expect(box).toHaveAttribute('placeholder', 'Por nombre, DNI/NIE o ID Unión.');
+    expect(screen.queryByText('Por nombre, DNI/NIE o ID Unión.')).not.toBeInTheDocument();
     expect(box).toHaveAttribute('autocomplete', 'off');
     expect(onChange).toHaveBeenCalledWith('g');
   });
