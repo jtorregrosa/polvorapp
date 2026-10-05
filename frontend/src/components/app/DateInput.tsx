@@ -1,8 +1,8 @@
-import { X } from 'lucide-react';
 import { useRef, type ComponentProps, type Ref } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
-import { Button } from './Button';
+import { cn } from '@/lib/cn';
+import { CLEARABLE_FIELD_CLASS, ClearFieldButton } from './clear-field';
 
 /**
  * The value a {@link DateInput} reports while a date is only partly typed: the browser then exposes
@@ -24,7 +24,7 @@ export type DateInputProps = Omit<
   /** Latest selectable date, `yyyy-MM-dd`, e.g. `todayIso()` for "not in the future". */
   max?: string;
   /**
-   * Shows a "clear date" button while a date is set, for optional dates: some mobile pickers
+   * Shows a cross inside the field while a date is set, to clear it, for optional dates: some mobile pickers
    * cannot empty a date once chosen.
    */
   clearable?: boolean;
@@ -65,10 +65,11 @@ export function DateInput({
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="relative">
       <Input
         autoComplete="off"
         {...props}
+        className={cn(clearable && CLEARABLE_FIELD_CLASS, props.className)}
         ref={setRefs}
         type="date"
         disabled={disabled}
@@ -92,21 +93,15 @@ export function DateInput({
         }}
       />
       {clearable && Boolean(value) && !disabled && (
-        <Button
-          type="button"
-          variant="quiet"
-          size="sm"
-          icon={X}
-          aria-label={clearSubject ? t('form.clearDateFor', { subject: clearSubject }) : undefined}
-          onClick={() => {
+        <ClearFieldButton
+          label={clearSubject ? t('form.clearDateFor', { subject: clearSubject }) : t('form.clearDate')}
+          onClear={() => {
             // A partly typed date shows segments React does not know about: empty the field itself.
             if (input.current) input.current.value = '';
             onChange?.('');
             input.current?.focus();
           }}
-        >
-          {t('form.clearDate')}
-        </Button>
+        />
       )}
     </div>
   );

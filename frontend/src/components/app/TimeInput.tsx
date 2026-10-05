@@ -1,8 +1,8 @@
-import { X } from 'lucide-react';
 import { useRef, type ComponentProps, type Ref } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
-import { Button } from './Button';
+import { cn } from '@/lib/cn';
+import { CLEARABLE_FIELD_CLASS, ClearFieldButton } from './clear-field';
 
 /**
  * The value a {@link TimeInput} reports while a time is only partly typed: the browser then exposes
@@ -20,7 +20,7 @@ export type TimeInputProps = Omit<ComponentProps<typeof Input>, 'type' | 'value'
   /** Receives the new value: `HH:mm`, `''`, or {@link INCOMPLETE_TIME}. */
   onChange?: (value: string) => void;
   /**
-   * Shows a "clear time" button while a time is set, for optional times: some mobile pickers
+   * Shows a cross inside the field while a time is set, to clear it, for optional times: some mobile pickers
    * cannot empty a time once chosen.
    */
   clearable?: boolean;
@@ -65,10 +65,11 @@ export function TimeInput({
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="relative">
       <Input
         autoComplete="off"
         {...props}
+        className={cn(clearable && CLEARABLE_FIELD_CLASS, props.className)}
         ref={setRefs}
         type="time"
         step={MINUTE_STEP}
@@ -95,21 +96,15 @@ export function TimeInput({
         }}
       />
       {clearable && Boolean(value) && !disabled && (
-        <Button
-          type="button"
-          variant="quiet"
-          size="sm"
-          icon={X}
-          aria-label={clearSubject ? t('form.clearTimeFor', { subject: clearSubject }) : undefined}
-          onClick={() => {
+        <ClearFieldButton
+          label={clearSubject ? t('form.clearTimeFor', { subject: clearSubject }) : t('form.clearTime')}
+          onClear={() => {
             // A partly typed time shows segments React does not know about: empty the field itself.
             if (input.current) input.current.value = '';
             onChange?.('');
             input.current?.focus();
           }}
-        >
-          {t('form.clearTime')}
-        </Button>
+        />
       )}
     </div>
   );
