@@ -24,7 +24,9 @@ export type TagCategory = keyof typeof TAG_MAP;
 
 /** The tone of `value` in `category`, or `undefined` when the value is not mapped. */
 export function tagTone(category: TagCategory, value: string): TagTone | undefined {
-  return (TAG_MAP[category] as Readonly<Record<string, TagTone | undefined>>)[value];
+  const tones: Readonly<Record<string, TagTone>> = TAG_MAP[category];
+  // Own keys only: `constructor` or `toString` are not values of a list.
+  return Object.hasOwn(tones, value) ? tones[value] : undefined;
 }
 
 /** The `yesNo` value of a boolean flag. */

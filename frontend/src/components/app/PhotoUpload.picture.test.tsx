@@ -319,6 +319,47 @@ describe('PhotoUpload variant="picture"', () => {
     expect(pickFile).toHaveBeenCalledTimes(1);
   });
 
+  it('returns focus to the logo when its menu closes with Escape', async () => {
+    const user = userEvent.setup();
+    await setup().view;
+
+    await user.click(trigger());
+    await screen.findByRole('menu');
+    await user.keyboard('{Escape}');
+
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    expect(trigger()).toHaveFocus();
+  });
+
+  it('returns focus to the logo when the crop is cancelled, and uploads nothing', async () => {
+    const user = userEvent.setup();
+    const { onUpload, view } = setup();
+    await view;
+
+    await user.click(trigger());
+    await user.click(await screen.findByRole('menuitem', { name: 'Sustituir' }));
+    chooseFile();
+    await user.click(await screen.findByRole('button', { name: 'Cancelar' }));
+
+    await waitFor(() => {
+      expect(trigger()).toHaveFocus();
+    });
+    expect(onUpload).not.toHaveBeenCalled();
+  });
+
+  it('keeps the crop open with the reason when the upload fails', async () => {
+    const user = userEvent.setup();
+    const onUpload = vi.fn<(photo: Blob) => Promise<void>>().mockRejectedValue(new Error('network'));
+    await setup({ onUpload }).view;
+
+    await user.click(trigger());
+    await user.click(await screen.findByRole('menuitem', { name: 'Sustituir' }));
+    chooseFile();
+    await user.click(await screen.findByRole('button', { name: 'Usar logo' }));
+
+    expect(await within(screen.getByRole('dialog')).findByRole('alert')).toBeInTheDocument();
+  });
+
   it('offers no action when read-only', async () => {
     await setup({ readOnly: true }).view;
 
