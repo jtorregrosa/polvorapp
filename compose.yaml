@@ -110,6 +110,8 @@ services:
     command: ["seed"]
     environment:
       <<: *api-environment
+      # Full locally (realistic population, orders and images); CI seeds Scenarios for the E2E tests.
+      Seed__Dataset: ${SEED_DATASET:-Full}
       Seed__UserPassword: ${SEED_USER_PASSWORD:-local-only-seed-password}
       Seed__AuthenticatorKey: ${SEED_AUTHENTICATOR_KEY:-JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP}
     depends_on:
