@@ -320,6 +320,33 @@ docker compose run --rm api create-admin --email admin@example.org --name "Admin
 
 Exit codes: `0` success, `1` failure, `2` unknown command or invalid arguments, `130` cancelled.
 
+### Claude Code cloud sessions
+
+Cloud sessions ([claude.ai/code](https://claude.ai/code)) run on an Ubuntu VM. It has Docker, but no
+.NET SDK, and Node 22 first on `PATH`. `scripts/cloud-setup.sh` fills the gap, and the repository's
+`.claude/settings.json` runs it as a SessionStart hook. Locally the hook does nothing, because it
+only acts when `CLAUDE_CODE_REMOTE=true`. In the cloud the hook:
+
+- installs the .NET SDK of `backend/global.json` and the Node of `frontend/.nvmrc`, if they are
+  missing;
+- puts that Node first on `PATH` for the session;
+- starts `dockerd`, which the VM does not run at boot (Testcontainers and `docker compose` need it);
+- runs `npm ci` in `frontend/` whenever the lockfile changed.
+
+Set up the cloud environment once:
+
+1. **Network access:** *Custom*, keeping the defaults, plus `cgr.dev`, `*.cgr.dev` (MinIO image)
+   and `builds.dotnet.microsoft.com` (.NET SDK). For Playwright browsers also add
+   `cdn.playwright.dev` and `playwright.download.prss.microsoft.com`.
+2. **Environment variables:** `BASH_DEFAULT_TIMEOUT_MS=600000` and `BASH_MAX_TIMEOUT_MS=3600000`,
+   because the backend suite takes about 25 minutes. Never put secrets here: everyone using the
+   environment can read them.
+3. **Setup script:** `bash scripts/cloud-setup.sh`. It installs the SDKs into the environment's
+   cache, so later sessions start faster.
+
+Containers do not survive between sessions. Start and seed the stack in each session
+(`docker compose up -d --wait`, then `docker compose run --rm api-seed`).
+
 ## Backend
 
 Run from `backend/` (its `global.json` selects the SDK and the Microsoft Testing Platform runner).
