@@ -268,12 +268,16 @@ function isCached(item, rawDir) {
   const raw = join(rawDir, item.raw);
   if (!existsSync(raw)) return false;
   const sidecar = `${raw}.json`;
-  // Images cached before sidecars existed are trusted once and stamped with the current inputs.
-  if (!existsSync(sidecar)) {
-    writeFileSync(sidecar, JSON.stringify({ fingerprint: fingerprint(item) }));
-    return true;
+  try {
+    return JSON.parse(readFileSync(sidecar, 'utf8')).fingerprint === fingerprint(item);
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
   }
-  return JSON.parse(readFileSync(sidecar, 'utf8')).fingerprint === fingerprint(item);
+
+  // Images cached before sidecars existed are trusted once and stamped with the current inputs;
+  // 'wx' fails rather than overwrite a sidecar another run wrote in between.
+  writeFileSync(sidecar, JSON.stringify({ fingerprint: fingerprint(item) }), { flag: 'wx' });
+  return true;
 }
 
 async function fillCache(items, rawDir) {
