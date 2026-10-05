@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -11,7 +12,9 @@ namespace PolvorApp.IdentityAccess.Users;
 
 /// <summary>
 /// Synthetic users for development, staging and tests (SEC-11, design D10): one Admin, two
-/// FiringChiefs, one invited and one deactivated user, all on the reserved <c>.example</c> domain.
+/// FiringChiefs, one invited and one deactivated user, all on the reserved <c>.example</c> domain,
+/// with invented but realistic names (realistic-seed-data, design D2). The full dataset adds one
+/// active FiringChief per added comparsa, from the shared <see cref="SyntheticPeople"/>.
 /// Active users share the password and authenticator key from <c>Seed__UserPassword</c> and
 /// <c>Seed__AuthenticatorKey</c>, so people and E2E tests can sign in. Runs only through the
 /// guarded <c>seed</c> command; existing users are left untouched, so it can be run again.
@@ -35,19 +38,25 @@ internal sealed partial class IdentitySeeder(
     /// <summary>Fixed identifiers, so every run produces the same data.</summary>
     internal static readonly IReadOnlyList<SyntheticUser> Users =
     [
-        new(new Guid("0193a000-0000-7000-8000-000000000001"), "admin@polvorapp.example", "Admin Sintética", UserRole.Admin, "es-ES", SyntheticState.Active),
-        new(new Guid("0193a000-0000-7000-8000-000000000002"), "jefe.uno@polvorapp.example", "Jefe Sintético Uno", UserRole.FiringChief, "ca-ES-valencia", SyntheticState.Active),
-        new(new Guid("0193a000-0000-7000-8000-000000000003"), "jefa.dos@polvorapp.example", "Jefa Sintética Dos", UserRole.FiringChief, "es-ES", SyntheticState.Active),
-        new(new Guid("0193a000-0000-7000-8000-000000000004"), "invitada@polvorapp.example", "Persona Invitada", UserRole.FiringChief, "en", SyntheticState.Invited),
-        new(new Guid("0193a000-0000-7000-8000-000000000005"), "desactivada@polvorapp.example", "Persona Desactivada", UserRole.FiringChief, "es-ES", SyntheticState.Deactivated),
+        new(new Guid("0193a000-0000-7000-8000-000000000001"), "admin@polvorapp.example", "Inma Ruiz Bernabeu", UserRole.Admin, "es-ES", SyntheticState.Active),
+        new(new Guid("0193a000-0000-7000-8000-000000000002"), "jefe.uno@polvorapp.example", "Joan Moltó Sala", UserRole.FiringChief, "ca-ES-valencia", SyntheticState.Active),
+        new(new Guid("0193a000-0000-7000-8000-000000000003"), "jefa.dos@polvorapp.example", "Elena Verdú Ivorra", UserRole.FiringChief, "es-ES", SyntheticState.Active),
+        new(new Guid("0193a000-0000-7000-8000-000000000004"), "invitada@polvorapp.example", "Sílvia Mora Castelló", UserRole.FiringChief, "en", SyntheticState.Invited),
+        new(new Guid("0193a000-0000-7000-8000-000000000005"), "desactivada@polvorapp.example", "Jaume Cortés Puig", UserRole.FiringChief, "es-ES", SyntheticState.Deactivated),
     ];
 
     public int Order => 10;
+
+    /// <summary>The users of <paramref name="dataset"/>: the scenario users, and with the full dataset the added comparsas' FiringChiefs.</summary>
+    internal static IReadOnlyList<SyntheticUser> UsersFor(SeedDataset dataset) => dataset == SeedDataset.Full
+        ? [.. Users, .. SyntheticPeople.FiringChiefs.Select(c => new SyntheticUser(c.Id, c.Email, c.Name, UserRole.FiringChief, c.Locale, SyntheticState.Active))]
+        : Users;
 
     public async Task SeedAsync(CancellationToken cancellationToken)
     {
         var password = Required(PasswordKey);
         var authenticatorKey = Required(AuthenticatorKeyKey).Replace(" ", string.Empty, StringComparison.Ordinal).TrimEnd('=').ToUpperInvariant();
+        var seeded = UsersFor(SeedDatasets.Read(configuration));
         if (!IsValidKey(authenticatorKey))
         {
             throw new InvalidOperationException($"The {AuthenticatorKeyKey} setting (Seed__AuthenticatorKey) must be a Base32 key of at least {MinKeyBytes} bytes.");
@@ -62,14 +71,15 @@ internal sealed partial class IdentitySeeder(
                 throw new InvalidOperationException($"Outside Development and Testing, {PasswordKey} and {AuthenticatorKeyKey} must be secret values, not the published placeholders.");
             }
 
-            var synthetic = Users.Select(u => u.Id).ToList();
-            if (users.Users.Any(u => !synthetic.Contains(u.Id)))
+            // The full dataset's users are a superset: a database seeded with it may later run the scenarios.
+            var syntheticIds = UsersFor(SeedDataset.Full).Select(u => u.Id).ToList();
+            if (await users.Users.AnyAsync(u => !syntheticIds.Contains(u.Id), cancellationToken))
             {
                 throw new InvalidOperationException("The database holds users that are not synthetic; refusing to seed it (NFR-13).");
             }
         }
 
-        foreach (var synthetic in Users)
+        foreach (var synthetic in seeded)
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (await users.FindByIdAsync(synthetic.Id.ToString()) is not null)
@@ -79,7 +89,7 @@ internal sealed partial class IdentitySeeder(
 
             if (await users.FindByEmailAsync(synthetic.Email) is not null)
             {
-                LogEmailTaken(logger, synthetic.Id);
+                LogEmailTaken(logger, synthetic.Id, synthetic.Email);
                 continue;
             }
 
@@ -132,8 +142,8 @@ internal sealed partial class IdentitySeeder(
             : value;
     }
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Synthetic user {UserId} skipped: its email is already used by another user")]
-    private static partial void LogEmailTaken(ILogger logger, Guid userId);
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Synthetic user {UserId} skipped: its email {Email} is already used by another user, so nothing assigned to {UserId} can sign in")]
+    private static partial void LogEmailTaken(ILogger logger, Guid userId, string email);
 
     internal enum SyntheticState
     {

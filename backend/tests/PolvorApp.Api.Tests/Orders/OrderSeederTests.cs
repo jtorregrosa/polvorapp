@@ -106,7 +106,7 @@ public sealed class OrderSeederTests(PostgresFixture postgres, MailpitFixture ma
             .ToListAsync(TestContext.Current.CancellationToken)));
 
         Assert.Equal(EditionSeederIds.Past, orphan.EditionId);
-        Assert.StartsWith("Sintético", orphan.LastName, StringComparison.Ordinal);
+        Assert.Equal(("Manuel", "Cerdà Boix", "99000091H"), (orphan.FirstName, orphan.LastName, orphan.NationalId));
         Assert.Equal(orphan.NationalId, NationalId.Parse(orphan.NationalId).Value);
     }
 

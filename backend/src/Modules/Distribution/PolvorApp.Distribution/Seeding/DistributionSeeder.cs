@@ -33,13 +33,13 @@ internal sealed partial class DistributionSeeder(
     ILogger<DistributionSeeder> logger) : IDataSeeder
 {
     private static readonly Guid CurrentEdition = new("0193a500-0000-7000-8000-000000000002");
-    private static readonly Guid Norte = new("0193a100-0000-7000-8000-000000000001");
-    private static readonly Guid Sur = new("0193a100-0000-7000-8000-000000000002");
+    private static readonly Guid Norte = SyntheticComparsas.ByNumber(1).Id;
+    private static readonly Guid Sur = SyntheticComparsas.ByNumber(2).Id;
 
     private static readonly IReadOnlyList<DaySeed> Days =
     [
-        new(1, DistributionType.Weapons, DaysBeforeFestival: 10, "Almacén Sintético de la Federación"),
-        new(2, DistributionType.Powder, DaysBeforeFestival: 4, "Paraje Sintético del Reparto"),
+        new(1, DistributionType.Weapons, DaysBeforeFestival: 10, "Almacén de la Federación"),
+        new(2, DistributionType.Powder, DaysBeforeFestival: 4, "Paraje del Reparto"),
     ];
 
     private static readonly IReadOnlyList<(Guid Comparsa, TimeOnly StartsAt)> Slots = [(Norte, new TimeOnly(9, 0)), (Sur, new TimeOnly(9, 30))];

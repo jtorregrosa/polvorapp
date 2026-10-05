@@ -11,14 +11,14 @@ namespace PolvorApp.Notifications.Seeding;
 
 /// <summary>
 /// Synthetic notification data for development, staging and E2E tests (spec: Synthetic notification
-/// data; SEC-11): the seeded FiringChief "Jefa Sintética Dos" has the license digest turned off, so the
+/// data; SEC-11): the seeded FiringChief jefa.dos@ ("Elena Verdú Ivorra") has the license digest turned off, so the
 /// account page shows a kind off. The milestone reminded by email is seeded by the editions seeder.
 /// Seeding sends no email and records no audit entry. Fixed identifiers; it can run again.
 /// </summary>
 internal sealed partial class NotificationSeeder(
     NotificationsDbContext db, IUserDirectory users, TimeProvider time, IHostEnvironment environment, ILogger<NotificationSeeder> logger) : IDataSeeder
 {
-    /// <summary>The identity seeder's "Jefa Sintética Dos".</summary>
+    /// <summary>The identity seeder's jefa.dos@ ("Elena Verdú Ivorra").</summary>
     public static readonly Guid SeededChief = new("0193a000-0000-7000-8000-000000000003");
 
     public const NotificationKind SeededOptOut = NotificationKind.LicenseDigest;

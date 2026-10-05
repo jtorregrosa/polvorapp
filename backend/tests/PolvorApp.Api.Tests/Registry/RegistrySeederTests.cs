@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
@@ -21,6 +22,7 @@ using PolvorApp.IdentityAccess.Endpoints;
 using PolvorApp.IdentityAccess.Security;
 using PolvorApp.IdentityAccess.Users;
 using PolvorApp.SharedKernel.Images;
+using PolvorApp.SharedKernel.Seeding;
 using PolvorApp.SharedKernel.Storage;
 using PolvorApp.SharedKernel.Time;
 using PolvorApp.SharedKernel.Validation;
@@ -28,7 +30,7 @@ using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 
 namespace PolvorApp.Api.Tests.Registry;
 
-/// <summary>Spec "Synthetic registry data" (SEC-11, design D9): fictional, deterministic, safe to run again.</summary>
+/// <summary>Spec "Synthetic registry data" (SEC-11, design D9; realistic-seed-data): invented, deterministic, safe to run again.</summary>
 public sealed class RegistrySeederTests(PostgresFixture postgres, MailpitFixture mailpit, MinioFixture minio)
 {
     private const string SeedPassword = "semilla-sintetica-local";
@@ -63,8 +65,11 @@ public sealed class RegistrySeederTests(PostgresFixture postgres, MailpitFixture
         var today = FederationCalendar.Today(host.Time);
 
         Assert.All(arquebusiers, a => Assert.Equal(a.NationalId, NationalId.Parse(a.NationalId).Value));
-        Assert.Contains(arquebusiers, a => a.NationalId.StartsWith('X'));
-        Assert.All(arquebusiers, a => Assert.Contains("Sintétic", a.LastName, StringComparison.Ordinal));
+        Assert.Contains(arquebusiers, a => a.NationalId.StartsWith('Z'));
+        Assert.All(arquebusiers, a => Assert.True(a.NationalId.StartsWith("990000", StringComparison.Ordinal) || a.NationalId.StartsWith("Z90000", StringComparison.Ordinal), a.NationalId));
+        Assert.All(arquebusiers, a => Assert.DoesNotContain("Sintétic", a.FirstName + a.LastName, StringComparison.OrdinalIgnoreCase));
+        Assert.All(arquebusiers.Where(a => !a.NationalId.StartsWith('Z')), a => Assert.Equal(2, a.LastName.Split(' ').Length));
+        Assert.Contains(arquebusiers, a => a.FirstName == "Vicent" && a.LastName == "Sempere Llorens" && a.Email == "vicent.sempere@polvorapp.example");
         Assert.All(arquebusiers.Where(a => a.Email is not null), a => Assert.EndsWith("@polvorapp.example", a.Email!, StringComparison.Ordinal));
         Assert.Equal(Enum.GetValues<ArquebusierStatus>(), arquebusiers.Select(a => a.Status).Distinct().Order());
         Assert.Equal(
@@ -153,7 +158,7 @@ public sealed class RegistrySeederTests(PostgresFixture postgres, MailpitFixture
         Assert.Equal(0, await SeedAsync(host));
         await using var scope = host.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<ArquebusierRegistryDbContext>();
-        db.Arquebusiers.Add(RegistryData.NewArquebusier(CatalogSeeder.Sur, lastName: "No Sintético"));
+        db.Arquebusiers.Add(RegistryData.NewArquebusier(CatalogSeeder.Sur, lastName: "Real Persona"));
         await db.SaveChangesAsync(TestContext.Current.CancellationToken);
         db.ChangeTracker.Clear();
         var count = await db.Arquebusiers.CountAsync(TestContext.Current.CancellationToken);
@@ -282,13 +287,21 @@ public sealed class RegistrySeederTests(PostgresFixture postgres, MailpitFixture
             scope.ServiceProvider.GetRequiredService<ICatalogDirectory>(),
             scope.ServiceProvider.GetRequiredService<IObjectStorage>(),
             scope.ServiceProvider.GetRequiredService<IImageNormalizer>(),
+            scope.ServiceProvider.GetRequiredService<SyntheticImages>(),
+            scope.ServiceProvider.GetRequiredService<ISpecimenCardPainter>(),
+            scope.ServiceProvider.GetRequiredService<IConfiguration>(),
             host.Time,
             new HostingEnvironment { EnvironmentName = environment },
             NullLogger<RegistrySeeder>.Instance);
 
+    /// <summary>No dataset setting: the scenarios are the default (spec: Guarded synthetic seed).</summary>
     private Task<IdentityTestHost> StartAsync(string? bucket = null)
     {
-        var settings = new Dictionary<string, string?> { [IdentitySeeder.PasswordKey] = SeedPassword, [IdentitySeeder.AuthenticatorKeyKey] = SeedKey };
+        var settings = new Dictionary<string, string?>
+        {
+            [IdentitySeeder.PasswordKey] = SeedPassword,
+            [IdentitySeeder.AuthenticatorKeyKey] = SeedKey,
+        };
         foreach (var (key, value) in bucket is null ? new Dictionary<string, string?>() : minio.SettingsFor(bucket))
         {
             settings[key] = value;

@@ -9,6 +9,7 @@ using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.IdentityAccess.Endpoints;
 using PolvorApp.IdentityAccess.Security;
 using PolvorApp.IdentityAccess.Users;
+using PolvorApp.SharedKernel.Seeding;
 using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 
 namespace PolvorApp.Api.Tests.Identity;
@@ -39,6 +40,9 @@ public sealed class IdentitySeederTests(PostgresFixture postgres, MailpitFixture
         }
 
         Assert.Equal(3, statuses.Values.Count(s => s == UserStatus.Active));
+        Assert.Equal(IdentitySeeder.Users.Count, users.Users.Count());
+        Assert.All(users.Users, u => Assert.DoesNotContain("Sintétic", u.Name, StringComparison.OrdinalIgnoreCase));
+        Assert.Equal("Joan Moltó Sala", (await users.FindByEmailAsync("jefe.uno@polvorapp.example"))!.Name);
         Assert.Contains(UserStatus.Invited, statuses.Values);
         Assert.Contains(UserStatus.Deactivated, statuses.Values);
 
@@ -49,6 +53,25 @@ public sealed class IdentitySeederTests(PostgresFixture postgres, MailpitFixture
         var code = Totp.Compute(Totp.DecodeBase32(SeedKey), Totp.StepAt(host.Time.GetUtcNow()));
         using var second = await client.PostAsync("/api/auth/login/second-factor", new { code, rememberDevice = false });
         Assert.Equal(HttpStatusCode.OK, second.StatusCode);
+    }
+
+    [Fact]
+    public async Task The_full_dataset_adds_one_active_firing_chief_per_added_comparsa()
+    {
+        await using var host = await StartAsync(SeedPassword, SeedKey, SeedDataset.Full);
+
+        Assert.Equal(0, await SeedAsync(host));
+        Assert.Equal(0, await SeedAsync(host));
+
+        await using var scope = host.Services.CreateAsyncScope();
+        var users = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+        Assert.Equal(IdentitySeeder.Users.Count + SyntheticPeople.FiringChiefs.Count, users.Users.Count());
+        foreach (var chief in SyntheticPeople.FiringChiefs)
+        {
+            var user = await users.FindByIdAsync(chief.Id.ToString());
+            Assert.NotNull(user);
+            Assert.Equal((chief.Email, chief.Name, UserRole.FiringChief, UserStatus.Active), (user.Email, user.Name, user.Role, user.Status));
+        }
     }
 
     [Theory]
@@ -64,11 +87,12 @@ public sealed class IdentitySeederTests(PostgresFixture postgres, MailpitFixture
         Assert.Contains(host.Factory.Logs.Entries, e => e.Exception?.Contains(setting, StringComparison.Ordinal) ?? false);
     }
 
-    private Task<IdentityTestHost> StartAsync(string? password, string? key) =>
+    private Task<IdentityTestHost> StartAsync(string? password, string? key, SeedDataset dataset = SeedDataset.Scenarios) =>
         IdentityTestHost.StartAsync(postgres, mailpit, new Dictionary<string, string?>
         {
             [IdentitySeeder.PasswordKey] = password,
             [IdentitySeeder.AuthenticatorKeyKey] = key,
+            [SeedDatasets.Key] = dataset.ToString(),
         });
 
     private static Task<int> SeedAsync(IdentityTestHost host) =>

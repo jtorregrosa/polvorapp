@@ -41,10 +41,10 @@ internal sealed partial class EditionSeeder(
     /// <summary>Days from the seed date and title of the current edition's milestones.</summary>
     private static readonly IReadOnlyList<(int Days, string Title)> CurrentMilestones =
     [
-        (-30, "Convocatoria sintética de licencias"),
-        (10, "Curso sintético de formación"),
-        (20, "Plazo sintético de nuevos arcabuceros"),
-        (50, "Reparto sintético de pólvora"),
+        (-30, "Convocatoria de licencias"),
+        (10, "Curso de formación"),
+        (20, "Plazo de nuevos arcabuceros"),
+        (50, "Reparto de pólvora"),
     ];
 
     /// <summary>After the catalogue (20) and the registry (30): editions offer catalogue models.</summary>
@@ -56,7 +56,7 @@ internal sealed partial class EditionSeeder(
     /// The current edition's milestone reminded by email (add-notifications): within 7 days of the seed date, so
     /// <c>send-notifications</c> sends its reminder; the other milestones have <c>notify</c> off.
     /// </summary>
-    public static (int Days, string Title) ReminderMilestone { get; } = (5, "Entrega sintética de documentación");
+    public static (int Days, string Title) ReminderMilestone { get; } = (5, "Entrega de documentación");
 
     public static Guid ReminderMilestoneId => MilestoneId(CurrentMilestones.Count + 2);
 
@@ -189,7 +189,7 @@ internal sealed partial class EditionSeeder(
     {
         var wanted = CurrentMilestones
             .Select((m, i) => (Id: MilestoneId(i + 1), Edition: CurrentEdition, Date: today.AddDays(m.Days), m.Title))
-            .Append((Id: MilestoneId(CurrentMilestones.Count + 1), Edition: PastEdition, Date: new DateOnly(currentYear - 1, 4, 30), Title: "Balance sintético de la edición"))
+            .Append((Id: MilestoneId(CurrentMilestones.Count + 1), Edition: PastEdition, Date: new DateOnly(currentYear - 1, 4, 30), Title: "Balance de la edición"))
             .Append((Id: ReminderMilestoneId, Edition: CurrentEdition, Date: today.AddDays(ReminderMilestone.Days), ReminderMilestone.Title))
             .ToList();
         var editions = await db.Editions.Where(e => EditionIds.Contains(e.Id)).Select(e => e.Id).ToListAsync(cancellationToken);
