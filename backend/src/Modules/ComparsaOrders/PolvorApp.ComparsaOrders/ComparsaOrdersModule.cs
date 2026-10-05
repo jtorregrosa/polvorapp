@@ -61,6 +61,7 @@ public sealed class ComparsaOrdersModule : IModule
 
         // Read by the registry and the compliance insights (design D5).
         services.AddScoped<IParticipationHistory, ParticipationHistory>();
+        services.AddScoped<IEditionTrends, EditionTrends>();
         services.AddScoped<IOrderExports, OrderExports>();
         services.AddScoped<IEditionEntries, EditionEntries>();
     }

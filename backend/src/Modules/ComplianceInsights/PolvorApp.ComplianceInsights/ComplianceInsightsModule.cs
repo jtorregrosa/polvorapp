@@ -21,6 +21,7 @@ public sealed class ComplianceInsightsModule : IModule
         services.AddSingleton<IComplianceRules, ComplianceRules>();
         services.AddScoped<ScopedFacts>();
         services.AddScoped<ComplianceInsightsQueries>();
+        services.AddScoped<TrendQueries>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder endpoints) => endpoints.MapComplianceEndpoints();

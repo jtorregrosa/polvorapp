@@ -16,7 +16,7 @@
 
 ## 2. Backend
 
-- [ ] 2.1 Write Testcontainers integration tests for `IEditionTrends.ListAsync`:
+- [x] 2.1 Write Testcontainers integration tests for `IEditionTrends.ListAsync`:
   - draft editions left out;
   - the 10 most recent;
   - the in-progress edition provisional;
@@ -26,7 +26,7 @@
   - FiringChief scope.
 
   Then add the contract and implementation (D1). Verify: the tests and architecture tests pass.
-- [ ] 2.2 Write integration tests for `GET /compliance/trends`:
+- [x] 2.2 Write integration tests for `GET /compliance/trends`:
   - gender counts, with `UNKNOWN` for a deleted arquebusier;
   - Admin vs FiringChief;
   - `404` for an out-of-scope comparsa;
@@ -40,11 +40,11 @@
 
 ## 3. Chart composites
 
-- [ ] 3.1 Add `recharts` and the shadcn/ui `chart` primitive (D4), pinned. Record the licence in
+- [x] 3.1 Add `recharts` and the shadcn/ui `chart` primitive (D4), pinned. Record the licence in
   `docs/third-party-licenses.md`. Verify: build, lint and `npm ls recharts` pass.
-- [ ] 3.2 Write `contrast.test.ts` cases for `--chart-1..5` at 3:1 against `--card` in both themes,
+- [x] 3.2 Write `contrast.test.ts` cases for `--chart-1..5` at 3:1 against `--card` in both themes,
   then add the tokens and document them in `docs/design/tokens.md`. Verify: the tests pass.
-- [ ] 3.3 Write tests and stories for `ChartFrame`, `LineChart` and `BarChart`:
+- [x] 3.3 Write tests and stories for `ChartFrame`, `LineChart` and `BarChart`:
   - heading and summary;
   - the table toggle with every value;
   - legend names;
@@ -56,7 +56,7 @@
 
   Then implement them. Update `motion.test.ts` if needed. Verify: the tests and the catalogue test
   pass.
-- [ ] 3.4 Document charts in `docs/design/patterns.md`: when to chart, table always, patterns,
+- [x] 3.4 Document charts in `docs/design/patterns.md`: when to chart, table always, patterns,
   provisional. Verify: the design-docs test passes.
 - [ ] 3.5 Review group 3 in parallel with `react-reviewer`, `a11y-architect` and
   `typescript-reviewer`. Fix CRITICAL/HIGH findings.
