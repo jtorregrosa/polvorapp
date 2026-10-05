@@ -249,3 +249,33 @@ discoverable by keyboard (WCAG 2.1.1, 1.4.13).
 
 Frontend only, no data. Deploying is enough. Rollback is reverting the change. The stored
 preference is ignored by older builds.
+
+## Verification (task 5.2)
+
+`verification-loop` on the branch, frontend only (no backend change):
+
+| Phase | Result |
+|---|---|
+| Build (`npm run build`) | PASS |
+| Types (`tsc -b`) | PASS, 0 errors |
+| Lint (`eslint --max-warnings 0`), Prettier, `check-i18n` | PASS |
+| Unit tests with coverage | PASS, 2513+ tests; whole suite 95.6 % lines, 89.1 % branches |
+| Changed composites and pages | 86–100 % lines each; `WeaponModelsPage` 100 % lines after the review |
+| E2E (Chromium projects, cloud config) | PASS twice in a row: 256 passed, 22 skipped by design |
+| Security grep | PASS: no secrets, `console.log`, `dangerouslySetInnerHTML` or real personal data |
+
+Findings fixed during the verification:
+- `e2e-runner`: the edition test read `{ id }` from `/api/editions/current` (it answers
+  `{ edition }`) and passed on the not-found page; it now checks the real page's heading for the
+  orders, exports, distribution and detail pages. Added: input during the sidebar animation, the
+  phone drawer with its sections, a tap on the logo, a real logo change in the keyboard test.
+- `pr-test-analyzer`: a tag looked up `constructor` and `toString` as values (now own keys only);
+  tests for stacked rows on phones, the drawer of a collapsed sidebar, the picture menu with
+  Escape, a cancelled crop, a failed upload, and sorting and clearing the weapon filter.
+
+Follow-ups, outside this change:
+- The Federation logo's retry after a load failure swaps the focused button for a loading text.
+- Sides and weapon kinds in the arquebusier registry and the statistics are still plain text.
+- Only a real browser can check that labels never wrap while the sidebar moves; the tests check
+  the class lists and the 200 ms / reduced-motion timing.
+- Firefox and WebKit run in CI only (the cloud image has neither).

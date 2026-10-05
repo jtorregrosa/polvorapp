@@ -13,7 +13,7 @@ const navigation = (page: Page) => page.getByRole('navigation', { name: 'Navegac
 
 test.describe('icon rail on wide screens', () => {
   test.beforeEach(({ isMobile }) => {
-    test.skip(isMobile, 'Phones keep the drawer (checked in layout.spec.ts).');
+    test.skip(isMobile, 'Phones keep the drawer (see below).');
   });
 
   test('collapses to icons, stays collapsed after a reload and expands with Ctrl+B', async ({ page }) => {
@@ -55,21 +55,38 @@ test.describe('icon rail on wide screens', () => {
     expect((await container(page).boundingBox())?.width).toBe(56);
   });
 
-  test("marks Distribution, not Editions, on an edition's distribution page", async ({ page }) => {
-    const response = await page.request.get('/api/editions/current');
-    test.skip(response.status() !== 200, 'The seed has no edition in progress.');
-    const { id } = (await response.json()) as { id: string };
+  for (const [subPage, entry, heading] of [
+    ['/orders', 'Pedidos', /^Pedidos/],
+    ['/exports', 'Pedidos', /^Exportaciones/],
+    ['/distribution', 'Reparto', /^Reparto/],
+    ['', 'Ediciones', /^Fiestas/],
+  ] as const) {
+    test(`marks ${entry} as current on the edition page ${subPage || '(detail)'}`, async ({ page }) => {
+      const response = await page.request.get('/api/editions/current');
+      expect(response.status(), 'the seed has an edition in progress').toBe(200);
+      const { edition } = (await response.json()) as { edition: { id: string } };
 
-    await page.goto(`/editions/${id}/distribution`);
+      await page.goto(`/editions/${edition.id}${subPage}`);
+      await waitForShell(page);
+      // The real page, not the not-found page, whose path would match the same entry.
+      await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
+
+      const current = navigation(page).locator('[aria-current="page"]');
+      await expect(current).toHaveCount(1);
+      await expect(current).toHaveAccessibleName(entry);
+    });
+  }
+
+  test('keeps the page usable while the sidebar moves', async ({ page }) => {
+    await page.goto('/');
     await waitForShell(page);
 
-    await expect(navigation(page).getByRole('link', { name: 'Reparto' })).toHaveAttribute(
-      'aria-current',
-      'page',
-    );
-    await expect(navigation(page).getByRole('link', { name: 'Ediciones' })).not.toHaveAttribute(
-      'aria-current',
-    );
+    await page.keyboard.press('Control+b');
+    // Straight away, during the 200 ms: input still goes through (spec: Motion).
+    await navigation(page).getByRole('link', { name: 'Pedidos' }).click();
+
+    await expect(page).toHaveURL(/\/orders$/);
+    await expect(sidebar(page)).toHaveAttribute('data-state', 'collapsed');
   });
 
   for (const colorScheme of ['light', 'dark'] as const) {
@@ -86,4 +103,23 @@ test.describe('icon rail on wide screens', () => {
       expect(await axeViolations()).toEqual([]);
     });
   }
+});
+
+test.describe('navigation drawer on phones', () => {
+  test.beforeEach(({ isMobile }) => {
+    test.skip(!isMobile, 'Wide screens get the icon rail (see above).');
+  });
+
+  test('opens the full navigation with its sections, never an icon rail', async ({ page }) => {
+    await page.goto('/');
+    await waitForShell(page);
+
+    await page.getByRole('button', { name: 'Mostrar u ocultar la navegación' }).click();
+
+    const drawer = page.getByRole('dialog');
+    await expect(drawer.getByRole('group', { name: 'Registro' })).toBeVisible();
+    await expect(drawer.getByRole('group', { name: 'Fiestas' })).toBeVisible();
+    await expect(drawer.getByText('Fiestas', { exact: true })).toBeVisible();
+    await expect(page.locator('[data-collapsible="icon"]')).toHaveCount(0);
+  });
 });
