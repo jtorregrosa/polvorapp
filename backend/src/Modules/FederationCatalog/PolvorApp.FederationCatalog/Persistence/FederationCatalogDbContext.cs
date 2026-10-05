@@ -107,9 +107,28 @@ internal sealed class FederationCatalogDbContext(DbContextOptions<FederationCata
                 table.HasCheckConstraint("ck_federation_settings_logo_complete", LogoColumnsAllNullOrAllSet());
                 table.HasCheckConstraint("ck_federation_settings_logo_key", LogoKeyDerivedFromId);
                 table.HasCheckConstraint("ck_federation_settings_logo_size", LogoSizesPositive);
+
+                // Spec: Federation settings (add-federation-settings, design D1).
+                table.HasCheckConstraint(
+                    "ck_federation_settings_names_not_blank",
+                    "btrim(official_name_es) <> '' AND btrim(official_name_ca) <> '' AND btrim(short_name) <> '' AND btrim(sender_name) <> ''");
+                table.HasCheckConstraint(
+                    "ck_federation_settings_close_reminder_lead_days",
+                    $"close_reminder_lead_days BETWEEN {Logos.FederationSettings.MinCloseReminderLeadDays} AND {Logos.FederationSettings.MaxCloseReminderLeadDays}");
+                table.HasCheckConstraint(
+                    "ck_federation_settings_milestone_lead_days",
+                    $"milestone_lead_days BETWEEN {Logos.FederationSettings.MinMilestoneLeadDays} AND {Logos.FederationSettings.MaxMilestoneLeadDays}");
             });
             settings.HasKey(s => s.Id);
             settings.Property(s => s.Id).ValueGeneratedNever();
+            settings.Property(s => s.OfficialNameEs).HasMaxLength(Logos.FederationSettings.OfficialNameMaxLength);
+            settings.Property(s => s.OfficialNameCa).HasMaxLength(Logos.FederationSettings.OfficialNameMaxLength);
+            settings.Property(s => s.ShortName).HasMaxLength(Logos.FederationSettings.ShortNameMaxLength);
+            settings.Property(s => s.ContactEmail).HasMaxLength(Logos.FederationSettings.EmailMaxLength);
+            settings.Property(s => s.Website).HasMaxLength(Logos.FederationSettings.WebsiteMaxLength);
+            settings.Property(s => s.SenderName).HasMaxLength(Logos.FederationSettings.SenderNameMaxLength);
+            settings.Property(s => s.ReplyTo).HasMaxLength(Logos.FederationSettings.EmailMaxLength);
+            settings.Property(s => s.Version).IsRowVersion();
             settings.OwnsOne(s => s.Logo, MapLogoColumns);
         });
 

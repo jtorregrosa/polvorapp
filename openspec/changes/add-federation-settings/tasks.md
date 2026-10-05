@@ -11,13 +11,13 @@
 
 ## 2. Backend: settings and API
 
-- [ ] 2.1 Write Testcontainers tests for the migration:
+- [x] 2.1 Write Testcontainers tests for the migration:
   - the singleton row has today's names, "Unión de Comparsas", "PolvorApp", 7 and 7;
   - the check constraints refuse 0 and 15 days.
 
   Then add the columns and the migration (D1). Verify: the tests pass, and
   `has-pending-model-changes` reports none.
-- [ ] 2.2 Write integration tests for `GET /federation-settings` and the four `PUT`s (D2):
+- [x] 2.2 Write integration tests for `GET /federation-settings` and the four `PUT`s (D2):
   - Admin only, `403` for FiringChiefs;
   - every validation reason, including a CR/LF in the sender name and a non-https website;
   - `409` on a stale version;
@@ -25,7 +25,7 @@
   - `GET /federation` carries the identity for every signed-in user.
 
   Then implement them. Verify: the tests pass and the OpenAPI document lists the endpoints.
-- [ ] 2.3 Write tests for `IFederationSettings` (a snapshot, memoised per request), then implement
+- [x] 2.3 Write tests for `IFederationSettings` (a snapshot, memoised per request), then implement
   and register it (D3). Verify: the tests and architecture tests pass.
 - [ ] 2.4 Review group 2 in parallel with `csharp-reviewer`, `database-reviewer` and
   `security-reviewer`. Fix CRITICAL/HIGH findings.

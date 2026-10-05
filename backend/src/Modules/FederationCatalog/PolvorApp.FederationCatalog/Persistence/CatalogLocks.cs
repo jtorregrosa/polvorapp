@@ -42,11 +42,13 @@ internal static class CatalogLocks
         LockAsync(db, db.WeaponModels.FromSql($"SELECT * FROM catalog.weapon_models WHERE id = {id} FOR UPDATE"), cancellationToken);
 
     /// <summary>
-    /// The Federation's settings row, for a logo change (add-distribution-planning, design D11): a
-    /// concurrent change waits and then applies on top. The row always exists (the migration creates it).
+    /// The Federation's settings row, for a logo or settings change (add-distribution-planning, design
+    /// D11; add-federation-settings): a concurrent change waits and then applies on top. The row always
+    /// exists (the migration creates it). <c>SELECT *</c> omits the <c>xmin</c> system column the row
+    /// carries as its version, so it is selected by name.
     /// </summary>
     public static async Task<FederationSettings> LockFederationSettingsAsync(this FederationCatalogDbContext db, CancellationToken cancellationToken) =>
-        await LockAsync(db, db.FederationSettings.FromSql($"SELECT * FROM catalog.federation_settings WHERE id = {FederationSettings.SingletonId} FOR NO KEY UPDATE"), cancellationToken)
+        await LockAsync(db, db.FederationSettings.FromSql($"SELECT *, xmin FROM catalog.federation_settings WHERE id = {FederationSettings.SingletonId} FOR NO KEY UPDATE"), cancellationToken)
         ?? throw new InvalidOperationException("The Federation settings row is missing; run the migrations.");
 
     /// <summary>

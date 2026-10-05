@@ -3909,7 +3909,7 @@
         "tags": [
           "Federation"
         ],
-        "summary": "The Federation's settings: whether its logo for documents was uploaded.",
+        "summary": "The Federation's names and whether its logo for documents was uploaded.",
         "operationId": "GetFederationSettings",
         "responses": {
           "401": {
@@ -4133,6 +4133,440 @@
           },
           "404": {
             "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/federation-settings": {
+      "get": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Every Federation settings section, with its version.",
+        "operationId": "GetSettings",
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/federation-settings/identity": {
+      "put": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Saves the Federation's names and public contact.",
+        "operationId": "UpdateIdentitySettings",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentitySettingsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/federation-settings/emails": {
+      "put": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Saves the email sender name and reply-to address.",
+        "operationId": "UpdateEmailSettings",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailSettingsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/federation-settings/orders": {
+      "put": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Saves the first close reminder lead time.",
+        "operationId": "UpdateOrderSettings",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderSettingsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/federation-settings/calendar": {
+      "put": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Saves the milestone reminder lead time.",
+        "operationId": "UpdateCalendarSettings",
+        "parameters": [
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalendarSettingsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -9940,6 +10374,7 @@
               "ExportDownloaded",
               "FederationLogoRemoved",
               "FederationLogoUploaded",
+              "FederationSettingsChanged",
               "FiringChiefAssigned",
               "FiringChiefUnassigned",
               "InvitationAccepted",
@@ -10292,6 +10727,41 @@
           },
           "notify": {
             "type": "boolean"
+          }
+        }
+      },
+      "CalendarSettingsRequest": {
+        "required": [
+          "version",
+          "milestoneLeadDays"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "uint32"
+          },
+          "milestoneLeadDays": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "CalendarSettingsResponse": {
+        "required": [
+          "milestoneLeadDays"
+        ],
+        "type": "object",
+        "properties": {
+          "milestoneLeadDays": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -11197,6 +11667,57 @@
           "CLOSES"
         ]
       },
+      "EmailSettingsRequest": {
+        "required": [
+          "version",
+          "senderName",
+          "replyTo"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "uint32"
+          },
+          "senderName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "replyTo": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "EmailSettingsResponse": {
+        "required": [
+          "senderName",
+          "replyTo",
+          "senderAddress"
+        ],
+        "type": "object",
+        "properties": {
+          "senderName": {
+            "type": "string"
+          },
+          "replyTo": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "senderAddress": {
+            "type": "string"
+          }
+        }
+      },
       "EnrolmentConfirmRequest": {
         "required": [
           "code"
@@ -11701,10 +12222,22 @@
       },
       "FederationSettingsResponse": {
         "required": [
+          "officialNameEs",
+          "officialNameCa",
+          "shortName",
           "logo"
         ],
         "type": "object",
         "properties": {
+          "officialNameEs": {
+            "type": "string"
+          },
+          "officialNameCa": {
+            "type": "string"
+          },
+          "shortName": {
+            "type": "string"
+          },
           "logo": {
             "oneOf": [
               {
@@ -11809,6 +12342,89 @@
           "RIGHT",
           "LEFT"
         ]
+      },
+      "IdentitySettingsRequest": {
+        "required": [
+          "version",
+          "officialNameEs",
+          "officialNameCa",
+          "shortName",
+          "contactEmail",
+          "website"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "uint32"
+          },
+          "officialNameEs": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "officialNameCa": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "shortName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "contactEmail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "website": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "IdentitySettingsResponse": {
+        "required": [
+          "officialNameEs",
+          "officialNameCa",
+          "shortName",
+          "contactEmail",
+          "website"
+        ],
+        "type": "object",
+        "properties": {
+          "officialNameEs": {
+            "type": "string"
+          },
+          "officialNameCa": {
+            "type": "string"
+          },
+          "shortName": {
+            "type": "string"
+          },
+          "contactEmail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "website": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
       },
       "IFormFile": {
         "type": "string",
@@ -12528,6 +13144,41 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "OrderSettingsRequest": {
+        "required": [
+          "version",
+          "closeReminderLeadDays"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "uint32"
+          },
+          "closeReminderLeadDays": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "OrderSettingsResponse": {
+        "required": [
+          "closeReminderLeadDays"
+        ],
+        "type": "object",
+        "properties": {
+          "closeReminderLeadDays": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -13560,6 +14211,34 @@
           }
         }
       },
+      "SettingsResponse": {
+        "required": [
+          "version",
+          "identity",
+          "emails",
+          "orders",
+          "calendar"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "integer",
+            "format": "uint32"
+          },
+          "identity": {
+            "$ref": "#/components/schemas/IdentitySettingsResponse"
+          },
+          "emails": {
+            "$ref": "#/components/schemas/EmailSettingsResponse"
+          },
+          "orders": {
+            "$ref": "#/components/schemas/OrderSettingsResponse"
+          },
+          "calendar": {
+            "$ref": "#/components/schemas/CalendarSettingsResponse"
+          }
+        }
+      },
       "Side": {
         "enum": [
           "MOORISH",
@@ -14276,6 +14955,9 @@
     },
     {
       "name": "Federation"
+    },
+    {
+      "name": "Settings"
     },
     {
       "name": "Arquebusiers"

@@ -11,6 +11,7 @@ using PolvorApp.FederationCatalog.Logos;
 using PolvorApp.FederationCatalog.Persistence;
 using PolvorApp.FederationCatalog.Privacy;
 using PolvorApp.FederationCatalog.Seeding;
+using PolvorApp.FederationCatalog.Settings;
 using PolvorApp.FederationCatalog.WeaponModels;
 using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.SharedKernel.Auditing;
@@ -23,8 +24,8 @@ namespace PolvorApp.FederationCatalog;
 
 /// <summary>
 /// Capability federation-catalog (UC-24 catalogue, BR-07, BR-12): comparsas, FiringChief
-/// assignments that feed the comparsa scope, the weapon model catalogue, and the Federation's logo for
-/// documents (add-distribution-planning).
+/// assignments that feed the comparsa scope, the weapon model catalogue, and the Federation's settings and
+/// logo (add-distribution-planning, add-federation-settings).
 /// </summary>
 public sealed class FederationCatalogModule : IModule
 {
@@ -51,6 +52,8 @@ public sealed class FederationCatalogModule : IModule
         services.AddScoped<IStoredObjectOwner, CatalogLogoOwner>();
         services.AddScoped<IDataSeeder, CatalogSeeder>();
         services.AddScoped<ICatalogDirectory, CatalogDirectory>();
+        services.AddScoped<IFederationSettings, FederationSettingsReader>();
+        services.AddScoped<FederationSettingsAdministration>();
 
         // Replaces the identity module's deny-all default, whatever the module order (design D1).
         services.Replace(ServiceDescriptor.Scoped<IFiringChiefAssignmentSource, FiringChiefAssignmentSource>());
@@ -63,5 +66,6 @@ public sealed class FederationCatalogModule : IModule
         endpoints.MapWeaponModelEndpoints();
         endpoints.MapLogoEndpoints();
         endpoints.MapFederationLogoEndpoints();
+        endpoints.MapSettingsEndpoints();
     }
 }
