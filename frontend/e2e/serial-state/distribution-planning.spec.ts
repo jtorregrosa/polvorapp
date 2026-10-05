@@ -175,7 +175,8 @@ test('the Admin uploads a Federation logo for the documents and removes it', asy
   page,
   axeViolations,
 }) => {
-  await page.goto('/comparsas');
+  // The logo is managed from the Settings page (add-federation-settings).
+  await page.goto('/settings');
   await waitForShell(page);
   const section = page.getByRole('region', { name: 'Logo de la Federación' });
 

@@ -92,7 +92,7 @@
   },
   "settings": {
     "title": "Ajustos",
-    "description": "Dades de la Unió de Comparses que usen els documents, els correus i els recordatoris. Cada secció es guarda per separat.",
+    "description": "Dades de la Federació que usen els documents, els correus i els recordatoris. Cada secció es guarda per separat.",
     "loading": "Carregant els ajustos…",
     "loadFailed": "No s'han pogut carregar els ajustos.",
     "staleFailed": "No s'han pogut actualitzar els ajustos: pot ser que el que veus no estiga al dia.",
@@ -112,7 +112,7 @@
       "contactEmail": "Correu de contacte",
       "website": "Lloc web",
       "websiteHint": "Una adreça https completa, per exemple https://www.exemple.org.",
-      "federationOnly": "El correu i la web han de ser els de la Unió, mai els d'una persona: s'envien en cada avís."
+      "federationOnly": "El correu i la web han de ser els de la Federació, mai els d'una persona: s'envien en cada avís."
     },
     "emails": {
       "title": "Correus",
@@ -120,9 +120,9 @@
       "edit": "Editar els correus",
       "usedIn": "S'usen en tots els correus de PolvorApp: avisos, invitacions i canvis de contrasenya.",
       "sender": "Remitent",
-      "senderLine": "{{name}} <{{address}}>",
+      "senderLine": "{{name}} ({{address}})",
       "senderName": "Nom del remitent",
-      "senderNameHint": "Es mostra junt amb l'adreça {{address}}, que es configura en el servidor.",
+      "senderNameHint": "Es mostra junt amb l'adreça {{address}}, que es configura al servidor. No pot portar cometes, signes de menor o major que ni arrova.",
       "replyTo": "Respondre a",
       "replyToHint": "Les respostes als correus arribaran a esta adreça. Sense ella, van a l'adreça del remitent."
     },
@@ -130,16 +130,17 @@
       "title": "Comandes",
       "name": "les comandes",
       "edit": "Editar les comandes",
-      "usedIn": "Quan reben els caps de disparada el primer recordatori del tancament de comandes.",
+      "usedIn": "Definix quan reben els caps de disparada el primer recordatori del tancament de comandes.",
       "closeReminderLeadDays": "Primer recordatori de tancament",
-      "closeReminderHint": "S'envia una vegada entre eixe dia i dos dies abans del tancament previst. Si l'avances, pot enviar-se un recordatori abans del previst."
+      "closeReminderHint": "El primer recordatori s'envia entre este nombre de dies i dos dies abans del tancament previst. Si l'augmentes, pot enviar-se abans del que s'esperava."
     },
     "calendar": {
       "title": "Calendari",
       "name": "el calendari",
       "edit": "Editar el calendari",
-      "usedIn": "Quan s'avisa de les fites del calendari que tenen l'avís activat.",
-      "milestoneLeadDays": "Recordatori de fites"
+      "usedIn": "Definix quan s'avisa de les fites del calendari que tenen l'avís activat.",
+      "milestoneLeadDays": "Recordatori de fites",
+      "milestoneLeadHint": "Quants dies abans d'una fita s'envia el seu recordatori."
     },
     "validation": {
       "tooLong40": "40 caràcters com a màxim.",
@@ -149,13 +150,14 @@
       "tooLong254": "254 caràcters com a màxim.",
       "email": "Escriu una adreça de correu completa, com info@exemple.org.",
       "website": "Escriu una adreça https completa, sense espais ni cometes, com https://www.exemple.org.",
-      "senderName": "El nom no pot contindre <, >, \" ni @.",
+      "senderName": "El nom no pot portar cometes, signes de menor o major que (< >) ni arrova (@).",
       "outOfRange": "Tria un dels valors de la llista."
     },
     "errors": {
       "modified": "Una altra persona ha canviat els ajustos mentres editaves. Revisa els valors actuals i torna a guardar.",
       "busy": "Els ajustos s'estan guardant des d'una altra sessió. Torna-ho a intentar d'ací a uns segons.",
-      "tooManyRequests": "Has guardat massa canvis seguits. Espera un minut i torna-ho a intentar."
+      "tooManyRequests": "Has guardat massa canvis seguits. Espera un minut i torna-ho a intentar.",
+      "reloadFailed": "No s'han pogut carregar els valors actuals: torna-ho a intentar d'ací a uns segons."
     }
   },
   "firingChiefs": {

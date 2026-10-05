@@ -95,8 +95,8 @@ internal static class SettingsInput
     /// <summary>
     /// An optional absolute <c>https</c> address without credentials, stored in its canonical form. The
     /// text must already be that form, so what the Admin typed is exactly what emails show: characters
-    /// that need escaping (quotes, angle brackets, spaces), backslashes and non-ASCII (lookalike) host
-    /// names are refused (security review). Blank is none.
+    /// that need escaping (quotes, angle brackets, spaces), backslashes and non-ASCII or punycode
+    /// (lookalike) host names are refused (security review). Blank is none.
     /// </summary>
     private static string? OptionalWebsite(string? value, string field, IDictionary<string, string> errors)
     {
@@ -113,6 +113,7 @@ internal static class SettingsInput
             || uri.UserInfo.Length > 0
             || !Ascii.IsValid(uri.Host)
             || uri.IdnHost != uri.Host
+            || uri.Host.Split('.').Any(label => label.StartsWith("xn--", StringComparison.OrdinalIgnoreCase))
             || !IsCanonical(text, uri))
         {
             errors[field] = InputFields.Invalid;

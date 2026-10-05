@@ -133,6 +133,7 @@ public sealed class FederationSettingsEndpointTests(PostgresFixture postgres, Ma
         { "identity", Identity(website: "https://localhost"), "website", "invalid" },
         { "identity", Identity(website: "https://[::1]/"), "website", "invalid" },
         { "identity", Identity(website: "https://192.0.2.10/"), "website", "invalid" },
+        { "identity", Identity(website: "https://xn--80ak6aa92e.example/"), "website", "invalid" },
         { "identity", Identity(website: "https://usuario@federacion.example/"), "website", "invalid" },
         { "identity", Identity(website: "https://\u0430\u0440\u0440\u04CF\u0435.example/"), "website", "invalid" },
         { "emails", new { senderName = "Unión\r\nBcc: a@b.example" }, "senderName", "invalid" },

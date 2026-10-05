@@ -1,8 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import type { FieldValues, Path, UseFormSetError } from 'react-hook-form';
+import { useQueryClient } from '@tanstack/react-query';
+import type { FieldValues, Path, UseFormReturn } from 'react-hook-form';
 import { getGetFederationQueryKey } from '@/api/generated/federation/federation';
 import { getGetFederationSettingsQueryKey } from '@/api/generated/settings/settings';
 import { ApiProblemError } from '@/api/http';
+import type { FederationSettingsResponse } from '@/api/generated/model';
 import type { EditResult } from '@/components/app/EditSheet';
 import { useInvalidate } from '@/lib/use-invalidate';
 import { messages, problemCode } from '../problems';
@@ -24,8 +26,11 @@ const LIMITS: Record<string, number> = {
   website: SETTINGS_LIMITS.website,
 };
 
+/** Characters the sender name may not hold, as the API refuses them. */
+const SENDER_FORBIDDEN = /[<>"@]/;
+
 /** The message for a field reason of the API (spec: Federation settings), as `FormField` translates it. */
-function fieldMessage(field: string, reason: string): string {
+function fieldMessage(field: string, reason: string, body: unknown): string {
   switch (reason) {
     case 'required':
       return messages.required;
@@ -36,7 +41,13 @@ function fieldMessage(field: string, reason: string): string {
     default:
       if (field === 'contactEmail' || field === 'replyTo') return settingsMessages.email;
       if (field === 'website') return settingsMessages.website;
-      if (field === 'senderName') return settingsMessages.senderName;
+      if (field === 'senderName') {
+        const sent = (body as { senderName?: unknown }).senderName;
+        // `invalid` also covers line breaks and invisible characters, which the generic text explains.
+        return typeof sent === 'string' && SENDER_FORBIDDEN.test(sent)
+          ? settingsMessages.senderName
+          : messages.invalid;
+      }
       return messages.invalid;
   }
 }
@@ -67,20 +78,31 @@ export function useSettingsProblem(): (error: unknown) => string {
 export function useSaveSettings<TValues extends FieldValues, TBody>(
   version: number,
   mutate: (body: TBody & { version: number }) => Promise<unknown>,
+  valuesOf: (settings: FederationSettingsResponse) => TValues,
 ) {
+  const { t } = useTranslation('catalog');
+  const queryClient = useQueryClient();
   const refresh = useSettingsRefresh();
   const explain = useSettingsProblem();
 
   return async (
     body: TBody,
     fields: readonly Path<TValues>[],
-    setError: UseFormSetError<TValues>,
+    form: Pick<UseFormReturn<TValues>, 'setError' | 'reset'>,
   ): Promise<EditResult> => {
     try {
       await mutate({ ...body, version });
     } catch (error) {
       if (problemCode(error) === 'federationSettings.modified') {
+        // The panel shows the other Admin's values, so they are reviewed before saving again.
         await refresh();
+        const key = getGetFederationSettingsQueryKey();
+        const fresh = queryClient.getQueryData<{ data: FederationSettingsResponse }>(key)?.data;
+        if (!fresh || queryClient.getQueryState(key)?.status === 'error') {
+          // Without the newer values a retry would conflict again: say why and keep what was typed.
+          return { status: 'rejected', reason: `${explain(error)} ${t('settings.errors.reloadFailed')}` };
+        }
+        form.reset(valuesOf(fresh));
         return { status: 'conflict', reason: explain(error) };
       }
       const errors =
@@ -92,7 +114,7 @@ export function useSaveSettings<TValues extends FieldValues, TBody>(
         for (const field of fields) {
           const reason = errors[field];
           if (reason) {
-            setError(field, { type: 'server', message: fieldMessage(field, reason) });
+            form.setError(field, { type: 'server', message: fieldMessage(field, reason, body) });
             applied = true;
           }
         }

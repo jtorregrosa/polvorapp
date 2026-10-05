@@ -92,7 +92,7 @@
   },
   "settings": {
     "title": "Ajustes",
-    "description": "Datos de la Unión de Comparsas que usan los documentos, los correos y los recordatorios. Cada sección se guarda por separado.",
+    "description": "Datos de la Federación que usan los documentos, los correos y los recordatorios. Cada sección se guarda por separado.",
     "loading": "Cargando los ajustes…",
     "loadFailed": "No se han podido cargar los ajustes.",
     "staleFailed": "No se han podido actualizar los ajustes: puede que lo que ves no esté al día.",
@@ -112,7 +112,7 @@
       "contactEmail": "Correo de contacto",
       "website": "Sitio web",
       "websiteHint": "Una dirección https completa, por ejemplo https://www.ejemplo.org.",
-      "federationOnly": "El correo y la web deben ser los de la Unión, nunca los de una persona: se envían en cada aviso."
+      "federationOnly": "El correo y la web deben ser los de la Federación, nunca los de una persona: se envían en cada aviso."
     },
     "emails": {
       "title": "Correos",
@@ -120,9 +120,9 @@
       "edit": "Editar los correos",
       "usedIn": "Se usan en todos los correos de PolvorApp: avisos, invitaciones y cambios de contraseña.",
       "sender": "Remitente",
-      "senderLine": "{{name}} <{{address}}>",
+      "senderLine": "{{name}} ({{address}})",
       "senderName": "Nombre del remitente",
-      "senderNameHint": "Se muestra junto a la dirección {{address}}, que se configura en el servidor.",
+      "senderNameHint": "Se muestra junto a la dirección {{address}}, que se configura en el servidor. No puede llevar comillas, signos de menor o mayor que ni arroba.",
       "replyTo": "Responder a",
       "replyToHint": "Las respuestas a los correos llegarán a esta dirección. Sin ella, van a la dirección del remitente."
     },
@@ -130,16 +130,17 @@
       "title": "Pedidos",
       "name": "los pedidos",
       "edit": "Editar los pedidos",
-      "usedIn": "Cuándo reciben los jefes de disparo el primer recordatorio del cierre de pedidos.",
+      "usedIn": "Define cuándo reciben los jefes de disparo el primer recordatorio del cierre de pedidos.",
       "closeReminderLeadDays": "Primer recordatorio de cierre",
-      "closeReminderHint": "Se envía una vez entre ese día y dos días antes del cierre previsto. Si lo adelantas, puede enviarse un recordatorio antes de lo previsto."
+      "closeReminderHint": "El primer recordatorio se envía entre este número de días y dos días antes del cierre previsto. Si lo aumentas, puede enviarse antes de lo esperado."
     },
     "calendar": {
       "title": "Calendario",
       "name": "el calendario",
       "edit": "Editar el calendario",
-      "usedIn": "Cuándo se avisa de los hitos del calendario que tienen el aviso activado.",
-      "milestoneLeadDays": "Recordatorio de hitos"
+      "usedIn": "Define cuándo se avisa de los hitos del calendario que tienen el aviso activado.",
+      "milestoneLeadDays": "Recordatorio de hitos",
+      "milestoneLeadHint": "Cuántos días antes de un hito se envía su recordatorio."
     },
     "validation": {
       "tooLong40": "40 caracteres como máximo.",
@@ -149,13 +150,14 @@
       "tooLong254": "254 caracteres como máximo.",
       "email": "Escribe una dirección de correo completa, como info@ejemplo.org.",
       "website": "Escribe una dirección https completa, sin espacios ni comillas, como https://www.ejemplo.org.",
-      "senderName": "El nombre no puede contener <, >, \" ni @.",
+      "senderName": "El nombre no puede llevar comillas, signos de menor o mayor que (< >) ni arroba (@).",
       "outOfRange": "Elige uno de los valores de la lista."
     },
     "errors": {
       "modified": "Otra persona ha cambiado los ajustes mientras editabas. Revisa los valores actuales y vuelve a guardar.",
       "busy": "Los ajustes se están guardando desde otra sesión. Inténtalo de nuevo en unos segundos.",
-      "tooManyRequests": "Has guardado demasiados cambios seguidos. Espera un minuto y vuelve a intentarlo."
+      "tooManyRequests": "Has guardado demasiados cambios seguidos. Espera un minuto y vuelve a intentarlo.",
+      "reloadFailed": "No se han podido cargar los valores actuales: vuelve a intentarlo en unos segundos."
     }
   },
   "firingChiefs": {

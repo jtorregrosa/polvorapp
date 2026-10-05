@@ -8,7 +8,6 @@ import {
   useUpdateIdentitySettings,
   useUpdateOrderSettings,
 } from '@/api/generated/settings/settings';
-import { AlertBanner } from '@/components/app/AlertBanner';
 import { DescriptionList } from '@/components/app/DescriptionList';
 import { EditSheet } from '@/components/app/EditSheet';
 import { FormField } from '@/components/app/FormField';
@@ -42,24 +41,39 @@ interface SectionProps {
   settings: FederationSettingsResponse;
 }
 
+/** Each section's form values from the settings (also after a conflict, to show the newer values). */
+const identityValues = ({ identity }: FederationSettingsResponse): IdentityValues => ({
+  officialNameEs: identity.officialNameEs,
+  officialNameCa: identity.officialNameCa,
+  shortName: identity.shortName,
+  contactEmail: identity.contactEmail ?? '',
+  website: identity.website ?? '',
+});
+
+const emailValues = ({ emails }: FederationSettingsResponse): EmailsValues => ({
+  senderName: emails.senderName,
+  replyTo: emails.replyTo ?? '',
+});
+
+const orderValues = ({ orders }: FederationSettingsResponse): OrdersValues => ({
+  closeReminderLeadDays: String(orders.closeReminderLeadDays),
+});
+
+const calendarValues = ({ calendar }: FederationSettingsResponse): CalendarValues => ({
+  milestoneLeadDays: String(calendar.milestoneLeadDays),
+});
+
 /** Names and public contact (spec: Federation settings, Identity). */
 export function IdentitySection({ settings }: SectionProps) {
   const { t } = useTranslation('catalog');
   const { mutateAsync } = useUpdateIdentitySettings();
-  const save = useSaveSettings<IdentityValues, IdentityInput>(settings.version, (data) =>
-    mutateAsync({ data }),
+  const save = useSaveSettings<IdentityValues, IdentityInput>(
+    settings.version,
+    (data) => mutateAsync({ data }),
+    identityValues,
   );
   const { identity } = settings;
-  const values = useMemo<IdentityValues>(
-    () => ({
-      officialNameEs: identity.officialNameEs,
-      officialNameCa: identity.officialNameCa,
-      shortName: identity.shortName,
-      contactEmail: identity.contactEmail ?? '',
-      website: identity.website ?? '',
-    }),
-    [identity],
-  );
+  const values = useMemo(() => identityValues(settings), [settings]);
   const form = useAppForm<IdentityValues, unknown, IdentityInput>({
     resolver: zodResolver(identitySchema),
     defaultValues: values,
@@ -72,20 +86,20 @@ export function IdentitySection({ settings }: SectionProps) {
       action={
         <EditSheet
           title={t('settings.identity.edit')}
+          description={t('settings.identity.federationOnly')}
           sectionName={t('settings.identity.name')}
           form={form}
           values={values}
-          onSave={(submitted) => save(submitted, IDENTITY_FIELDS, form.setError)}
+          onSave={(submitted) => save(submitted, IDENTITY_FIELDS, form)}
         >
-          <AlertBanner severity="info" live={false}>
-            {t('settings.identity.federationOnly')}
-          </AlertBanner>
           <FormField
             control={form.control}
             name="officialNameEs"
             label={t('settings.identity.officialNameEs')}
           >
-            {(field) => <TextInput autoComplete="off" maxLength={SETTINGS_LIMITS.officialName} {...field} />}
+            {(field) => (
+              <TextInput autoComplete="off" lang="es" maxLength={SETTINGS_LIMITS.officialName} {...field} />
+            )}
           </FormField>
           <FormField
             control={form.control}
@@ -93,7 +107,12 @@ export function IdentitySection({ settings }: SectionProps) {
             label={t('settings.identity.officialNameCa')}
           >
             {(field) => (
-              <TextInput autoComplete="off" lang="ca" maxLength={SETTINGS_LIMITS.officialName} {...field} />
+              <TextInput
+                autoComplete="off"
+                lang="ca-ES-valencia"
+                maxLength={SETTINGS_LIMITS.officialName}
+                {...field}
+              />
             )}
           </FormField>
           <FormField
@@ -128,10 +147,13 @@ export function IdentitySection({ settings }: SectionProps) {
     >
       <DescriptionList
         items={[
-          { term: t('settings.identity.officialNameEs'), value: identity.officialNameEs },
+          {
+            term: t('settings.identity.officialNameEs'),
+            value: <span lang="es">{identity.officialNameEs}</span>,
+          },
           {
             term: t('settings.identity.officialNameCa'),
-            value: <span lang="ca">{identity.officialNameCa}</span>,
+            value: <span lang="ca-ES-valencia">{identity.officialNameCa}</span>,
           },
           { term: t('settings.identity.shortName'), value: identity.shortName },
           { term: t('settings.identity.contactEmail'), value: identity.contactEmail },
@@ -146,12 +168,13 @@ export function IdentitySection({ settings }: SectionProps) {
 export function EmailsSection({ settings }: SectionProps) {
   const { t } = useTranslation('catalog');
   const { mutateAsync } = useUpdateEmailSettings();
-  const save = useSaveSettings<EmailsValues, EmailsInput>(settings.version, (data) => mutateAsync({ data }));
-  const { emails } = settings;
-  const values = useMemo<EmailsValues>(
-    () => ({ senderName: emails.senderName, replyTo: emails.replyTo ?? '' }),
-    [emails],
+  const save = useSaveSettings<EmailsValues, EmailsInput>(
+    settings.version,
+    (data) => mutateAsync({ data }),
+    emailValues,
   );
+  const { emails } = settings;
+  const values = useMemo(() => emailValues(settings), [settings]);
   const form = useAppForm<EmailsValues, unknown, EmailsInput>({
     resolver: zodResolver(emailsSchema),
     defaultValues: values,
@@ -167,7 +190,7 @@ export function EmailsSection({ settings }: SectionProps) {
           sectionName={t('settings.emails.name')}
           form={form}
           values={values}
-          onSave={(submitted) => save(submitted, EMAIL_FIELDS, form.setError)}
+          onSave={(submitted) => save(submitted, EMAIL_FIELDS, form)}
         >
           <FormField
             control={form.control}
@@ -207,11 +230,11 @@ export function EmailsSection({ settings }: SectionProps) {
   );
 }
 
-/** A lead time as a choice of days, `{{count}} days`. */
+/** A lead time as a choice of days, worded as the section shows it: `{{count}} days before`. */
 function useDayOptions(days: readonly number[]) {
   const { t } = useTranslation('catalog');
   return useMemo(
-    () => days.map((count) => ({ value: String(count), label: t('settings.days', { count }) })),
+    () => days.map((count) => ({ value: String(count), label: t('settings.daysBefore', { count }) })),
     [days, t],
   );
 }
@@ -220,10 +243,14 @@ function useDayOptions(days: readonly number[]) {
 export function OrdersSection({ settings }: SectionProps) {
   const { t } = useTranslation('catalog');
   const { mutateAsync } = useUpdateOrderSettings();
-  const save = useSaveSettings<OrdersValues, OrdersInput>(settings.version, (data) => mutateAsync({ data }));
+  const save = useSaveSettings<OrdersValues, OrdersInput>(
+    settings.version,
+    (data) => mutateAsync({ data }),
+    orderValues,
+  );
   const days = settings.orders.closeReminderLeadDays;
   const options = useDayOptions(CLOSE_REMINDER_DAYS);
-  const values = useMemo<OrdersValues>(() => ({ closeReminderLeadDays: String(days) }), [days]);
+  const values = useMemo(() => orderValues(settings), [settings]);
   const form = useAppForm<OrdersValues, unknown, OrdersInput>({
     resolver: zodResolver(ordersSchema),
     defaultValues: values,
@@ -239,7 +266,7 @@ export function OrdersSection({ settings }: SectionProps) {
           sectionName={t('settings.orders.name')}
           form={form}
           values={values}
-          onSave={(submitted) => save(submitted, ['closeReminderLeadDays'], form.setError)}
+          onSave={(submitted) => save(submitted, ['closeReminderLeadDays'], form)}
         >
           <FormField
             control={form.control}
@@ -269,12 +296,14 @@ export function OrdersSection({ settings }: SectionProps) {
 export function CalendarSection({ settings }: SectionProps) {
   const { t } = useTranslation('catalog');
   const { mutateAsync } = useUpdateCalendarSettings();
-  const save = useSaveSettings<CalendarValues, CalendarInput>(settings.version, (data) =>
-    mutateAsync({ data }),
+  const save = useSaveSettings<CalendarValues, CalendarInput>(
+    settings.version,
+    (data) => mutateAsync({ data }),
+    calendarValues,
   );
   const days = settings.calendar.milestoneLeadDays;
   const options = useDayOptions(MILESTONE_DAYS);
-  const values = useMemo<CalendarValues>(() => ({ milestoneLeadDays: String(days) }), [days]);
+  const values = useMemo(() => calendarValues(settings), [settings]);
   const form = useAppForm<CalendarValues, unknown, CalendarInput>({
     resolver: zodResolver(calendarSchema),
     defaultValues: values,
@@ -290,12 +319,13 @@ export function CalendarSection({ settings }: SectionProps) {
           sectionName={t('settings.calendar.name')}
           form={form}
           values={values}
-          onSave={(submitted) => save(submitted, ['milestoneLeadDays'], form.setError)}
+          onSave={(submitted) => save(submitted, ['milestoneLeadDays'], form)}
         >
           <FormField
             control={form.control}
             name="milestoneLeadDays"
             label={t('settings.calendar.milestoneLeadDays')}
+            description={t('settings.calendar.milestoneLeadHint')}
             width="short"
           >
             {(field) => <SelectInput options={options} {...field} />}

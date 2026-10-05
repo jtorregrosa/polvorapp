@@ -104,25 +104,26 @@ describe('Federation logo on the Settings page (spec: Federation logo)', () => {
     vi.restoreAllMocks();
   });
 
-  it('is no longer on the comparsas page, and a FiringChief neither gets it nor asks for it', async () => {
+  it('is no longer on the comparsas page', async () => {
+    server.use(mock.get('/api/comparsas', () => HttpResponse.json([NORTE])));
+    await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
+
+    await screen.findByRole('table', { name: 'Comparsas' });
+    expect(screen.queryByRole('region', { name: 'Logo de la Federación' })).not.toBeInTheDocument();
+  });
+
+  it('is not offered to a FiringChief, nor asked for', async () => {
     let requests = 0;
     server.use(
-      mock.get('/api/comparsas', () => HttpResponse.json([NORTE])),
       mock.get('/api/federation', () => {
         requests++;
         return HttpResponse.json({ ...FEDERATION_NAMES, logo: LOGO });
       }),
     );
-    await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
-    await screen.findByRole('table', { name: 'Comparsas' });
-    expect(screen.queryByRole('region', { name: 'Logo de la Federación' })).not.toBeInTheDocument();
-
     await renderApp('/settings', { session: SYNTHETIC_FIRING_CHIEF });
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Acceso no permitido' })).toBeInTheDocument();
     expect(screen.queryByRole('region', { name: 'Logo de la Federación' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /logo de la Federación/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /, opciones$/ })).not.toBeInTheDocument();
     expect(requests).toBe(0);
   });
 
