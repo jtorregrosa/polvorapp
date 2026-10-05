@@ -36,8 +36,8 @@ export function AppShell() {
   const navigation = useMemo(
     () =>
       NAVIGATION.filter((entry) => !entry.roles || (role !== undefined && entry.roles.includes(role))).map(
-        ({ to, labelKey, icon, count }): NavigationItem => {
-          const item = { to, icon, label: t(labelKey) };
+        ({ to, labelKey, icon, matches, count }): NavigationItem => {
+          const item = { to, icon, matches, label: t(labelKey) };
           return count === 'warnings' && warningCount
             ? { ...item, count: warningCount, countLabel: t('nav.warningCount', { count: warningCount }) }
             : item;
