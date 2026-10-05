@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.Extensions.Time.Testing;
 using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.FestivalEditions.Contracts;
@@ -59,20 +60,15 @@ public sealed class NotificationRulesTests
     }
 
     [Theory]
-    [InlineData(-1, 7, false)]
-    [InlineData(0, 7, true)]
-    [InlineData(7, 7, true)]
-    [InlineData(8, 7, false)]
-    [InlineData(3, 3, true)]
-    [InlineData(5, 3, false)]
-    [InlineData(1, 1, true)]
-    [InlineData(2, 1, false)]
-    [InlineData(14, 14, true)]
-    public void A_milestone_is_due_from_the_lead_time_before_until_its_date(int daysAhead, int leadDays, bool due)
+    [InlineData(7, "2030-11-23", "2030-11-30")]
+    [InlineData(3, "2030-11-23", "2030-11-26")]
+    [InlineData(1, "2030-11-23", "2030-11-24")]
+    [InlineData(14, "2030-11-23", "2030-12-07")]
+    public void The_milestone_window_runs_from_today_to_the_lead_time_ahead(int leadDays, string from, string to)
     {
-        var today = new DateOnly(2030, 11, 23);
+        var window = Schedule.MilestoneWindow(new DateOnly(2030, 11, 23), leadDays);
 
-        Assert.Equal(due, Schedule.IsMilestoneDue(today, today.AddDays(daysAhead), leadDays));
+        Assert.Equal((DateOnly.Parse(from, CultureInfo.InvariantCulture), DateOnly.Parse(to, CultureInfo.InvariantCulture)), window);
     }
 
     [Fact]

@@ -50,8 +50,9 @@ internal sealed class FederationSettingsAdministration(FederationCatalogDbContex
     /// <summary>The audit entity type of the settings row, its logo included.</summary>
     public const string EntityType = "FederationSettings";
 
-    public Task<FederationSettings> GetAsync(CancellationToken cancellationToken) =>
-        db.FederationSettings.AsNoTracking().SingleAsync(cancellationToken);
+    public async Task<FederationSettings> GetAsync(CancellationToken cancellationToken) =>
+        await db.FederationSettings.AsNoTracking().SingleOrDefaultAsync(cancellationToken)
+            ?? throw new InvalidOperationException("The Federation settings row is missing; run the migrations.");
 
     public Task<(SettingsOutcome Outcome, FederationSettings? Settings)> SaveIdentityAsync(uint version, IdentityFields fields, CancellationToken cancellationToken) =>
         SaveAsync(SettingsSection.Identity, version, fields, Identity, (settings, value) =>

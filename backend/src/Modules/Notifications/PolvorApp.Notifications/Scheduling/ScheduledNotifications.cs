@@ -160,8 +160,8 @@ internal sealed partial class ScheduledNotifications(
     private async Task<int> MilestoneRemindersAsync(DateOnly today, Recipients recipients, DateTimeOffset now, CancellationToken cancellationToken)
     {
         var created = 0;
-        var leadDays = (await settings.GetAsync(cancellationToken)).MilestoneLeadDays;
-        foreach (var milestone in await editions.ListMilestonesToNotifyAsync(today, today.AddDays(leadDays), cancellationToken))
+        var (from, to) = Schedule.MilestoneWindow(today, (await settings.GetAsync(cancellationToken)).MilestoneLeadDays);
+        foreach (var milestone in await editions.ListMilestonesToNotifyAsync(from, to, cancellationToken))
         {
             var audience = recipients.WithRole(UserRole.Admin, NotificationKind.MilestoneReminder);
             if (Schedule.RemindsFiringChiefs(milestone.EditionStatus))

@@ -11,5 +11,8 @@ public sealed record EmailSenderProfile(string DisplayName, string? ReplyTo);
 /// <summary>Reads the current <see cref="EmailSenderProfile"/> for each message.</summary>
 public interface IEmailSenderProfile
 {
+    /// <summary>The deployment's sender address (<c>Email:From</c>, validated at start-up), without any display name.</summary>
+    string SenderAddress { get; }
+
     Task<EmailSenderProfile> GetAsync(CancellationToken cancellationToken);
 }

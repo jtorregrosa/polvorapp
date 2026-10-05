@@ -64,6 +64,8 @@ internal sealed partial class BadgeDocuments(
             return problem;
         }
 
+        // Read before the costly work: a failure here holds no render slot.
+        var federationName = (await federation.GetAsync(cancellationToken)).OfficialName(BadgeTexts.For(batch.Language).NameForm);
         using var slot = await slots.EnterAsync(cancellationToken);
         if (slot is null)
         {
@@ -99,7 +101,6 @@ internal sealed partial class BadgeDocuments(
         var people = subjects!.Select(s => new BadgePerson(
             s.Arquebusier.LastName, s.Arquebusier.FirstName, s.Arquebusier.NationalId, s.Arquebusier.FederationId, s.ComparsaName,
             s.Arquebusier.License, printPhotos.Scaled.GetValueOrDefault(s.Arquebusier.Id))).ToList();
-        var federationName = (await federation.GetAsync(cancellationToken)).OfficialName(BadgeTexts.For(batch.Language).NameForm);
         var document = renderer.RenderBadgeSheet(BadgeSheetBuilder.Build(
             new BadgeSheetContent(batch.Kind, comparsaName, batch.Language, federationName, FederationCalendar.Today(time), people, logo)));
         return await DeliverAsync(document, batch, [.. subjects!.Select(s => s.Arquebusier.Id)], cancellationToken);

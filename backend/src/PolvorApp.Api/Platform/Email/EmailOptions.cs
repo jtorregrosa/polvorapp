@@ -31,7 +31,10 @@ internal sealed class EmailOptions
 
     public EmailSecurity Security { get; set; } = EmailSecurity.StartTls;
 
-    /// <summary>Sender, e.g. <c>PolvorApp &lt;no-reply@example.org&gt;</c>.</summary>
+    /// <summary>
+    /// Sender address, e.g. <c>no-reply@example.org</c>. Only the address counts: the name shown with it
+    /// is the sender name of the Federation settings (add-federation-settings).
+    /// </summary>
     public string? From { get; set; }
 
     public string? Username { get; set; }

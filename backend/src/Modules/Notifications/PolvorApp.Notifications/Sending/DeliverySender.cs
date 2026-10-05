@@ -52,10 +52,10 @@ internal sealed partial class DeliverySender(
     /// <summary>Claims and sends up to <see cref="BatchSize"/> due deliveries.</summary>
     public async Task<SendResult> SendDueAsync(CancellationToken cancellationToken)
     {
-        // Read before claiming: a failure here leaves no row leased. The settings snapshot is kept for the
-        // scope, so rendering below never reads them again (a database outage is retried, not failed).
+        // Read before claiming: a failure here leaves no row leased, and rendering never reads the settings
+        // again (a database outage is retried, never marked failed).
         var recipients = await Recipients.LoadAsync(users, catalog, db, cancellationToken);
-        await federation.GetAsync(cancellationToken);
+        var settings = await federation.GetAsync(cancellationToken);
         var claimed = await ClaimAsync(cancellationToken);
         var result = SendResult.None;
         var done = 0;
@@ -63,7 +63,7 @@ internal sealed partial class DeliverySender(
         {
             foreach (var id in claimed)
             {
-                result = result.Add(await SendOneAsync(id, recipients, cancellationToken));
+                result = result.Add(await SendOneAsync(id, recipients, settings, cancellationToken));
                 done++;
             }
         }
@@ -96,7 +96,7 @@ internal sealed partial class DeliverySender(
         return ids;
     }
 
-    private async Task<SendResult> SendOneAsync(Guid id, Recipients recipients, CancellationToken cancellationToken)
+    private async Task<SendResult> SendOneAsync(Guid id, Recipients recipients, FederationSettingsSnapshot settings, CancellationToken cancellationToken)
     {
         var delivery = await db.Deliveries.AsNoTracking().SingleOrDefaultAsync(d => d.Id == id, cancellationToken);
         if (delivery is not { Status: DeliveryStatus.Pending } || !await RenewLeaseAsync(delivery, cancellationToken))
@@ -120,7 +120,7 @@ internal sealed partial class DeliverySender(
                 return new SendResult(0, 1, 0, 0);
             }
 
-            email = emails.Render(recipient, prepared.Content, await federation.GetAsync(cancellationToken));
+            email = emails.Render(recipient, prepared.Content, settings);
         }
         catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
         {

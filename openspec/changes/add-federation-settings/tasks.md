@@ -46,7 +46,7 @@
 
   Then implement them (D4). Verify: the tests pass, and Mailpit shows the headers in the local
   stack.
-- [ ] 3.4 Review group 3 in parallel with `csharp-reviewer` and `silent-failure-hunter`. Fix
+- [x] 3.4 Review group 3 in parallel with `csharp-reviewer` and `silent-failure-hunter`. Fix
   CRITICAL/HIGH findings.
 
 ## 4. Frontend

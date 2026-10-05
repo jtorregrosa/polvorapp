@@ -177,7 +177,7 @@ public sealed class EmailTests(MailpitFixture mailpit)
 
         var error = await Assert.ThrowsAsync<EmailDeliveryException>(() => sender.SendAsync(Message("sin.perfil@example.test"), TestContext.Current.CancellationToken));
 
-        Assert.Equal("Compose", error.Phase);
+        Assert.Equal(("Compose", "InvalidOperationException"), (error.Phase, error.Code));
         Assert.Contains(logs.Entries, e => e.Level == LogLevel.Warning && e.Message.Contains("Compose failed", StringComparison.Ordinal));
     }
 
@@ -254,6 +254,8 @@ public sealed class EmailTests(MailpitFixture mailpit)
 
     private sealed class FixedProfile(EmailSenderProfile? profile) : IEmailSenderProfile
     {
+        public string SenderAddress => "no-reply@polvorapp.example";
+
         public Task<EmailSenderProfile> GetAsync(CancellationToken cancellationToken) =>
             profile is null ? throw new InvalidOperationException("The settings cannot be read.") : Task.FromResult(profile);
     }

@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PolvorApp.Api.Platform.Storage;
 using PolvorApp.Api.Tests.Catalog;
@@ -49,6 +50,24 @@ public sealed class BadgeEndpointTests(PostgresFixture postgres, MailpitFixture 
         Assert.Contains("ARCABUCERO", text, StringComparison.Ordinal);
         Assert.True(text.IndexOf("Abad", StringComparison.Ordinal) < text.IndexOf("Martín", StringComparison.Ordinal));
         Assert.True(text.IndexOf("Martín", StringComparison.Ordinal) < text.IndexOf("Zapata", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("ca-ES-valencia", "Unió Sintètica de Comparses de Prova")]
+    [InlineData("en", "Unión Sintética de Comparsas de Prueba")]
+    public async Task The_sheet_prints_the_official_name_of_the_settings_in_its_form(string language, string expected)
+    {
+        await RegisterAsync(_registry.Own.Id, "Nombre Sintético");
+        await using (var scope = _registry.Services.CreateAsyncScope())
+        {
+            await scope.ServiceProvider.GetRequiredService<FederationCatalog.Persistence.FederationCatalogDbContext>().Database.ExecuteSqlRawAsync(
+                "UPDATE catalog.federation_settings SET official_name_es = 'Unión Sintética de Comparsas de Prueba', official_name_ca = 'Unió Sintètica de Comparses de Prova'",
+                Token);
+        }
+
+        using var response = await PostAsync(_registry.Admin, new { comparsaId = _registry.Own.Id, language });
+
+        Assert.Contains(expected, await TextAsync(response), StringComparison.Ordinal);
     }
 
     [Fact]
