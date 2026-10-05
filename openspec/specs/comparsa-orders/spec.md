@@ -144,8 +144,7 @@ The following rules SHALL be blocking (`400 Bad Request` naming the field and th
 - a `RESERVE` entry SHALL have `powderKg` 0, `capsBoxes` 0, weapon source `NONE` and `flask` `NONE`
   (BR-05);
 - `OWNED` SHALL name an owned weapon of the same arquebusier (`notOwned`);
-- `RENTAL` SHALL name a model offered for rental in the edition (`notOffered`, BR-07). A pistol is
-  never offered;
+- `RENTAL` SHALL name a model offered for rental in the edition (`notOffered`, BR-07), of any kind;
 - `LOAN` SHALL carry a valid loan (see "Weapon loans").
 
 An `ACTIVE` entry with 0 kg, or with weapon source `NONE`, SHALL be valid and SHALL NOT be flagged.
@@ -183,6 +182,10 @@ Some arquebusiers only carry powder and others only fire, such as the comparsa c
 #### Scenario: Powder carrier without a weapon
 - **WHEN** a FiringChief saves an `ACTIVE` entry with 2 kg and weapon source `NONE`
 - **THEN** the entry is saved without any warning or flag
+
+#### Scenario: Renting an offered pistol
+- **WHEN** a FiringChief saves an `ACTIVE` entry with weapon source `RENTAL` and the "PISTOLA" model, which the edition offers for rental
+- **THEN** the entry is saved, and the rental counts in the order's totals and billing like any other rental
 
 ### Requirement: Entry history (BR-14)
 Entries SHALL be kept as the history of the edition. Each entry SHALL keep its own copy of:

@@ -148,7 +148,8 @@ email SHALL NOT affect the orders.
 While the orders of the current edition are open, the FiringChiefs with `ORDER_WINDOW` on of each
 active comparsa assigned to them whose order is not prepared, `DRAFT` or `RETURNED` SHALL receive a
 reminder:
-- once when the planned `ordersCloseOn` is 2 to 7 days ahead;
+- once when the planned `ordersCloseOn` is 2 days ahead up to the first close reminder lead time
+  of the Federation settings (7 days by default);
 - once when it is tomorrow or today.
 
 Each reminder SHALL name the comparsa, the edition's year, the planned close date and the order's
@@ -176,6 +177,10 @@ No reminder SHALL be sent while the orders are closed, or for a comparsa whose o
 #### Scenario: Orders closed
 - **WHEN** `ordersCloseOn` is in 5 days but the orders are closed
 - **THEN** no reminder is sent
+
+#### Scenario: Longer lead time
+- **WHEN** the first close reminder is set to 10 days, the planned close is 9 days ahead, and the order of "Comparsa Sintética Sur" is `DRAFT`
+- **THEN** its FiringChiefs receive the first reminder that day
 
 ### Requirement: Order status emails (UC-14, UC-15)
 - When an Admin returns an order, the FiringChiefs of its comparsa with `ORDER_STATUS` on SHALL be
@@ -215,8 +220,8 @@ order.
 - **THEN** no email is sent
 
 ### Requirement: Milestone reminders
-A `CalendarMilestone` with `notify` on SHALL be reminded once, when its date is 0 to 7 days ahead,
-to:
+A `CalendarMilestone` with `notify` on SHALL be reminded once, when its date is 0 days ahead up to
+the milestone reminder lead time of the Federation settings (7 days by default), to:
 - every Admin with `MILESTONE_REMINDER` on, for an edition that is `DRAFT` or `IN_PROGRESS`;
 - every FiringChief with `MILESTONE_REMINDER` on, for an edition that is `IN_PROGRESS` only,
   because FiringChiefs cannot see a `DRAFT` edition (BR-12).
@@ -225,7 +230,7 @@ The reminder SHALL give the milestone's title and date and the edition's year, a
 edition. A milestone of a `CLOSED` edition, a milestone dated before today and a milestone with
 `notify` off SHALL NOT be reminded. Each milestone SHALL be reminded at most once per date; when
 an Admin moves its date, the reminder SHALL be due again for the new date. A milestone added or
-marked less than 7 days ahead SHALL be reminded on the next scheduled run.
+marked within the lead time SHALL be reminded on the next scheduled run.
 
 #### Scenario: Reminder a week before
 - **WHEN** on 2030-11-23 the edition 2031 is `IN_PROGRESS` and has the milestone "Deadline for new arquebusiers" on 2030-11-30 with `notify` on
@@ -246,6 +251,10 @@ marked less than 7 days ahead SHALL be reminded on the next scheduled run.
 #### Scenario: Added late
 - **WHEN** an Admin adds a milestone with `notify` on dated in 2 days
 - **THEN** the reminder is sent on the next scheduled run, before the milestone's date
+
+#### Scenario: Shorter lead time
+- **WHEN** the milestone reminder is set to 3 days and a milestone with `notify` on is 5 days ahead
+- **THEN** no reminder is sent that day, and it is sent when the milestone is 3 days ahead
 
 ### Requirement: Scheduled notifications
 The license digest, the planned close reminders and the milestone reminders SHALL be worked out
@@ -274,7 +283,10 @@ Each notification email SHALL:
 - have a subject and a plain-text body, and MAY have a minimal HTML alternative without remote
   content, images or tracking;
 - link only to PolvorApp pages under the configured public address, which require signing in;
-- end with a line saying why the user received it and a link to their notification settings.
+- be sent with the sender name of the Federation settings and the configured sender address, and
+  with the reply-to address of the settings when there is one;
+- end with a line saying why the user received it and a link to their notification settings, then
+  the Federation's short name and, when set, its public contact email and website.
 
 Notification emails SHALL contain only the edition's year, comparsa names, counts, dates, order
 statuses, milestone titles and links. They SHALL NOT contain arquebusiers' names, DNI/NIE, contact
@@ -292,6 +304,10 @@ NOT be written to logs (NFR-12).
 #### Scenario: No personal data in the digest
 - **WHEN** a license digest is sent for a comparsa with an expired license
 - **THEN** the email shows counts only, with no arquebusier's name or DNI/NIE
+
+#### Scenario: Federation contact in the footer
+- **WHEN** the Federation settings have the contact email "info@federacion.example" and a user receives a notification
+- **THEN** the email ends with the settings link, the Federation's short name and "info@federacion.example"
 
 ### Requirement: Notification delivery
 A notification caused by a change SHALL be recorded in the same transaction as that change, so it
