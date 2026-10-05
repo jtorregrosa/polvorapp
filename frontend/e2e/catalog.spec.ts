@@ -144,7 +144,11 @@ test.describe('federation catalogue as an Admin', () => {
     await expect(row.locator('[data-status-badge]')).toHaveText('Inactivo');
     await expect(row.locator('[data-tag]').first()).toHaveText('Pistola');
 
-    await page.getByRole('checkbox', { name: 'Solo activos' }).check();
+    // The box shows the URL, which the router updates in a transition: `check()` would read the
+    // state right after the click, before the commit, so wait for it instead.
+    const onlyActive = page.getByRole('checkbox', { name: 'Solo activos' });
+    await onlyActive.click();
+    await expect(onlyActive).toBeChecked();
     await expect(page).toHaveURL(/onlyActive=true/);
     await expect(list.getByRole('link', { name: 'PISTOLA', exact: true })).toBeVisible();
     await expect(list.getByRole('link', { name: label })).toHaveCount(0);
