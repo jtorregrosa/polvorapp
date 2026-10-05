@@ -10,7 +10,7 @@ import { expect, test as base, waitForShell } from './fixtures';
  * runs in the desktop Chromium project only: parallel projects never import the same people.
  */
 
-const NORTE = 'Comparsa Sintética Norte';
+const NORTE = 'Cruzados';
 const NORTE_ID = '0193a100-0000-7000-8000-000000000001';
 const LETTERS = 'TRWAGMYFPDXBNJZSQVHLCKE';
 const XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';

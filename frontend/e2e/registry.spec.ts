@@ -4,15 +4,15 @@ import { expect, test as base, waitForShell } from './fixtures';
 
 /**
  * Arquebusier registry (change add-arquebusier-registry) against the seeded stack: the synthetic
- * comparsas, catalogue and arquebusiers (docs/development.md). The signed-in FiringChief is "Jefa
- * Sintética Dos" (Comparsa Sintética Norte). Each test registers the arquebusiers it changes, with
+ * comparsas, catalogue and arquebusiers (docs/development.md). The signed-in FiringChief is "Elena
+ * Verdú Ivorra" (Cruzados). Each test registers the arquebusiers it changes, with
  * unique synthetic identifiers, and deletes them again, so the desktop and mobile projects can run
  * side by side.
  */
 
-const NORTE = 'Comparsa Sintética Norte';
-const SUR = 'Comparsa Sintética Sur';
-/** "Arcabucera Sintética Seis", seeded in Comparsa Sintética Sur: outside the FiringChief's scope. */
+const NORTE = 'Cruzados';
+const SUR = 'Abencerrajes';
+/** "Mari Carmen Ferrándiz Soler", seeded in Abencerrajes: outside the FiringChief's scope. */
 const SEEDED_IN_SUR = '0193a300-0000-7000-8000-000000000006';
 const LETTERS = 'TRWAGMYFPDXBNJZSQVHLCKE';
 
@@ -29,7 +29,7 @@ function syntheticIdentity(): { nationalId: string; federationId: string; lastNa
   return {
     nationalId: `${String(number).padStart(8, '0')}${LETTERS[number % LETTERS.length]}`,
     federationId: String(200_000 + number),
-    lastName: `Sintética E2E ${number}`,
+    lastName: `Prueba E2E ${number}`,
   };
 }
 
@@ -378,7 +378,7 @@ test.describe('arquebusier registry as an Admin', () => {
     await summary.getByRole('link', { name: /^Apellidos/ }).click();
     const lastName = page.getByLabel(/^Apellidos/);
     await expect(lastName).toBeFocused();
-    await lastName.fill('Sintética');
+    await lastName.fill('Prueba');
     // A fixed field leaves the summary at once.
     await expect(summary.getByRole('link', { name: /^Apellidos/ })).toHaveCount(0);
     await expect(summary.getByRole('link', { name: /^Nombre/ })).toBeVisible();

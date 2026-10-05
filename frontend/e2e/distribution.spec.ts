@@ -5,9 +5,10 @@ import { expect, test, waitForShell } from './fixtures';
 
 /**
  * Distribution planning (change add-distribution-planning) against the seeded stack. The current
- * edition has a powder and a weapons day with Norte at 09:00 and Sur at 09:30, a powder proxy in
- * Norte's order (Sintético Tres collected by Sintética Dos) and a weapons proxy in Sur's. In Norte's
- * order Sintética Cuatro has no license and Sintético Cinco a pending one, so neither can be a
+ * edition has a powder and a weapons day with Cruzados at 09:00 and Abencerrajes at 09:30, a powder
+ * proxy in Cruzados' order (Pau Alberola collected by Amparo Pastor) and a weapons proxy in
+ * Abencerrajes'. In Cruzados' order Remedios Lledó has no license and Youssef El Amrani a pending
+ * one, so neither can be a
  * proxy. Each project registers a proxy for a holder of its own and removes it, so parallel
  * projects never collide; a proxy left by a failed run is removed before and after the test.
  */
@@ -20,7 +21,7 @@ const PAST_EDITION = '0193a500-0000-7000-8000-000000000001';
  * `--repeat-each` within one, needs a holder of its own.
  */
 function holderOf(projectName: string): string {
-  return projectName === 'mobile-360' ? 'Sintético Cinco, Arcabucero' : 'Sintético Uno, Arcabucero';
+  return projectName === 'mobile-360' ? 'El Amrani, Youssef' : 'Sempere Llorens, Vicent';
 }
 
 async function antiforgeryHeaders(page: Page): Promise<Record<string, string>> {
@@ -88,15 +89,15 @@ test.describe('as the seeded FiringChief of Norte', () => {
     await openDistribution(page);
 
     const powder = page.getByRole('region', { name: 'Día de reparto de pólvora', exact: true });
-    await expect(powder).toContainText('Comparsa Sintética Norte');
+    await expect(powder).toContainText('Cruzados');
     await expect(powder).toContainText('09:00');
-    await expect(powder).not.toContainText('Comparsa Sintética Sur');
+    await expect(powder).not.toContainText('Abencerrajes');
     await expect(powder.getByRole('button', { name: /Descargar/ })).toHaveCount(0);
     const proxies = page.getByRole('region', { name: 'Autorizados de recogida' });
-    await expect(proxies).toContainText('Sintético Tres, Arcabucero');
-    await expect(proxies).toContainText('Sintética Dos, Arcabucera');
+    await expect(proxies).toContainText('Alberola Navarro, Pau');
+    await expect(proxies).toContainText('Pastor Gomis, Amparo');
     // Sur's weapons proxy is not Norte's.
-    await expect(proxies).not.toContainText('Comparsa Sintética Sur');
+    await expect(proxies).not.toContainText('Abencerrajes');
     await expectNoSidewaysScroll(page);
     expect(await axeViolations()).toEqual([]);
 
@@ -110,25 +111,23 @@ test.describe('as the seeded FiringChief of Norte', () => {
     await panel.getByRole('combobox', { name: /Titular/ }).selectOption({ label: holder });
     const proxy = panel.getByRole('combobox', { name: /Autorizado/ });
     await expect(
-      proxy.getByRole('option', { name: /^Sintética Cuatro, Arcabucera \(no puede: sin licencia/ }),
+      proxy.getByRole('option', { name: /^Lledó Pérez, Remedios \(no puede: sin licencia/ }),
     ).toBeDisabled();
-    if (holder !== 'Sintético Cinco, Arcabucero') {
+    if (holder !== 'El Amrani, Youssef') {
       // A pending license is not an active one.
       await expect(
-        proxy.getByRole('option', { name: /^Sintético Cinco, Arcabucero \(no puede: sin licencia/ }),
+        proxy.getByRole('option', { name: /^El Amrani, Youssef \(no puede: sin licencia/ }),
       ).toBeDisabled();
     }
     expect(await axeViolations(page, '[role="dialog"]')).toEqual([]);
-    await proxy.selectOption({ label: 'Sintética Dos, Arcabucera' });
+    await proxy.selectOption({ label: 'Pastor Gomis, Amparo' });
     await panel.getByRole('button', { name: 'Guardar cambios' }).click();
     await expect(panel).toBeHidden();
 
     const download = page.waitForEvent('download');
     await proxies.getByRole('button', { name: `Imprimir formulario de ${holder} (pólvora)` }).click();
     const form = await saved(download);
-    expect(form.name).toMatch(
-      /^polvorapp-\d{4}-pickup-authorisation-powder-comparsa-sintetica-norte-[0-9a-f]{8}\.pdf$/,
-    );
+    expect(form.name).toMatch(/^polvorapp-\d{4}-pickup-authorisation-powder-cruzados-[0-9a-f]{8}\.pdf$/);
     expect(form.bytes.subarray(0, 5).toString()).toBe('%PDF-');
 
     await proxies.getByRole('button', { name: `Eliminar el autorizado de pólvora de ${holder}` }).click();
@@ -157,12 +156,10 @@ test('the Admin sees every comparsa on the plan, and the comparsas without a val
   await openDistribution(page);
 
   const powder = page.getByRole('region', { name: 'Día de reparto de pólvora', exact: true });
-  await expect(powder).toContainText('Comparsa Sintética Sur');
+  await expect(powder).toContainText('Abencerrajes');
   await expect(powder).toContainText('Sin turno');
   await expect(powder.getByText('Pedidos sin validar')).toBeVisible();
-  await expect(
-    powder.getByRole('listitem').filter({ hasText: 'Comparsa Sintética Sur (en borrador)' }),
-  ).toBeVisible();
+  await expect(powder.getByRole('listitem').filter({ hasText: 'Abencerrajes (en borrador)' })).toBeVisible();
   await expect(
     powder.getByRole('button', { name: 'Descargar el listado de pólvora en Excel' }),
   ).toBeVisible();

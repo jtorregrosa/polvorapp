@@ -4,8 +4,8 @@ import { expect, openNavigation, test as base, waitForShell } from './fixtures';
 
 /**
  * Compliance insights (change add-compliance-insights) against the seeded stack. The seeded
- * FiringChief "Jefa Sintética Dos" sees Comparsa Sintética Norte, where "Arcabucera Sintética
- * Catorce" is 16, without the course or an ID photo, and with a license expiring within 12 months.
+ * FiringChief "Elena Verdú Ivorra" sees Cruzados, where "Laia Sempere
+ * Pastor" is 16, without the course or an ID photo, and with a license expiring within 12 months.
  * Seeded data is only read; a test that changes data registers its own arquebusier and deletes it.
  */
 
@@ -27,7 +27,7 @@ function syntheticIdentity(): { nationalId: string; federationId: number; lastNa
   return {
     nationalId: `${String(number).padStart(8, '0')}${LETTERS[number % LETTERS.length]}`,
     federationId: number,
-    lastName: `Sintética Avisos ${number}`,
+    lastName: `Prueba Avisos ${number}`,
   };
 }
 
@@ -94,9 +94,9 @@ test.describe('as the seeded FiringChief', () => {
     );
     await expect(region(page, 'Avisos').getByRole('link')).toHaveCount(8);
     const expiries = region(page, 'Próximas caducidades');
-    await expect(expiries.getByRole('link', { name: 'Sintética Catorce, Arcabucera' })).toBeVisible();
+    await expect(expiries.getByRole('link', { name: 'Sempere Pastor, Laia' })).toBeVisible();
     // Arquebusiers of other comparsas never reach her dashboard.
-    await expect(expiries.getByText('Comparsa Sintética Sur')).toHaveCount(0);
+    await expect(expiries.getByText('Abencerrajes')).toHaveCount(0);
     // The navigation says how many of her arquebusiers have warnings (a drawer on phones).
     const navigation = await openNavigation(page);
     await expect(navigation.getByRole('link', { name: /^Arcabuceros, \d+ con avisos?$/ })).toBeVisible();
@@ -115,11 +115,11 @@ test.describe('as the seeded FiringChief', () => {
     const list = page
       .getByRole('table', { name: 'Arcabuceros' })
       .or(page.getByRole('list', { name: 'Arcabuceros' }));
-    await expect(list.getByRole('link', { name: 'Sintética Catorce, Arcabucera' })).toBeVisible();
-    // "Arcabucero Sintético Uno" has the course done; "Arcabucero Sintético Nueve" has none but is
-    // in Comparsa Sintética Sur, outside her scope (BR-12).
-    await expect(list.getByRole('link', { name: 'Sintético Uno, Arcabucero' })).toHaveCount(0);
-    await expect(list.getByRole('link', { name: 'Sintético Nueve, Arcabucero' })).toHaveCount(0);
+    await expect(list.getByRole('link', { name: 'Sempere Pastor, Laia' })).toBeVisible();
+    // "Vicent Sempere Llorens" has the course done; "Toni Baeza Ripoll" has none but is
+    // in Abencerrajes, outside her scope (BR-12).
+    await expect(list.getByRole('link', { name: 'Sempere Llorens, Vicent' })).toHaveCount(0);
+    await expect(list.getByRole('link', { name: 'Baeza Ripoll, Toni' })).toHaveCount(0);
   });
 
   test('the detail of a seeded minor lists her four warnings and the license as expiring soon', async ({
@@ -167,7 +167,7 @@ test.describe('as the Admin', () => {
     await waitForShell(page);
     await expect(page.getByRole('table', { name: 'Arcabuceros por género' })).toBeVisible();
 
-    await page.getByRole('combobox', { name: 'Comparsa' }).selectOption({ label: 'Comparsa Sintética Sur' });
+    await page.getByRole('combobox', { name: 'Comparsa' }).selectOption({ label: 'Abencerrajes' });
     await expect(page).toHaveURL(`/statistics?comparsaId=${SUR_ID}`);
     await page.reload();
     await waitForShell(page);

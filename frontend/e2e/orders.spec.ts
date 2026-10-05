@@ -43,26 +43,24 @@ test('the Admin sees the dashboard of the current edition', async ({ page, axeVi
   const figures = page.getByRole('region', { name: 'Pedidos por estado' });
   await expect(figures).toBeVisible();
   await expect(page.getByRole('region', { name: 'Totales de la edición' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Comparsa Sintética Norte' })).toHaveAttribute(
+  await expect(page.getByRole('link', { name: 'Cruzados' })).toHaveAttribute(
     'href',
     `/orders/${CURRENT_NORTE_ORDER}`,
   );
-  await expect(page.getByRole('link', { name: 'Comparsa Sintética Sur' })).toHaveAttribute(
+  await expect(page.getByRole('link', { name: 'Abencerrajes' })).toHaveAttribute(
     'href',
     `/orders/${CURRENT_SUR_ORDER}`,
   );
-  await expect(
-    page.getByRole('button', { name: 'Preparar pedido de Comparsa Sintética Este' }),
-  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Preparar pedido de Hospitalarios' })).toBeVisible();
   // Each comparsa's row (a table row, or a list item on a phone) says its order's status.
   const rowOf = (comparsa: string) =>
     page.locator('tr, li').filter({ hasText: comparsa }).filter({ hasNotText: 'Comparsas' }).first();
-  await expect(rowOf('Comparsa Sintética Norte')).toContainText('Enviado');
-  await expect(rowOf('Comparsa Sintética Sur')).toContainText('Borrador');
-  await expect(rowOf('Comparsa Sintética Este')).toContainText('Sin preparar');
+  await expect(rowOf('Cruzados')).toContainText('Enviado');
+  await expect(rowOf('Abencerrajes')).toContainText('Borrador');
+  await expect(rowOf('Hospitalarios')).toContainText('Sin preparar');
   // Each prepared order's amount, and the edition billing, provisional while Sur is a draft.
-  await expect(rowOf('Comparsa Sintética Norte')).toContainText('€');
-  await expect(rowOf('Comparsa Sintética Este')).not.toContainText('€');
+  await expect(rowOf('Cruzados')).toContainText('€');
+  await expect(rowOf('Hospitalarios')).not.toContainText('€');
   const billing = page.getByRole('region', { name: 'Resumen de pago de la edición' });
   await expect(billing).toContainText('Provisional');
   await expect(billing.getByRole('rowheader', { name: 'Total', exact: true })).toBeVisible();
@@ -81,9 +79,7 @@ test.describe('as the seeded FiringChief of Norte', () => {
     await waitForShell(page);
 
     await expect(page).toHaveURL(new RegExp(`/orders/${CURRENT_NORTE_ORDER}$`));
-    await expect(
-      page.getByRole('heading', { level: 1, name: 'Pedido de Comparsa Sintética Norte' }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Pedido de Cruzados' })).toBeVisible();
     const entries = page.getByRole('region', { name: 'Líneas del pedido' });
     await expect(entries.getByText(/Primer año$/).first()).toBeVisible();
     await expect(entries.getByText('Menor de edad')).toBeVisible();
@@ -107,11 +103,11 @@ test.describe('as the seeded FiringChief of Norte', () => {
     ).toBeVisible();
     await expect(page.getByRole('button', { name: /^Editar/ })).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Enviar pedido' })).toHaveCount(0);
-    await expect(page.getByText('Sintético Histórico, Arcabucero')).toBeVisible();
+    await expect(page.getByText('Cerdà Boix, Manuel')).toBeVisible();
     // Shown from the entry's history copy (spec: Name kept after deletion).
     // A table row, or a list item on a phone.
-    const historic = page.locator('tr, li').filter({ hasText: 'Sintético Histórico, Arcabucero' });
-    await expect(historic).toContainText('DNI/NIE 00000091E');
+    const historic = page.locator('tr, li').filter({ hasText: 'Cerdà Boix, Manuel' });
+    await expect(historic).toContainText('DNI/NIE 99000091H');
     await expect(historic).toContainText('ID Unión 100091');
     await expect(historic).toContainText('Ya no está en el registro');
   });
@@ -125,9 +121,9 @@ test.describe('as the seeded FiringChief of Norte and Sur', () => {
     await waitForShell(page);
 
     const lent = page.getByRole('region', { name: 'Armas cedidas a otros' });
-    await expect(lent).toContainText('Comparsa Sintética Norte');
+    await expect(lent).toContainText('Cruzados');
     await expect(page.getByRole('region', { name: 'No están en el pedido' })).toContainText(
-      'Sintético Nueve, Arcabucero',
+      'Baeza Ripoll, Toni',
     );
     expect(await axeViolations()).toEqual([]);
   });

@@ -5,8 +5,8 @@ import { expect, test, waitForShell } from '../fixtures';
 /**
  * Registry lock (BR-10, UC-11; change add-festival-editions). Locking changes what every FiringChief
  * can do, so this spec runs in the `serial-state` project, after the other projects, and unlocks the
- * registry again even when it fails midway. The seeded FiringChief is "Jefa Sintética Dos" (Comparsa
- * Sintética Norte); "Arcabucero Sintético Tres" is seeded in that comparsa.
+ * registry again even when it fails midway. The seeded FiringChief is "Elena Verdú Ivorra"
+ * (Cruzados); "Pau Alberola Navarro" is seeded in that comparsa.
  */
 
 const SEEDED_IN_NORTE = '0193a300-0000-7000-8000-000000000003';
@@ -49,7 +49,7 @@ test('the Admin locks the registry, the FiringChief can only read it, the Admin 
     await expect(chief.getByRole('link', { name: 'Registrar arcabucero' })).toHaveCount(0);
 
     await chief.goto(`/arquebusiers/${SEEDED_IN_NORTE}`);
-    await expect(chief.getByRole('heading', { level: 1, name: 'Arcabucero Sintético Tres' })).toBeVisible();
+    await expect(chief.getByRole('heading', { level: 1, name: 'Pau Alberola Navarro' })).toBeVisible();
     await expect(chief.getByText('La Federación ha bloqueado el registro.')).toBeVisible();
     await expect(chief.getByRole('button', { name: /^Editar/ })).toHaveCount(0);
     await expect(chief.getByRole('button', { name: 'Más acciones' })).toHaveCount(0);

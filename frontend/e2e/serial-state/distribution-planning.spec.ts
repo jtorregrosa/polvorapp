@@ -79,7 +79,7 @@ async function asFiringChief(browser: Browser) {
  * place, with Norte at 09:00 and Sur at 09:30. Fixed values, so a run that failed halfway never
  * becomes the next run's baseline.
  */
-const SEEDED_LOCATION = 'Paraje Sintético del Reparto';
+const SEEDED_LOCATION = 'Paraje del Reparto';
 const SEEDED_SLOTS = [
   { comparsaId: '0193a100-0000-7000-8000-000000000001', startsAt: '09:00' },
   { comparsaId: '0193a100-0000-7000-8000-000000000002', startsAt: '09:30' },
@@ -225,14 +225,14 @@ test("the Admin changes the powder day's location and Norte's slot", async ({ pa
 
   await powder.getByRole('button', { name: 'Editar día de reparto de pólvora' }).click();
   const dayPanel = page.getByRole('dialog', { name: 'Editar el día de pólvora' });
-  await dayPanel.getByLabel('Lugar').fill('Paraje Sintético Cambiado');
+  await dayPanel.getByLabel('Lugar').fill('Paraje Cambiado');
   await dayPanel.getByRole('button', { name: 'Guardar cambios' }).click();
   await expect(dayPanel).toBeHidden();
-  await expect(powder).toContainText('Paraje Sintético Cambiado');
+  await expect(powder).toContainText('Paraje Cambiado');
 
   await powder.getByRole('button', { name: 'Editar turnos del día de reparto de pólvora' }).click();
   const slotsPanel = page.getByRole('dialog', { name: 'Turnos del día de pólvora' });
-  await slotsPanel.getByLabel('Hora de Comparsa Sintética Norte (opcional)').fill('08:45');
+  await slotsPanel.getByLabel('Hora de Cruzados (opcional)').fill('08:45');
   await slotsPanel.getByRole('button', { name: 'Guardar cambios' }).click();
   await expect(slotsPanel).toBeHidden();
   await page.reload();
@@ -256,7 +256,7 @@ test('the Admin downloads the powder list as Excel and PDF once an order is vali
   await waitForShell(page);
   const powder = page.getByRole('region', { name: 'Día de reparto de pólvora', exact: true });
   await expect(powder.getByText('Pedidos sin validar')).toBeVisible();
-  await expect(powder).not.toContainText('Comparsa Sintética Norte (enviado)');
+  await expect(powder).not.toContainText('Cruzados (enviado)');
 
   const xlsx = page.waitForEvent('download');
   await powder.getByRole('button', { name: 'Descargar el listado de pólvora en Excel' }).click();

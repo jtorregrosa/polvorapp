@@ -12,7 +12,7 @@ import { expect, openNavigation, test as base, waitForShell } from '../fixtures'
  */
 
 const LETTERS = 'TRWAGMYFPDXBNJZSQVHLCKE';
-const NORTE = 'Comparsa Sintética Norte';
+const NORTE = 'Cruzados';
 
 let identities = 0;
 
