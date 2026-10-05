@@ -3910,7 +3910,7 @@
           "Federation"
         ],
         "summary": "The Federation's names and whether its logo for documents was uploaded.",
-        "operationId": "GetFederationSettings",
+        "operationId": "GetFederation",
         "responses": {
           "401": {
             "description": "Unauthorized",
@@ -3927,7 +3927,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FederationSettingsResponse"
+                  "$ref": "#/components/schemas/FederationResponse"
                 }
               }
             }
@@ -4165,7 +4165,7 @@
           "Settings"
         ],
         "summary": "Every Federation settings section, with its version.",
-        "operationId": "GetSettings",
+        "operationId": "GetFederationSettings",
         "responses": {
           "401": {
             "description": "Unauthorized",
@@ -4192,7 +4192,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SettingsResponse"
+                  "$ref": "#/components/schemas/FederationSettingsResponse"
                 }
               }
             }
@@ -4259,7 +4259,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SettingsResponse"
+                  "$ref": "#/components/schemas/FederationSettingsResponse"
                 }
               }
             }
@@ -4276,6 +4276,26 @@
           },
           "409": {
             "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload Too Large",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -4356,7 +4376,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SettingsResponse"
+                  "$ref": "#/components/schemas/FederationSettingsResponse"
                 }
               }
             }
@@ -4373,6 +4393,26 @@
           },
           "409": {
             "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload Too Large",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -4453,7 +4493,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SettingsResponse"
+                  "$ref": "#/components/schemas/FederationSettingsResponse"
                 }
               }
             }
@@ -4470,6 +4510,26 @@
           },
           "409": {
             "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload Too Large",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -4550,7 +4610,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SettingsResponse"
+                  "$ref": "#/components/schemas/FederationSettingsResponse"
                 }
               }
             }
@@ -4567,6 +4627,26 @@
           },
           "409": {
             "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Payload Too Large",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -12220,7 +12300,7 @@
           }
         }
       },
-      "FederationSettingsResponse": {
+      "FederationResponse": {
         "required": [
           "officialNameEs",
           "officialNameCa",
@@ -12247,6 +12327,34 @@
                 "$ref": "#/components/schemas/ComparsaLogoResponse"
               }
             ]
+          }
+        }
+      },
+      "FederationSettingsResponse": {
+        "required": [
+          "version",
+          "identity",
+          "emails",
+          "orders",
+          "calendar"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "integer",
+            "format": "uint32"
+          },
+          "identity": {
+            "$ref": "#/components/schemas/IdentitySettingsResponse"
+          },
+          "emails": {
+            "$ref": "#/components/schemas/EmailSettingsResponse"
+          },
+          "orders": {
+            "$ref": "#/components/schemas/OrderSettingsResponse"
+          },
+          "calendar": {
+            "$ref": "#/components/schemas/CalendarSettingsResponse"
           }
         }
       },
@@ -14208,34 +14316,6 @@
               "null",
               "boolean"
             ]
-          }
-        }
-      },
-      "SettingsResponse": {
-        "required": [
-          "version",
-          "identity",
-          "emails",
-          "orders",
-          "calendar"
-        ],
-        "type": "object",
-        "properties": {
-          "version": {
-            "type": "integer",
-            "format": "uint32"
-          },
-          "identity": {
-            "$ref": "#/components/schemas/IdentitySettingsResponse"
-          },
-          "emails": {
-            "$ref": "#/components/schemas/EmailSettingsResponse"
-          },
-          "orders": {
-            "$ref": "#/components/schemas/OrderSettingsResponse"
-          },
-          "calendar": {
-            "$ref": "#/components/schemas/CalendarSettingsResponse"
           }
         }
       },

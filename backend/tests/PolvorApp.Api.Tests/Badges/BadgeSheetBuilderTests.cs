@@ -4,6 +4,7 @@ using PolvorApp.Badges.Batches;
 using PolvorApp.Badges.Contracts;
 using PolvorApp.Badges.Documents;
 using PolvorApp.Exports.Contracts;
+using PolvorApp.FederationCatalog.Contracts;
 
 namespace PolvorApp.Api.Tests.Badges;
 
@@ -17,17 +18,32 @@ public sealed class BadgeSheetBuilderTests
     private static readonly DateOnly Today = new(2031, 3, 2);
 
     [Theory]
-    [InlineData(BadgeLanguage.Spanish, "ARCABUCERO", "Apellidos", "Nombre", "Código", "Fecha de caducidad", FederationNames.Spanish)]
-    [InlineData(BadgeLanguage.Valencian, "ARCABUSSER", "Cognoms", "Nom", "Codi", "Data de caducitat", FederationNames.Valencian)]
-    [InlineData(BadgeLanguage.English, "ARQUEBUSIER", "Surnames", "Name", "Code", "Expiry date", FederationNames.Spanish)]
+    [InlineData(BadgeLanguage.Spanish, "ARCABUCERO", "Apellidos", "Nombre", "Código", "Fecha de caducidad")]
+    [InlineData(BadgeLanguage.Valencian, "ARCABUSSER", "Cognoms", "Nom", "Codi", "Data de caducitat")]
+    [InlineData(BadgeLanguage.English, "ARQUEBUSIER", "Surnames", "Name", "Code", "Expiry date")]
     public void The_labels_follow_the_chosen_language(
-        BadgeLanguage language, string headerWord, string surnames, string name, string code, string expiry, string federation)
+        BadgeLanguage language, string headerWord, string surnames, string name, string code, string expiry)
     {
         var sheet = Build(BadgeBatchKind.Comparsa, language, [Person()]);
 
         Assert.Equal(headerWord, sheet.HeaderWord);
-        Assert.Equal(federation, sheet.HeaderLine);
         Assert.Equal([surnames, name, "DNI/NIE", code, expiry, "Comparsa"], sheet.Labels);
+    }
+
+    [Theory]
+    [InlineData(BadgeLanguage.Spanish, FederationNameForm.Spanish)]
+    [InlineData(BadgeLanguage.Valencian, FederationNameForm.Valencian)]
+    [InlineData(BadgeLanguage.English, FederationNameForm.Spanish)]
+    public void The_language_picks_the_form_of_the_Federation_name(BadgeLanguage language, FederationNameForm form) =>
+        Assert.Equal(form, BadgeTexts.For(language).NameForm);
+
+    [Fact]
+    public void The_header_prints_the_Federation_name_it_is_given()
+    {
+        var sheet = BadgeSheetBuilder.Build(new BadgeSheetContent(
+            BadgeBatchKind.Comparsa, "Comparsa Sintética Norte", BadgeLanguage.Valencian, "Unió Sintètica de Comparses", Today, [Person()], null));
+
+        Assert.Equal("Unió Sintètica de Comparses", sheet.HeaderLine);
     }
 
     [Fact]
@@ -61,7 +77,7 @@ public sealed class BadgeSheetBuilderTests
         var logo = DocumentImage.FromPng(TestImages.Png(40, 40));
 
         var sheet = BadgeSheetBuilder.Build(
-            new BadgeSheetContent(BadgeBatchKind.Comparsa, "Comparsa Sintética Norte", BadgeLanguage.Spanish, Today, [Person(photo: photo), Person()], logo));
+            new BadgeSheetContent(BadgeBatchKind.Comparsa, "Comparsa Sintética Norte", BadgeLanguage.Spanish, TestFederationNames.Spanish, Today, [Person(photo: photo), Person()], logo));
 
         Assert.Same(photo, sheet.Badges[0].Photo);
         Assert.Null(sheet.Badges[1].Photo);
@@ -82,7 +98,7 @@ public sealed class BadgeSheetBuilderTests
         var comparsa = Build(BadgeBatchKind.Comparsa, BadgeLanguage.Spanish, [Person()]);
         var selection = Build(BadgeBatchKind.Selection, BadgeLanguage.Spanish, [Person(), Person(), Person()]);
         var longName = BadgeSheetBuilder.Build(new BadgeSheetContent(
-            BadgeBatchKind.Comparsa, "Comparsa Sintética de los Moros Viejos del Raval de la Villa de Ejemplo", BadgeLanguage.Spanish, Today, [Person()], null));
+            BadgeBatchKind.Comparsa, "Comparsa Sintética de los Moros Viejos del Raval de la Villa de Ejemplo", BadgeLanguage.Spanish, TestFederationNames.Spanish, Today, [Person()], null));
 
         Assert.Equal("polvorapp-badges-comparsa-sintetica-norte-20310302", comparsa.FileStem);
         Assert.Equal("polvorapp-badges-selection-3-20310302", selection.FileStem);
@@ -93,10 +109,10 @@ public sealed class BadgeSheetBuilderTests
     [Fact]
     public void A_comparsa_name_without_letters_still_gives_a_file_name() =>
         Assert.Equal("polvorapp-badges-comparsa-20310302",
-            BadgeSheetBuilder.Build(new BadgeSheetContent(BadgeBatchKind.Comparsa, "«»", BadgeLanguage.Spanish, Today, [Person()], null)).FileStem);
+            BadgeSheetBuilder.Build(new BadgeSheetContent(BadgeBatchKind.Comparsa, "«»", BadgeLanguage.Spanish, TestFederationNames.Spanish, Today, [Person()], null)).FileStem);
 
     private static DocumentBadgeSheet Build(BadgeBatchKind kind, BadgeLanguage language, IReadOnlyList<BadgePerson> people) =>
-        BadgeSheetBuilder.Build(new BadgeSheetContent(kind, "Comparsa Sintética Norte", language, Today, people, null));
+        BadgeSheetBuilder.Build(new BadgeSheetContent(kind, "Comparsa Sintética Norte", language, TestFederationNames.Spanish, Today, people, null));
 
     private static BadgePerson Person(
         string lastName = "Sintético Pérez", ArquebusierLicenseFacts? license = null, DocumentImage? photo = null, bool defaultLicense = true) =>

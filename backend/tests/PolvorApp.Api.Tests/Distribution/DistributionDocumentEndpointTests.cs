@@ -164,6 +164,24 @@ public sealed class DistributionDocumentEndpointTests(PostgresFixture postgres, 
     }
 
     [Fact]
+    public async Task The_form_prints_the_official_name_of_the_settings()
+    {
+        await using (var scope = _orders.Services.CreateAsyncScope())
+        {
+            await scope.ServiceProvider.GetRequiredService<FederationCatalogDbContext>().Database.ExecuteSqlRawAsync(
+                "UPDATE catalog.federation_settings SET official_name_ca = 'Unió Sintètica de Comparses de Prova'", Token);
+        }
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, $"/api/distribution/proxies/{_proxyId}/form");
+        request.Headers.TryAddWithoutValidation("Accept-Language", "ca-ES-valencia");
+        using var response = await _orders.FiringChief.SendAsync(request, Token);
+
+        var text = DocumentText.Pdf(await response.Content.ReadAsByteArrayAsync(Token));
+        Assert.Contains("Unió Sintètica de Comparses de Prova", text, StringComparison.Ordinal);
+        Assert.DoesNotContain(TestFederationNames.Valencian, text, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task Another_comparsas_FiringChief_does_not_get_the_form()
     {
         var otherOrder = await _orders.AddOrderAsync(_orders.Current, _orders.Other.Id);

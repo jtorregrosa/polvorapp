@@ -24,6 +24,7 @@ internal sealed record FormPerson(string Name, string? NationalId, LicenseType? 
 /// <param name="Date">The distribution day of that type, when planned.</param>
 /// <param name="Location">Its location, when planned.</param>
 /// <param name="Logo">The Federation's logo, when uploaded.</param>
+/// <param name="FederationName">The Federation's official name in the form's language, from its settings.</param>
 internal sealed record PickupFormData(
     int EditionYear,
     DistributionType Type,
@@ -33,7 +34,8 @@ internal sealed record PickupFormData(
     FormPerson Proxy,
     DateOnly? Date,
     string? Location,
-    DocumentImage? Logo)
+    DocumentImage? Logo,
+    string FederationName)
 {
     /// <summary>The type name only.</summary>
     public override string ToString() => nameof(PickupFormData);
@@ -76,7 +78,7 @@ internal static class PickupAuthorisationForm
         return new DocumentForm(
             FileStem(data),
             texts.Format(texts.FormTitles[data.Type], data.EditionYear),
-            [texts.FederationName],
+            [data.FederationName],
             blocks,
             [texts.HolderSignature, texts.ProxySignature],
             texts.Format(texts.VersionLine, Name, Version),

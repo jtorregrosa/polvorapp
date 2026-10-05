@@ -17,7 +17,7 @@ namespace PolvorApp.FederationCatalog.Endpoints;
 /// <param name="OfficialNameCa">The official name in Valencian.</param>
 /// <param name="ShortName">The short name for the interface.</param>
 /// <param name="Logo">The logo printed in documents, or null until an Admin uploads it.</param>
-internal sealed record FederationSettingsResponse(string OfficialNameEs, string OfficialNameCa, string ShortName, ComparsaLogoResponse? Logo);
+internal sealed record FederationResponse(string OfficialNameEs, string OfficialNameCa, string ShortName, ComparsaLogoResponse? Logo);
 
 /// <summary>
 /// Spec "Federation logo" (add-distribution-planning, design D11): Admins upload, replace and remove it;
@@ -33,7 +33,7 @@ internal static class FederationLogoEndpoints
     {
         var group = endpoints.MapGroup(string.Empty).WithTags("Federation")
             .ProducesProblem(StatusCodes.Status401Unauthorized);
-        group.MapGet("/federation", SettingsAsync).WithName("GetFederationSettings")
+        group.MapGet("/federation", FederationAsync).WithName("GetFederation")
             .WithSummary("The Federation's names and whether its logo for documents was uploaded.");
         group.MapGet("/federation-logo", GetAsync).WithName("GetFederationLogo")
             .WithSummary("The Federation's logo as a PNG image; never cached.")
@@ -54,10 +54,10 @@ internal static class FederationLogoEndpoints
         return endpoints;
     }
 
-    private static async Task<Ok<FederationSettingsResponse>> SettingsAsync(FederationSettingsAdministration administration, CancellationToken cancellationToken)
+    private static async Task<Ok<FederationResponse>> FederationAsync(FederationSettingsAdministration administration, CancellationToken cancellationToken)
     {
         var settings = await administration.GetAsync(cancellationToken);
-        return TypedResults.Ok(new FederationSettingsResponse(
+        return TypedResults.Ok(new FederationResponse(
             settings.OfficialNameEs, settings.OfficialNameCa, settings.ShortName, settings.Logo is { } logo ? ComparsaLogoResponse.From(logo) : null));
     }
 

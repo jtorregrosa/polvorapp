@@ -19,8 +19,9 @@ internal sealed record BadgePerson(
 
 /// <summary>What a badge sheet is built from: the batch, the language, the date, the people in print order and the logo.</summary>
 /// <param name="ComparsaName">The comparsa of a comparsa batch, for the file name; ignored for a selection.</param>
+/// <param name="FederationName">The Federation's official name in the sheet's language, from its settings.</param>
 internal sealed record BadgeSheetContent(
-    BadgeBatchKind Kind, string? ComparsaName, BadgeLanguage Language, DateOnly GeneratedOn, IReadOnlyList<BadgePerson> People, DocumentImage? Logo);
+    BadgeBatchKind Kind, string? ComparsaName, BadgeLanguage Language, string FederationName, DateOnly GeneratedOn, IReadOnlyList<BadgePerson> People, DocumentImage? Logo);
 
 /// <summary>
 /// Builds the badge sheet (spec: Badge content, Incomplete badges are warnings; design D4, D5): the
@@ -43,7 +44,7 @@ internal static class BadgeSheetBuilder
             FileStem(content),
             texts.Title,
             texts.HeaderWord,
-            texts.FederationName,
+            content.FederationName,
             texts.Labels,
             [.. content.People.Select(Badge)],
             content.Logo);

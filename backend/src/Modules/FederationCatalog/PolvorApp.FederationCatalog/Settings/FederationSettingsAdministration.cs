@@ -47,6 +47,9 @@ internal enum SettingsOutcome
 /// </summary>
 internal sealed class FederationSettingsAdministration(FederationCatalogDbContext db, IAuditTrail trail, TimeProvider time)
 {
+    /// <summary>The audit entity type of the settings row, its logo included.</summary>
+    public const string EntityType = "FederationSettings";
+
     public Task<FederationSettings> GetAsync(CancellationToken cancellationToken) =>
         db.FederationSettings.AsNoTracking().SingleAsync(cancellationToken);
 
@@ -109,7 +112,7 @@ internal sealed class FederationSettingsAdministration(FederationCatalogDbContex
             settings.UpdatedAt = time.GetUtcNow();
             trail.Record(db, new AuditRecord(
                 FederationCatalogAuditActions.FederationSettingsChanged,
-                FederationLogoAdministration.EntityType,
+                EntityType,
                 FederationSettings.SingletonId.ToString(CultureInfo.InvariantCulture),
                 new { section = SectionCode(section), previous, current }));
             await db.SaveChangesAsync(cancellationToken);

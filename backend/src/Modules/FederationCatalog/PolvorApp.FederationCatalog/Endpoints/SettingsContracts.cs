@@ -30,14 +30,14 @@ internal sealed record CalendarSettingsResponse(int MilestoneLeadDays);
 /// <param name="Emails">Sender name and reply-to.</param>
 /// <param name="Orders">Close reminder lead time.</param>
 /// <param name="Calendar">Milestone reminder lead time.</param>
-internal sealed record SettingsResponse(
+internal sealed record FederationSettingsResponse(
     uint Version,
     IdentitySettingsResponse Identity,
     EmailSettingsResponse Emails,
     OrderSettingsResponse Orders,
     CalendarSettingsResponse Calendar)
 {
-    public static SettingsResponse From(FederationSettings settings, string senderAddress) => new(
+    public static FederationSettingsResponse From(FederationSettings settings, string senderAddress) => new(
         settings.Version,
         new IdentitySettingsResponse(settings.OfficialNameEs, settings.OfficialNameCa, settings.ShortName, settings.ContactEmail, settings.Website),
         new EmailSettingsResponse(settings.SenderName, settings.ReplyTo, senderAddress),

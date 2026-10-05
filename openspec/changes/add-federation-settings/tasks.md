@@ -27,12 +27,12 @@
   Then implement them. Verify: the tests pass and the OpenAPI document lists the endpoints.
 - [x] 2.3 Write tests for `IFederationSettings` (a snapshot, memoised per request), then implement
   and register it (D3). Verify: the tests and architecture tests pass.
-- [ ] 2.4 Review group 2 in parallel with `csharp-reviewer`, `database-reviewer` and
+- [x] 2.4 Review group 2 in parallel with `csharp-reviewer`, `database-reviewer` and
   `security-reviewer`. Fix CRITICAL/HIGH findings.
 
 ## 3. Backend: readers
 
-- [ ] 3.1 Update the `Badges` and `Distribution` golden-file and text tests so the official names
+- [x] 3.1 Update the `Badges` and `Distribution` golden-file and text tests so the official names
   come from the settings. A changed Valencian name must print. Then pass the names from the
   settings and delete `FederationNames`. Verify: the golden files are unchanged with the default
   settings and the new tests pass.

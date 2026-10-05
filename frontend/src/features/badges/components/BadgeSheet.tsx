@@ -2,8 +2,8 @@ import { IdCard } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getDownloadBadgeSheetUrl } from '@/api/generated/badges/badges';
-import { useGetFederationSettings } from '@/api/generated/federation/federation';
-import type { ArquebusierRowResponse, FederationSettingsResponse } from '@/api/generated/model';
+import { useGetFederation } from '@/api/generated/federation/federation';
+import type { ArquebusierRowResponse, FederationResponse } from '@/api/generated/model';
 import { apiDownloadPost } from '@/api/http';
 import { AlertBanner } from '@/components/app/AlertBanner';
 import { Button } from '@/components/app/Button';
@@ -59,8 +59,8 @@ export function BadgeSheet({
   const [pending, setPending] = useState(false);
   const [saved, setSaved] = useState<string>();
   const [failure, setFailure] = useState<BadgeFailure>();
-  const settings = useGetFederationSettings();
-  const logoMissing = (settings.data?.data as FederationSettingsResponse | undefined)?.logo === null;
+  const settings = useGetFederation();
+  const logoMissing = (settings.data?.data as FederationResponse | undefined)?.logo === null;
 
   const noPhoto = rows.filter((row) => !row.hasIdPhoto).length;
   const noLicense = rows.filter(withoutLicense).length;

@@ -38,7 +38,7 @@ internal static class FederationCatalogAuditActions
         new(ComparsaLogoRemoved, ComparsaAdministration.EntityType),
         new(FederationLogoUploaded, FederationLogoAdministration.EntityType),
         new(FederationLogoRemoved, FederationLogoAdministration.EntityType),
-        new(FederationSettingsChanged, FederationLogoAdministration.EntityType),
+        new(FederationSettingsChanged, Settings.FederationSettingsAdministration.EntityType),
         new(WeaponModelCreated, WeaponModelAdministration.EntityType),
         new(WeaponModelUpdated, WeaponModelAdministration.EntityType),
         new(WeaponModelDeleted, WeaponModelAdministration.EntityType),

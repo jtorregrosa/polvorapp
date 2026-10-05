@@ -63,9 +63,11 @@ read on the server. It SHALL hold:
 - **Identity**: the Federation's official name in Spanish and in Valencian, each 1 to 150
   characters after trimming, printed in its documents (English documents use the Spanish form), a
   short name of 1 to 40 characters used in the interface and emails, and an optional public contact
-  email address and website, shown at the end of notification emails;
+  email address (at most 254 characters) and website (an `https` address of at most 200
+  characters), shown at the end of notification emails;
 - **Emails**: the sender name shown with the configured sender address (1 to 80 characters,
-  without `<`, `>`, `"` or line breaks), and an optional reply-to address. The sender address itself
+  without `<`, `>`, `"`, `@` or line breaks), and an optional reply-to address (at most 254
+  characters). The sender address itself
   SHALL stay a deployment setting, because it depends on the mail domain's configuration;
 - **Orders**: how many days before the planned close the first close reminder is sent, from 2 to 14
   (default 7);
