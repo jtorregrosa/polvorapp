@@ -78,6 +78,7 @@ public sealed class ComplianceGuardTests(PostgresFixture postgres, MailpitFixtur
             await GetAsync(client, "/api/compliance/summary");
             await GetAsync(client, "/api/compliance/statistics");
             await GetAsync(client, $"/api/compliance/statistics?comparsaId={_registry.Own.Id}&status=ACTIVE");
+            await GetAsync(client, "/api/compliance/trends");
         }
 
         Assert.Equal(before, await AuditCountAsync());
@@ -85,12 +86,12 @@ public sealed class ComplianceGuardTests(PostgresFixture postgres, MailpitFixtur
 
     /// <summary>
     /// Every route under /compliance is reviewed here: a new one fails until its scoping is classified.
-    /// Both are reads scoped by the caller's comparsas; an outsider sees none of another comparsa.
+    /// All are reads scoped by the caller's comparsas; an outsider sees none of another comparsa.
     /// </summary>
     [Fact]
     public async Task Every_compliance_route_is_classified_and_scoped()
     {
-        string[] reviewed = ["GET api/compliance/summary", "GET api/compliance/statistics"];
+        string[] reviewed = ["GET api/compliance/summary", "GET api/compliance/statistics", "GET api/compliance/trends"];
         var routes = _registry.Services.GetRequiredService<EndpointDataSource>().Endpoints.OfType<RouteEndpoint>()
             .Where(e => e.RoutePattern.RawText?.Contains("compliance", StringComparison.Ordinal) == true)
             .SelectMany(e => (e.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods ?? ["GET"]).Select(m => $"{m} {e.RoutePattern.RawText!.Trim('/')}"))
@@ -109,10 +110,14 @@ public sealed class ComplianceGuardTests(PostgresFixture postgres, MailpitFixtur
         var summary = await GetAsync(outsiderClient, "/api/compliance/summary");
         var statistics = await GetAsync(outsiderClient, "/api/compliance/statistics");
         using var foreign = await outsiderClient.GetAsync($"/api/compliance/statistics?comparsaId={_registry.Own.Id}", TestContext.Current.CancellationToken);
+        var trends = await GetAsync(outsiderClient, "/api/compliance/trends");
+        using var foreignTrends = await outsiderClient.GetAsync($"/api/compliance/trends?comparsaId={_registry.Own.Id}", TestContext.Current.CancellationToken);
 
         Assert.Equal((0, 0, 0), (summary.GetProperty("active").GetInt32(), summary.GetProperty("reserve").GetInt32(), summary.GetProperty("withWarnings").GetInt32()));
         Assert.Equal(0, statistics.GetProperty("total").GetInt32());
         await AssertProblemAsync(foreign, HttpStatusCode.NotFound, "compliance.comparsaNotFound");
+        Assert.All(trends.GetProperty("rows").EnumerateArray(), row => Assert.Equal(0, row.GetProperty("active").GetInt32()));
+        await AssertProblemAsync(foreignTrends, HttpStatusCode.NotFound, "compliance.comparsaNotFound");
         foreach (var route in reviewed)
         {
             using var response = await anonymous.GetAsync("/" + route.Split(' ')[1], TestContext.Current.CancellationToken);
