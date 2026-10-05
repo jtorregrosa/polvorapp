@@ -86,7 +86,7 @@
 
 ## 5. End-to-end and verification
 
-- [ ] 5.1 Extend `e2e/insights.spec.ts` on the seeded stack (which has past and current orders):
+- [x] 5.1 Extend `e2e/insights.spec.ts` on the seeded stack (which has past and current orders):
   - an Admin opens "Trends", sees the arquebusiers chart and opens its table;
   - a FiringChief sees only their comparsa;
   - the keyboard tooltip;
