@@ -94,10 +94,10 @@ test.describe('editions as the Admin', () => {
     ).toBeVisible();
     expect(await axeViolations()).toEqual([]);
 
-    await page
-      .getByRole('link', { name: /^Fiestas \d{4}$/ })
-      .first()
-      .click();
+    // The oldest seeded edition: the Admin journey creates and deletes a draft in a far year meanwhile.
+    const editions = (await (await page.request.get('/api/editions')).json()) as { year: number }[];
+    const oldest = Math.min(...editions.map((edition) => edition.year));
+    await page.getByRole('link', { name: `Fiestas ${String(oldest)}`, exact: true }).click();
     await expect(page.getByRole('heading', { level: 2, name: 'Precios' })).toBeVisible();
     expect(await axeViolations()).toEqual([]);
   });
@@ -118,10 +118,10 @@ test.describe('editions as a FiringChief', () => {
     await expect(page.getByRole('link', { name: 'Nueva edición' })).toHaveCount(0);
     await expect(page.getByText('En preparación')).toHaveCount(0);
 
-    await page
-      .getByRole('link', { name: /^Fiestas \d{4}$/ })
-      .first()
-      .click();
+    // The oldest seeded edition: the Admin journey creates and deletes a draft in a far year meanwhile.
+    const editions = (await (await page.request.get('/api/editions')).json()) as { year: number }[];
+    const oldest = Math.min(...editions.map((edition) => edition.year));
+    await page.getByRole('link', { name: `Fiestas ${String(oldest)}`, exact: true }).click();
     await expect(page.getByRole('heading', { level: 2, name: 'Precios' })).toBeVisible();
     await expect(page.getByRole('button', { name: /^Editar/ })).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Más acciones' })).toHaveCount(0);
