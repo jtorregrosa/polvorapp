@@ -37,7 +37,11 @@ describe('ComparsasPage (specs: Comparsas, Comparsa visibility)', () => {
     const table = await screen.findByRole('table', { name: 'Comparsas' });
     await within(table).findByRole('link', { name: 'Comparsa Sintética Norte' });
     const norte = rowOf(table, 'Comparsa Sintética Norte');
-    expect(within(norte).getByText('Cristiano')).toBeInTheDocument();
+    // The side is a tag in its categorical tone, the state a status (spec: Tags for fixed values).
+    expect(within(norte).getByText('Cristiano').closest('[data-tag]')).toHaveAttribute('data-tone', '1');
+    expect(
+      within(rowOf(table, 'Comparsa Sintética Sur')).getByText('Moro').closest('[data-tag]'),
+    ).toHaveAttribute('data-tone', '3');
     expect(within(norte).getByText('Activo')).toBeInTheDocument();
     expect(within(table).getByRole('link', { name: 'Comparsa Sintética Norte' })).toHaveAttribute(
       'href',
@@ -128,7 +132,7 @@ describe('ComparsasPage (specs: Comparsas, Comparsa visibility)', () => {
     await renderApp('/comparsas', { session: SYNTHETIC_ADMIN, language: 'ca-ES-valencia' });
 
     const table = await screen.findByRole('table', { name: 'Comparses' });
-    await within(table).findByText('Cristià');
+    expect((await within(table).findByText('Cristià')).closest('[data-tag]')).toBeInTheDocument();
   });
 
   it('has no accessibility violations', async () => {
@@ -188,7 +192,7 @@ describe('ComparsasPage (specs: Comparsas, Comparsa visibility)', () => {
         .getAllByRole('listitem')
         .find((item) => item.textContent.includes(NORTE.name));
       if (!norte) throw new Error('No item for Norte');
-      expect(norte).toHaveTextContent('Cristiano');
+      expect(within(norte).getByText('Cristiano').closest('[data-tag]')).toBeInTheDocument();
       expect(within(norte).getByRole('link', { name: NORTE.name })).toHaveAttribute(
         'href',
         `/comparsas/${NORTE.id}`,

@@ -136,7 +136,9 @@ test.describe('comparsa logos', () => {
 
     await page.goto(`/comparsas/${id}`);
     await waitForShell(page);
-    await page.getByRole('button', { name: 'Quitar logo de la comparsa' }).click();
+    // The logo itself opens its menu (refine-navigation-and-lists D7).
+    await page.getByRole('button', { name: /, opciones$/ }).click();
+    await page.getByRole('menuitem', { name: 'Quitar' }).click();
     const confirmation = page.getByRole('alertdialog');
     const removed = page.waitForResponse(
       (response) =>
@@ -199,7 +201,7 @@ test.describe("a FiringChief's comparsa logos", () => {
     // On a phone, choosing a card closes the drawer.
     await expect(page.getByRole('dialog')).toHaveCount(0);
     await expect(headerLogo(page).locator('img')).toHaveCount(1);
-    await expect(page.getByRole('button', { name: /logo de la comparsa/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /logo de la comparsa|, opciones$/ })).toHaveCount(0);
 
     // Sur has no logo; Este has one (positive control) but is outside this FiringChief's scope.
     expect((await page.request.get(`/api/comparsas/${SUR}/logo`)).status()).toBe(404);

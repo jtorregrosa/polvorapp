@@ -144,10 +144,11 @@ describe('ComparsaDetailPage (specs: Comparsa management by Admins, Deleting com
 
     const heading = await screen.findByRole('heading', { level: 1, name: NORTE.name });
     const header = heading.closest('header');
-    expect(header).toHaveTextContent('Cristiano');
+    if (!header) throw new Error('No record header');
+    expect(within(header).getByText('Cristiano').closest('[data-tag]')).toHaveAttribute('data-tone', '1');
     expect(header).toHaveTextContent('Activo');
     const data = screen.getByRole('region', { name: 'Datos de la comparsa' });
-    expect(data).toHaveTextContent('Cristiano');
+    expect(within(data).getByText('Cristiano').closest('[data-tag]')).toBeInTheDocument();
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     expect(await screen.findByRole('region', { name: 'Jefes de disparo' })).toHaveTextContent(CHIEF_UNO.name);
   });

@@ -14,6 +14,7 @@ import { FilterBar } from '@/components/app/FilterBar';
 import { FilterSelect } from '@/components/app/FilterSelect';
 import { PageHeader } from '@/components/app/PageHeader';
 import { StatusBadge } from '@/components/app/StatusBadge';
+import { CategoryTag } from '@/components/app/Tag';
 import { useSession } from '@/features/identity-access/session';
 import { knownFilter, withFilter } from '@/lib/search-filters';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
@@ -50,6 +51,7 @@ export function ComparsasPage() {
       {
         id: 'name',
         header: t('comparsas.columns.name'),
+        rowHeader: true,
         sortValue: (comparsa) => comparsa.name,
         cell: (comparsa) => (
           <span className="flex items-center gap-2.5">
@@ -63,8 +65,8 @@ export function ComparsasPage() {
       {
         id: 'side',
         header: t('comparsas.columns.side'),
-        sortValue: (comparsa) => t(`side.${comparsa.side}`),
-        cell: (comparsa) => t(`side.${comparsa.side}`),
+        sortValue: (comparsa) => tUi(`tag.side.${comparsa.side}`),
+        cell: (comparsa) => <CategoryTag category="side" value={comparsa.side} />,
       },
       {
         id: 'status',
@@ -153,8 +155,15 @@ export function ComparsasPage() {
                 </Link>
               </span>
               <span className="flex flex-wrap items-center gap-2 text-help text-muted-foreground">
-                {t(`side.${comparsa.side}`)}
-                <StatusBadge kind="catalog" value={comparsa.active ? 'ACTIVE' : 'INACTIVE'} />
+                {/* Each value with its term for screen readers (WCAG 1.3.1). */}
+                <span>
+                  <span className="sr-only">{t('comparsas.columns.side')}: </span>
+                  <CategoryTag category="side" value={comparsa.side} />
+                </span>
+                <span>
+                  <span className="sr-only">{t('comparsas.columns.status')}: </span>
+                  <StatusBadge kind="catalog" value={comparsa.active ? 'ACTIVE' : 'INACTIVE'} />
+                </span>
               </span>
             </>
           )}

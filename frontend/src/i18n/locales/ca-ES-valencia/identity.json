@@ -122,8 +122,6 @@
       "all": "Tots"
     },
     "never": "Mai",
-    "enabled": "Activada",
-    "disabled": "No configurada",
     "inviteTitle": "Convidar un usuari",
     "inviteDescription": "Rebrà un correu amb un enllaç vàlid durant 7 dies per a crear la seua contrasenya.",
     "detailBack": "Torna als usuaris",
@@ -158,7 +156,6 @@
       "editName": "dades del compte"
     },
     "cancel": "Cancel·la",
-    "twoFactorState": "Verificació en dos passos: {{state}}",
     "erased": "Usuari esborrat"
   },
   "roles": {

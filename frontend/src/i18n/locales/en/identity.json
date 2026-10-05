@@ -122,8 +122,6 @@
       "all": "All"
     },
     "never": "Never",
-    "enabled": "On",
-    "disabled": "Not set up",
     "inviteTitle": "Invite user",
     "inviteDescription": "They will receive an email with a link, valid for 7 days, to create their password.",
     "detailBack": "Back to users",
@@ -158,7 +156,6 @@
       "editName": "account details"
     },
     "cancel": "Cancel",
-    "twoFactorState": "Two-step verification: {{state}}",
     "erased": "Erased user"
   },
   "roles": {

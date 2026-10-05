@@ -189,15 +189,15 @@ test('the Admin uploads a Federation logo for the documents and removes it', asy
   expect(await axeViolations(page, '[role="dialog"]')).toEqual([]);
   await dialog.getByRole('button', { name: 'Usar logo' }).click();
   await expect(dialog).toBeHidden();
-  await expect(section.getByRole('img', { name: 'Logo de la Federación' })).toHaveAttribute(
-    'src',
-    /^\/api\/federation-logo\?v=[0-9a-f-]{36}$/,
-  );
+  // The logo is its own button with a menu (refine-navigation-and-lists D7); the image inside is decorative.
+  const logo = section.getByRole('button', { name: 'Logo de la Federación, opciones' });
+  await expect(logo.locator('img')).toHaveAttribute('src', /^\/api\/federation-logo\?v=[0-9a-f-]{36}$/);
   expect(await axeViolations()).toEqual([]);
 
-  await section.getByRole('button', { name: 'Quitar logo de la Federación' }).click();
+  await logo.click();
+  await page.getByRole('menuitem', { name: 'Quitar' }).click();
   await page.getByRole('alertdialog').getByRole('button', { name: 'Quitar logo' }).click();
-  await expect(section.getByText('Sin logo')).toBeVisible();
+  await expect(section.getByRole('button', { name: 'Añadir logo de la Federación' })).toBeVisible();
 });
 
 test('a FiringChief cannot upload or remove the Federation logo', async ({ browser }) => {

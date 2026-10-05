@@ -67,12 +67,20 @@ describe('UsersPage (spec: User management by Admins)', () => {
       'href',
       `/users/${CHIEF.id}`,
     );
-    expect(within(row).getByText('Jefe de disparo')).toBeInTheDocument();
-    expect(within(row).getByText('Activo')).toBeInTheDocument();
-    expect(within(row).getByText('Activada')).toBeInTheDocument();
+    // The role is a tag, the status and two-step verification are status badges (D5, D6).
+    expect(within(row).getByText('Jefe de disparo').closest('[data-tag]')).toHaveAttribute('data-tone', '4');
+    expect(within(row).getByText('Activo').closest('[data-status-badge]')).toBeInTheDocument();
+    expect(within(row).getByText('Activada').closest('[data-status-badge]')).toHaveAttribute(
+      'data-tone',
+      'success',
+    );
     const invited = rowOf('Persona Invitada');
     expect(within(invited).getByText('Invitado')).toBeInTheDocument();
-    expect(within(invited).getByText('Nunca')).toBeInTheDocument();
+    expect(within(invited).getByText('No configurada').closest('[data-status-badge]')).toHaveAttribute(
+      'data-tone',
+      'muted',
+    );
+    expect(within(invited).getByText('Nunca')).toHaveClass('text-muted-foreground');
   });
 
   it('sorts by every column, e.g. two-step verification', async () => {
@@ -97,6 +105,30 @@ describe('UsersPage (spec: User management by Admins)', () => {
       .getAllByRole('link')
       .map((link) => link.textContent);
     expect(names).toEqual(['Persona Invitada', 'Jefa Sintética']);
+  });
+
+  it('sorts the role tags by the label they show', async () => {
+    const user = userEvent.setup();
+    const admin: UserResponse = {
+      ...CHIEF,
+      id: '00000000-0000-4000-8000-000000000012',
+      name: 'Admin Sintética',
+      role: 'ADMIN',
+    };
+    server.use(mock.get('/api/users', () => HttpResponse.json([admin, CHIEF])));
+    await asAdmin('/users');
+    const table = await screen.findByRole('table', { name: 'Usuarios' });
+    await within(table).findByRole('link', { name: 'Jefa Sintética' });
+
+    // "Jefe de disparo" after "Administrador": twice for descending.
+    await user.click(within(table).getByRole('button', { name: /^Rol/ }));
+    await user.click(within(table).getByRole('button', { name: /^Rol/ }));
+
+    expect(
+      within(table)
+        .getAllByRole('link')
+        .map((link) => link.textContent),
+    ).toEqual(['Jefa Sintética', 'Admin Sintética']);
   });
 
   it('filters by role and status through the API and keeps the filters in the address', async () => {
@@ -249,8 +281,14 @@ describe('UserDetailPage (specs: User management by Admins, Detail pages in read
 
     const heading = await screen.findByRole('heading', { level: 1, name: 'Jefa Sintética' });
     const header = heading.closest('header');
-    expect(header).toHaveTextContent('Jefe de disparo');
-    expect(header).toHaveTextContent('Verificación en dos pasos: Activada');
+    if (!header) throw new Error('No record header');
+    expect(within(header).getByText('Jefe de disparo').closest('[data-tag]')).toBeInTheDocument();
+    expect(within(header).getByText('Activada').closest('[data-status-badge]')).toHaveAttribute(
+      'data-tone',
+      'success',
+    );
+    // The badge says the state; the term just before it says what it is.
+    expect(header).toHaveTextContent('Verificación en dos pasosActivada');
     const account = screen.getByRole('region', { name: 'Datos de la cuenta' });
     expect(account).toHaveTextContent('jefa@polvorapp.example');
     expect(account).toHaveTextContent('Valencià');
@@ -456,9 +494,8 @@ describe('UserDetailPage (specs: User management by Admins, Detail pages in read
 
     await expectSaved('Verificación en dos pasos restablecida.');
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 1 }).closest('header')).toHaveTextContent(
-        'Verificación en dos pasos: No configurada',
-      );
+      const header = screen.getByRole('heading', { level: 1 }).closest('header');
+      expect(header).toHaveTextContent('Verificación en dos pasosNo configurada');
     });
   });
 

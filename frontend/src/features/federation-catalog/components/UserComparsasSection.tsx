@@ -9,6 +9,7 @@ import {
 import type { ComparsaResponse, UserResponse } from '@/api/generated/model';
 import type { DataTableColumn } from '@/components/app/DataTable';
 import { StatusBadge } from '@/components/app/StatusBadge';
+import { CategoryTag } from '@/components/app/Tag';
 import { AssignmentList, type AssignmentCandidate, type AssignmentListText } from './AssignmentList';
 import { useRefreshAssignments } from './useRefreshAssignments';
 
@@ -40,8 +41,12 @@ export function UserComparsasSection({ user }: { user: UserResponse }) {
 
   const columns = useMemo<DataTableColumn<ComparsaResponse>[]>(
     () => [
-      { id: 'name', header: t('comparsas.columns.name'), cell: (comparsa) => comparsa.name },
-      { id: 'side', header: t('comparsas.columns.side'), cell: (comparsa) => t(`side.${comparsa.side}`) },
+      { id: 'name', header: t('comparsas.columns.name'), rowHeader: true, cell: (comparsa) => comparsa.name },
+      {
+        id: 'side',
+        header: t('comparsas.columns.side'),
+        cell: (comparsa) => <CategoryTag category="side" value={comparsa.side} />,
+      },
       {
         id: 'status',
         header: t('comparsas.columns.status'),
@@ -103,8 +108,15 @@ export function UserComparsasSection({ user }: { user: UserResponse }) {
         <>
           <span className="font-semibold text-foreground">{comparsa.name}</span>
           <span className="flex flex-wrap items-center gap-2 text-help text-muted-foreground">
-            {t(`side.${comparsa.side}`)}
-            <StatusBadge kind="catalog" value={comparsa.active ? 'ACTIVE' : 'INACTIVE'} />
+            {/* Each value with its term for screen readers (WCAG 1.3.1). */}
+            <span>
+              <span className="sr-only">{t('comparsas.columns.side')}: </span>
+              <CategoryTag category="side" value={comparsa.side} />
+            </span>
+            <span>
+              <span className="sr-only">{t('comparsas.columns.status')}: </span>
+              <StatusBadge kind="catalog" value={comparsa.active ? 'ACTIVE' : 'INACTIVE'} />
+            </span>
           </span>
         </>
       )}

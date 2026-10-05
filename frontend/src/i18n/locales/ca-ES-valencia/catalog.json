@@ -67,7 +67,6 @@
       "help": "Es recomana un PNG amb fons transparent. El costat llarg ha de mesurar almenys 256 px i no pot ser més de 3 vegades el curt. Es guarda com a PNG d'1024 px com a màxim.",
       "label": "logo de la comparsa",
       "alt": "Logo de {{name}}",
-      "empty": "Sense logo",
       "removeTitle": "Vols llevar el logo de {{name}}?",
       "removeDescription": "S'esborrarà la imatge. La comparsa es mostrarà amb el símbol genèric fins que en pugues una altra.",
       "removeConfirm": "Lleva el logo",
@@ -81,7 +80,6 @@
       "help": "S'imprimeix en el formulari d'autorització de recollida (i més avant en les acreditacions). Es recomana un PNG amb fons transparent. El costat llarg ha de mesurar almenys 256 px i no pot ser més de 3 vegades el curt. Es guarda com a PNG d'1024 px com a màxim.",
       "label": "logo de la Federació",
       "alt": "Logo de la Federació",
-      "empty": "Sense logo",
       "loading": "S'està carregant el logo…",
       "loadFailed": "No s'ha pogut carregar el logo de la Federació.",
       "staleFailed": "No s'ha pogut actualitzar el logo de la Federació: pot ser que el que veus no estiga al dia.",
@@ -146,15 +144,13 @@
     "filters": {
       "kind": "Tipus",
       "all": "Tots",
-      "includeInactive": "Inclou els inactius"
+      "onlyActive": "Només actius"
     },
     "empty": {
       "title": "No hi ha models d'arma",
       "description": "Cap model coincideix amb estos filtres."
     },
     "none": "—",
-    "yes": "Sí",
-    "no": "No",
     "form": {
       "newTitle": "Nou model d'arma",
       "newDescription": "Utilitza el nom que li dona la Federació. Els trabucs i els arcabussos necessiten bàndol, mà i grandària.",

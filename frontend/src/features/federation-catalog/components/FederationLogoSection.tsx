@@ -58,7 +58,6 @@ export function FederationLogoSection() {
           texts={{
             label: t('federation.logo.label'),
             alt: t('federation.logo.alt'),
-            empty: t('federation.logo.empty'),
             uploaded: t('federation.logo.uploaded'),
             removed: t('federation.logo.removed'),
             removeTitle: t('federation.logo.removeTitle'),

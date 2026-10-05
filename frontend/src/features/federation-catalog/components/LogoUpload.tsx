@@ -10,7 +10,6 @@ export interface LogoUploadTexts {
   /** What the logo is, for the actions: "logo de la comparsa" gives "Añadir logo de la comparsa". */
   label: string;
   alt: string;
-  empty: string;
   uploaded: string;
   removed: string;
   removeTitle: string;
@@ -31,8 +30,8 @@ interface LogoUploadProps {
 }
 
 /**
- * An Admin's logo upload, inside its owner's section (specs: Logo display, Federation logo): add,
- * replace and remove a logo.
+ * An Admin's logo upload, inside its owner's section (specs: Logo display, Federation logo, Picture
+ * actions): the logo itself adds, replaces and removes it.
  * The image is chosen and cropped freely in the browser (the whole image selected at first), kept
  * as PNG with its transparency, and the API's reasons are shown translated in the crop dialog or the
  * confirmation. A logo already removed elsewhere counts as removed.
@@ -79,10 +78,11 @@ export function LogoUpload({ texts, photoUrl, upload, remove, staleCodes, onChan
       label={texts.label}
       photoUrl={photoUrl}
       photoAlt={texts.alt}
-      emptyText={texts.empty}
       uploadedText={texts.uploaded}
       removedText={texts.removed}
       subject="logo"
+      // Managed from the logo itself: a menu to replace or remove it (spec: Picture actions).
+      variant="picture"
       onUpload={uploadLogo}
       removal={{
         title: texts.removeTitle,

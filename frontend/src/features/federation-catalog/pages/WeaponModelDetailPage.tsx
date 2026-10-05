@@ -21,6 +21,8 @@ import { RecordHeader } from '@/components/app/RecordHeader';
 import { SectionCard } from '@/components/app/SectionCard';
 import { SectionGrid } from '@/components/app/SectionGrid';
 import { StatusBadge } from '@/components/app/StatusBadge';
+import { CategoryTag } from '@/components/app/Tag';
+import { yesNo } from '@/components/app/tags';
 import { useAppForm } from '@/components/app/use-app-form';
 import { NotFoundPage } from '@/features/platform/pages/NotFoundPage';
 import { useNotice, type Announce } from '@/lib/notices';
@@ -98,8 +100,14 @@ function DataSection({ model }: { model: WeaponModelResponse }) {
       <DescriptionList
         items={[
           { term: t('weaponModels.form.label'), value: model.label },
-          { term: t('weaponModels.form.kind'), value: t(`kind.${model.kind}`) },
-          { term: t('weaponModels.form.side'), value: model.side ? t(`side.${model.side}`) : notSet },
+          {
+            term: t('weaponModels.form.kind'),
+            value: <CategoryTag category="weaponKind" value={model.kind} />,
+          },
+          {
+            term: t('weaponModels.form.side'),
+            value: model.side ? <CategoryTag category="side" value={model.side} /> : notSet,
+          },
           {
             term: t('weaponModels.form.handedness'),
             value: model.handedness ? t(`handedness.${model.handedness}`) : notSet,
@@ -107,7 +115,7 @@ function DataSection({ model }: { model: WeaponModelResponse }) {
           { term: t('weaponModels.form.size'), value: model.size ? t(`size.${model.size}`) : notSet },
           {
             term: t('weaponModels.form.rentable'),
-            value: model.rentable ? t('weaponModels.yes') : t('weaponModels.no'),
+            value: <CategoryTag category="yesNo" value={yesNo(model.rentable)} />,
           },
         ]}
       />
@@ -163,7 +171,7 @@ function ModelDetail({
     <>
       <RecordHeader
         back={{ to: '/weapon-models', label: t('weaponModels.detail.back') }}
-        context={t(`kind.${model.kind}`)}
+        context={<CategoryTag category="weaponKind" value={model.kind} />}
         name={model.label}
         statuses={<StatusBadge kind="catalog" value={model.active ? 'ACTIVE' : 'INACTIVE'} />}
         moreActions={actions.items}

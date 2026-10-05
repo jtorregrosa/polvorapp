@@ -12,6 +12,8 @@ import { FilterBar } from '@/components/app/FilterBar';
 import { FilterSelect } from '@/components/app/FilterSelect';
 import { PageHeader } from '@/components/app/PageHeader';
 import { StatusBadge } from '@/components/app/StatusBadge';
+import { CategoryTag } from '@/components/app/Tag';
+import { yesNo } from '@/components/app/tags';
 import { knownFilter, withFilter } from '@/lib/search-filters';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { useNotice } from '@/lib/notices';
@@ -27,10 +29,11 @@ export function WeaponModelsPage() {
   const [notice] = useNotice();
   const [search, setSearch] = useSearchParams();
   const kind = knownFilter(search.get('kind'), KINDS);
-  const includeInactive = search.get('includeInactive') === 'true';
+  // Every model by default; "only active" is the API's own default, so it sends no flag (D8).
+  const onlyActive = search.get('onlyActive') === 'true';
   const params: ListWeaponModelsParams = {
     ...(kind ? { kind } : {}),
-    ...(includeInactive ? { includeInactive } : {}),
+    ...(onlyActive ? {} : { includeInactive: true }),
   };
   const models = useListWeaponModels(params);
   const rows = useMemo(() => (models.data?.data ?? []) as WeaponModelResponse[], [models.data]);
@@ -43,11 +46,11 @@ export function WeaponModelsPage() {
         <span className="sr-only">{t('weaponModels.form.notSet')}</span>
       </span>
     );
-    const yesNo = (value: boolean) => (value ? t('weaponModels.yes') : t('weaponModels.no'));
     return [
       {
         id: 'label',
         header: t('weaponModels.columns.label'),
+        rowHeader: true,
         sortValue: (model) => model.label,
         cell: (model) => (
           <Link to={`/weapon-models/${model.id}`} className="font-semibold text-foreground hover:underline">
@@ -58,14 +61,14 @@ export function WeaponModelsPage() {
       {
         id: 'kind',
         header: t('weaponModels.columns.kind'),
-        sortValue: (model) => t(`kind.${model.kind}`),
-        cell: (model) => t(`kind.${model.kind}`),
+        sortValue: (model) => tUi(`tag.weaponKind.${model.kind}`),
+        cell: (model) => <CategoryTag category="weaponKind" value={model.kind} />,
       },
       {
         id: 'side',
         header: t('weaponModels.columns.side'),
-        sortValue: (model) => (model.side ? t(`side.${model.side}`) : ''),
-        cell: (model) => (model.side ? t(`side.${model.side}`) : none),
+        sortValue: (model) => (model.side ? tUi(`tag.side.${model.side}`) : ''),
+        cell: (model) => (model.side ? <CategoryTag category="side" value={model.side} /> : none),
       },
       {
         id: 'handedness',
@@ -82,8 +85,8 @@ export function WeaponModelsPage() {
       {
         id: 'rentable',
         header: t('weaponModels.columns.rentable'),
-        sortValue: (model) => yesNo(model.rentable),
-        cell: (model) => yesNo(model.rentable),
+        sortValue: (model) => tUi(`tag.yesNo.${yesNo(model.rentable)}`),
+        cell: (model) => <CategoryTag category="yesNo" value={yesNo(model.rentable)} />,
       },
       {
         id: 'status',
@@ -94,7 +97,7 @@ export function WeaponModelsPage() {
     ];
   }, [t, tUi]);
 
-  const setFilter = (key: 'kind' | 'includeInactive', value: string): void => {
+  const setFilter = (key: 'kind' | 'onlyActive', value: string): void => {
     setSearch(withFilter(search, key, value), { replace: true });
   };
 
@@ -130,10 +133,10 @@ export function WeaponModelsPage() {
             />
             <div className="flex min-h-control items-center">
               <CheckboxField
-                label={t('weaponModels.filters.includeInactive')}
-                checked={includeInactive}
+                label={t('weaponModels.filters.onlyActive')}
+                checked={onlyActive}
                 onCheckedChange={(checked) => {
-                  setFilter('includeInactive', checked ? 'true' : '');
+                  setFilter('onlyActive', checked ? 'true' : '');
                 }}
               />
             </div>
@@ -155,13 +158,25 @@ export function WeaponModelsPage() {
                 {model.label}
               </Link>
               <span className="flex flex-wrap items-center gap-2 text-help text-muted-foreground">
-                {t(`kind.${model.kind}`)}
-                <StatusBadge kind="catalog" value={model.active ? 'ACTIVE' : 'INACTIVE'} />
+                {/* Each value with its term for screen readers (WCAG 1.3.1). */}
+                <span>
+                  <span className="sr-only">{t('weaponModels.columns.kind')}: </span>
+                  <CategoryTag category="weaponKind" value={model.kind} />
+                </span>
+                {model.side && (
+                  <span>
+                    <span className="sr-only">{t('weaponModels.columns.side')}: </span>
+                    <CategoryTag category="side" value={model.side} />
+                  </span>
+                )}
+                <span>
+                  <span className="sr-only">{t('weaponModels.columns.status')}: </span>
+                  <StatusBadge kind="catalog" value={model.active ? 'ACTIVE' : 'INACTIVE'} />
+                </span>
               </span>
               {/* What the table's other columns say, so nothing is lost on a phone (WCAG 1.4.10). */}
               <span className="text-help text-muted-foreground">
                 {[
-                  model.side && t(`side.${model.side}`),
                   model.handedness && t(`handedness.${model.handedness}`),
                   model.size && t(`size.${model.size}`),
                   model.rentable ? t('weaponModels.rentable') : t('weaponModels.notRentable'),

@@ -122,8 +122,6 @@
       "all": "Todos"
     },
     "never": "Nunca",
-    "enabled": "Activada",
-    "disabled": "No configurada",
     "inviteTitle": "Invitar usuario",
     "inviteDescription": "Recibirá un correo con un enlace válido durante 7 días para crear su contraseña.",
     "detailBack": "Volver a usuarios",
@@ -158,7 +156,6 @@
       "editName": "datos de la cuenta"
     },
     "cancel": "Cancelar",
-    "twoFactorState": "Verificación en dos pasos: {{state}}",
     "erased": "Usuario borrado"
   },
   "roles": {

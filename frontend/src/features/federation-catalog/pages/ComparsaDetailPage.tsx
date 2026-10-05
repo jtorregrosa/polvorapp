@@ -27,6 +27,7 @@ import { RecordHeader, type MoreAction } from '@/components/app/RecordHeader';
 import { SectionCard } from '@/components/app/SectionCard';
 import { SectionGrid } from '@/components/app/SectionGrid';
 import { StatusBadge } from '@/components/app/StatusBadge';
+import { CategoryTag } from '@/components/app/Tag';
 import { useAppForm } from '@/components/app/use-app-form';
 import { BadgeSheet } from '@/features/badges/components/BadgeSheet';
 import { useSession } from '@/features/identity-access/session';
@@ -106,7 +107,7 @@ function DataSection({ comparsa, isAdmin }: { comparsa: ComparsaResponse; isAdmi
       <DescriptionList
         items={[
           { term: t('comparsas.form.name'), value: comparsa.name },
-          { term: t('comparsas.form.side'), value: t(`side.${comparsa.side}`) },
+          { term: t('comparsas.form.side'), value: <CategoryTag category="side" value={comparsa.side} /> },
         ]}
       />
     </SectionCard>
@@ -239,7 +240,7 @@ function DetailLayout({
         // Decorative: the name is the heading right beside it (spec: Logo display).
         media={<ComparsaLogo src={logoUrl(comparsa.id, comparsa.logo)} size="lg" />}
         back={{ to: '/comparsas', label: t('comparsas.detail.back') }}
-        context={t(`side.${comparsa.side}`)}
+        context={<CategoryTag category="side" value={comparsa.side} />}
         name={comparsa.name}
         statuses={<StatusBadge kind="catalog" value={comparsa.active ? 'ACTIVE' : 'INACTIVE'} />}
         actions={actions}
