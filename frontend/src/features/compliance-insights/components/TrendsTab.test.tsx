@@ -82,6 +82,17 @@ describe('TrendsTab (spec: Trends screen)', () => {
     );
   });
 
+  it.each([
+    ['en', 'Arquebusiers per edition', '2031 (provisional): 30 active, 25% more than 2030.'],
+    ['ca-ES-valencia', 'Arcabussers per edició', '2031 (provisional): 30 en actiu, 25 % més que en 2030.'],
+  ])('formats the summaries in %s', async (language, title, summary) => {
+    serve(TRENDS);
+    await renderApp('/statistics?view=trends', { session: SYNTHETIC_ADMIN, language });
+
+    await screen.findByRole('heading', { level: 2, name: title });
+    expect(chart(title).textContent.replace(/\s/g, ' ')).toContain(summary);
+  });
+
   it('offers each chart as a table with the provisional edition marked', async () => {
     const user = userEvent.setup();
     serve(TRENDS);

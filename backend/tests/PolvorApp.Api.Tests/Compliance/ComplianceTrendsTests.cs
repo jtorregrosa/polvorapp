@@ -8,6 +8,7 @@ using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.AuditPrivacy.Persistence;
 using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.FederationCatalog.Contracts;
+using PolvorApp.IdentityAccess.Contracts;
 using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 using static PolvorApp.Api.Tests.Infrastructure.OrderData;
 
@@ -101,6 +102,38 @@ public sealed class ComplianceTrendsTests(PostgresFixture postgres, MailpitFixtu
 
         using var refused = await limited.Admin.GetAsync("/api/compliance/trends", Token);
         Assert.Equal(HttpStatusCode.TooManyRequests, refused.StatusCode);
+    }
+
+    [Fact]
+    public async Task An_Admin_filtering_one_comparsa_gets_its_counts_with_the_first_year_unknown_for_the_first_edition_with_orders()
+    {
+        var previous = NewOrder(_orders.Previous, _orders.Own.Id, OrderStatus.Validated);
+        var current = NewOrder(_orders.Current, _orders.Own.Id, OrderStatus.Draft);
+        var other = NewOrder(_orders.Current, _orders.Other.Id);
+        await _orders.Services.SaveOrdersAsync(
+            previous, NewEntry(previous, _woman.Id), current, NewEntry(current, _woman.Id), NewEntry(current, _man.Id),
+            other, NewEntry(other, await PersonAsync(_orders.Other.Id)));
+
+        var trends = await TrendsAsync(_orders.Admin, _orders.Own.Id);
+
+        Assert.Equal(JsonValueKind.Null, Row(trends, 2030).GetProperty("firstYear").ValueKind);
+        // A draft order counts too: the man is new, the woman paraded in 2030.
+        Assert.Equal((2, 1), (Int(Row(trends, 2031), "active"), Int(Row(trends, 2031), "firstYear")));
+        Assert.Empty(trends.GetProperty("comparsas").EnumerateArray());
+    }
+
+    [Fact]
+    public async Task A_FiringChief_without_comparsas_gets_the_editions_with_nothing_counted()
+    {
+        var order = NewOrder(_orders.Current, _orders.Own.Id);
+        await _orders.Services.SaveOrdersAsync(order, NewEntry(order, _woman.Id));
+        var user = await _orders.Host.CreateUserAsync("jefe.sin.comparsa@example.test", UserRole.FiringChief);
+        using var unassigned = await _orders.Host.SignInAsync(user);
+
+        var trends = await TrendsAsync(unassigned, null);
+
+        Assert.All(trends.GetProperty("rows").EnumerateArray(), row => Assert.Equal(0, Int(row, "active")));
+        Assert.Empty(trends.GetProperty("comparsas").EnumerateArray());
     }
 
     [Fact]
