@@ -13,6 +13,12 @@
     <InternalsVisibleTo Include="PolvorApp.Api.Tests" />
   </ItemGroup>
 
+  <!-- The seed's generated faces and emblems (realistic-seed-data, design D5), read by the seeders
+       from SyntheticData/ next to the assembly. Content, not resources: loaded only when seeding. -->
+  <ItemGroup>
+    <None Include="..\..\synthetic-data\**\*" LinkBase="SyntheticData" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" />
     <PackageReference Include="MailKit" />

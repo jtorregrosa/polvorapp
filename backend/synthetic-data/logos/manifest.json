@@ -1,0 +1,119 @@
+{
+  "generator": "Z-Image Turbo (Tongyi-MAI, Apache-2.0) via the Runpod public endpoint; scripts/generate-seed-images.mjs",
+  "logos": [
+    {
+      "comparsa": "Cruzados",
+      "file": "cruzados.png",
+      "seed": 20265930,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a heater shield filled solid black, with a dark charcoal cross pattée and a dark grey sword pointing down, the whole emblem dark. bold flat vector illustration, centred, thick clean outlines, limited palette of only black, dark charcoal and dark grey; no white, no light colours anywhere inside the shield. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Hospitalarios",
+      "file": "hospitalarios.png",
+      "seed": 20265931,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a shield with a cross fleury, an oil lamp and a laurel wreath. bold flat vector illustration, centred, thick clean outlines, limited palette of crimson red, silver grey and gold. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Zegríes",
+      "file": "zegries.png",
+      "seed": 20265932,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a round shield with a crescent moon, a five-pointed star and two crossed spears. bold flat vector illustration, centred, thick clean outlines, limited palette of emerald green, gold and white. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Tercios",
+      "file": "tercios.png",
+      "seed": 20265933,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a shield with crossed pikes and a morion helmet. bold flat vector illustration, centred, thick clean outlines, limited palette of red, gold and dark blue. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Ballesteros",
+      "file": "ballesteros.png",
+      "seed": 20265934,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a shield with two crossed crossbows and a quiver of bolts. bold flat vector illustration, centred, thick clean outlines, limited palette of royal blue and gold. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Corsarios",
+      "file": "corsarios.png",
+      "seed": 20265935,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a shield with a galleon under full sail on waves. bold flat vector illustration, centred, thick clean outlines, limited palette of navy blue, white and gold. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Labradores",
+      "file": "labradores.png",
+      "seed": 20265936,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a shield with a wheat sheaf, a sickle and a rising sun. bold flat vector illustration, centred, thick clean outlines, limited palette of olive green, wheat yellow and brown. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Mozárabes",
+      "file": "mozarabes.png",
+      "seed": 20265937,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a shield with a bell tower between two olive branches. bold flat vector illustration, centred, thick clean outlines, limited palette of ochre, brick red and cream. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Caballeros de Sant Jordi",
+      "file": "caballeros-de-sant-jordi.png",
+      "seed": 20265938,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a shield with a knight's lance and a small green dragon. bold flat vector illustration, centred, thick clean outlines, limited palette of white, red and green. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Almirantes",
+      "file": "almirantes.png",
+      "seed": 20265939,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a shield with an anchor over a compass rose. bold flat vector illustration, centred, thick clean outlines, limited palette of navy blue, gold and light blue. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Guardia del Rey",
+      "file": "guardia-del-rey.png",
+      "seed": 20265940,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a shield with a royal crown and two crossed halberds. bold flat vector illustration, centred, thick clean outlines, limited palette of purple, gold and silver. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Almohades",
+      "file": "almohades.png",
+      "seed": 20265941,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a round shield with an eight-pointed geometric star. bold flat vector illustration, centred, thick clean outlines, limited palette of deep red, gold and white. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Nazaríes",
+      "file": "nazaries.png",
+      "seed": 20265942,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a shield with a horseshoe arch and a palm tree. bold flat vector illustration, centred, thick clean outlines, limited palette of turquoise, gold and white. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Mudéjares",
+      "file": "mudejares.png",
+      "seed": 20265943,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a shield with interlaced geometric brickwork and a small arch. bold flat vector illustration, centred, thick clean outlines, limited palette of terracotta, turquoise and cream. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Bereberes",
+      "file": "bereberes.png",
+      "seed": 20265944,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a round shield with a camel and a desert sun. bold flat vector illustration, centred, thick clean outlines, limited palette of sand yellow, indigo and orange. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Beduinos",
+      "file": "beduinos.png",
+      "seed": 20265945,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a shield with a tent under a crescent moon and stars. bold flat vector illustration, centred, thick clean outlines, limited palette of indigo, silver and sand. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Kábilas",
+      "file": "kabilas.png",
+      "seed": 20265946,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a round shield with two crossed scimitars over a small round buckler. bold flat vector illustration, centred, thick clean outlines, limited palette of red, white and black outlines. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Califas",
+      "file": "califas.png",
+      "seed": 20265947,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a shield with an ornate hanging lamp and a crescent. bold flat vector illustration, centred, thick clean outlines, limited palette of purple, gold and white. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    },
+    {
+      "comparsa": "Sarracenos",
+      "file": "sarracenos.png",
+      "seed": 20265948,
+      "prompt": "Flat heraldic emblem for a fictional Moors and Christians festival troupe: a shield with a horse head and a curved scimitar. bold flat vector illustration, centred, thick clean outlines, limited palette of crimson, gold and white. plain pure white background, no text, no letters, no words, no numbers, no banner, no ribbon, no watermark"
+    }
+  ]
+}

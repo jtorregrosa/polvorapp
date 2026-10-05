@@ -44,3 +44,7 @@ storybook-static/
 # Python caches (skill scripts)
 __pycache__/
 *.pyc
+
+# Raw outputs of scripts/generate-seed-images.mjs, cached so a rerun never pays twice; the optimised
+# images are committed in backend/synthetic-data (realistic-seed-data, design D5).
+seed-assets/
