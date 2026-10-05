@@ -28,6 +28,7 @@ import { SectionCard } from '@/components/app/SectionCard';
 import { SectionGrid } from '@/components/app/SectionGrid';
 import { useSaveNotice } from '@/components/app/save-notice';
 import { StatusBadge } from '@/components/app/StatusBadge';
+import { CategoryTag } from '@/components/app/Tag';
 import { useAppForm } from '@/components/app/use-app-form';
 import { useUserPrivacyActions } from '@/features/audit-privacy/components/useUserPrivacyActions';
 import { ViewHistoryLink } from '@/features/audit-privacy/components/ViewHistoryLink';
@@ -39,7 +40,7 @@ import { useInvalidate } from '@/lib/use-invalidate';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { problemMessage } from '../../problems';
 import { SESSION_QUERY_KEY, useForgetSession, useSession } from '../../session';
-import { userEmail, userName } from '../../user-name';
+import { twoFactorStatus, userEmail, userName } from '../../user-name';
 import { UserFields } from './UserFields';
 import { userFieldsSchema, type UserFieldValues } from './userFieldsSchema';
 
@@ -127,7 +128,7 @@ function AccountSection({ user }: { user: UserResponse }) {
             term: t('users.fields.email'),
             value: erased ? '' : <span className="break-all">{userEmail(user)}</span>,
           },
-          { term: t('users.fields.role'), value: t(`roles.${user.role}`) },
+          { term: t('users.fields.role'), value: <CategoryTag category="role" value={user.role} /> },
           {
             term: t('users.fields.locale'),
             // Each language is named in itself (WCAG 3.1.2).
@@ -135,7 +136,7 @@ function AccountSection({ user }: { user: UserResponse }) {
           },
           {
             term: t('users.columns.twoFactor'),
-            value: user.twoFactorEnabled ? t('users.enabled') : t('users.disabled'),
+            value: <StatusBadge kind="twoFactor" value={twoFactorStatus(user)} />,
           },
           {
             term: t('users.columns.lastSignIn'),
@@ -299,15 +300,15 @@ function UserRecord({
     <>
       <RecordHeader
         back={{ to: '/users', label: t('users.detailBack') }}
-        context={t(`roles.${user.role}`)}
+        context={<CategoryTag category="role" value={user.role} />}
         name={userName(t, user)}
         statuses={
           <>
             <StatusBadge kind="user" value={user.status} />
-            <span className="text-help text-muted-foreground">
-              {t('users.twoFactorState', {
-                state: user.twoFactorEnabled ? t('users.enabled') : t('users.disabled'),
-              })}
+            {/* The term says what the badge is, as the badge is read on its own (D6). */}
+            <span className="flex items-center gap-1.5 text-help text-muted-foreground">
+              {t('users.columns.twoFactor')}
+              <StatusBadge kind="twoFactor" value={twoFactorStatus(user)} />
             </span>
           </>
         }

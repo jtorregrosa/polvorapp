@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { http as mock, HttpResponse } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ComparsaLogoResponse } from '@/api/generated/model';
@@ -76,6 +76,16 @@ async function federationSection(name = 'Logo de la Federación'): Promise<HTMLE
 const uploaded = () =>
   HttpResponse.json({ version: NEW_LOGO.version, width: 800, height: 400, uploadedAt: NEW_LOGO.uploadedAt });
 
+/** Opens the logo's own menu and chooses `action` (spec: Picture actions). */
+async function logoAction(
+  user: UserEvent,
+  section: HTMLElement,
+  action: 'Sustituir' | 'Quitar',
+): Promise<void> {
+  await user.click(within(section).getByRole('button', { name: /, opciones$/ }));
+  await user.click(await screen.findByRole('menuitem', { name: action }));
+}
+
 describe('Federation logo on the comparsas page (spec: Federation logo)', () => {
   beforeEach(() => {
     vi.mocked(loadImage).mockResolvedValue({ url: 'blob:logo', width: 800, height: 400 });
@@ -100,7 +110,9 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
 
     await screen.findByRole('table', { name: 'Comparsas' });
     expect(screen.queryByRole('region', { name: 'Logo de la Federación' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /logo de la Federación/ })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /logo de la Federación|, opciones$/ }),
+    ).not.toBeInTheDocument();
     expect(requests).toBe(0);
   });
 
@@ -110,7 +122,6 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
 
     const section = await federationSection();
     expect(within(section).getByText(/formulario de autorización de recogida/)).toBeInTheDocument();
-    expect(await within(section).findByText('Sin logo')).toBeInTheDocument();
     expect(
       await within(section).findByRole('button', { name: 'Añadir logo de la Federación' }),
     ).toBeInTheDocument();
@@ -132,10 +143,9 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
     await user.click(within(dialog).getByRole('button', { name: 'Usar logo' }));
 
     await waitFor(() => {
-      expect(within(section).getByRole('img', { name: 'Logo de la Federación' })).toHaveAttribute(
-        'src',
-        `/api/federation-logo?v=${NEW_LOGO.version}`,
-      );
+      expect(
+        within(section).getByRole('button', { name: 'Logo de la Federación, opciones' }).querySelector('img'),
+      ).toHaveAttribute('src', `/api/federation-logo?v=${NEW_LOGO.version}`);
     });
     expect(uploads).toHaveLength(1);
     expect(cropImage).toHaveBeenCalledWith(
@@ -156,17 +166,16 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
     });
     await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
     const section = await federationSection();
-    await within(section).findByRole('button', { name: 'Sustituir logo de la Federación' });
+    await within(section).findByRole('button', { name: 'Logo de la Federación, opciones' });
 
     chooseLogo(section);
     const dialog = await screen.findByRole('dialog', { name: 'Recortar logo de la Federación' });
     await user.click(within(dialog).getByRole('button', { name: 'Usar logo' }));
 
     await waitFor(() => {
-      expect(within(section).getByRole('img', { name: 'Logo de la Federación' })).toHaveAttribute(
-        'src',
-        `/api/federation-logo?v=${NEW_LOGO.version}`,
-      );
+      expect(
+        within(section).getByRole('button', { name: 'Logo de la Federación, opciones' }).querySelector('img'),
+      ).toHaveAttribute('src', `/api/federation-logo?v=${NEW_LOGO.version}`);
     });
     expect(uploads).toHaveLength(1);
   });
@@ -218,14 +227,16 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
     await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
     const section = await federationSection();
 
-    await user.click(await within(section).findByRole('button', { name: 'Quitar logo de la Federación' }));
+    await logoAction(user, section, 'Quitar');
     const confirmation = await screen.findByRole('alertdialog', {
       name: '¿Quitar el logo de la Federación?',
     });
     expect(within(confirmation).getByText(/sin logo/)).toBeInTheDocument();
     await user.click(within(confirmation).getByRole('button', { name: 'Quitar logo' }));
 
-    expect(await within(section).findByText('Sin logo')).toBeInTheDocument();
+    expect(
+      await within(section).findByRole('button', { name: 'Añadir logo de la Federación' }),
+    ).toBeInTheDocument();
     expect(removals).toBe(1);
     expect(
       await within(section).findByText('Logo quitado', { selector: '[role=status]' }),
@@ -272,12 +283,14 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
     await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
     const section = await federationSection();
 
-    await user.click(await within(section).findByRole('button', { name: 'Quitar logo de la Federación' }));
+    await logoAction(user, section, 'Quitar');
     await user.click(
       within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Quitar logo' }),
     );
 
-    expect(await within(section).findByText('Sin logo')).toBeInTheDocument();
+    expect(
+      await within(section).findByRole('button', { name: 'Añadir logo de la Federación' }),
+    ).toBeInTheDocument();
     expect(within(section).queryByRole('alert')).not.toBeInTheDocument();
   });
 
@@ -292,7 +305,9 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
     expect(await within(section).findByRole('alert')).toHaveTextContent(
       'No se ha podido cargar el logo de la Federación.',
     );
-    expect(within(section).queryByRole('button', { name: /logo de la Federación/ })).not.toBeInTheDocument();
+    expect(
+      within(section).queryByRole('button', { name: /logo de la Federación|, opciones$/ }),
+    ).not.toBeInTheDocument();
 
     server.use(mock.get('/api/federation', () => HttpResponse.json({ logo: null })));
     await userEvent.setup().click(within(section).getByRole('button', { name: 'Reintentar' }));
@@ -314,7 +329,7 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
     federation(LOGO);
     const { container } = await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
     const section = await federationSection();
-    await within(section).findByRole('button', { name: 'Sustituir logo de la Federación' });
+    await within(section).findByRole('button', { name: 'Logo de la Federación, opciones' });
 
     expect(await axeViolations(container)).toEqual([]);
   });

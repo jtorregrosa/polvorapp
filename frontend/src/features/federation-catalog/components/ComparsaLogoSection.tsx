@@ -26,7 +26,6 @@ export function ComparsaLogoSection({ comparsa, onChanged }: ComparsaLogoSection
         texts={{
           label: t('comparsas.logo.label'),
           alt: t('comparsas.logo.alt', { name: comparsa.name }),
-          empty: t('comparsas.logo.empty'),
           uploaded: t('comparsas.logo.uploaded'),
           removed: t('comparsas.logo.removed'),
           removeTitle: t('comparsas.logo.removeTitle', { name: comparsa.name }),

@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { http as mock, HttpResponse } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ComparsaLogoResponse, ComparsaResponse } from '@/api/generated/model';
@@ -85,6 +85,16 @@ function headerTile(): HTMLElement {
   return tile;
 }
 
+/** Opens the logo's own menu and chooses `action` (spec: Picture actions). */
+async function logoAction(
+  user: UserEvent,
+  section: HTMLElement,
+  action: 'Sustituir' | 'Quitar',
+): Promise<void> {
+  await user.click(within(section).getByRole('button', { name: /, opciones$/ }));
+  await user.click(await screen.findByRole('menuitem', { name: action }));
+}
+
 describe('Comparsa logo on the detail page (spec: Logo display)', () => {
   beforeEach(() => {
     vi.mocked(loadImage).mockResolvedValue({ url: 'blob:logo', width: 800, height: 400 });
@@ -104,7 +114,7 @@ describe('Comparsa logo on the detail page (spec: Logo display)', () => {
     const image = headerTile().querySelector('img');
     expect(image).toHaveAttribute('src', `/api/comparsas/${NORTE.id}/logo?v=${LOGO.version}`);
     expect(image).toHaveAttribute('alt', '');
-    expect(screen.queryByRole('button', { name: /logo de la comparsa/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /logo de la comparsa|, opciones$/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Logo' })).not.toBeInTheDocument();
   });
 
@@ -195,8 +205,9 @@ describe('Comparsa logo on the detail page (spec: Logo display)', () => {
     await renderApp(`/comparsas/${NORTE.id}`, { session: SYNTHETIC_ADMIN });
     const section = await screen.findByRole('region', { name: 'Logo' });
     expect(
-      within(section).getByRole('button', { name: 'Sustituir logo de la comparsa' }),
+      within(section).getByRole('button', { name: 'Logo de Comparsa Sintética Norte, opciones' }),
     ).toBeInTheDocument();
+    expect(within(section).queryByRole('button', { name: /^(Sustituir|Quitar) / })).toBeNull();
 
     chooseLogo();
     const dialog = await screen.findByRole('dialog', { name: 'Recortar logo de la comparsa' });
@@ -239,13 +250,13 @@ describe('Comparsa logo on the detail page (spec: Logo display)', () => {
     await renderApp(`/comparsas/${NORTE.id}`, { session: SYNTHETIC_ADMIN });
     const section = await screen.findByRole('region', { name: 'Logo' });
 
-    await user.click(within(section).getByRole('button', { name: 'Quitar logo de la comparsa' }));
+    await logoAction(user, section, 'Quitar');
     await user.click(
       within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Cancelar' }),
     );
     expect(removals).toBe(0);
 
-    await user.click(within(section).getByRole('button', { name: 'Quitar logo de la comparsa' }));
+    await logoAction(user, section, 'Quitar');
     await user.click(
       within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Quitar logo' }),
     );
@@ -268,7 +279,7 @@ describe('Comparsa logo on the detail page (spec: Logo display)', () => {
     await renderApp(`/comparsas/${NORTE.id}`, { session: SYNTHETIC_ADMIN });
     const section = await screen.findByRole('region', { name: 'Logo' });
 
-    await user.click(within(section).getByRole('button', { name: 'Quitar logo de la comparsa' }));
+    await logoAction(user, section, 'Quitar');
     await user.click(
       within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Quitar logo' }),
     );
@@ -288,7 +299,7 @@ describe('Comparsa logo on the detail page (spec: Logo display)', () => {
     await renderApp(`/comparsas/${NORTE.id}`, { session: SYNTHETIC_ADMIN });
     const section = await screen.findByRole('region', { name: 'Logo' });
 
-    await user.click(within(section).getByRole('button', { name: 'Quitar logo de la comparsa' }));
+    await logoAction(user, section, 'Quitar');
     const confirmation = await screen.findByRole('alertdialog');
     await user.click(within(confirmation).getByRole('button', { name: 'Quitar logo' }));
 
@@ -310,7 +321,7 @@ describe('Comparsa logo on the detail page (spec: Logo display)', () => {
     await renderApp(`/comparsas/${NORTE.id}`, { session: SYNTHETIC_ADMIN });
     const section = await screen.findByRole('region', { name: 'Logo' });
 
-    await user.click(within(section).getByRole('button', { name: 'Quitar logo de la comparsa' }));
+    await logoAction(user, section, 'Quitar');
     await user.click(
       within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Quitar logo' }),
     );

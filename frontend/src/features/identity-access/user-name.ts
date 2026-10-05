@@ -10,3 +10,8 @@ export function userName(t: TFunction<'identity'>, user: Pick<UserResponse, 'nam
 export function userEmail(user: Pick<UserResponse, 'email' | 'status'>): string {
   return user.status === 'ERASED' ? '' : user.email;
 }
+
+/** Two-step verification of a user as a status value (refine-navigation-and-lists D6). */
+export function twoFactorStatus(user: Pick<UserResponse, 'twoFactorEnabled'>): 'ENABLED' | 'NOT_SET' {
+  return user.twoFactorEnabled ? 'ENABLED' : 'NOT_SET';
+}

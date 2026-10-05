@@ -67,7 +67,6 @@
       "help": "Se recomienda un PNG con fondo transparente. El lado largo debe medir al menos 256 px y no puede ser más de 3 veces el corto. Se guarda como PNG de 1024 px como máximo.",
       "label": "logo de la comparsa",
       "alt": "Logo de {{name}}",
-      "empty": "Sin logo",
       "removeTitle": "¿Quitar el logo de {{name}}?",
       "removeDescription": "Se borrará la imagen. La comparsa se mostrará con el símbolo genérico hasta que subas otra.",
       "removeConfirm": "Quitar logo",
@@ -81,7 +80,6 @@
       "help": "Se imprime en el formulario de autorización de recogida (y más adelante en las acreditaciones). Se recomienda un PNG con fondo transparente. El lado largo debe medir al menos 256 px y no puede ser más de 3 veces el corto. Se guarda como PNG de 1024 px como máximo.",
       "label": "logo de la Federación",
       "alt": "Logo de la Federación",
-      "empty": "Sin logo",
       "loading": "Cargando el logo…",
       "loadFailed": "No se ha podido cargar el logo de la Federación.",
       "staleFailed": "No se ha podido actualizar el logo de la Federación: puede que lo que ves no esté al día.",
@@ -146,15 +144,13 @@
     "filters": {
       "kind": "Tipo",
       "all": "Todos",
-      "includeInactive": "Incluir inactivos"
+      "onlyActive": "Solo activos"
     },
     "empty": {
       "title": "No hay modelos de arma",
       "description": "Ningún modelo coincide con estos filtros."
     },
     "none": "—",
-    "yes": "Sí",
-    "no": "No",
     "form": {
       "newTitle": "Nuevo modelo de arma",
       "newDescription": "Usa el nombre que le da la Federación. Los trabucos y arcabuces necesitan bando, mano y tamaño.",

@@ -67,7 +67,6 @@
       "help": "A PNG with a transparent background is recommended. The long side must be at least 256 px and no more than 3 times the short side. It is stored as a PNG of at most 1024 px.",
       "label": "comparsa logo",
       "alt": "Logo of {{name}}",
-      "empty": "No logo",
       "removeTitle": "Remove the logo of {{name}}?",
       "removeDescription": "The image will be erased. The comparsa will show the generic symbol until you upload another one.",
       "removeConfirm": "Remove logo",
@@ -81,7 +80,6 @@
       "help": "Printed on the pickup authorisation form (and later on the badges). A PNG with a transparent background is recommended. The long side must be at least 256 px and no more than 3 times the short one. It is stored as a PNG of at most 1024 px.",
       "label": "Federation logo",
       "alt": "Federation logo",
-      "empty": "No logo",
       "loading": "Loading the logo…",
       "loadFailed": "The Federation logo could not be loaded.",
       "staleFailed": "The Federation logo could not be refreshed: what you see may be outdated.",
@@ -146,15 +144,13 @@
     "filters": {
       "kind": "Type",
       "all": "All",
-      "includeInactive": "Include inactive"
+      "onlyActive": "Only active"
     },
     "empty": {
       "title": "No weapon models",
       "description": "No model matches these filters."
     },
     "none": "—",
-    "yes": "Yes",
-    "no": "No",
     "form": {
       "newTitle": "New weapon model",
       "newDescription": "Use the Federation's name for the model. Trabucos and arcabuces need side, handedness and size.",

@@ -54,10 +54,15 @@ describe('WeaponModelsPage (specs: Weapon models, Weapon catalogue access)', () 
     expect(trabuco).toHaveTextContent('Cristiano');
     expect(trabuco).toHaveTextContent('Zurdo');
     expect(trabuco).toHaveTextContent('Pequeño');
-    expect(trabuco).toHaveTextContent('Sí');
+    // Kind, side and the rentable flag are tags (spec: Tags for fixed values).
+    const tagOf = (row: HTMLElement, text: string) => within(row).getByText(text).closest('[data-tag]');
+    expect(tagOf(trabuco, 'Trabuco')).toHaveAttribute('data-tone', '1');
+    expect(tagOf(trabuco, 'Cristiano')).toHaveAttribute('data-tone', '1');
+    expect(tagOf(trabuco, 'Sí')).toHaveAttribute('data-tone', '2');
     const pistola = rowOf(table, PISTOLA.label);
     expect(within(pistola).getAllByText('—')).toHaveLength(3);
-    expect(pistola).toHaveTextContent('No');
+    expect(tagOf(pistola, 'Pistola')).toHaveAttribute('data-tone', '4');
+    expect(tagOf(pistola, 'No')).toHaveAttribute('data-tone', 'neutral');
     expect(screen.getByRole('link', { name: 'Nuevo modelo' })).toHaveAttribute('href', '/weapon-models/new');
   });
 
@@ -70,7 +75,44 @@ describe('WeaponModelsPage (specs: Weapon models, Weapon catalogue access)', () 
     expect(sortableColumns(table)).toHaveLength(7);
   });
 
-  it('filters by kind and includes inactive models through the API', async () => {
+  it.each([
+    ['Tipo', [TRABUCO.label, PISTOLA.label]],
+    ['Alquilable', [TRABUCO.label, PISTOLA.label]],
+  ])('sorts the %s tags by the label they show', async (column, descending) => {
+    const user = userEvent.setup();
+    server.use(mock.get('/api/weapon-models', () => HttpResponse.json([PISTOLA, TRABUCO])));
+    await asAdmin('/weapon-models');
+    const table = await screen.findByRole('table', { name: 'Modelos de arma' });
+    await within(table).findByRole('link', { name: TRABUCO.label });
+
+    // Twice for descending: "Trabuco" after "Pistola", "Sí" after "No".
+    await user.click(within(table).getByRole('button', { name: new RegExp(`^${column}`) }));
+    await user.click(within(table).getByRole('button', { name: new RegExp(`^${column}`) }));
+
+    expect(
+      within(table)
+        .getAllByRole('link')
+        .map((link) => link.textContent),
+    ).toEqual(descending);
+  });
+
+  it('lists inactive models by default, asking the API for them', async () => {
+    const queries: string[] = [];
+    server.use(
+      mock.get('/api/weapon-models', ({ request }) => {
+        queries.push(new URL(request.url).search);
+        return HttpResponse.json([TRABUCO, ARCABUZ_RETIRADO]);
+      }),
+    );
+    await asAdmin('/weapon-models');
+
+    await screen.findByRole('link', { name: ARCABUZ_RETIRADO.label });
+    expect(queries).toEqual(['?includeInactive=true']);
+    expect(rowOf(document.body, ARCABUZ_RETIRADO.label)).toHaveTextContent('Inactivo');
+    expect(screen.getByRole('checkbox', { name: 'Solo activos' })).not.toBeChecked();
+  });
+
+  it('filters by kind and to active models only, keeping the filters in the address', async () => {
     const user = userEvent.setup();
     const queries: string[] = [];
     server.use(
@@ -83,15 +125,32 @@ describe('WeaponModelsPage (specs: Weapon models, Weapon catalogue access)', () 
       }),
     );
     const app = await asAdmin('/weapon-models');
-    await screen.findByRole('table', { name: 'Modelos de arma' });
+    await screen.findByRole('link', { name: ARCABUZ_RETIRADO.label });
 
     await user.selectOptions(screen.getByRole('combobox', { name: 'Tipo' }), 'ARCABUZ');
-    await user.click(screen.getByRole('checkbox', { name: 'Incluir inactivos' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Solo activos' }));
 
-    await screen.findByRole('link', { name: ARCABUZ_RETIRADO.label });
-    expect(queries).toContain('?kind=ARCABUZ&includeInactive=true');
-    expect(app.location()).toBe('/weapon-models?kind=ARCABUZ&includeInactive=true');
-    expect(rowOf(document.body, ARCABUZ_RETIRADO.label)).toHaveTextContent('Inactivo');
+    // Active only is the API's default: no flag is sent.
+    await waitFor(() => {
+      expect(queries.at(-1)).toBe('?kind=ARCABUZ');
+    });
+    expect(app.location()).toBe('/weapon-models?kind=ARCABUZ&onlyActive=true');
+    expect(await screen.findByText('Ningún modelo coincide con estos filtros.')).toBeInTheDocument();
+  });
+
+  it('keeps "only active" from the address', async () => {
+    const queries: string[] = [];
+    server.use(
+      mock.get('/api/weapon-models', ({ request }) => {
+        queries.push(new URL(request.url).search);
+        return HttpResponse.json([TRABUCO]);
+      }),
+    );
+    await asAdmin('/weapon-models?onlyActive=true');
+
+    await screen.findByRole('link', { name: TRABUCO.label });
+    expect(queries).toEqual(['']);
+    expect(screen.getByRole('checkbox', { name: 'Solo activos' })).toBeChecked();
   });
 
   it('shows an error, not an empty list, when the catalogue cannot be loaded', async () => {
@@ -248,10 +307,13 @@ describe('WeaponModelDetailPage (specs: Weapon models, Detail pages in read mode
     await asAdmin(`/weapon-models/${PISTOLA.id}`);
 
     const heading = await screen.findByRole('heading', { level: 1, name: PISTOLA.label });
-    expect(heading.closest('header')).toHaveTextContent('Pistola');
+    const header = heading.closest('header');
+    if (!header) throw new Error('No record header');
+    expect(within(header).getByText('Pistola').closest('[data-tag]')).toHaveAttribute('data-tone', '4');
     const data = screen.getByRole('region', { name: 'Modelo de arma' });
     expect(data).toHaveTextContent('Sin indicar');
-    expect(data).toHaveTextContent('No');
+    expect(within(data).getByText('Pistola').closest('[data-tag]')).toBeInTheDocument();
+    expect(within(data).getByText('No').closest('[data-tag]')).toHaveAttribute('data-tone', 'neutral');
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   });
 

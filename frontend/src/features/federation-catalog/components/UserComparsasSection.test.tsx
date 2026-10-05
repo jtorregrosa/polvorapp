@@ -33,6 +33,9 @@ describe('Comparsas section of a user (spec: Managing assignments from the compa
     const table = await within(group).findByRole('table', { name: /^Comparsas de / });
     expect(await within(table).findByText('Comparsa Sintética Oeste')).toBeInTheDocument();
     expect(within(table).getByText('Comparsa Sintética Norte')).toBeInTheDocument();
+    for (const side of within(table).getAllByText(/^(Moro|Cristiano)$/)) {
+      expect(side.closest('[data-tag]')).toBeInTheDocument();
+    }
     const choice = within(group).getByRole('combobox', { name: 'Comparsa que añadir' });
     await waitFor(() => {
       expect(

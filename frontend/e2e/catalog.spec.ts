@@ -234,7 +234,8 @@ test.describe('accessibility of the catalogue pages', () => {
       });
 
       test('weapon models', async ({ page, axeViolations }) => {
-        await page.goto('/weapon-models?includeInactive=true');
+        // Every model, active or not, is listed by default (refine-navigation-and-lists D8).
+        await page.goto('/weapon-models');
         await waitForShell(page);
         await expect(page.getByRole('link', { name: 'PISTOLA', exact: true })).toBeVisible();
         await expectNoHorizontalOverflow(page);

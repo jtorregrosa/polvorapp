@@ -202,6 +202,18 @@ discoverable by keyboard (WCAG 2.1.1, 1.4.13).
 - The checkbox label becomes "Only active".
 - No API change: the default stays "active only" for every other caller (order forms, edition
   rental models), which the spec keeps.
+- *As implemented*: an old `?includeInactive=true` address is ignored and lists every model, the
+  same result as before.
+
+### Review notes (group 4)
+
+- Name columns of the users, comparsas and weapon model tables are row headers, so a bare tag or
+  badge in a cell is announced with its row; stacked rows on phones give each tag and badge its
+  column term for screen readers, and the users' rows also show two-step verification and the
+  last sign-in.
+- Follow-ups outside this change: the Federation logo's retry after a load failure replaces the
+  focused button with a loading text (focus is lost); sides and weapon kinds shown in the
+  arquebusier registry and the statistics are still plain text.
 
 ### D9. i18n keys (es-ES, ca-ES-valencia, en)
 

@@ -87,25 +87,25 @@
 
 ## 4. Screens
 
-- [ ] 4.1 Write `UsersPage` tests: the role as a tag, two-step verification as a status, "never"
+- [x] 4.1 Write `UsersPage` tests: the role as a tag, two-step verification as a status, "never"
   muted, every column sortable. Then implement them. Update `UserDetailPage` to show the same tag
   and status. Verify: the tests and axe pass.
-- [ ] 4.2 Write `ComparsasPage` and `ComparsaDetailPage` tests for the side tag. Then implement it.
+- [x] 4.2 Write `ComparsasPage` and `ComparsaDetailPage` tests for the side tag. Then implement it.
   Verify: the tests pass.
-- [ ] 4.3 Write `WeaponModelsPage` tests (D8):
+- [x] 4.3 Write `WeaponModelsPage` tests (D8):
   - the default request includes inactive models;
   - `?onlyActive=true` sends no flag and is kept in the address;
   - kind, side and rentable shown as tags;
   - the inactive status badge.
 
   Then implement them, and the detail page's tags. Verify: the tests pass.
-- [ ] 4.4 Write `ComparsaLogoSection` and `FederationLogoSection` tests for the picture actions
+- [x] 4.4 Write `ComparsaLogoSection` and `FederationLogoSection` tests for the picture actions
   (Admin: menu with replace and remove, add from the placeholder, removal confirmed; FiringChief:
   no trigger). Then switch `LogoUpload` to `variant="picture"`. Verify: the tests and axe pass.
-- [ ] 4.5 Move the tag labels to `ui:tag.*` and the weapon filter text to
+- [x] 4.5 Move the tag labels to `ui:tag.*` and the weapon filter text to
   `catalog:weaponModels.filters.onlyActive` in the three locales, and remove the unused keys.
   Verify: `npm run check-i18n` and lint pass.
-- [ ] 4.6 Review group 4 in parallel with `react-reviewer` and `a11y-architect`. Fix CRITICAL/HIGH
+- [x] 4.6 Review group 4 in parallel with `react-reviewer` and `a11y-architect`. Fix CRITICAL/HIGH
   findings.
 
 ## 5. End-to-end and verification
