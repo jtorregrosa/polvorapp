@@ -40,29 +40,39 @@ public sealed class NotificationRulesTests
     }
 
     [Theory]
-    [InlineData(8, null)]
-    [InlineData(7, "Week")]
-    [InlineData(2, "Week")]
-    [InlineData(1, "LastDays")]
-    [InlineData(0, "LastDays")]
-    [InlineData(-1, null)]
-    public void The_close_reminder_depends_on_the_days_left(int daysLeft, string? expected)
+    [InlineData(8, 7, null)]
+    [InlineData(7, 7, "Week")]
+    [InlineData(2, 7, "Week")]
+    [InlineData(1, 7, "LastDays")]
+    [InlineData(0, 7, "LastDays")]
+    [InlineData(-1, 7, null)]
+    [InlineData(10, 10, "Week")]
+    [InlineData(11, 10, null)]
+    [InlineData(2, 2, "Week")]
+    [InlineData(3, 2, null)]
+    [InlineData(14, 14, "Week")]
+    public void The_close_reminder_depends_on_the_days_left_and_the_lead_time(int daysLeft, int leadDays, string? expected)
     {
         var today = new DateOnly(2031, 2, 3);
 
-        Assert.Equal(expected, Schedule.CloseReminderFor(today, today.AddDays(daysLeft))?.ToString());
+        Assert.Equal(expected, Schedule.CloseReminderFor(today, today.AddDays(daysLeft), leadDays)?.ToString());
     }
 
     [Theory]
-    [InlineData(-1, false)]
-    [InlineData(0, true)]
-    [InlineData(7, true)]
-    [InlineData(8, false)]
-    public void A_milestone_is_due_from_seven_days_before_until_its_date(int daysAhead, bool due)
+    [InlineData(-1, 7, false)]
+    [InlineData(0, 7, true)]
+    [InlineData(7, 7, true)]
+    [InlineData(8, 7, false)]
+    [InlineData(3, 3, true)]
+    [InlineData(5, 3, false)]
+    [InlineData(1, 1, true)]
+    [InlineData(2, 1, false)]
+    [InlineData(14, 14, true)]
+    public void A_milestone_is_due_from_the_lead_time_before_until_its_date(int daysAhead, int leadDays, bool due)
     {
         var today = new DateOnly(2030, 11, 23);
 
-        Assert.Equal(due, Schedule.IsMilestoneDue(today, today.AddDays(daysAhead)));
+        Assert.Equal(due, Schedule.IsMilestoneDue(today, today.AddDays(daysAhead), leadDays));
     }
 
     [Fact]

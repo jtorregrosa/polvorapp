@@ -4,6 +4,7 @@ using PolvorApp.Api.Platform.Database;
 using PolvorApp.Api.Tests.Infrastructure;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.FederationCatalog.Persistence;
+using PolvorApp.SharedKernel.Email;
 
 namespace PolvorApp.Api.Tests.Catalog;
 
@@ -76,6 +77,15 @@ public sealed class FederationSettingsContractTests(PostgresFixture postgres) : 
         var settings = await scope.ServiceProvider.GetRequiredService<IFederationSettings>().GetAsync(Token);
 
         Assert.Equal(expected, settings.OfficialName(form));
+    }
+
+    [Fact]
+    public async Task Emails_are_sent_with_the_sender_name_and_reply_to_of_the_settings()
+    {
+        await ExecuteAsync("UPDATE catalog.federation_settings SET sender_name = 'Unión Sintética', reply_to = 'secretaria@federacion.example'");
+        var profile = _factory!.Services.GetRequiredService<IEmailSenderProfile>();
+
+        Assert.Equal(new EmailSenderProfile("Unión Sintética", "secretaria@federacion.example"), await profile.GetAsync(Token));
     }
 
     private async Task ExecuteAsync(string sql)

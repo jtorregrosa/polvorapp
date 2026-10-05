@@ -99,4 +99,10 @@ public sealed class MailpitFixture : IAsyncLifetime
 public sealed record MailpitMessage(
     [property: JsonPropertyName("Subject")] string Subject,
     [property: JsonPropertyName("Text")] string Text,
-    [property: JsonPropertyName("HTML")] string Html);
+    [property: JsonPropertyName("HTML")] string Html,
+    [property: JsonPropertyName("From")] MailpitAddress? From = null,
+    [property: JsonPropertyName("ReplyTo")] IReadOnlyList<MailpitAddress>? ReplyTo = null);
+
+public sealed record MailpitAddress(
+    [property: JsonPropertyName("Name")] string Name,
+    [property: JsonPropertyName("Address")] string Address);

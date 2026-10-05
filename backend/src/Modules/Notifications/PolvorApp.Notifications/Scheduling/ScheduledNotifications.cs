@@ -32,6 +32,7 @@ internal sealed partial class ScheduledNotifications(
     IArquebusierFacts registry,
     IEditionDirectory editions,
     IEditionEntries entries,
+    IFederationSettings settings,
     TimeProvider time,
     ILogger<ScheduledNotifications> logger)
 {
@@ -119,7 +120,7 @@ internal sealed partial class ScheduledNotifications(
     private async Task<int> CloseRemindersAsync(DateOnly today, Recipients recipients, DateTimeOffset now, CancellationToken cancellationToken)
     {
         if (await editions.GetCurrentAsync(cancellationToken) is not { OrdersOpen: true, OrdersCloseOn: { } closeOn } edition
-            || Schedule.CloseReminderFor(today, closeOn) is not { } reminder)
+            || Schedule.CloseReminderFor(today, closeOn, (await settings.GetAsync(cancellationToken)).CloseReminderLeadDays) is not { } reminder)
         {
             return 0;
         }
@@ -155,11 +156,12 @@ internal sealed partial class ScheduledNotifications(
         return created;
     }
 
-    /// <summary>Milestones with <c>notify</c> 0 to 7 days ahead (spec: Milestone reminders).</summary>
+    /// <summary>Milestones with <c>notify</c> from 0 days up to the settings' lead time ahead (spec: Milestone reminders).</summary>
     private async Task<int> MilestoneRemindersAsync(DateOnly today, Recipients recipients, DateTimeOffset now, CancellationToken cancellationToken)
     {
         var created = 0;
-        foreach (var milestone in await editions.ListMilestonesToNotifyAsync(today, today.AddDays(Schedule.MilestoneLeadDays), cancellationToken))
+        var leadDays = (await settings.GetAsync(cancellationToken)).MilestoneLeadDays;
+        foreach (var milestone in await editions.ListMilestonesToNotifyAsync(today, today.AddDays(leadDays), cancellationToken))
         {
             var audience = recipients.WithRole(UserRole.Admin, NotificationKind.MilestoneReminder);
             if (Schedule.RemindsFiringChiefs(milestone.EditionStatus))

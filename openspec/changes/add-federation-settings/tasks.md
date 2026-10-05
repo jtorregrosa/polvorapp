@@ -36,10 +36,10 @@
   come from the settings. A changed Valencian name must print. Then pass the names from the
   settings and delete `FederationNames`. Verify: the golden files are unchanged with the default
   settings and the new tests pass.
-- [ ] 3.2 Update the `Schedule` unit tests for parameterised lead times (2..N close window, 0..N
+- [x] 3.2 Update the `Schedule` unit tests for parameterised lead times (2..N close window, 0..N
   milestones), with defaults unchanged. Add notification integration tests for a 10-day close
   lead and a 3-day milestone lead. Then implement them. Verify: the tests pass.
-- [ ] 3.3 Write email sender tests:
+- [x] 3.3 Write email sender tests:
   - the From display name and address;
   - the reply-to only when set;
   - the footer with short name and contact, in three languages.
