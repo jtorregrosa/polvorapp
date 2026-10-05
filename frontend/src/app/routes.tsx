@@ -22,6 +22,7 @@ import { OwnedWeaponFormPage } from '@/features/arquebusier-registry/pages/Owned
 import { ComparsaDetailPage } from '@/features/federation-catalog/pages/ComparsaDetailPage';
 import { ComparsaFormPage } from '@/features/federation-catalog/pages/ComparsaFormPage';
 import { ComparsasPage } from '@/features/federation-catalog/pages/ComparsasPage';
+import { SettingsPage } from '@/features/federation-catalog/pages/SettingsPage';
 import { WeaponModelDetailPage } from '@/features/federation-catalog/pages/WeaponModelDetailPage';
 import { WeaponModelFormPage } from '@/features/federation-catalog/pages/WeaponModelFormPage';
 import { WeaponModelsPage } from '@/features/federation-catalog/pages/WeaponModelsPage';
@@ -198,6 +199,11 @@ export const appRoutes: RouteObject[] = [
                     path: 'privacy',
                     Component: PrivacyRequestsPage,
                     handle: { breadcrumb: 'nav.privacy' } satisfies RouteHandle,
+                  },
+                  {
+                    path: 'settings',
+                    Component: SettingsPage,
+                    handle: { breadcrumb: 'nav.settings' } satisfies RouteHandle,
                   },
                   {
                     path: 'audit-log',

@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import {
-  getGetFederationQueryKey,
   useGetFederation,
   useRemoveFederationLogo,
   useUploadFederationLogo,
@@ -8,15 +7,15 @@ import {
 import type { FederationResponse } from '@/api/generated/model';
 import { SectionCard } from '@/components/app/SectionCard';
 import { LoadFailure } from '@/features/arquebusier-registry/components/LoadFailure';
-import { useInvalidate } from '@/lib/use-invalidate';
 import { federationLogoUrl } from '../logos';
 import { LogoUpload } from './LogoUpload';
+import { useSettingsRefresh } from './useSaveSettings';
 
 /** Answers that mean the section shows an outdated logo: it is refreshed as well as told. */
 const STALE = new Set(['logos.notFound']);
 
 /**
- * Spec "Federation logo" for Admins, on the comparsas page: add, replace and remove the logo printed
+ * Spec "Federation logo" for Admins, on the Settings page: add, replace and remove the logo printed
  * on the Federation's documents. It is uploaded at run time and never part of the repository.
  */
 export function FederationLogoSection() {
@@ -24,7 +23,8 @@ export function FederationLogoSection() {
   const settings = useGetFederation();
   const { mutateAsync: upload } = useUploadFederationLogo();
   const { mutateAsync: remove } = useRemoveFederationLogo();
-  const refresh = useInvalidate([getGetFederationQueryKey()]);
+  // A logo change also changes the settings' version: both are reloaded.
+  const refresh = useSettingsRefresh();
   const logo = (settings.data?.data as FederationResponse | undefined)?.logo;
 
   const content = () => {

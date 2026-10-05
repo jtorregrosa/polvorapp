@@ -8,7 +8,13 @@ import { problem, renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN, SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
-import { LOGO, NORTE } from '../test-data';
+import { LOGO, NORTE, SETTINGS } from '../test-data';
+
+const FEDERATION_NAMES = {
+  officialNameEs: SETTINGS.identity.officialNameEs,
+  officialNameCa: SETTINGS.identity.officialNameCa,
+  shortName: SETTINGS.identity.shortName,
+};
 
 // jsdom cannot decode images or draw on a canvas: the browser image work is replaced.
 vi.mock('@/components/app/photo-image', async (importOriginal) => ({
@@ -28,7 +34,8 @@ function federation(initial: ComparsaLogoResponse | null) {
   let logo = initial;
   server.use(
     mock.get('/api/comparsas', () => HttpResponse.json([NORTE])),
-    mock.get('/api/federation', () => HttpResponse.json({ logo })),
+    mock.get('/api/federation', () => HttpResponse.json({ ...FEDERATION_NAMES, logo })),
+    mock.get('/api/federation-settings', () => HttpResponse.json(SETTINGS)),
   );
   return {
     setLogo: (next: ComparsaLogoResponse | null) => {
@@ -60,9 +67,9 @@ function chooseLogo(section: HTMLElement) {
   });
 }
 
-/** The page's Federation logo section, once the page and the logo state have loaded. */
+/** The Settings page's Federation logo section, once the page and the logo state have loaded. */
 async function federationSection(name = 'Logo de la Federación'): Promise<HTMLElement> {
-  await screen.findByRole('table', { name: /Comparsas/ }, { timeout: 5000 });
+  await screen.findByRole('heading', { level: 1, name: /Ajustes|Settings/ }, { timeout: 5000 });
   const section = await screen.findByRole('region', { name });
   await waitFor(
     () => {
@@ -86,7 +93,7 @@ async function logoAction(
   await user.click(await screen.findByRole('menuitem', { name: action }));
 }
 
-describe('Federation logo on the comparsas page (spec: Federation logo)', () => {
+describe('Federation logo on the Settings page (spec: Federation logo)', () => {
   beforeEach(() => {
     vi.mocked(loadImage).mockResolvedValue({ url: 'blob:logo', width: 800, height: 400 });
     vi.mocked(cropImage).mockResolvedValue(PNG);
@@ -97,18 +104,22 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
     vi.restoreAllMocks();
   });
 
-  it('is not offered to a FiringChief, nor asked for', async () => {
+  it('is no longer on the comparsas page, and a FiringChief neither gets it nor asks for it', async () => {
     let requests = 0;
     server.use(
       mock.get('/api/comparsas', () => HttpResponse.json([NORTE])),
       mock.get('/api/federation', () => {
         requests++;
-        return HttpResponse.json({ logo: LOGO });
+        return HttpResponse.json({ ...FEDERATION_NAMES, logo: LOGO });
       }),
     );
-    await renderApp('/comparsas', { session: SYNTHETIC_FIRING_CHIEF });
-
+    await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
     await screen.findByRole('table', { name: 'Comparsas' });
+    expect(screen.queryByRole('region', { name: 'Logo de la Federación' })).not.toBeInTheDocument();
+
+    await renderApp('/settings', { session: SYNTHETIC_FIRING_CHIEF });
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Acceso no permitido' })).toBeInTheDocument();
     expect(screen.queryByRole('region', { name: 'Logo de la Federación' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /logo de la Federación/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /, opciones$/ })).not.toBeInTheDocument();
@@ -117,7 +128,7 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
 
   it('says what the logo is for and offers an Admin to add it', async () => {
     federation(null);
-    await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
+    await renderApp('/settings', { session: SYNTHETIC_ADMIN });
 
     const section = await federationSection();
     expect(within(section).getByText(/formulario de autorización de recogida/)).toBeInTheDocument();
@@ -133,7 +144,7 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
       api.setLogo(NEW_LOGO);
       return uploaded();
     });
-    await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
+    await renderApp('/settings', { session: SYNTHETIC_ADMIN });
     const section = await federationSection();
     await within(section).findByRole('button', { name: 'Añadir logo de la Federación' });
 
@@ -163,7 +174,7 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
       api.setLogo(NEW_LOGO);
       return uploaded();
     });
-    await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
+    await renderApp('/settings', { session: SYNTHETIC_ADMIN });
     const section = await federationSection();
     await within(section).findByRole('button', { name: 'Logo de la Federación, opciones' });
 
@@ -183,7 +194,7 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
     vi.mocked(loadImage).mockResolvedValue({ url: 'blob:small', width: 200, height: 150 });
     federation(null);
     const uploads = interceptUploads(() => new HttpResponse(null, { status: 500 }));
-    await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
+    await renderApp('/settings', { session: SYNTHETIC_ADMIN });
     const section = await federationSection();
     await within(section).findByRole('button', { name: 'Añadir logo de la Federación' });
 
@@ -201,7 +212,7 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
     const user = userEvent.setup();
     federation(null);
     interceptUploads(() => problem(status, code, extra));
-    await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
+    await renderApp('/settings', { session: SYNTHETIC_ADMIN });
     const section = await federationSection();
     await within(section).findByRole('button', { name: 'Añadir logo de la Federación' });
 
@@ -223,7 +234,7 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
         return new HttpResponse(null, { status: 204 });
       }),
     );
-    await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
+    await renderApp('/settings', { session: SYNTHETIC_ADMIN });
     const section = await federationSection();
 
     await logoAction(user, section, 'Quitar');
@@ -251,14 +262,17 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
     server.use(
       mock.get('/api/comparsas', () => HttpResponse.json([NORTE])),
       mock.get('/api/federation', () =>
-        failRefresh ? problem(503, 'storage.unavailable') : HttpResponse.json({ logo: null }),
+        failRefresh
+          ? problem(503, 'storage.unavailable')
+          : HttpResponse.json({ ...FEDERATION_NAMES, logo: null }),
       ),
+      mock.get('/api/federation-settings', () => HttpResponse.json(SETTINGS)),
     );
     interceptUploads(() => {
       failRefresh = true;
       return uploaded();
     });
-    await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
+    await renderApp('/settings', { session: SYNTHETIC_ADMIN });
     const section = await federationSection();
     await within(section).findByRole('button', { name: 'Añadir logo de la Federación' });
 
@@ -279,7 +293,7 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
         return problem(404, 'logos.notFound');
       }),
     );
-    await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
+    await renderApp('/settings', { session: SYNTHETIC_ADMIN });
     const section = await federationSection();
 
     await logoAction(user, section, 'Quitar');
@@ -297,8 +311,9 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
     server.use(
       mock.get('/api/comparsas', () => HttpResponse.json([NORTE])),
       mock.get('/api/federation', () => problem(503, 'storage.unavailable')),
+      mock.get('/api/federation-settings', () => HttpResponse.json(SETTINGS)),
     );
-    await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
+    await renderApp('/settings', { session: SYNTHETIC_ADMIN });
 
     const section = await federationSection();
     expect(await within(section).findByRole('alert')).toHaveTextContent(
@@ -307,7 +322,7 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
     expect(within(section).queryByRole('button', { name: /logo de la Federación/ })).not.toBeInTheDocument();
     expect(within(section).queryByRole('button', { name: /, opciones$/ })).not.toBeInTheDocument();
 
-    server.use(mock.get('/api/federation', () => HttpResponse.json({ logo: null })));
+    server.use(mock.get('/api/federation', () => HttpResponse.json({ ...FEDERATION_NAMES, logo: null })));
     await userEvent.setup().click(within(section).getByRole('button', { name: 'Reintentar' }));
 
     expect(
@@ -317,7 +332,7 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
 
   it('speaks English', async () => {
     federation(null);
-    await renderApp('/comparsas', { session: SYNTHETIC_ADMIN, language: 'en' });
+    await renderApp('/settings', { session: SYNTHETIC_ADMIN, language: 'en' });
 
     const section = await federationSection('Federation logo');
     expect(await within(section).findByRole('button', { name: 'Add Federation logo' })).toBeInTheDocument();
@@ -325,7 +340,7 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
 
   it('has no automatically detectable accessibility violations', async () => {
     federation(LOGO);
-    const { container } = await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
+    const { container } = await renderApp('/settings', { session: SYNTHETIC_ADMIN });
     const section = await federationSection();
     await within(section).findByRole('button', { name: 'Logo de la Federación, opciones' });
 

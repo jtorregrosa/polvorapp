@@ -19,7 +19,6 @@ import { useSession } from '@/features/identity-access/session';
 import { knownFilter, withFilter } from '@/lib/search-filters';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { useNotice } from '@/lib/notices';
-import { FederationLogoSection } from '../components/FederationLogoSection';
 import { logoUrl } from '../logos';
 import { problemMessage } from '../problems';
 
@@ -171,7 +170,6 @@ export function ComparsasPage() {
           emptyText={t('comparsas.empty.description')}
         />
       )}
-      {isAdmin && <FederationLogoSection />}
     </>
   );
 }

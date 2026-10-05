@@ -8,6 +8,7 @@ import {
   House,
   IdCard,
   ScrollText,
+  Settings,
   ShieldCheck,
   Truck,
   Users,
@@ -73,6 +74,7 @@ export const NAVIGATION: readonly NavigationEntry[] = [
     roles: ['ADMIN'],
   },
   { to: '/privacy', section: 'administration', labelKey: 'nav.privacy', icon: ShieldCheck, roles: ['ADMIN'] },
+  { to: '/settings', section: 'administration', labelKey: 'nav.settings', icon: Settings, roles: ['ADMIN'] },
 ];
 
 /** The entries a user with `role` sees (none of the role-restricted ones without a role). */

@@ -90,6 +90,74 @@
       "removed": "Logo quitado"
     }
   },
+  "settings": {
+    "title": "Ajustes",
+    "description": "Datos de la Unión de Comparsas que usan los documentos, los correos y los recordatorios. Cada sección se guarda por separado.",
+    "loading": "Cargando los ajustes…",
+    "loadFailed": "No se han podido cargar los ajustes.",
+    "staleFailed": "No se han podido actualizar los ajustes: puede que lo que ves no esté al día.",
+    "days_one": "{{count}} día",
+    "days_other": "{{count}} días",
+    "daysBefore_one": "{{count}} día antes",
+    "daysBefore_other": "{{count}} días antes",
+    "identity": {
+      "title": "Identidad",
+      "name": "la identidad",
+      "edit": "Editar la identidad",
+      "usedIn": "El nombre oficial se imprime en las acreditaciones y en la autorización de recogida; el nombre corto y el contacto aparecen al final de los avisos por correo.",
+      "officialNameEs": "Nombre oficial en castellano",
+      "officialNameCa": "Nombre oficial en valenciano",
+      "shortName": "Nombre corto",
+      "shortNameHint": "Por ejemplo, «Unión de Comparsas».",
+      "contactEmail": "Correo de contacto",
+      "website": "Sitio web",
+      "websiteHint": "Una dirección https completa, por ejemplo https://www.ejemplo.org.",
+      "federationOnly": "El correo y la web deben ser los de la Unión, nunca los de una persona: se envían en cada aviso."
+    },
+    "emails": {
+      "title": "Correos",
+      "name": "los correos",
+      "edit": "Editar los correos",
+      "usedIn": "Se usan en todos los correos de PolvorApp: avisos, invitaciones y cambios de contraseña.",
+      "sender": "Remitente",
+      "senderLine": "{{name}} <{{address}}>",
+      "senderName": "Nombre del remitente",
+      "senderNameHint": "Se muestra junto a la dirección {{address}}, que se configura en el servidor.",
+      "replyTo": "Responder a",
+      "replyToHint": "Las respuestas a los correos llegarán a esta dirección. Sin ella, van a la dirección del remitente."
+    },
+    "orders": {
+      "title": "Pedidos",
+      "name": "los pedidos",
+      "edit": "Editar los pedidos",
+      "usedIn": "Cuándo reciben los jefes de disparo el primer recordatorio del cierre de pedidos.",
+      "closeReminderLeadDays": "Primer recordatorio de cierre",
+      "closeReminderHint": "Se envía una vez entre ese día y dos días antes del cierre previsto. Si lo adelantas, puede enviarse un recordatorio antes de lo previsto."
+    },
+    "calendar": {
+      "title": "Calendario",
+      "name": "el calendario",
+      "edit": "Editar el calendario",
+      "usedIn": "Cuándo se avisa de los hitos del calendario que tienen el aviso activado.",
+      "milestoneLeadDays": "Recordatorio de hitos"
+    },
+    "validation": {
+      "tooLong40": "40 caracteres como máximo.",
+      "tooLong80": "80 caracteres como máximo.",
+      "tooLong150": "150 caracteres como máximo.",
+      "tooLong200": "200 caracteres como máximo.",
+      "tooLong254": "254 caracteres como máximo.",
+      "email": "Escribe una dirección de correo completa, como info@ejemplo.org.",
+      "website": "Escribe una dirección https completa, sin espacios ni comillas, como https://www.ejemplo.org.",
+      "senderName": "El nombre no puede contener <, >, \" ni @.",
+      "outOfRange": "Elige uno de los valores de la lista."
+    },
+    "errors": {
+      "modified": "Otra persona ha cambiado los ajustes mientras editabas. Revisa los valores actuales y vuelve a guardar.",
+      "busy": "Los ajustes se están guardando desde otra sesión. Inténtalo de nuevo en unos segundos.",
+      "tooManyRequests": "Has guardado demasiados cambios seguidos. Espera un minuto y vuelve a intentarlo."
+    }
+  },
   "firingChiefs": {
     "title": "Jefes de disparo",
     "description": "Usuarios que gestionan esta comparsa. Solo ven las comparsas que tienen asignadas.",

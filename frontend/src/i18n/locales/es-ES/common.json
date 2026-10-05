@@ -46,7 +46,8 @@
     "warningCount_one": "{{count}} con aviso",
     "warningCount_other": "{{count}} con avisos",
     "auditLog": "Auditoría",
-    "privacy": "Privacidad"
+    "privacy": "Privacidad",
+    "settings": "Ajustes"
   },
   "forbidden": {
     "title": "Acceso no permitido",
