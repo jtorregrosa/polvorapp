@@ -5,8 +5,9 @@
 #                                          .NET 10 SDK and Node 24, which the image lacks
 #   bash scripts/cloud-setup.sh --session  the SessionStart hook (.claude/settings.json): the same,
 #                                          then puts Node 24 first on PATH for the session, starts
-#                                          dockerd (Testcontainers, docker compose) and installs the
-#                                          frontend dependencies
+#                                          dockerd (Testcontainers, docker compose), prepares the
+#                                          compose stack for the proxy and the E2E suite, and
+#                                          installs the frontend dependencies
 #
 # Every step is idempotent and skips what is already there. Outside a cloud session (no
 # CLAUDE_CODE_REMOTE=true) the hook does nothing, so local sessions are untouched.
@@ -57,15 +58,53 @@ ensure_node() {
   $SUDO tar -xJf "/tmp/$tarball" -C "$NODE_DIR" --strip-components=1
 }
 
-# The image puts Node 22 first on PATH; the session's later commands read CLAUDE_ENV_FILE.
-use_node_for_session() {
-  export PATH="$NODE_DIR/bin:$PATH" DOTNET_ROOT="$DOTNET_DIR"
+# The session's later commands read CLAUDE_ENV_FILE.
+export_for_session() {
+  export "$1=$2"
   if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
-    {
-      echo "export PATH=\"$NODE_DIR/bin:\$PATH\""
-      echo "export DOTNET_ROOT=\"$DOTNET_DIR\""
-    } >> "$CLAUDE_ENV_FILE"
+    echo "export $1=\"$2\"" >> "$CLAUDE_ENV_FILE"
   fi
+}
+
+# The image puts Node 22 first on PATH; the session's PATH is expanded when the file is read.
+use_node_for_session() {
+  export PATH="$NODE_DIR/bin:$PATH"
+  if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
+    echo "export PATH=\"$NODE_DIR/bin:\$PATH\"" >> "$CLAUDE_ENV_FILE"
+  fi
+  export_for_session DOTNET_ROOT "$DOTNET_DIR"
+}
+
+# The proxy inspects TLS, also from containers: every docker compose command of the session adds
+# compose.cloud.yaml, which hands the proxy's CA bundle to the image builds.
+use_proxy_ca_for_compose() {
+  local bundle="${PROXY_CA_BUNDLE:-/root/.ccr/ca-bundle.crt}"
+  if [ ! -f "$bundle" ]; then
+    log "no proxy CA bundle at $bundle; image builds use the default trust store"
+    return
+  fi
+  export_for_session PROXY_CA_BUNDLE "$bundle"
+  export_for_session COMPOSE_FILE "$ROOT/compose.yaml:$ROOT/compose.cloud.yaml"
+}
+
+# The settings of CI's E2E job: .env.example, raised rate limits and the Scenarios dataset the
+# specs rely on. An existing .env is left alone.
+ensure_env_file() {
+  [ -f "$ROOT/.env" ] && return
+  log "creating .env from .env.example with the E2E settings"
+  {
+    sed 's/^SEED_DATASET=.*/SEED_DATASET=Scenarios/' "$ROOT/.env.example"
+    echo
+    echo "# Added by scripts/cloud-setup.sh: the settings of CI's E2E job."
+    echo "RATE_LIMIT_AUTH_PER_MINUTE=300"
+    echo "RATE_LIMIT_AUTH_EMAIL_PER_15_MINUTES=100"
+    echo "RATE_LIMIT_PERSONAL_DATA_WRITES_PER_MINUTE=600"
+    echo "RATE_LIMIT_IMAGE_UPLOADS_PER_MINUTE=200"
+    echo "RATE_LIMIT_SPREADSHEET_IMPORTS_PER_MINUTE=100"
+    echo "RATE_LIMIT_EXPORTS_PER_MINUTE=300"
+    echo "RATE_LIMIT_PRIVACY_PER_MINUTE=100"
+    echo "NOTIFICATIONS_DISPATCH_INTERVAL_SECONDS=2"
+  } > "$ROOT/.env"
 }
 
 ensure_dockerd() {
@@ -97,6 +136,8 @@ ensure_dotnet
 ensure_node
 if $SESSION; then
   use_node_for_session
+  use_proxy_ca_for_compose
+  ensure_env_file
   ensure_dockerd
   ensure_frontend_dependencies
 fi

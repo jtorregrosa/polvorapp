@@ -331,21 +331,38 @@ only acts when `CLAUDE_CODE_REMOTE=true`. In the cloud the hook:
   missing;
 - puts that Node first on `PATH` for the session;
 - starts `dockerd`, which the VM does not run at boot (Testcontainers and `docker compose` need it);
+- sets `COMPOSE_FILE` so every `docker compose` command adds `compose.cloud.yaml`. The session's
+  proxy inspects TLS, also from containers: that file hands the proxy's CA bundle
+  (`PROXY_CA_BUNDLE`) to the image builds as the `proxy_ca` build secret, which both Dockerfiles
+  trust for their downloads when it is present. It never enters an image layer, and builds without
+  it (locally, CI) are unchanged;
+- creates `.env` from `.env.example` with the settings of CI's E2E job (raised rate limits, short
+  notification interval, the `Scenarios` dataset), unless `.env` exists;
 - runs `npm ci` in `frontend/` whenever the lockfile changed.
 
 Set up the cloud environment once:
 
 1. **Network access:** *Custom*, keeping the defaults, plus `cgr.dev`, `*.cgr.dev` (MinIO image)
-   and `builds.dotnet.microsoft.com` (.NET SDK). For Playwright browsers also add
-   `cdn.playwright.dev` and `playwright.download.prss.microsoft.com`.
+   and `builds.dotnet.microsoft.com` (.NET SDK).
 2. **Environment variables:** `BASH_DEFAULT_TIMEOUT_MS=600000` and `BASH_MAX_TIMEOUT_MS=3600000`,
    because the backend suite takes about 25 minutes. Never put secrets here: everyone using the
    environment can read them.
 3. **Setup script:** `bash scripts/cloud-setup.sh`. It installs the SDKs into the environment's
    cache, so later sessions start faster.
 
-Containers do not survive between sessions. Start and seed the stack in each session
-(`docker compose up -d --wait`, then `docker compose run --rm api-seed`).
+Containers do not survive between sessions. Start and seed the stack in each session, then run the
+E2E suite with `npm run e2e:cloud`:
+
+```bash
+docker compose up -d --build --wait
+docker compose run --rm api-seed
+cd frontend && npm run e2e:cloud
+```
+
+`playwright.cloud.config.ts` runs the Chromium projects on the image's own Chromium
+(`$PLAYWRIGHT_BROWSERS_PATH/chromium`), with no browser download. That build is older than
+Playwright's, so it also leaves `select.spec.ts` (the customizable select's keyboard) to CI, which
+runs it together with the Firefox and WebKit projects.
 
 ## Backend
 
