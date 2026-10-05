@@ -134,33 +134,102 @@ backend changes run `docker compose --profile seed build api-seed` first.
 
 Seeding runs only in `Development`, `Staging` and `Testing` and never uses real data (SEC-11).
 Outside `Development` and `Testing` each seeder first refuses a database that holds anything it
-would not have created (users, comparsas, weapon models, assignments, arquebusiers, editions or orders), so staging never mixes
-synthetic and real data (NFR-13).
-Each module registers its own `IDataSeeder`; randomness derives from `SyntheticData.RandomSeed`,
-so every run produces the same data. Seeding is not transactional: after a failed run, reset the
-database (`docker compose down -v`) and seed again.
+would not have created (users, comparsas, weapon models, assignments, arquebusiers, editions or
+orders), so staging never mixes synthetic and real data (NFR-13). Each module registers its own
+`IDataSeeder`; randomness derives from `SyntheticData.RandomSeed`, so every run produces the same
+data. Seeding is not transactional: after a failed run, reset the database
+(`docker compose down -v`) and seed again.
 
-The catalogue seed adds fictional comparsas and a weapon catalogue; real comparsas and models are
-entered by an Admin in production:
+Everything in the seed is invented or generated (`realistic-seed-data`). The comparsa names are
+plausible festival names, but none belongs to San Vicente del Raspeig. People's names are
+combinations from Alicante frequency lists, so any match with a real person is coincidental. DNI/NIE
+come from ranges with no evidence of use (`99xxxxxx`, `Z9xxxxxx`), emails use the reserved
+`polvorapp.example` domain, and phones are Spanish mobiles that PolvorApp never calls or messages.
 
-| Comparsa | Side | State | FiringChiefs |
-|---|---|---|---|
-| Comparsa Sintética Norte | Christian | active | Jefe Sintético Uno, Jefa Sintética Dos |
-| Comparsa Sintética Sur | Moorish | active | Jefe Sintético Uno |
-| Comparsa Sintética Este | Christian | active | — |
-| Comparsa Sintética Oeste | Moorish | inactive | — |
+#### Datasets
+
+`Seed__Dataset` (compose: `SEED_DATASET`, default `Full`) chooses what is created:
+
+| Dataset | What | Used by |
+|---|---|---|
+| `Scenarios` | the fixed cases below: 4 comparsas, 5 users, 14 arquebusiers, 4 orders | backend tests, CI's E2E job, `dotnet run … seed` without the setting |
+| `Full` | the scenarios plus 16 comparsas with one FiringChief each, about 450 arquebusiers with photos, and their orders; about a minute | `docker compose run --rm api-seed`, staging |
+
+Running `Full` after `Scenarios` adds the population. Going back from `Full` to `Scenarios` needs a
+reset (`docker compose down -v`), because seeded rows are never removed.
+
+#### Comparsas and users
+
+The catalogue seed adds invented comparsas and a weapon catalogue; real comparsas and models are
+entered by an Admin in production. The scenarios:
+
+| Comparsa | Side | State | FiringChiefs | Logo |
+|---|---|---|---|---|
+| Cruzados | Christian | active | Joan Moltó Sala, Elena Verdú Ivorra | dark (needs the light tile) |
+| Abencerrajes | Moorish | active | Joan Moltó Sala | none |
+| Hospitalarios | Christian | active | — | yes |
+| Zegríes | Moorish | inactive | — | yes |
+
+The full dataset adds Tercios, Ballesteros, Corsarios, Labradores, Mozárabes, Caballeros de Sant
+Jordi, Almirantes and Guardia del Rey (Christian), and Almohades, Nazaríes, Mudéjares, Bereberes,
+Beduinos, Kábilas, Califas and Sarracenos (Moorish). Each has its own generated FiringChief, who
+signs in like the seeded users below.
 
 Weapon models: trabuco (Christian) and arcabuz (Moorish) in every handedness and size, one of them
 inactive ("ARCABUZ MORO ZURDO (PEQUEÑO)"), plus a non-rentable "PISTOLA" without attributes.
 
-The registry seed adds 14 fictional arquebusiers ("Arcabucero Sintético Uno" … "Arcabucera
-Sintética Catorce"): six in Norte, four in Sur, three in Este and one in the inactive Oeste. Their DNI/NIE are valid but built
-from very low numbers unlikely to be in use (`00000001R`, `X0000005M`…), their emails use `@polvorapp.example`, and
-their license dates are relative to the seed date, so the mix stays the same over time: active and
-reserve, AE and A-PROF licenses that are valid, expired or pending, no license, course done and not
-done. Five owned weapons (guides `SINT-0001` … `SINT-0005`) cover a trabuco, arcabuces, a pistol and
-one weapon of the inactive model. Their phones (`+34 600 000 0NN`) are in the Spanish mobile range,
-which has no reserved fictional numbers: PolvorApp never calls or messages them.
+#### Arquebusiers
+
+The scenario arquebusiers. License dates are relative to the seed date, so the mix stays the same
+over time: active and reserve, AE and A-PROF licenses that are valid, expiring, expired or pending,
+no license, course done and not done.
+
+| # | Name | DNI/NIE | Comparsa |
+|---|---|---|---|
+| 1 | Vicent Sempere Llorens | 99000001 | Cruzados |
+| 2 | Amparo Pastor Gomis | 99000002 | Cruzados |
+| 3 | Pau Alberola Navarro | 99000003 | Cruzados |
+| 4 | Remedios Lledó Pérez (reserve) | 99000004 | Cruzados |
+| 5 | Youssef El Amrani | Z9000005 | Cruzados |
+| 6 | Mari Carmen Ferrándiz Soler | 99000006 | Abencerrajes |
+| 7 | Josep Ramon Candela Martínez | 99000007 | Abencerrajes |
+| 8 | Pepa Mira Carbonell (reserve) | 99000008 | Abencerrajes |
+| 9 | Toni Baeza Ripoll | 99000009 | Abencerrajes |
+| 10 | Ioana Popescu | Z9000010 | Hospitalarios |
+| 11 | Rafael Climent Esteve | 99000011 | Hospitalarios |
+| 12 | Àlex Beltrà Riquelme (reserve) | 99000012 | Hospitalarios |
+| 13 | Francisco Asensi Mollà (reserve) | 99000013 | Zegríes |
+| 14 | Laia Sempere Pastor (16, four warnings) | 99000014 | Cruzados |
+
+Five owned weapons (guides `GP-000001` … `GP-000005`) cover a trabuco, arcabuces, a pistol and one
+weapon of the inactive model. The full dataset adds 15–40 people per added comparsa, with ages of
+16–75, licenses and courses consistent with the age, owned weapons of their side, and a minority
+showing each compliance warning.
+
+#### Images
+
+The ID photos and comparsa logos are committed generated images in `backend/synthetic-data/` (see
+its `NOTICE.md`), copied to the API's output as `SyntheticData/`:
+
+- **Faces.** 400 faces of people who do not exist, matched to each arquebusier's gender and age.
+- **Emblems.** 19 invented heraldic emblems without text.
+- **License photos.** Drawn as specimens from the arquebusier's own data, with a "MUESTRA – SIN
+  VALIDEZ" watermark.
+
+To regenerate the images (Z-Image Turbo through Runpod's public endpoint, about USD 0.005 an image),
+run `npm ci` in `frontend/` once, set `RUNPOD_API_KEY` and run:
+
+```bash
+node scripts/generate-seed-images.mjs --kind faces --dry-run   # prompts only, nothing is paid
+node scripts/generate-seed-images.mjs --kind logos
+```
+
+Raw outputs are cached in the git-ignored `seed-assets/raw/`; delete a cached file to generate that
+image again. The script replaces the committed folder only when every image succeeded. Before
+committing, review new emblems by eye (no text, no likeness to a real emblem) and spot-check new faces
+(ID-photo framing, no likeness to a known person); regenerate any doubtful one with another seed.
+
+#### Editions
 
 The edition seed (`add-festival-editions`) adds three festival editions. Their dates are relative
 to the seed date:
@@ -173,24 +242,32 @@ to the seed date:
 
 All three have the same invented prices (48.00 € per kg of powder, 3.75 € a caps box, 25.00 € a
 weapon rental, 5.00 € a flask rental). They also offer the seeded trabucos and active arcabuces
-for rental. The current edition has four synthetic milestones and the closed one has one.
+for rental, except the left-handed trabucos. The current edition has four milestones ("Convocatoria
+de licencias", "Curso de formación", …) and the closed one has one.
 
-The order seed (`add-comparsa-orders`) adds four comparsa orders, copying names, DNI/NIE and
-weapons from the seeded registry:
+#### Orders
+
+The order seed (`add-comparsa-orders`) adds four scenario orders, copying names, DNI/NIE and weapons
+from the seeded registry:
 
 | Edition | Comparsa | Status | Entries |
 |---|---|---|---|
-| Last year's | Norte | Validated | arquebusiers Uno, Dos and Cuatro (reserve), plus one entry of "Arcabucero Sintético Histórico", no longer in the registry |
-| Last year's | Sur | Validated | Seis, Siete and Ocho (reserve) |
-| Current | Norte | Submitted (attested by Jefa Sintética Dos) | Uno to Cinco and Catorce |
-| Current | Sur | Draft | Seis, Siete and Ocho; Nueve is "not in the order" |
-| Current | Este | not prepared | — |
+| Last year's | Cruzados | Validated | arquebusiers 1, 2 and 4 (reserve), plus one entry of "Manuel Cerdà Boix", no longer in the registry |
+| Last year's | Abencerrajes | Validated | 6, 7 and 8 (reserve) |
+| Current | Cruzados | Submitted (attested by Elena Verdú Ivorra) | 1 to 5 and 14 |
+| Current | Abencerrajes | Draft | 6, 7 and 8; 9 is "not in the order" |
+| Current | Hospitalarios | not prepared | — |
 
 Together they cover every weapon source (owned, rental, loan, none), every flask option and both
-caps types, reserve entries, an active entry without powder (Dos, a shooter) and one without a
-weapon (Tres, a powder carrier). Cinco borrows Seis's owned weapon, from Sur; Catorce borrows from
-an external owner ("Propietaria Externa Sintética", DNI `00000092T`, guide `SINT-EXT-0001`). Tres,
-Cinco and Catorce have no active entry last year, so they show as first year.
+caps types, reserve entries, an active entry without powder (2, a shooter) and one without a weapon
+(3, a powder carrier). 5 borrows 6's owned weapon, from Abencerrajes; 14 borrows from an external
+owner ("Rosa Maria Agulló Vidal", DNI `99000092`, guide `GP-000092`). 3, 5 and 14 have no active
+entry last year, so they show as first year.
+
+The full dataset adds, for each added comparsa, a validated order of last year and, in the current
+edition, 4 drafts, 5 submitted, 2 returned (with a reason) and 3 validated orders, with 2 comparsas
+not prepared. Every order leaves one or two arquebusiers out. Reserves carry nothing; owners use their
+weapon; the others rent the offered model of their side or borrow a team-mate's weapon.
 
 The registry is seeded unlocked. Seeded dates are never refreshed: on a database seeded weeks ago,
 the current edition's order window may already have passed. Reset the database
@@ -202,11 +279,14 @@ The seed creates synthetic users on the reserved `.example` domain (never real p
 
 | Email | Role | State |
 |---|---|---|
-| `admin@polvorapp.example` | Admin | active |
-| `jefe.uno@polvorapp.example` | FiringChief of Norte and Sur | active |
-| `jefa.dos@polvorapp.example` | FiringChief of Norte | active |
-| `invitada@polvorapp.example` | FiringChief | invited |
-| `desactivada@polvorapp.example` | FiringChief | deactivated |
+| `admin@polvorapp.example` (Inma Ruiz Bernabeu) | Admin | active |
+| `jefe.uno@polvorapp.example` (Joan Moltó Sala) | FiringChief of Cruzados and Abencerrajes | active |
+| `jefa.dos@polvorapp.example` (Elena Verdú Ivorra) | FiringChief of Cruzados | active |
+| `invitada@polvorapp.example` (Sílvia Mora Castelló) | FiringChief | invited |
+| `desactivada@polvorapp.example` (Jaume Cortés Puig) | FiringChief | deactivated |
+
+The full dataset's FiringChiefs (one per added comparsa) use `nombre.apellido@polvorapp.example`
+addresses; list them on the users page.
 
 Every active user signs in with `SEED_USER_PASSWORD` and a code from an authenticator app set up
 with `SEED_AUTHENTICATOR_KEY` (both in `.env`; the published placeholders work only in
