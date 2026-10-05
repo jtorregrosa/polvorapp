@@ -61,7 +61,7 @@
   - the current entry on `/editions/:id/orders`, `/exports` and `/distribution`.
 
   Then add `section` to `NavigationEntry` and render the groups. Verify: the tests and axe pass.
-- [ ] 3.2 Write tests for the icon rail (D1):
+- [x] 3.2 Write tests for the icon rail (D1):
   - the trigger collapses to icons;
   - each entry keeps its accessible name;
   - the tooltip shows on focus;
@@ -73,14 +73,14 @@
 
   Then switch to `collapsible="icon"` with the local edits in `sidebar.tsx`. Verify: the tests and
   axe pass in both themes.
-- [ ] 3.3 Write tests for the remembered state (D2): the state is restored after a remount, and a
+- [x] 3.3 Write tests for the remembered state (D2): the state is restored after a remount, and a
   throwing `localStorage` falls back to expanded. Then implement it. Verify: the tests pass.
-- [ ] 3.4 Update `motion.test.ts` for the sidebar exception (D3): the tokenised width transition
+- [x] 3.4 Update `motion.test.ts` for the sidebar exception (D3): the tokenised width transition
   only in the allow-listed class list, labels on opacity, `none` under reduced motion. Then restore
   the transitions with tokens and add the reduced-motion rule in `globals.css`. Update
   `docs/design/README.md`: the "Sidebar" and "Motion" local edits, superseding D5's "never
   animates" note. Verify: the motion tests pass.
-- [ ] 3.5 Add the `ui:nav.sections.*`, `nav.expand` and `nav.collapse` texts in es-ES,
+- [x] 3.5 Add the `ui:nav.sections.*`, `nav.expand` and `nav.collapse` texts in es-ES,
   ca-ES-valencia and en. Verify: `npm run check-i18n` passes.
 - [ ] 3.6 Review group 3 in parallel with `react-reviewer`, `a11y-architect` and
   `typescript-reviewer`. Fix CRITICAL/HIGH findings.

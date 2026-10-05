@@ -17,8 +17,32 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 const SIDEBAR_WIDTH = '16rem';
 const SIDEBAR_WIDTH_MOBILE = '18rem';
-const SIDEBAR_WIDTH_ICON = '3rem';
+// Local edit (refine-navigation-and-lists D1): a 40 px entry with its focus ring fits the rail.
+const SIDEBAR_WIDTH_ICON = '3.5rem';
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b';
+// Local edit (refine-navigation-and-lists D2): the state is remembered on the device instead of in
+// a cookie. Functional storage, no personal data; blocked storage falls back to expanded.
+const SIDEBAR_STORAGE_KEY = 'polvorapp.sidebar';
+// Local edit (refine-navigation-and-lists D3): how long the width moves (`duration-200`); labels
+// do not wrap meanwhile (`data-moving` on the wrapper).
+const SIDEBAR_MOTION_MS = 200;
+
+function storedOpen(fallback: boolean): boolean {
+  try {
+    const stored = window.localStorage.getItem(SIDEBAR_STORAGE_KEY);
+    return stored === null ? fallback : stored !== 'collapsed';
+  } catch {
+    return fallback;
+  }
+}
+
+function storeOpen(open: boolean): void {
+  try {
+    window.localStorage.setItem(SIDEBAR_STORAGE_KEY, open ? 'expanded' : 'collapsed');
+  } catch {
+    // Not remembered this time; the sidebar works the same.
+  }
+}
 
 type SidebarContextProps = {
   state: 'expanded' | 'collapsed';
@@ -59,7 +83,10 @@ function SidebarProvider({
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
-  const [_open, _setOpen] = React.useState(defaultOpen);
+  const [_open, _setOpen] = React.useState(() => storedOpen(defaultOpen));
+  const [moving, setMoving] = React.useState(false);
+  const movingTimer = React.useRef<number | undefined>(undefined);
+  React.useEffect(() => () => window.clearTimeout(movingTimer.current), []);
   const open = openProp ?? _open;
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
@@ -69,9 +96,15 @@ function SidebarProvider({
       } else {
         _setOpen(openState);
       }
+      if (openState !== open) {
+        setMoving(true);
+        window.clearTimeout(movingTimer.current);
+        movingTimer.current = window.setTimeout(() => setMoving(false), SIDEBAR_MOTION_MS);
+      }
 
       // This sets the cookie to keep the sidebar state.
-      // Local edit: the open state is not persisted (no cookie; the app has no server rendering).
+      // Local edit (D2): kept in localStorage instead (no cookie; the app has no server rendering).
+      storeOpen(openState);
     },
     [setOpenProp, open],
   );
@@ -121,6 +154,7 @@ function SidebarProvider({
       <TooltipProvider>
         <div
           data-slot="sidebar-wrapper"
+          data-moving={moving}
           style={
             {
               '--sidebar-width': SIDEBAR_WIDTH,
@@ -211,8 +245,9 @@ function Sidebar({
       <div
         data-slot="sidebar-gap"
         className={cn(
-          // Local edit (design D5): the sidebar never animates its width or position.
-          'relative w-(--sidebar-width) bg-transparent',
+          // Local edit (refine-navigation-and-lists D3, superseding design D5): the width and the
+          // offset of the content beside it move together, the one layout animation.
+          'relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-drawer',
           'group-data-[collapsible=offcanvas]:w-0',
           'group-data-[side=right]:rotate-180',
           variant === 'floating' || variant === 'inset'
@@ -222,10 +257,11 @@ function Sidebar({
       />
       <div
         data-slot="sidebar-container"
-        // Local edit: a collapsed (off-screen) sidebar must not be focusable (WCAG 2.4.3).
-        inert={state === 'collapsed' || undefined}
+        // Local edit: an off-screen sidebar must not be focusable (WCAG 2.4.3); the icon rail stays
+        // operable (refine-navigation-and-lists D1).
+        inert={(state === 'collapsed' && collapsible === 'offcanvas') || undefined}
         className={cn(
-          'fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) md:flex',
+          'fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-drawer md:flex',
           side === 'left'
             ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
             : 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
@@ -362,7 +398,8 @@ function SidebarContent({ className, ...props }: React.ComponentProps<'div'>) {
       data-slot="sidebar-content"
       data-sidebar="content"
       className={cn(
-        'flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden',
+        // Local edit (refine-navigation-and-lists D1): the rail still scrolls on short screens.
+        'flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-x-hidden',
         className,
       )}
       {...props}
@@ -393,7 +430,7 @@ function SidebarGroupLabel({
       data-slot="sidebar-group-label"
       data-sidebar="group-label"
       className={cn(
-        'flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-muted-foreground ring-sidebar-ring outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
+        'flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-muted-foreground ring-sidebar-ring outline-hidden transition-opacity duration-100 ease-out focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
         'group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0',
         className,
       )}
@@ -459,9 +496,10 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<'li'>) {
 }
 
 // Local edit: labels wrap instead of truncating (long Valencian labels) and leave room for a
-// counter badge; the default size is a minimum height.
+// counter badge; the default size is a minimum height. In the icon rail an entry is 40 × 40 px
+// (refine-navigation-and-lists D1).
 const sidebarMenuButtonVariants = cva(
-  'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm ring-sidebar-ring outline-hidden group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-has-data-[sidebar=menu-badge]/menu-item:pr-10 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:break-words [&>svg]:size-4 [&>svg]:shrink-0',
+  'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm ring-sidebar-ring outline-hidden group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-has-data-[sidebar=menu-badge]/menu-item:pr-10 group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:p-3! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:break-words [&>svg]:size-4 [&>svg]:shrink-0',
   {
     variants: {
       variant: {

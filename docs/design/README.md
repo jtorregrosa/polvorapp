@@ -163,9 +163,12 @@ marked with a `Local edit` comment:
 
 - **Translations**: texts inside primitives (close buttons, breadcrumb "more", sidebar toggle and
   mobile title) come from the `ui` namespace.
-- **Sidebar**: the open state is not persisted (no cookie); a collapsed sidebar is `inert`
-  (not focusable); Ctrl/Cmd+B does not toggle it inside editable fields; navigation labels wrap
-  instead of truncating and leave room for a counter badge.
+- **Sidebar** (design D1–D3 of `refine-navigation-and-lists`): the open state is remembered on
+  the device under `polvorapp.sidebar` (no cookie; blocked storage falls back to expanded); the
+  icon rail is 3.5 rem wide with 40 px entries and stays operable and scrollable, while only an
+  off-canvas sidebar is `inert`; the wrapper carries `data-moving` while the width moves; Ctrl/Cmd+B
+  does not toggle it inside editable fields; navigation labels wrap instead of truncating and
+  leave room for a counter badge.
 - **Table**: `container` passes attributes to the scroll container, so `DataTable` makes it the
   focusable, named region that scrolls on narrow screens; rows change at once on hover.
 - **Focus, states and targets** (design D3 of `redesign-design-system`): a full-opacity 2 px focus
@@ -174,8 +177,10 @@ marked with a `Local edit` comment:
   square box (the radio dot never turns oval); 36 px close buttons; token heights.
 - **Motion** (design D5): sheets 250 ms in and 200 ms out with the drawer easing; dialogs 200 ms
   in (fade and a slight scale) and 150 ms out; menus, selects and tooltips 150 ms in with a fade
-  and a 4 px slide; a 500 ms tooltip delay; skeletons fade in after 150 ms without pulsing; the
-  sidebar never animates its width or position.
+  and a 4 px slide; a 500 ms tooltip delay; skeletons fade in after 150 ms without pulsing. The
+  sidebar is the one layout animation (design D3 of `refine-navigation-and-lists`, superseding
+  D5's "never animates"): its width and the content's offset move together in 200 ms with the
+  drawer easing; group labels fade on opacity only; with reduced motion the width changes at once.
 - **Select** (design D11): the `native-select` list follows the menu style where the browser
   supports a customizable select (`globals.css`); elsewhere the native list opens.
 

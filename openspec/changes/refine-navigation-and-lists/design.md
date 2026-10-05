@@ -83,6 +83,12 @@ No workaround is needed and no question is open.
 - The comparsa cards render only their `media` in the rail, with the name as `sr-only` and a
   tooltip.
 - `inert` stays only for the off-canvas case, which is now only the mobile sheet.
+- On wide screens the top-bar trigger is named after what it does next ("Collapse navigation" /
+  "Expand navigation", D9) and drops `aria-expanded`, so its state is not announced twice. The
+  phone trigger keeps "Show or hide navigation" with `aria-expanded`, as the drawer is unchanged.
+- In the rail the labels stay in the DOM, clipped by the 40 px button and faded with opacity, so
+  each link keeps its name; the counter badge is replaced by the dot only while the rail shows
+  (a collapsed state on a phone still shows the drawer with its badges).
 
 *Alternative*: a custom rail component. Rejected, because it would duplicate the primitive's
 keyboard shortcut, state and tooltip wiring.
@@ -111,6 +117,14 @@ exist in `tokens.css`.
 - `motion.test.ts` keeps the rule "no layout transitions in primitives" with one allow-listed class
   list in `sidebar.tsx`, marked `Local edit (refine-navigation-and-lists D3)`.
 - The `docs/design/README.md` note "the sidebar never animates its width or position" is replaced.
+- *As implemented*: nothing else changes size while the width moves, so the content does not jump.
+  Entries are 40 px with the same padding expanded and in the rail; the mark keeps its padding; the
+  section labels give way to a line in their own slot instead of collapsing with a negative margin
+  (the separators between sections are dropped for it); labels do not wrap while
+  `data-moving` is set on the wrapper (200 ms after each toggle). The FiringChief's comparsa cards
+  drop their padding at once in the rail, the one small jump left. The labels share one class
+  list (`SIDEBAR_LABEL` in `AppLayout.tsx`), checked by `motion.test.ts`; reduced motion removes
+  the width transition and the labels' delay in `globals.css`.
 
 *Alternative*: animate with a `transform` on the sidebar and keep the content jump. Rejected,
 because the content would snap while the sidebar slid, which feels worse than animating both.

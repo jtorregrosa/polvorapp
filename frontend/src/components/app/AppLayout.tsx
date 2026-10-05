@@ -1,7 +1,8 @@
 import type { LucideIcon } from 'lucide-react';
-import { Fragment, useEffect, useId, useRef, type ReactNode, type RefObject } from 'react';
+import { useEffect, useId, useRef, type ReactNode, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router';
+import { cn } from '@/lib/cn';
 import {
   Sidebar,
   SidebarContent,
@@ -15,10 +16,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
-  SidebarSeparator,
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Breadcrumbs } from './Breadcrumbs';
 import { currentNavigationTarget, isCurrentPath } from './navigation-match';
 import { PolvorAppMark } from './PolvorAppMark';
@@ -75,6 +76,20 @@ export interface AppLayoutProps {
   children: ReactNode;
 }
 
+/**
+ * The motion of a text in the sidebar (refine-navigation-and-lists D3): it fades out at once when
+ * the sidebar collapses, before the rail is reached, and in once the width is restored; it never
+ * wraps while the width moves. Mark it `data-sidebar-label` (reduced motion drops the delay).
+ */
+const SIDEBAR_LABEL =
+  'transition-opacity duration-100 ease-out delay-200 group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:delay-0 group-data-[moving=true]/sidebar-wrapper:whitespace-nowrap';
+
+/** Whether the sidebar is the icon rail: collapsed on a wide screen (phones keep the drawer). */
+function useIconRail(): boolean {
+  const { state, isMobile } = useSidebar();
+  return state === 'collapsed' && !isMobile;
+}
+
 /** Closes the navigation drawer after a destination is chosen on a small screen. */
 function useCloseDrawer(): () => void {
   const { isMobile, setOpenMobile } = useSidebar();
@@ -93,11 +108,8 @@ function NavigationMenu({ sections }: { sections: readonly NavigationSection[] }
 
   return (
     <nav aria-label={t('nav.label')}>
-      {sections.map((section, index) => (
-        <Fragment key={section.id}>
-          {index > 0 && <SidebarSeparator className="my-1" />}
-          <NavigationGroup section={section} currentTarget={currentTarget} />
-        </Fragment>
+      {sections.map((section) => (
+        <NavigationGroup key={section.id} section={section} currentTarget={currentTarget} />
       ))}
     </nav>
   );
@@ -113,6 +125,7 @@ function NavigationGroup({
 }) {
   const closeDrawer = useCloseDrawer();
   const headingId = useId();
+  const rail = useIconRail();
 
   return (
     <SidebarGroup
@@ -120,36 +133,59 @@ function NavigationGroup({
       role={label ? 'group' : undefined}
       aria-labelledby={label ? headingId : undefined}
     >
+      {/* In the rail the label gives way to a line in the same place, so nothing moves (D3). */}
       {label && (
-        <SidebarGroupLabel asChild>
-          <h2 id={headingId}>{label}</h2>
+        <SidebarGroupLabel
+          asChild
+          className="relative group-data-[collapsible=icon]:mt-0 group-data-[collapsible=icon]:opacity-100 after:pointer-events-none after:absolute after:inset-x-2 after:top-1/2 after:h-px after:bg-sidebar-border after:opacity-0 after:transition-opacity after:duration-100 group-data-[collapsible=icon]:after:opacity-100"
+        >
+          <h2 id={headingId}>
+            <span data-sidebar-label="" className={SIDEBAR_LABEL}>
+              {label}
+            </span>
+          </h2>
         </SidebarGroupLabel>
       )}
       <SidebarMenu>
         {items.map(({ to, label: itemLabel, icon: Icon, count, countLabel }) => {
           const current = to === currentTarget;
           const counted = count !== undefined && count > 0;
+          const name = counted ? `${itemLabel}, ${countLabel}` : itemLabel;
           return (
             <SidebarMenuItem key={to}>
               <SidebarMenuButton
                 asChild
                 isActive={current}
+                // In the rail the name is shown on hover and keyboard focus (D1); hidden otherwise.
+                tooltip={name}
                 // Current page: an ember bar, weight and icon, not background alone (WCAG 1.4.1).
-                className="relative min-h-9 text-sidebar-muted-foreground before:absolute before:inset-y-1.5 before:left-0 before:w-1 before:rounded-full hover:text-sidebar-foreground data-[active=true]:font-semibold data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-sidebar-primary data-[active=true]:[&>svg]:text-sidebar-primary"
+                // 40 px and the same padding as in the rail, so the icons do not move (D1, D3).
+                className="relative min-h-10 px-3 text-sidebar-muted-foreground before:absolute before:inset-y-1.5 before:left-0 before:w-1 before:rounded-full hover:text-sidebar-foreground data-[active=true]:font-semibold data-[active=true]:text-sidebar-foreground data-[active=true]:before:bg-sidebar-primary data-[active=true]:[&>svg]:text-sidebar-primary"
               >
                 <Link
                   to={to}
                   aria-current={current ? 'page' : undefined}
                   // The name starts with the visible label (WCAG 2.5.3) and says what the badge counts;
                   // an aria-label is exact, where hidden text gets a space before the comma.
-                  aria-label={counted ? `${itemLabel}, ${countLabel}` : undefined}
+                  aria-label={counted ? name : undefined}
                   onClick={closeDrawer}
                 >
                   <Icon aria-hidden="true" />
-                  <span className="break-words">{itemLabel}</span>
+                  {/* Kept in the rail, clipped and faded: the link keeps its name (D1). */}
+                  <span data-sidebar-label="" className={cn('break-words', SIDEBAR_LABEL)}>
+                    {itemLabel}
+                  </span>
                 </Link>
               </SidebarMenuButton>
-              {counted && <SidebarMenuBadge aria-hidden="true">{count}</SidebarMenuBadge>}
+              {counted && !rail && <SidebarMenuBadge aria-hidden="true">{count}</SidebarMenuBadge>}
+              {/* In the rail the counter is a dot; the count stays in the link's name and tooltip. */}
+              {counted && rail && (
+                <span
+                  data-nav-dot=""
+                  aria-hidden="true"
+                  className="pointer-events-none absolute top-1.5 right-1.5 size-2 rounded-full bg-sidebar-primary"
+                />
+              )}
             </SidebarMenuItem>
           );
         })}
@@ -168,6 +204,7 @@ function SidebarCards({ cards }: { cards: readonly SidebarCard[] }) {
   const { t } = useTranslation('ui');
   const { pathname } = useLocation();
   const closeDrawer = useCloseDrawer();
+  const rail = useIconRail();
 
   return (
     <nav aria-label={t('nav.comparsas')}>
@@ -176,15 +213,29 @@ function SidebarCards({ cards }: { cards: readonly SidebarCard[] }) {
           const current = isCurrentPath(pathname, to);
           return (
             <li key={to}>
-              <Link
-                to={to}
-                aria-current={current ? 'page' : undefined}
-                className="relative flex min-h-11 items-center gap-2.5 rounded-md bg-sidebar-accent py-1.5 pr-2 pl-3 text-label text-sidebar-foreground before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-full hover:bg-sidebar-border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring aria-[current=page]:font-semibold aria-[current=page]:before:bg-sidebar-primary"
-                onClick={closeDrawer}
-              >
-                {media}
-                <span className="min-w-0 wrap-break-word">{label}</span>
-              </Link>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    to={to}
+                    aria-current={current ? 'page' : undefined}
+                    // In the rail only the logo shows; the name stays for assistive technology (D1).
+                    className="relative flex min-h-11 items-center gap-2.5 rounded-md bg-sidebar-accent py-1.5 pr-2 pl-3 text-label text-sidebar-foreground group-data-[collapsible=icon]:overflow-hidden group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:p-0 before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-full hover:bg-sidebar-border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring aria-[current=page]:font-semibold aria-[current=page]:before:bg-sidebar-primary"
+                    onClick={closeDrawer}
+                  >
+                    {media}
+                    <span
+                      data-card-label=""
+                      data-sidebar-label=""
+                      className={cn('min-w-0 wrap-break-word', SIDEBAR_LABEL)}
+                    >
+                      {label}
+                    </span>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right" align="center" hidden={!rail}>
+                  {label}
+                </TooltipContent>
+              </Tooltip>
             </li>
           );
         })}
@@ -198,6 +249,7 @@ function SidebarCards({ cards }: { cards: readonly SidebarCard[] }) {
  * trigger), so focus is returned here explicitly when it closes (WCAG 2.4.3).
  */
 function NavigationTrigger() {
+  const { t } = useTranslation('ui');
   const { open, openMobile, isMobile } = useSidebar();
   const trigger = useRef<HTMLButtonElement>(null);
   const wasOpen = useRef(openMobile);
@@ -210,7 +262,13 @@ function NavigationTrigger() {
   }, [openMobile]);
 
   return (
-    <SidebarTrigger ref={trigger} aria-expanded={isMobile ? openMobile : open} className="size-control" />
+    // On wide screens the name says what the button does next (D9); the drawer keeps its state.
+    <SidebarTrigger
+      ref={trigger}
+      aria-expanded={isMobile ? openMobile : undefined}
+      aria-label={isMobile ? undefined : t(open ? 'nav.collapse' : 'nav.expand')}
+      className="size-control"
+    />
   );
 }
 
@@ -258,14 +316,17 @@ export function AppLayout({
         >
           {t('shell.skipToContent')}
         </a>
-        <Sidebar>
+        <Sidebar collapsible="icon">
           <SidebarHeader>
             <Link
               to="/"
-              className="flex items-center gap-2.5 rounded-md p-2 font-display text-section font-bold text-sidebar-foreground focus-visible:outline-2 focus-visible:outline-sidebar-ring"
+              // The same padding in the rail, so the mark does not move (D3).
+              className="flex items-center gap-2.5 overflow-hidden rounded-md p-1 font-display text-section font-bold whitespace-nowrap text-sidebar-foreground focus-visible:outline-2 focus-visible:outline-sidebar-ring"
             >
               <PolvorAppMark />
-              <span>{t('app.name')}</span>
+              <span data-sidebar-label="" className={SIDEBAR_LABEL}>
+                {t('app.name')}
+              </span>
             </Link>
           </SidebarHeader>
           {/* The cards scroll with the navigation: they never squeeze it out on short screens (1.4.10). */}
@@ -274,7 +335,14 @@ export function AppLayout({
             <NavigationMenu sections={navigation} />
           </SidebarContent>
           {sidebarFooter && (
-            <SidebarFooter className="px-4 text-xs text-sidebar-muted-foreground">
+            // Hidden in the rail, also from assistive technology (D1).
+            <SidebarFooter
+              data-sidebar-label=""
+              className={cn(
+                'px-4 text-xs text-sidebar-muted-foreground group-data-[collapsible=icon]:invisible',
+                SIDEBAR_LABEL,
+              )}
+            >
               {sidebarFooter}
             </SidebarFooter>
           )}
