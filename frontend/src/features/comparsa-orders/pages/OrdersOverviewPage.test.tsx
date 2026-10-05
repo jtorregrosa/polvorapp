@@ -7,6 +7,7 @@ import { problem, recordBodies, renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN, SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
+import { sortableColumns } from '@/test/table';
 import { billingOf } from '@/features/billing/test-data';
 import { ADMIN_OVERVIEW, CHIEF_OVERVIEW, NO_EDITION_OVERVIEW, NORTE_ORDER } from '../test-data';
 
@@ -57,9 +58,14 @@ describe('OrdersOverviewPage (spec: Orders screens, Order totals and dashboard (
 
     const table = await screen.findByRole('table', { name: 'Pedidos de las comparsas' });
     const norte = (await within(table).findByText('Comparsa Sintética Norte')).closest('tr') as HTMLElement;
-    expect(within(table).getByRole('columnheader', { name: 'Importe' })).toBeInTheDocument();
-    expect(within(norte).getByText(/^335,00\s€$/)).toBeInTheDocument();
-    expect(within(norte).getByText('Definitivo')).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /^Importe,/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /^Estado del importe,/ })).toBeInTheDocument();
+    // The amount and whether it is final are separate columns.
+    const amount = within(norte)
+      .getByText(/^335,00\s€$/)
+      .closest('td') as HTMLElement;
+    const state = within(norte).getByText('Definitivo').closest('td') as HTMLElement;
+    expect(amount).not.toBe(state);
     const sur = within(table).getByText('Comparsa Sintética Sur').closest('tr') as HTMLElement;
     expect(within(sur).getByText(/^225,00\s€$/)).toBeInTheDocument();
     expect(within(sur).getByText('Provisional')).toBeInTheDocument();
@@ -69,6 +75,21 @@ describe('OrdersOverviewPage (spec: Orders screens, Order totals and dashboard (
     expect(within(billing).getByRole('cell', { name: /^560,00\s€$/ })).toBeInTheDocument();
     const totals = screen.getByRole('region', { name: 'Totales de la edición' });
     expect(totals.compareDocumentPosition(billing) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('sorts the orders by any column but the action', async () => {
+    overview(ADMIN_OVERVIEW);
+    await renderApp('/orders', { session: SYNTHETIC_ADMIN });
+    const table = await screen.findByRole('table', { name: 'Pedidos de las comparsas' });
+    await within(table).findByText('Comparsa Sintética Norte');
+
+    expect(sortableColumns(table)).toEqual([
+      'Comparsa',
+      'Estado',
+      'Totales',
+      'Importe',
+      'Estado del importe',
+    ]);
   });
 
   it('shows a FiringChief their orders’ amounts but no edition billing', async () => {
