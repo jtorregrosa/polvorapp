@@ -114,7 +114,8 @@ describe('Comparsa logo on the detail page (spec: Logo display)', () => {
     const image = headerTile().querySelector('img');
     expect(image).toHaveAttribute('src', `/api/comparsas/${NORTE.id}/logo?v=${LOGO.version}`);
     expect(image).toHaveAttribute('alt', '');
-    expect(screen.queryByRole('button', { name: /logo de la comparsa|, opciones$/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /logo de la comparsa/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /, opciones$/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Logo' })).not.toBeInTheDocument();
   });
 
