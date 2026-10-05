@@ -141,6 +141,47 @@ public sealed class EmailTests(MailpitFixture mailpit)
     }
 
     [Fact]
+    public async Task The_sender_name_and_reply_to_of_the_settings_go_with_the_configured_address()
+    {
+        using var loggerFactory = LoggerFactory.Create(_ => { });
+        var sender = Sender(mailpit.SmtpHost, mailpit.SmtpPortOnHost, loggerFactory, new EmailSenderProfile("Unión de Comparsas · PolvorApp", "secretaria@federacion.example"));
+        const string recipient = "remitente.sintetica@example.test";
+
+        await sender.SendAsync(Message(recipient), TestContext.Current.CancellationToken);
+
+        var message = await mailpit.WaitForMessageAsync(recipient);
+        Assert.Equal(new MailpitAddress("Unión de Comparsas · PolvorApp", "no-reply@polvorapp.example"), message.From);
+        Assert.Equal([new MailpitAddress(string.Empty, "secretaria@federacion.example")], message.ReplyTo);
+    }
+
+    [Fact]
+    public async Task Without_a_reply_to_none_is_sent()
+    {
+        using var loggerFactory = LoggerFactory.Create(_ => { });
+        var sender = Sender(mailpit.SmtpHost, mailpit.SmtpPortOnHost, loggerFactory, new EmailSenderProfile("PolvorApp", null));
+        const string recipient = "sin.respuesta.sintetica@example.test";
+
+        await sender.SendAsync(Message(recipient), TestContext.Current.CancellationToken);
+
+        var message = await mailpit.WaitForMessageAsync(recipient);
+        Assert.Equal(new MailpitAddress("PolvorApp", "no-reply@polvorapp.example"), message.From);
+        Assert.Empty(message.ReplyTo ?? []);
+    }
+
+    [Fact]
+    public async Task A_profile_that_cannot_be_read_fails_the_delivery_in_the_compose_phase()
+    {
+        var logs = new CapturingLoggerProvider();
+        using var loggerFactory = LoggerFactory.Create(builder => builder.AddProvider(logs));
+        var sender = Sender(mailpit.SmtpHost, mailpit.SmtpPortOnHost, loggerFactory, profile: null);
+
+        var error = await Assert.ThrowsAsync<EmailDeliveryException>(() => sender.SendAsync(Message("sin.perfil@example.test"), TestContext.Current.CancellationToken));
+
+        Assert.Equal("Compose", error.Phase);
+        Assert.Contains(logs.Entries, e => e.Level == LogLevel.Warning && e.Message.Contains("Compose failed", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task An_unreachable_server_raises_a_delivery_exception_and_logs_the_phase()
     {
         var logs = new CapturingLoggerProvider();
@@ -194,7 +235,11 @@ public sealed class EmailTests(MailpitFixture mailpit)
         }
     }
 
-    private static SmtpEmailSender Sender(string host, int port, ILoggerFactory loggerFactory)
+    private static SmtpEmailSender Sender(string host, int port, ILoggerFactory loggerFactory) =>
+        Sender(host, port, loggerFactory, new EmailSenderProfile("PolvorApp", null));
+
+    /// <summary>A sender whose profile is <paramref name="profile"/>, or whose profile read fails when null.</summary>
+    private static SmtpEmailSender Sender(string host, int port, ILoggerFactory loggerFactory, EmailSenderProfile? profile)
     {
         var options = Options.Create(new EmailOptions
         {
@@ -204,6 +249,12 @@ public sealed class EmailTests(MailpitFixture mailpit)
             Security = EmailSecurity.None,
             TimeoutSeconds = 5,
         });
-        return new SmtpEmailSender(options, loggerFactory.CreateLogger<SmtpEmailSender>());
+        return new SmtpEmailSender(options, new FixedProfile(profile), loggerFactory.CreateLogger<SmtpEmailSender>());
+    }
+
+    private sealed class FixedProfile(EmailSenderProfile? profile) : IEmailSenderProfile
+    {
+        public Task<EmailSenderProfile> GetAsync(CancellationToken cancellationToken) =>
+            profile is null ? throw new InvalidOperationException("The settings cannot be read.") : Task.FromResult(profile);
     }
 }

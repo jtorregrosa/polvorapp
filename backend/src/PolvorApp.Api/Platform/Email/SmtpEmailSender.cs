@@ -13,7 +13,7 @@ namespace PolvorApp.Api.Platform.Email;
 /// addresses, subjects, bodies or server messages, which may hold personal data or one-time links
 /// (NFR-12).
 /// </summary>
-internal sealed partial class SmtpEmailSender(IOptions<EmailOptions> options, ILogger<SmtpEmailSender> logger) : IEmailSender
+internal sealed partial class SmtpEmailSender(IOptions<EmailOptions> options, IEmailSenderProfile profile, ILogger<SmtpEmailSender> logger) : IEmailSender
 {
     private enum Phase
     {
@@ -39,7 +39,7 @@ internal sealed partial class SmtpEmailSender(IOptions<EmailOptions> options, IL
         var phase = Phase.Compose;
         try
         {
-            using var mime = Compose(message, from);
+            using var mime = Compose(message, from, await profile.GetAsync(deadline.Token));
             phase = Phase.Connect;
             await client.ConnectAsync(host, settings.SmtpPort, ToSocketOptions(settings.Security), deadline.Token);
             if (settings is { Username: { Length: > 0 } username, Password: { } password })
@@ -75,10 +75,19 @@ internal sealed partial class SmtpEmailSender(IOptions<EmailOptions> options, IL
         }
     }
 
-    private static MimeMessage Compose(EmailMessage message, string from)
+    /// <summary>
+    /// The sender is the profile's name with the configured address (design D4): MimeKit encodes the
+    /// name, so it can never add a header. The reply-to is added only when the profile has one.
+    /// </summary>
+    private static MimeMessage Compose(EmailMessage message, string from, EmailSenderProfile sender)
     {
         var mime = new MimeMessage { Subject = message.Subject };
-        mime.From.Add(MailboxAddress.Parse(from));
+        mime.From.Add(new MailboxAddress(sender.DisplayName, MailboxAddress.Parse(from).Address));
+        if (sender.ReplyTo is { Length: > 0 } replyTo)
+        {
+            mime.ReplyTo.Add(new MailboxAddress(string.Empty, replyTo));
+        }
+
         mime.To.Add(new MailboxAddress(message.ToName ?? string.Empty, message.ToAddress));
         mime.Body = new BodyBuilder { TextBody = message.TextBody, HtmlBody = message.HtmlBody }.ToMessageBody();
         return mime;

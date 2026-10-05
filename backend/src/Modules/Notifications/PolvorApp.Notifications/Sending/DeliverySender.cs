@@ -39,6 +39,7 @@ internal sealed partial class DeliverySender(
     ICatalogDirectory catalog,
     DeliveryContents contents,
     NotificationEmails emails,
+    IFederationSettings federation,
     IEmailSender sender,
     TimeProvider time,
     ILogger<DeliverySender> logger)
@@ -51,8 +52,10 @@ internal sealed partial class DeliverySender(
     /// <summary>Claims and sends up to <see cref="BatchSize"/> due deliveries.</summary>
     public async Task<SendResult> SendDueAsync(CancellationToken cancellationToken)
     {
-        // Read before claiming: a failure here leaves no row leased.
+        // Read before claiming: a failure here leaves no row leased. The settings snapshot is kept for the
+        // scope, so rendering below never reads them again (a database outage is retried, not failed).
         var recipients = await Recipients.LoadAsync(users, catalog, db, cancellationToken);
+        await federation.GetAsync(cancellationToken);
         var claimed = await ClaimAsync(cancellationToken);
         var result = SendResult.None;
         var done = 0;
@@ -117,7 +120,7 @@ internal sealed partial class DeliverySender(
                 return new SendResult(0, 1, 0, 0);
             }
 
-            email = emails.Render(recipient, prepared.Content);
+            email = emails.Render(recipient, prepared.Content, await federation.GetAsync(cancellationToken));
         }
         catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
         {

@@ -21,6 +21,7 @@ internal static class EmailServiceCollectionExtensions
             publicUrl.ValidateOnStart();
         }
 
+        services.AddSingleton<IEmailSenderProfile, FederationSenderProfile>();
         services.AddSingleton<IEmailSender, SmtpEmailSender>();
         services.AddSingleton<BackgroundEmailOutbox>();
         services.AddSingleton<IEmailOutbox>(provider => provider.GetRequiredService<BackgroundEmailOutbox>());

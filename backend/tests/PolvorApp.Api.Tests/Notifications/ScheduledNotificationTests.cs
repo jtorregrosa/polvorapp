@@ -122,6 +122,21 @@ public sealed class ScheduledNotificationTests(PostgresFixture postgres, Mailpit
     }
 
     [Fact]
+    public async Task A_longer_close_lead_time_sends_the_first_reminder_earlier()
+    {
+        await SetLeadTimesAsync(closeReminderLeadDays: 10, milestoneLeadDays: 7);
+        await Services.SetOrdersCloseOnAsync(_orders.Current.Id, CloseOn);
+        await Services.SaveOrdersAsync(NewOrder(_orders.Current, _orders.Own.Id), NewOrder(_orders.Current, _orders.Other.Id, OrderStatus.Submitted));
+
+        var tooEarly = await Services.RunScheduledAsync(CloseOn.AddDays(-11));
+        var tenDays = await Services.RunScheduledAsync(CloseOn.AddDays(-10));
+        await Services.PumpAsync();
+
+        Assert.Equal((0, 1), (tooEarly.CloseReminders, tenDays.CloseReminders));
+        Assert.Equal(["OrdersClosingSoon"], _smtp.To(_northChief.Email).Select(m => m.Template));
+    }
+
+    [Fact]
     public async Task A_moved_close_date_makes_the_reminder_due_again_and_closed_orders_get_none()
     {
         await Services.SetOrdersCloseOnAsync(_orders.Current.Id, CloseOn);
@@ -168,6 +183,18 @@ public sealed class ScheduledNotificationTests(PostgresFixture postgres, Mailpit
         Assert.Equal("MilestoneReminder", Assert.Single(_smtp.To(_northChief.Email)).Template);
         Assert.Contains("«Plazo sintético»", _smtp.To(_northChief.Email)[0].TextBody, StringComparison.Ordinal);
         Assert.Single(_smtp.To(_southChief.Email));
+    }
+
+    [Fact]
+    public async Task A_shorter_milestone_lead_time_waits_until_the_milestone_is_that_close()
+    {
+        await SetLeadTimesAsync(closeReminderLeadDays: 7, milestoneLeadDays: 3);
+        await Services.SaveEditionsAsync(NewMilestone(_orders.Current.Id, new DateOnly(2031, 1, 6), "Plazo sintético", notify: true));
+
+        var fiveDays = await Services.RunScheduledAsync(NewYear);
+        var threeDays = await Services.RunScheduledAsync(new DateOnly(2031, 1, 3));
+
+        Assert.Equal((0, 3), (fiveDays.MilestoneReminders, threeDays.MilestoneReminders));
     }
 
     [Fact]
@@ -303,6 +330,14 @@ public sealed class ScheduledNotificationTests(PostgresFixture postgres, Mailpit
         }
 
         await Services.SaveRegistryAsync(arquebusier);
+    }
+
+    private async Task SetLeadTimesAsync(int closeReminderLeadDays, int milestoneLeadDays)
+    {
+        await using var scope = Services.CreateAsyncScope();
+        await scope.ServiceProvider.GetRequiredService<FederationCatalog.Persistence.FederationCatalogDbContext>().FederationSettings.ExecuteUpdateAsync(
+            s => s.SetProperty(x => x.CloseReminderLeadDays, closeReminderLeadDays).SetProperty(x => x.MilestoneLeadDays, milestoneLeadDays),
+            TestContext.Current.CancellationToken);
     }
 
     private async Task OptOutAsync(Guid userId, NotificationKind kind)

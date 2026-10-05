@@ -2,6 +2,7 @@ using System.Globalization;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.Notifications.Contracts;
 using PolvorApp.Notifications.Rules;
@@ -18,8 +19,10 @@ internal sealed class NotificationTexts;
 
 /// <summary>
 /// Renders a notification in the recipient's language (spec: Email content; design D7): a greeting,
-/// the message with its link, and a footer naming the kind with the settings link. Plain text plus a
-/// minimal HTML alternative; no remote content or tracking.
+/// the message with its link, a footer naming the kind with the settings link, then the Federation's
+/// short name and, when set, its public contact address and website (add-federation-settings). Plain
+/// text plus a minimal HTML alternative; no remote content or tracking. Only PolvorApp's own pages are
+/// links: the Federation's website is shown as text.
 /// </summary>
 internal sealed partial class NotificationEmails(IStringLocalizer<NotificationTexts> texts, IOptions<PublicUrlOptions> urls, ILogger<NotificationEmails> logger)
 {
@@ -32,10 +35,11 @@ internal sealed partial class NotificationEmails(IStringLocalizer<NotificationTe
 
     private static readonly Dictionary<string, string> NoQuery = [];
 
-    public EmailMessage Render(UserSummary recipient, NotificationContent content)
+    public EmailMessage Render(UserSummary recipient, NotificationContent content, FederationSettingsSnapshot federation)
     {
         ArgumentNullException.ThrowIfNull(recipient);
         ArgumentNullException.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(federation);
         var known = Locales.Contains(recipient.Locale, StringComparer.Ordinal);
         if (!known)
         {
@@ -52,13 +56,30 @@ internal sealed partial class NotificationEmails(IStringLocalizer<NotificationTe
             var settings = urls.Value.Link(SettingsPath, new Dictionary<string, string> { ["section"] = "notifications" });
             var (subject, message) = Compose(content, culture, link.AbsoluteUri);
             var footer = Text($"Footer.{EnumCodes.ToCode(content.Kind)}");
-            var body = $"{Text("Greeting", recipient.Name)}\n\n{message}\n\n—\n{footer}\n{settings.AbsoluteUri}";
+            var body = $"{Text("Greeting", recipient.Name)}\n\n{message}\n\n—\n{footer}\n{settings.AbsoluteUri}\n\n{FederationLines(federation)}";
             return new EmailMessage(recipient.Email, recipient.Name, subject, body, PlainTextHtml.Render(body, [link, settings]), content.Template);
         }
         finally
         {
             CultureInfo.CurrentUICulture = previous;
         }
+    }
+
+    /// <summary>The Federation's short name, then its public contact address and website when set.</summary>
+    private string FederationLines(FederationSettingsSnapshot federation)
+    {
+        var lines = new List<string> { federation.ShortName };
+        if (federation.ContactEmail is { } contact)
+        {
+            lines.Add(Text("Footer.Contact", contact));
+        }
+
+        if (federation.Website is { } website)
+        {
+            lines.Add(website);
+        }
+
+        return string.Join('\n', lines);
     }
 
     private Uri LinkOf(NotificationContent content) => content switch

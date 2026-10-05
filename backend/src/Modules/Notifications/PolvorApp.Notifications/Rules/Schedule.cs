@@ -7,7 +7,7 @@ namespace PolvorApp.Notifications.Rules;
 /// <summary>Which planned close reminder is due (spec: Planned close reminders (BR-10)).</summary>
 internal enum CloseReminder
 {
-    /// <summary>The close date is 2 to 7 days ahead.</summary>
+    /// <summary>The close date is 2 days up to the settings' first close reminder lead time ahead (7 by default).</summary>
     Week,
 
     /// <summary>The close date is tomorrow or today.</summary>
@@ -23,11 +23,8 @@ internal static class Schedule
     /// <summary>Scheduled emails are not sent before 08:00 Europe/Madrid (spec: Scheduled notifications).</summary>
     public const int SendFromHour = 8;
 
-    /// <summary>A milestone is reminded from 7 days before its date until the date itself.</summary>
-    public const int MilestoneLeadDays = 7;
-
+    /// <summary>The first close reminder is never sent later than this many days before the close.</summary>
     private const int WeekReminderFirstDay = 2;
-    private const int WeekReminderLastDay = 7;
 
     /// <summary>Whether a scheduled run may send now: from 08:00 local time.</summary>
     public static bool MaySendScheduled(TimeProvider time) => MaySendScheduled(FederationCalendar.Now(time));
@@ -35,23 +32,29 @@ internal static class Schedule
     /// <summary>Whether a scheduled run may send at <paramref name="madridTime"/> (Europe/Madrid).</summary>
     public static bool MaySendScheduled(DateTimeOffset madridTime) => madridTime.Hour >= SendFromHour;
 
-    /// <summary>The reminder due for a planned close date, or null when none is.</summary>
-    public static CloseReminder? CloseReminderFor(DateOnly today, DateOnly closeOn)
+    /// <summary>
+    /// The reminder due for a planned close date, or null when none is. <paramref name="leadDays"/> is the
+    /// first close reminder lead time of the Federation settings (add-federation-settings).
+    /// </summary>
+    public static CloseReminder? CloseReminderFor(DateOnly today, DateOnly closeOn, int leadDays)
     {
         var days = closeOn.DayNumber - today.DayNumber;
         return days switch
         {
-            >= WeekReminderFirstDay and <= WeekReminderLastDay => CloseReminder.Week,
+            _ when days >= WeekReminderFirstDay && days <= leadDays => CloseReminder.Week,
             0 or 1 => CloseReminder.LastDays,
             _ => null,
         };
     }
 
-    /// <summary>Whether a milestone dated <paramref name="date"/> is due for its reminder today.</summary>
-    public static bool IsMilestoneDue(DateOnly today, DateOnly date)
+    /// <summary>
+    /// Whether a milestone dated <paramref name="date"/> is due for its reminder today, from
+    /// <paramref name="leadDays"/> days before (the Federation settings) until the date itself.
+    /// </summary>
+    public static bool IsMilestoneDue(DateOnly today, DateOnly date, int leadDays)
     {
         var days = date.DayNumber - today.DayNumber;
-        return days is >= 0 and <= MilestoneLeadDays;
+        return days >= 0 && days <= leadDays;
     }
 
     /// <summary>Whether FiringChiefs may be reminded of a milestone of an edition in that status (BR-12: they cannot see a draft).</summary>
