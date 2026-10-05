@@ -30,12 +30,8 @@ test('the Admin downloads the Arms Authority export as Excel and as PDF', async 
 
   await expect(page.getByText('Formatos provisionales')).toBeVisible();
   await expect(page.getByText('Comparsas sin pedido validado')).toBeVisible();
-  await expect(
-    page.getByRole('listitem').filter({ hasText: 'Comparsa Sintética Norte (enviado)' }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole('listitem').filter({ hasText: 'Comparsa Sintética Este (sin preparar)' }),
-  ).toBeVisible();
+  await expect(page.getByRole('listitem').filter({ hasText: 'Cruzados (enviado)' })).toBeVisible();
+  await expect(page.getByRole('listitem').filter({ hasText: 'Hospitalarios (sin preparar)' })).toBeVisible();
 
   const authority = page.getByRole('region', { name: 'Intervención de Armas' });
   expect(
@@ -66,14 +62,10 @@ test.describe('as the seeded FiringChief of Norte', () => {
     const list = page.getByRole('region', { name: 'Lista del pedido' });
     await expect(list).toContainText('Es un borrador');
     const download = page.waitForEvent('download');
-    await list
-      .getByRole('button', { name: /^Descargar la lista de Comparsa Sintética Norte \(borrador\) en PDF/ })
-      .click();
+    await list.getByRole('button', { name: /^Descargar la lista de Cruzados \(borrador\) en PDF/ }).click();
     const file = await saved(download);
 
-    expect(file.name).toMatch(
-      /^polvorapp-\d{4}-comparsa-list-comparsa-sintetica-norte-draft-provisional\.pdf$/,
-    );
+    expect(file.name).toMatch(/^polvorapp-\d{4}-comparsa-list-cruzados-draft-provisional\.pdf$/);
     expect(file.bytes.subarray(0, 5).toString()).toBe('%PDF-');
     await expect(page.getByRole('link', { name: 'Exportaciones' })).toHaveCount(0);
   });

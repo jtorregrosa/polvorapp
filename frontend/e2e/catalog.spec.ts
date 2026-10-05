@@ -7,8 +7,8 @@ import { expect, openNavigation, test as base, waitForShell } from './fixtures';
  * Federation catalogue (change add-federation-catalog) against the seeded stack: fictional
  * comparsas, the seeded FiringChiefs and the synthetic weapon catalogue (docs/development.md).
  * Each test creates what it changes, with a unique name, and removes it again, so the desktop and
- * mobile projects can run side by side. The Admin flows assign "Jefe Sintético Uno", never the
- * signed-in FiringChief of the FiringChief tests ("Jefa Sintética Dos"), whose scope stays fixed.
+ * mobile projects can run side by side. The Admin flows assign "Joan Moltó Sala", never the
+ * signed-in FiringChief of the FiringChief tests ("Elena Verdú Ivorra"), whose scope stays fixed.
  */
 
 const SEEDED_SUR = '0193a100-0000-7000-8000-000000000002';
@@ -88,9 +88,9 @@ test.describe('federation catalogue as an Admin', () => {
     const chiefs = page.getByRole('region', { name: 'Jefes de disparo', exact: true });
     await chiefs
       .getByRole('combobox', { name: /Jefe de disparo que añadir/ })
-      .selectOption({ label: 'Jefe Sintético Uno (jefe.uno@polvorapp.example)' });
+      .selectOption({ label: 'Joan Moltó Sala (jefe.uno@polvorapp.example)' });
     await chiefs.getByRole('button', { name: 'Añadir' }).click();
-    await expect(notice(chiefs, 'Jefe Sintético Uno ya es jefe de disparo de esta comparsa.')).toBeFocused();
+    await expect(notice(chiefs, 'Joan Moltó Sala ya es jefe de disparo de esta comparsa.')).toBeFocused();
     await expect(rows(chiefs, `Jefes de disparo de ${name}`)).toContainText('jefe.uno@polvorapp.example');
 
     // The same assignment, seen and removed from the other side: the FiringChief's user page.
@@ -116,7 +116,7 @@ test.describe('federation catalogue as an Admin', () => {
     await expect(notice(page, 'Comparsa eliminada.')).toBeFocused();
     await expect(page).toHaveURL(/\/comparsas$/);
     // The list has loaded before the deleted row is looked for.
-    await expect(page.getByRole('link', { name: 'Comparsa Sintética Norte' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Cruzados' })).toBeVisible();
     await expect(page.getByRole('link', { name })).toHaveCount(0);
   });
 
@@ -159,8 +159,8 @@ test.describe('federation catalogue as a FiringChief', () => {
     await waitForShell(page);
 
     const list = rows(page, 'Comparsas');
-    await expect(list.getByRole('link', { name: 'Comparsa Sintética Norte' })).toBeVisible();
-    // The seed assigns Jefa Sintética Dos to Norte only (docs/development.md).
+    await expect(list.getByRole('link', { name: 'Cruzados' })).toBeVisible();
+    // The seed assigns Elena Verdú Ivorra to Norte only (docs/development.md).
     await expect(list.getByRole('link')).toHaveCount(1);
     await expect(page.getByRole('link', { name: 'Nueva comparsa' })).toHaveCount(0);
 
@@ -180,7 +180,7 @@ test.describe('federation catalogue as a FiringChief', () => {
     expect(change.status()).toBe(403);
 
     await page.goto(`/comparsas/${SEEDED_NORTE}`);
-    await expect(page.getByRole('heading', { level: 1, name: 'Comparsa Sintética Norte' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Cruzados' })).toBeVisible();
     await expect(page.getByRole('region', { name: 'Datos de la comparsa' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Más acciones' })).toHaveCount(0);
     await expect(page.getByRole('button', { name: /^Editar/ })).toHaveCount(0);
@@ -195,13 +195,13 @@ test.describe('accessibility of the catalogue pages', () => {
       test('comparsa list', async ({ page, axeViolations }) => {
         await page.goto('/comparsas');
         await waitForShell(page);
-        await expect(page.getByRole('link', { name: 'Comparsa Sintética Norte' })).toBeVisible();
+        await expect(page.getByRole('link', { name: 'Cruzados' })).toBeVisible();
         await expectNoHorizontalOverflow(page);
         expect(await axeViolations()).toEqual([]);
       });
 
       test('comparsa detail with its FiringChiefs and the add control', async ({ page, axeViolations }) => {
-        // Sur always has a candidate (Jefa Sintética Dos), so the add control is scanned too.
+        // Sur always has a candidate (Elena Verdú Ivorra), so the add control is scanned too.
         await page.goto(`/comparsas/${SEEDED_SUR}`);
         await waitForShell(page);
         await expect(rows(page, /^Jefes de disparo de /)).toBeVisible();

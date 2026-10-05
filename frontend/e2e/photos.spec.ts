@@ -9,7 +9,7 @@ import { expect, test as base, waitForShell } from './fixtures';
  * own decoding (EXIF orientation, canvas export) is checked end to end in every browser project.
  */
 
-/** "Arcabucera Sintética Seis", seeded in Comparsa Sintética Sur with an ID photo: outside the FiringChief's scope. */
+/** "Mari Carmen Ferrándiz Soler", seeded in Abencerrajes with an ID photo: outside the FiringChief's scope. */
 const SEEDED_IN_SUR = '0193a300-0000-7000-8000-000000000006';
 /** The seeded arquebusier with all three photos; only opened, never changed. */
 const SEEDED_ALL_PHOTOS = '0193a300-0000-7000-8000-000000000001';
@@ -29,7 +29,7 @@ function syntheticIdentity(): { nationalId: string; federationId: string; lastNa
   return {
     nationalId: `${String(number).padStart(8, '0')}${LETTERS[number % LETTERS.length]}`,
     federationId: String(number),
-    lastName: `Sintética Fotos ${number}`,
+    lastName: `Prueba Fotos ${number}`,
   };
 }
 
@@ -218,7 +218,7 @@ async function register(
   const identity = syntheticIdentity();
   await page.goto('/arquebusiers/new');
   await waitForShell(page);
-  await page.getByRole('combobox', { name: 'Comparsa' }).selectOption({ label: 'Comparsa Sintética Norte' });
+  await page.getByRole('combobox', { name: 'Comparsa' }).selectOption({ label: 'Cruzados' });
   await page.getByLabel(/ID Unión/).fill(identity.federationId);
   await page.getByLabel(/^DNI\/NIE/).fill(identity.nationalId);
   await page.getByLabel(/^Nombre/).fill('Arcabucera');
@@ -252,7 +252,7 @@ async function chooseFile(page: Page, button: string, file: Buffer, type = 'imag
   await (
     await chooser
   ).setFiles({
-    name: type === 'image/png' ? 'sintetica.png' : 'sintetica.jpg',
+    name: type === 'image/png' ? 'prueba.png' : 'prueba.jpg',
     mimeType: type,
     buffer: file,
   });
@@ -468,7 +468,7 @@ test.describe('arquebusier photos', () => {
         headers,
         multipart: {
           file: {
-            name: 'sintetica.png',
+            name: 'prueba.png',
             mimeType: 'image/png',
             buffer: await syntheticImage(chief, { width: 600, height: 800, circle: [0.5, 0.4] }, 'image/png'),
           },

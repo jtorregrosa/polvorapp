@@ -11,9 +11,9 @@ import { expect, test, waitForShell } from './fixtures';
  * exports specs.
  */
 
-const NORTE = 'Comparsa Sintética Norte';
-const SUR = 'Comparsa Sintética Sur';
-const ESTE = 'Comparsa Sintética Este';
+const NORTE = 'Cruzados';
+const SUR = 'Abencerrajes';
+const ESTE = 'Hospitalarios';
 
 async function saved(download: Promise<Download>): Promise<{ name: string; bytes: Buffer }> {
   const file = await download;
@@ -24,7 +24,7 @@ async function saved(download: Promise<Download>): Promise<{ name: string; bytes
 async function openArquebusiers(page: Page) {
   await page.goto('/arquebusiers');
   await waitForShell(page);
-  await expect(page.getByRole('checkbox', { name: 'Seleccionar Sintético Uno, Arcabucero' })).toBeVisible();
+  await expect(page.getByRole('checkbox', { name: 'Seleccionar Sempere Llorens, Vicent' })).toBeVisible();
 }
 
 test("the Admin prints a comparsa's badges in Valencian from its page", async ({ page, axeViolations }) => {
@@ -46,7 +46,7 @@ test("the Admin prints a comparsa's badges in Valencian from its page", async ({
   await sheet.getByRole('button', { name: 'Descargar PDF' }).click();
   expect((await request).postDataJSON()).toMatchObject({ language: 'ca-ES-valencia' });
   const pdf = await saved(download);
-  expect(pdf.name).toMatch(/^polvorapp-badges-comparsa-sintetica-este-\d{8}\.pdf$/);
+  expect(pdf.name).toMatch(/^polvorapp-badges-hospitalarios-\d{8}\.pdf$/);
   expect(pdf.bytes.subarray(0, 5).toString()).toBe('%PDF-');
   await expect(sheet.getByRole('status')).toContainText(pdf.name);
 });
@@ -56,11 +56,11 @@ test('the Admin selects arquebusiers of two comparsas and prints them', async ({
 
   await page.getByRole('combobox', { name: 'Comparsa' }).selectOption({ label: NORTE });
   // Wait for the filtered list before ticking, so the box ticked is the filtered list's.
-  await expect(page.getByRole('checkbox', { name: 'Seleccionar Sintética Seis, Arcabucera' })).toBeHidden();
-  await page.getByRole('checkbox', { name: 'Seleccionar Sintético Uno, Arcabucero' }).click();
+  await expect(page.getByRole('checkbox', { name: 'Seleccionar Ferrándiz Soler, Mari Carmen' })).toBeHidden();
+  await page.getByRole('checkbox', { name: 'Seleccionar Sempere Llorens, Vicent' }).click();
   await page.getByRole('combobox', { name: 'Comparsa' }).selectOption({ label: SUR });
-  await expect(page.getByRole('checkbox', { name: 'Seleccionar Sintético Uno, Arcabucero' })).toBeHidden();
-  await page.getByRole('checkbox', { name: 'Seleccionar Sintética Seis, Arcabucera' }).click();
+  await expect(page.getByRole('checkbox', { name: 'Seleccionar Sempere Llorens, Vicent' })).toBeHidden();
+  await page.getByRole('checkbox', { name: 'Seleccionar Ferrándiz Soler, Mari Carmen' }).click();
 
   const bar = page.getByRole('region', { name: 'Selección' });
   await expect(bar).toContainText('2 seleccionados');
@@ -92,7 +92,7 @@ test.describe('as the seeded FiringChief of Norte', () => {
   test('there is no selection and no badge action', async ({ page }) => {
     await page.goto('/arquebusiers');
     await waitForShell(page);
-    await expect(page.getByRole('link', { name: 'Sintético Uno, Arcabucero' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Sempere Llorens, Vicent' })).toBeVisible();
 
     await expect(page.getByRole('checkbox')).toHaveCount(0);
     await expect(page.getByRole('button', { name: /Imprimir carnets/ })).toHaveCount(0);

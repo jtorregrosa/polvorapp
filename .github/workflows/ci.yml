@@ -191,7 +191,8 @@ jobs:
             echo "Playwright install exit code: $installed; compose up exit code: $started"
             exit 1
           fi
-          docker compose run --rm api-seed
+          # The E2E specs rely on the scenarios dataset (fixed counts and rows on the first page).
+          SEED_DATASET=Scenarios docker compose run --rm api-seed
       - name: Playwright
         working-directory: frontend
         run: npm run e2e

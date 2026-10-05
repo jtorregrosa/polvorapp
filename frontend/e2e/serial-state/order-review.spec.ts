@@ -23,7 +23,7 @@ interface OrderState {
 
 /** The seed's values of the two entries the cycle changes (OrderSeeder entries 8 and 10). */
 const SEEDED_ENTRIES: Record<string, Record<string, unknown>> = {
-  // Arcabucero Sintético Uno: his own trabuco, 2 kg, three boxes of normal caps, his own flask.
+  // Vicent Sempere Llorens: his own trabuco, 2 kg, three boxes of normal caps, his own flask.
   '0193a300-0000-7000-8000-000000000001': {
     status: 'ACTIVE',
     powderKg: 2,
@@ -35,7 +35,7 @@ const SEEDED_ENTRIES: Record<string, Record<string, unknown>> = {
     loan: null,
     flask: 'OWNED',
   },
-  // Arcabucero Sintético Tres: a powder carrier, 2 kg, no weapon, a 2 kg rented flask.
+  // Pau Alberola Navarro: a powder carrier, 2 kg, no weapon, a 2 kg rented flask.
   '0193a300-0000-7000-8000-000000000003': {
     status: 'ACTIVE',
     powderKg: 2,
@@ -106,9 +106,7 @@ async function asFiringChief(browser: Browser, viewport?: { width: number; heigh
 async function openOrder(page: Page) {
   await page.goto(`/orders/${NORTE_ORDER}`);
   await waitForShell(page);
-  await expect(
-    page.getByRole('heading', { level: 1, name: 'Pedido de Comparsa Sintética Norte' }),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Pedido de Cruzados' })).toBeVisible();
 }
 
 async function editEntry(page: Page, name: string) {
@@ -142,12 +140,12 @@ test('a FiringChief submits, the Admin returns it, she fixes and resubmits, and 
   try {
     await openOrder(chief);
 
-    const tres = await editEntry(chief, 'Sintético Tres, Arcabucero');
+    const tres = await editEntry(chief, 'Alberola Navarro, Pau');
     await tres.getByRole('radio', { name: /^Reserva/ }).click();
     await saveEntry(chief);
-    await expect(chief.getByRole('row', { name: /Sintético Tres, Arcabucero/ })).toContainText('Reserva');
+    await expect(chief.getByRole('row', { name: /Alberola Navarro, Pau/ })).toContainText('Reserva');
 
-    const uno = await editEntry(chief, 'Sintético Uno, Arcabucero');
+    const uno = await editEntry(chief, 'Sempere Llorens, Vicent');
     await uno.getByRole('radio', { name: /^Cesión/ }).click();
     const change = uno.getByRole('button', { name: 'Cambiar el propietario' });
     if (await change.isVisible()) await change.click();
@@ -155,15 +153,15 @@ test('a FiringChief submits, the Admin returns it, she fixes and resubmits, and 
     await uno.getByRole('button', { name: 'Buscar propietario' }).click();
     await expect(uno.getByText(/No hay ningún arcabucero con este DNI\/NIE/)).toBeVisible();
     await uno.getByRole('textbox', { name: 'Nombre del propietario' }).fill('Propietario');
-    await uno.getByRole('textbox', { name: 'Apellidos del propietario' }).fill('Externo Sintético E2E');
+    await uno.getByRole('textbox', { name: 'Apellidos del propietario' }).fill('Externo Prueba E2E');
     await uno
       .getByRole('combobox', { name: 'Modelo del arma' })
       .selectOption({ label: 'TRABUCO CRISTIANO DIESTRO' });
     await uno.getByRole('textbox', { name: 'Número del arma' }).fill('E2E-0001');
     await uno.getByRole('textbox', { name: 'Número de la guía de pertenencia' }).fill('SINT-E2E-0001');
     await saveEntry(chief);
-    await expect(chief.getByRole('row', { name: /Sintético Uno, Arcabucero/ })).toContainText(
-      'Cesión de Externo Sintético E2E, Propietario (externo)',
+    await expect(chief.getByRole('row', { name: /Sempere Llorens, Vicent/ })).toContainText(
+      'Cesión de Externo Prueba E2E, Propietario (externo)',
     );
 
     await submitWithAttestation(chief);
@@ -173,15 +171,15 @@ test('a FiringChief submits, the Admin returns it, she fixes and resubmits, and 
     const returning = page.getByRole('alertdialog');
     await returning
       .getByRole('textbox', { name: 'Motivo de la devolución' })
-      .fill('Revisad la línea de Sintético Tres.');
+      .fill('Revisad la línea de Pau Alberola.');
     await returning.getByRole('button', { name: 'Devolver' }).click();
     await expect(page.getByText('Pedido devuelto.')).toBeVisible();
 
     await openOrder(chief);
-    await expect(chief.getByText('Devuelto por Admin Sintética')).toBeVisible();
+    await expect(chief.getByText('Devuelto por Inma Ruiz Bernabeu')).toBeVisible();
     await expect(chief.getByRole('region', { name: 'Resumen de pago' })).toContainText('Provisional');
-    await expect(chief.getByText('Revisad la línea de Sintético Tres.')).toBeVisible();
-    const fix = await editEntry(chief, 'Sintético Tres, Arcabucero');
+    await expect(chief.getByText('Revisad la línea de Pau Alberola.')).toBeVisible();
+    const fix = await editEntry(chief, 'Alberola Navarro, Pau');
     await fix.getByRole('radio', { name: 'Activo' }).click();
     await saveEntry(chief);
     await submitWithAttestation(chief);
@@ -201,11 +199,9 @@ test('a FiringChief submits, the Admin returns it, she fixes and resubmits, and 
     await expect(list).toContainText('El pedido está validado por la Unión.');
     await expect(list).not.toContainText('Es un borrador');
     const download = chief.waitForEvent('download');
-    await list
-      .getByRole('button', { name: /^Descargar la lista de Comparsa Sintética Norte en Excel/ })
-      .click();
+    await list.getByRole('button', { name: /^Descargar la lista de Cruzados en Excel/ }).click();
     expect((await download).suggestedFilename()).toMatch(
-      /^polvorapp-\d{4}-comparsa-list-comparsa-sintetica-norte-provisional\.xlsx$/,
+      /^polvorapp-\d{4}-comparsa-list-cruzados-provisional\.xlsx$/,
     );
   } finally {
     await context.close();
@@ -217,7 +213,7 @@ test('on a phone the entry panel opens as a bottom sheet', async ({ browser }) =
   try {
     await openOrder(chief);
 
-    const panel = await editEntry(chief, 'Sintético Cinco, Arcabucero');
+    const panel = await editEntry(chief, 'El Amrani, Youssef');
 
     await expect(panel).toHaveAttribute('data-side', 'bottom');
   } finally {
@@ -230,7 +226,7 @@ test('deleting an arquebusier warns about, and removes, their entry in the open 
   browser,
 }) => {
   const number = 70_000_000 + (Math.floor(Date.now() / 1000) % 1_000_000);
-  const lastName = `Sintético Borrable ${number}`;
+  const lastName = `Prueba Borrable ${number}`;
   const registered = await page.request.post('/api/arquebusiers', {
     headers: await antiforgeryHeaders(page),
     data: {
@@ -264,9 +260,7 @@ test('deleting an arquebusier warns about, and removes, their entry in the open 
     await chief.getByRole('button', { name: 'Más acciones' }).click();
     await chief.getByRole('menuitem', { name: 'Eliminar arcabucero' }).click();
     const dialog = chief.getByRole('alertdialog');
-    await expect(
-      dialog.getByText(/Su línea se eliminará del pedido de \d{4} de Comparsa Sintética Norte/),
-    ).toBeVisible();
+    await expect(dialog.getByText(/Su línea se eliminará del pedido de \d{4} de Cruzados/)).toBeVisible();
     await dialog.getByRole('button', { name: 'Eliminar', exact: true }).click();
     await expect(chief).toHaveURL(/\/arquebusiers$/);
 

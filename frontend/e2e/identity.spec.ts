@@ -169,7 +169,7 @@ test.describe('accessibility of the identity pages', () => {
         const users = page
           .getByRole('table', { name: 'Usuarios' })
           .or(page.getByRole('list', { name: 'Usuarios' }));
-        await expect(users.getByRole('link', { name: 'Admin Sintética' })).toBeVisible();
+        await expect(users.getByRole('link', { name: 'Inma Ruiz Bernabeu' })).toBeVisible();
 
         expect(await axeViolations(page)).toEqual([]);
       });

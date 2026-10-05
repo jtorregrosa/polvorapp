@@ -6,13 +6,13 @@ import { expect, test as base, waitForShell } from './fixtures';
 /**
  * Comparsa logos (change add-comparsa-logos) against the seeded stack. The Admin tests create the
  * comparsa they change and delete it again; the logo is a synthetic emblem drawn in the browser,
- * never a real one (ADR-0012). "Jefe Sintético Uno" is assigned to Norte (seeded with a logo) and
+ * never a real one (ADR-0012). "Joan Moltó Sala" is assigned to Norte (seeded with a logo) and
  * Sur (seeded without one). The stored PNG is read back and decoded by the engine under test.
  */
 
 const NORTE = '0193a100-0000-7000-8000-000000000001';
 const SUR = '0193a100-0000-7000-8000-000000000002';
-/** Seeded with a logo and not assigned to Jefe Sintético Uno. */
+/** Seeded with a logo and not assigned to Joan Moltó Sala. */
 const ESTE = '0193a100-0000-7000-8000-000000000003';
 
 async function antiforgeryHeaders(page: Page): Promise<Record<string, string>> {
@@ -25,7 +25,7 @@ const test = base.extend<{ newComparsa: () => Promise<{ id: string; name: string
   newComparsa: async ({ page }, use) => {
     const ids: string[] = [];
     await use(async () => {
-      const name = `Comparsa Sintética Logo ${randomUUID().slice(0, 8)}`;
+      const name = `Comparsa Prueba Logo ${randomUUID().slice(0, 8)}`;
       const response = await page.request.post('/api/comparsas', {
         headers: await antiforgeryHeaders(page),
         data: { name, side: 'MOORISH' },
@@ -179,10 +179,10 @@ test.describe("a FiringChief's comparsa logos", () => {
     await waitForShell(page);
     await showSidebar(page);
 
-    // By name: another spec may briefly assign Jefe Sintético Uno to a comparsa of its own.
+    // By name: another spec may briefly assign Joan Moltó Sala to a comparsa of its own.
     const cards = page.getByRole('navigation', { name: 'Mis comparsas' });
-    const norte = cards.getByRole('link', { name: 'Comparsa Sintética Norte' });
-    const sur = cards.getByRole('link', { name: 'Comparsa Sintética Sur' });
+    const norte = cards.getByRole('link', { name: 'Cruzados' });
+    const sur = cards.getByRole('link', { name: 'Abencerrajes' });
     await expect(norte.locator('img')).toHaveAttribute(
       'src',
       new RegExp(`^/api/comparsas/${NORTE}/logo\\?v=`),
@@ -195,7 +195,7 @@ test.describe("a FiringChief's comparsa logos", () => {
     expect(await axeViolations()).toEqual([]);
 
     await norte.click();
-    await expect(page.getByRole('heading', { level: 1, name: 'Comparsa Sintética Norte' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Cruzados' })).toBeVisible();
     // On a phone, choosing a card closes the drawer.
     await expect(page.getByRole('dialog')).toHaveCount(0);
     await expect(headerLogo(page).locator('img')).toHaveCount(1);
@@ -229,7 +229,7 @@ test.describe("a FiringChief's comparsa logos in the dark theme", () => {
 
     const norte = page
       .getByRole('navigation', { name: 'Mis comparsas' })
-      .getByRole('link', { name: 'Comparsa Sintética Norte' });
+      .getByRole('link', { name: 'Cruzados' });
     const tile = norte.locator('[data-slot="comparsa-logo"]');
     await expect
       .poll(() => norte.locator('img').evaluate((element: HTMLImageElement) => element.naturalWidth))

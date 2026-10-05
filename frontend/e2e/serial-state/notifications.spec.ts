@@ -219,7 +219,7 @@ test('an Admin returns the Norte order and its FiringChief is emailed without th
     const email = await waitForEmail(
       page,
       JEFA_DOS,
-      /^(Pedido devuelto|Comanda retornada|Order returned): Comparsa Sintética Norte/,
+      /^(Pedido devuelto|Comanda retornada|Order returned): Cruzados/,
       before,
     );
     expect(email.text).toContain(`/orders/${NORTE_ORDER}`);

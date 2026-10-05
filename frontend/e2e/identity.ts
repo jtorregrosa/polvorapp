@@ -15,7 +15,7 @@ const TOTP_PERIOD_SECONDS = 30;
 
 export const ADMIN_STATE = 'e2e/.auth/admin.json';
 export const FIRING_CHIEF_STATE = 'e2e/.auth/firing-chief.json';
-/** "Jefe Sintético Uno": assigned to Norte (seeded with a logo) and Sur (without one). */
+/** "Joan Moltó Sala": assigned to Norte (seeded with a logo) and Sur (without one). */
 export const FIRING_CHIEF_UNO_STATE = 'e2e/.auth/firing-chief-uno.json';
 
 /** A user who can sign in: email, password and authenticator key. */
