@@ -186,21 +186,18 @@ describe('TimeInput', () => {
   });
 
   it.each([
-    [
-      'ca-ES-valencia',
-      'Comparsa Sintètica Nord',
-      "Esborra l'hora de Comparsa Sintètica Nord",
-      "Esborra l'hora",
-    ],
-    ['en', 'Synthetic North', 'Clear time of Synthetic North', 'Clear time'],
-  ])('names the clear button after its visible text in %s', async (language, subject, name, visible) => {
+    ['ca-ES-valencia', 'Comparsa Sintètica Nord', "Esborra l'hora de Comparsa Sintètica Nord"],
+    ['en', 'Synthetic North', 'Clear time of Synthetic North'],
+  ])('shows the clear button as a named cross inside the field in %s', async (language, subject, name) => {
     await renderWithProviders(
       <TimeInput aria-label="Hora" value="09:00" onChange={vi.fn()} clearable clearSubject={subject} />,
       language,
     );
 
-    expect(screen.getByRole('button', { name })).toHaveTextContent(visible);
-    expect(name.startsWith(visible)).toBe(true);
+    const clear = screen.getByRole('button', { name });
+    expect(clear).toHaveTextContent('');
+    expect(clear).toHaveAttribute('title', name);
+    expect(clear.parentElement).toBe(screen.getByLabelText('Hora').parentElement);
   });
 
   it('can be disabled', async () => {

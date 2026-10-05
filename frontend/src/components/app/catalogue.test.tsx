@@ -25,6 +25,7 @@ const NOT_COMPOSITES = new Set([
   'file-rules.ts',
   'use-app-form.ts',
   'save-notice.ts',
+  'clear-field.tsx',
 ]);
 
 /** A text that is a translation key left untranslated, e.g. `status.license.VALID`. */

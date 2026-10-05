@@ -150,6 +150,19 @@ describe('DateInput', () => {
     expect(screen.queryByRole('button', { name: 'Borrar fecha' })).not.toBeInTheDocument();
   });
 
+  it('keeps room for the clear cross inside the field, set or not, so nothing moves', async () => {
+    await renderWithProviders(<DatesForm onSubmit={vi.fn()} />);
+    const course = screen.getByLabelText('Fecha del curso (opcional)');
+    const roomBefore = course.className;
+
+    typeDate(course, '2025-11-15');
+
+    const clear = screen.getByRole('button', { name: 'Borrar fecha' });
+    expect(clear).toHaveTextContent('');
+    expect(clear.parentElement).toBe(course.parentElement);
+    expect(course.className).toBe(roomBefore);
+  });
+
   it('empties a partly typed date when cleared', async () => {
     const user = userEvent.setup();
     await renderWithProviders(<DatesForm onSubmit={vi.fn()} />);
