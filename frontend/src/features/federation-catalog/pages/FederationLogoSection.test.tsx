@@ -110,9 +110,8 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
 
     await screen.findByRole('table', { name: 'Comparsas' });
     expect(screen.queryByRole('region', { name: 'Logo de la Federación' })).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: /logo de la Federación|, opciones$/ }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /logo de la Federación/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /, opciones$/ })).not.toBeInTheDocument();
     expect(requests).toBe(0);
   });
 
@@ -305,9 +304,8 @@ describe('Federation logo on the comparsas page (spec: Federation logo)', () => 
     expect(await within(section).findByRole('alert')).toHaveTextContent(
       'No se ha podido cargar el logo de la Federación.',
     );
-    expect(
-      within(section).queryByRole('button', { name: /logo de la Federación|, opciones$/ }),
-    ).not.toBeInTheDocument();
+    expect(within(section).queryByRole('button', { name: /logo de la Federación/ })).not.toBeInTheDocument();
+    expect(within(section).queryByRole('button', { name: /, opciones$/ })).not.toBeInTheDocument();
 
     server.use(mock.get('/api/federation', () => HttpResponse.json({ logo: null })));
     await userEvent.setup().click(within(section).getByRole('button', { name: 'Reintentar' }));

@@ -264,7 +264,8 @@ test.describe("a FiringChief's comparsa logos", () => {
     // On a phone, choosing a card closes the drawer.
     await expect(page.getByRole('dialog')).toHaveCount(0);
     await expect(headerLogo(page).locator('img')).toHaveCount(1);
-    await expect(page.getByRole('button', { name: /logo de la comparsa|, opciones$/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /logo de la comparsa/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /, opciones$/ })).toHaveCount(0);
 
     // Sur has no logo; Este has one (positive control) but is outside this FiringChief's scope.
     expect((await page.request.get(`/api/comparsas/${SUR}/logo`)).status()).toBe(404);
