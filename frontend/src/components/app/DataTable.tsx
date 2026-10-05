@@ -66,7 +66,9 @@ interface DataTableBaseProps<TRow extends RowData> {
   emptyText?: string;
   /**
    * The record a row leads to. Its cells must contain a link to it (usually the name), which stays
-   * the row's only tab stop; a click anywhere else on the row follows that link.
+   * the row's main tab stop; a click anywhere else on the row follows that link. A cell may hold
+   * its own link to a related record (e.g. an arquebusier's comparsa): that link opens its own
+   * target, and the rest of the row still opens the row's record (spec: Data tables).
    */
   getRowHref?: (row: TRow) => string;
   /** The row as a stacked item on phones (below 768 px), instead of the table. */

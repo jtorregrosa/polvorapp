@@ -103,3 +103,23 @@ export const LongValencian: Story = {
     photoAlt: "Revers de la llicència d'armes d'Arcabucera Sintètica Dos",
   },
 };
+
+/** Picture actions (refine-navigation-and-lists D7): the logo is the button, with its menu. */
+export const PictureLogo: Story = {
+  args: {
+    ...TransparentLogo.args,
+    variant: 'picture',
+    subject: 'logo',
+    removal: {
+      title: '¿Quitar el logo de Comparsa Sintética Este?',
+      description: 'Se borrará la imagen.',
+      confirmLabel: 'Quitar logo',
+      onRemove: () => Promise.resolve(),
+    },
+  },
+};
+
+/** Picture actions without a logo: the placeholder is the add action. */
+export const PictureEmpty: Story = {
+  args: { ...PictureLogo.args, photoUrl: null },
+};

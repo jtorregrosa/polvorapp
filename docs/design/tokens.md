@@ -45,6 +45,16 @@ contrast of every text, state and UI pair is verified by `src/styles/contrast.te
 | `info-foreground` | `#ffffff` | `#172554` | Text on `info`. |
 | `info-soft` | `#eaf0fe` | `#141f3d` | Status pill background. |
 | `info-soft-foreground` | `#1e40af` | `#a5bffd` | Status pill text and icon. |
+| `tag-1` | `#f1ebfd` | `#251a3d` | Tag background, first categorical tone (violet), e.g. Christian side, trabuco. |
+| `tag-1-foreground` | `#5b21b6` | `#c4b5fd` | Tag text on `tag-1`. |
+| `tag-2` | `#e1f5f2` | `#0f2a28` | Tag background, second categorical tone (teal), e.g. Admin, arcabuz, rentable. |
+| `tag-2-foreground` | `#115e59` | `#5eead4` | Tag text on `tag-2`. |
+| `tag-3` | `#fce8f1` | `#331425` | Tag background, third categorical tone (rose), e.g. Moorish side. |
+| `tag-3-foreground` | `#9d174d` | `#f9a8d4` | Tag text on `tag-3`. |
+| `tag-4` | `#e8eaf2` | `#1e2236` | Tag background, fourth categorical tone (slate-indigo), e.g. FiringChief, pistol. |
+| `tag-4-foreground` | `#3f4670` | `#b4bce0` | Tag text on `tag-4`. |
+| `tag-neutral` | `#f4f3f7` | `#221e2d` | Tag background for "no", "none" and unknown values (same as `muted`). |
+| `tag-neutral-foreground` | `#5e5970` | `#a7a1b8` | Tag text on `tag-neutral`. |
 | `border` | `#e4e2ea` | `#2a2636` | Hairline borders of cards, tables and separators (decorative). |
 | `input` | `#8b8799` | `#7a748c` | Borders of form controls (3:1 against the background). |
 | `ring` | `#b8430b` | `#ff8a4a` | Focus indicator (3:1 against every surface). |

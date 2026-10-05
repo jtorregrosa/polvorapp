@@ -9,6 +9,8 @@ import {
   Eraser,
   Lock,
   Send,
+  ShieldCheck,
+  ShieldOff,
   Sparkles,
   TriangleAlert,
   Undo2,
@@ -72,6 +74,11 @@ export const STATUS_MAP = {
     DEACTIVATED: { tone: 'muted', icon: CircleX },
     /** Erased on a GDPR request (add-audit-privacy): kept only as a name in the audit log. */
     ERASED: { tone: 'muted', icon: Eraser },
+  },
+  /** Two-step verification of a user (refine-navigation-and-lists D6): enrolled or not yet. */
+  twoFactor: {
+    ENABLED: { tone: 'success', icon: ShieldCheck },
+    NOT_SET: { tone: 'muted', icon: ShieldOff },
   },
   /** Comparsas and weapon models (federation-catalog): deactivated records keep their history. */
   catalog: {
