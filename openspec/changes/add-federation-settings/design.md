@@ -35,9 +35,11 @@ log.
 
 `FederationSettings` gains typed columns:
 - `official_name_es`, `official_name_ca`, `short_name`;
-- `contact_email` and `website`, nullable;
-- `sender_name` and `reply_to`, nullable;
-- `close_reminder_lead_days` and `milestone_lead_days`, with check constraints 2–14 and 1–14.
+- `contact_email`, `website` and `reply_to`, nullable;
+- `sender_name`, required (it starts as "PolvorApp");
+- `close_reminder_lead_days` and `milestone_lead_days`, with check constraints 2–14 and 1–14;
+- as defence in depth (group 2 review), checks that the names are not blank, that `sender_name`
+  holds no control character, `<`, `>`, `"` or `@`, and that `website` starts with `https://`.
 
 The row also gets an `xmin` version. The migration fills today's values (the names from
 `FederationNames`, "Unión de Comparsas", "PolvorApp", 7, 7).
@@ -47,18 +49,26 @@ and every reader would parse strings.
 
 ### D2. API per section
 
-- `GET /federation-settings` is Admin only and returns all sections with `version`.
+- `GET /federation-settings` (`GetFederationSettings`) is Admin only and returns all sections with
+  `version`. The version is the row's `xmin`, so a logo change or another section's save also
+  changes it: the screen reloads the settings after every save and every logo change.
 - `PUT /federation-settings/identity`, `/emails`, `/orders` and `/calendar` are Admin only. Each
   takes its fields plus `version` and returns `409` on a stale version. Each PUT records one audit
   entry (`FederationSettingsChanged`, the section, previous and new values).
-- `GET /federation` already exists for every signed-in user. It gains the identity fields
+- `GET /federation` (renamed `GetFederation`, `FederationResponse`) already exists for every
+  signed-in user. It gains the identity fields
   (`officialNameEs`, `officialNameCa`, `shortName`) next to the logo flag, so the UI shell can use
   the short name later.
 - Validation uses `InputFields`:
   - lengths are measured after trimming;
-  - the sender name refuses `< > "` and control characters (CR/LF), against header injection;
-  - emails go through `MailboxAddress.TryParse` with a domain;
-  - the website must be an absolute `https` URL of at most 200 characters.
+  - the sender name refuses `< > " @` and control or invisible characters (CR/LF, U+2028, bidi
+    marks), against header injection and a name posing as an address;
+  - email addresses (at most 254 characters) use `InputFields.IsPlainEmail`, as identity does: plain
+    ASCII, no display name, a dotted domain;
+  - the website (at most 200 characters) must be an absolute `https` address with a dotted ASCII
+    host name (no IP, no `localhost`, no lookalike Unicode host), no credentials, written in its
+    canonical form, so what is stored is exactly what emails show;
+  - saves take a body of at most 8 KB and share the Admin write rate limit (`order-writes`).
 
 ### D3. `IFederationSettings` contract
 
@@ -113,8 +123,8 @@ Core 10.0.3), probed with a throwaway script, and from patterns already proven i
 - **Reply-To.** `MimeMessage.ReplyTo` is an `InternetAddressList`; adding a `MailboxAddress` writes
   a `Reply-To:` header. Nothing is written when the list is empty.
 - **Address parsing.** `MailboxAddress.TryParse` accepts `nodomain` (empty `Domain`) and
-  `Name <a@b.c>` (with a display name). The settings validation therefore also requires a
-  non-empty domain, no display name, and the parsed address to equal the trimmed input.
+  `Name <a@b.c>` (with a display name). The settings validation therefore uses the stricter
+  `InputFields.IsPlainEmail` that identity already applies to sign-in addresses.
 - **`xmin` concurrency.** `ComparsaOrders` already maps `uint Version` with `IsRowVersion()`, which
   Npgsql maps to the `xmin` system column with no migration column. The settings row follows it,
   and its writes lock the row first (`SELECT … FOR UPDATE`), as editions do.

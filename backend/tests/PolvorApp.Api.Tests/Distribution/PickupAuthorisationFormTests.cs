@@ -6,6 +6,7 @@ using PolvorApp.Distribution.Contracts;
 using PolvorApp.Distribution.Documents;
 using PolvorApp.Exports.Contracts;
 using PolvorApp.Exports.Writers;
+using PolvorApp.FederationCatalog.Contracts;
 using UglyToad.PdfPig;
 
 namespace PolvorApp.Api.Tests.Distribution;
@@ -21,7 +22,7 @@ public sealed class PickupAuthorisationFormTests
         var form = PickupAuthorisationForm.Build(Data(DistributionType.Powder), DistributionTexts.Spanish);
 
         Assert.Equal("Autorización de recogida de pólvora — Fiestas 2031", form.Title);
-        Assert.Equal([DistributionTexts.Spanish.FederationName], form.HeadingLines);
+        Assert.Equal([TestFederationNames.Spanish], form.HeadingLines);
         Assert.Equal(
             [
                 ("Titular", null),
@@ -112,7 +113,22 @@ public sealed class PickupAuthorisationFormTests
         Assert.Equal(1, pdf.NumberOfPages);
     }
 
-    internal static PickupFormData Data(DistributionType type) => new(
+    [Theory]
+    [InlineData("es-ES", FederationNameForm.Spanish)]
+    [InlineData("ca-ES-valencia", FederationNameForm.Valencian)]
+    [InlineData("en", FederationNameForm.Spanish)]
+    public void The_language_picks_the_form_of_the_Federation_name(string culture, FederationNameForm form) =>
+        Assert.Equal(form, DistributionTexts.For(CultureInfo.GetCultureInfo(culture)).NameForm);
+
+    [Fact]
+    public void The_heading_prints_the_Federation_name_it_is_given()
+    {
+        var form = PickupAuthorisationForm.Build(Data(DistributionType.Powder, "Unió Sintètica de Comparses"), DistributionTexts.Valencian);
+
+        Assert.Equal(["Unió Sintètica de Comparses"], form.HeadingLines);
+    }
+
+    internal static PickupFormData Data(DistributionType type, string federationName = TestFederationNames.Spanish) => new(
         2031,
         type,
         ProxyId,
@@ -121,7 +137,8 @@ public sealed class PickupAuthorisationFormTests
         new FormPerson("Zamora Sintético, Berta", "00000001R", LicenseType.AProf),
         new DateOnly(2031, 4, 18),
         "Paraje Sintético",
-        null);
+        null,
+        federationName);
 
     private static (string, string?) Describe(DocumentFormBlock block) => block switch
     {

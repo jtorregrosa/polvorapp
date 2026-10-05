@@ -112,6 +112,8 @@ internal sealed class FederationCatalogDbContext(DbContextOptions<FederationCata
                 table.HasCheckConstraint(
                     "ck_federation_settings_names_not_blank",
                     "btrim(official_name_es) <> '' AND btrim(official_name_ca) <> '' AND btrim(short_name) <> '' AND btrim(sender_name) <> ''");
+                table.HasCheckConstraint("ck_federation_settings_sender_name", "sender_name !~ '[[:cntrl:]<>\"@]'");
+                table.HasCheckConstraint("ck_federation_settings_website", "website IS NULL OR website LIKE 'https://%'");
                 table.HasCheckConstraint(
                     "ck_federation_settings_close_reminder_lead_days",
                     $"close_reminder_lead_days BETWEEN {Logos.FederationSettings.MinCloseReminderLeadDays} AND {Logos.FederationSettings.MaxCloseReminderLeadDays}");

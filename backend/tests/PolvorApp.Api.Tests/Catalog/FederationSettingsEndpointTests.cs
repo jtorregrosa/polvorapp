@@ -17,13 +17,16 @@ public sealed class FederationSettingsEndpointTests(PostgresFixture postgres, Ma
     private IdentityTestHost _host = null!;
     private HttpClient _admin = null!;
     private HttpClient _chief = null!;
+    private Guid _adminId;
 
     private static CancellationToken Token => TestContext.Current.CancellationToken;
 
     public async ValueTask InitializeAsync()
     {
         _host = await IdentityTestHost.StartAsync(postgres, mailpit);
-        _admin = await _host.SignInAsync(await _host.CreateUserAsync("admin.ajustes@example.test", UserRole.Admin));
+        var admin = await _host.CreateUserAsync("admin.ajustes@example.test", UserRole.Admin);
+        _adminId = admin.Id;
+        _admin = await _host.SignInAsync(admin);
         _chief = await _host.SignInAsync(await _host.CreateUserAsync("jefe.ajustes@example.test"));
     }
 
@@ -78,7 +81,7 @@ public sealed class FederationSettingsEndpointTests(PostgresFixture postgres, Ma
         using var emails = JsonDocument.Parse(entries.Single(e => Section(e.Data!) == "emails").Data!);
         Assert.Equal("PolvorApp", emails.RootElement.GetProperty("previous").GetProperty("senderName").GetString());
         Assert.Equal("Unión de Comparsas · PolvorApp", emails.RootElement.GetProperty("current").GetProperty("senderName").GetString());
-        Assert.All(entries, e => Assert.Equal(("FederationSettings", "1"), (e.EntityType, e.EntityId)));
+        Assert.All(entries, e => Assert.Equal(("FederationSettings", "1", (Guid?)_adminId), (e.EntityType, e.EntityId, e.ActorUserId)));
     }
 
     [Fact]
@@ -108,8 +111,9 @@ public sealed class FederationSettingsEndpointTests(PostgresFixture postgres, Ma
         using var response = await PutAsync(section, body, version);
 
         await AssertProblemAsync(response, HttpStatusCode.BadRequest, "validation");
-        Assert.Equal(reason, (await ErrorsAsync(response))[field]);
+        Assert.Equal(new Dictionary<string, string> { [field] = reason }, await ErrorsAsync(response));
         Assert.Empty(await _host.AuditEntriesAsync("FederationSettingsChanged"));
+        Assert.Equal(version, (await SettingsAsync()).GetProperty("version").GetUInt32());
     }
 
     public static TheoryData<string, object, string, string> InvalidSaves() => new()
@@ -123,9 +127,20 @@ public sealed class FederationSettingsEndpointTests(PostgresFixture postgres, Ma
         { "identity", Identity(website: "http://federacion.example"), "website", "invalid" },
         { "identity", Identity(website: "federacion.example"), "website", "invalid" },
         { "identity", Identity(website: "https://" + new string('a', 200) + ".example"), "website", "tooLong" },
+        { "identity", Identity(website: "https:\\federacion.example"), "website", "invalid" },
+        { "identity", Identity(website: "https://federacion.example/<b>"), "website", "invalid" },
+        { "identity", Identity(website: "https://federacion.example/\"x"), "website", "invalid" },
+        { "identity", Identity(website: "https://localhost"), "website", "invalid" },
+        { "identity", Identity(website: "https://[::1]/"), "website", "invalid" },
+        { "identity", Identity(website: "https://192.0.2.10/"), "website", "invalid" },
+        { "identity", Identity(website: "https://usuario@federacion.example/"), "website", "invalid" },
+        { "identity", Identity(website: "https://\u0430\u0440\u0440\u04CF\u0435.example/"), "website", "invalid" },
         { "emails", new { senderName = "Unión\r\nBcc: a@b.example" }, "senderName", "invalid" },
         { "emails", new { senderName = "Unión <falsa>" }, "senderName", "invalid" },
         { "emails", new { senderName = "\"Unión\"" }, "senderName", "invalid" },
+        { "emails", new { senderName = "soporte@banco.example" }, "senderName", "invalid" },
+        { "emails", new { senderName = "Unión\u2028Bcc" }, "senderName", "invalid" },
+        { "emails", new { senderName = "Unión\u202Eevil" }, "senderName", "invalid" },
         { "emails", new { senderName = new string('a', 81) }, "senderName", "tooLong" },
         { "emails", new { senderName = "" }, "senderName", "required" },
         { "emails", new { senderName = "PolvorApp", replyTo = "no es correo" }, "replyTo", "invalid" },
@@ -135,6 +150,58 @@ public sealed class FederationSettingsEndpointTests(PostgresFixture postgres, Ma
         { "calendar", new { milestoneLeadDays = 0 }, "milestoneLeadDays", "outOfRange" },
         { "calendar", new { milestoneLeadDays = 30 }, "milestoneLeadDays", "outOfRange" },
     };
+
+    [Fact]
+    public async Task Values_at_the_limits_are_accepted_and_padding_is_trimmed()
+    {
+        var settings = await SaveAsync("identity", new
+        {
+            officialNameEs = "  " + new string('e', 150) + "  ",
+            officialNameCa = new string('c', 150),
+            shortName = new string('s', 40),
+            contactEmail = "info@federacion.example",
+            website = "https://federacion.example",
+        });
+        settings = await SaveAsync("emails", new { senderName = new string('n', 80) }, settings);
+        settings = await SaveAsync("orders", new { closeReminderLeadDays = 2 }, settings);
+        settings = await SaveAsync("calendar", new { milestoneLeadDays = 1 }, settings);
+        settings = await SaveAsync("orders", new { closeReminderLeadDays = 14 }, settings);
+        settings = await SaveAsync("calendar", new { milestoneLeadDays = 14 }, settings);
+
+        Assert.Equal(new string('e', 150), settings.GetProperty("identity").GetProperty("officialNameEs").GetString());
+        Assert.Equal("https://federacion.example", settings.GetProperty("identity").GetProperty("website").GetString());
+        Assert.Equal(80, settings.GetProperty("emails").GetProperty("senderName").GetString()!.Length);
+        Assert.Equal((14, 14), (settings.GetProperty("orders").GetProperty("closeReminderLeadDays").GetInt32(), settings.GetProperty("calendar").GetProperty("milestoneLeadDays").GetInt32()));
+    }
+
+    [Fact]
+    public async Task A_save_answers_with_a_new_version_and_an_unchanged_one_keeps_it()
+    {
+        var before = (await SettingsAsync()).GetProperty("version").GetUInt32();
+
+        var changed = await SaveAsync("calendar", new { milestoneLeadDays = 5 });
+        var unchanged = await SaveAsync("calendar", new { milestoneLeadDays = 5 }, changed);
+
+        Assert.NotEqual(before, changed.GetProperty("version").GetUInt32());
+        Assert.Equal(changed.GetProperty("version").GetUInt32(), unchanged.GetProperty("version").GetUInt32());
+    }
+
+    [Fact]
+    public async Task Of_two_saves_on_the_same_version_one_wins_and_the_other_is_a_conflict()
+    {
+        var version = (await SettingsAsync()).GetProperty("version").GetUInt32();
+
+        var responses = await Task.WhenAll(
+            PutAsync("emails", new { senderName = "Primera Administradora" }, version),
+            PutAsync("emails", new { senderName = "Segunda Administradora" }, version));
+
+        Assert.Equal([HttpStatusCode.OK, HttpStatusCode.Conflict], responses.Select(r => r.StatusCode).Order());
+        Assert.Single(await _host.AuditEntriesAsync("FederationSettingsChanged"));
+        foreach (var response in responses)
+        {
+            response.Dispose();
+        }
+    }
 
     [Fact]
     public async Task A_save_based_on_an_older_version_is_a_conflict()
@@ -170,6 +237,7 @@ public sealed class FederationSettingsEndpointTests(PostgresFixture postgres, Ma
 
         Assert.All([read, identity, emails, orders, calendar], r => Assert.Equal(HttpStatusCode.Forbidden, r.StatusCode));
         Assert.Equal(version, (await SettingsAsync()).GetProperty("version").GetUInt32());
+        Assert.Empty(await _host.AuditEntriesAsync("FederationSettingsChanged"));
     }
 
     [Fact]

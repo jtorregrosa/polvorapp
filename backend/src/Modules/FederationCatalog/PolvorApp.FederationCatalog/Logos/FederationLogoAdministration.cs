@@ -20,7 +20,7 @@ internal sealed class FederationLogoAdministration(
     LogoReader reader,
     TimeProvider time)
 {
-    public const string EntityType = "FederationSettings";
+    public const string EntityType = Settings.FederationSettingsAdministration.EntityType;
 
     /// <summary>The logo as the API describes it, or null when none was uploaded.</summary>
     public Task<ComparsaLogo?> FindAsync(CancellationToken cancellationToken) =>

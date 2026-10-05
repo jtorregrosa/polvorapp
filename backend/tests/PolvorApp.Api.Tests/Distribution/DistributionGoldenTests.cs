@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.Extensions.Time.Testing;
 using PolvorApp.Api.Tests.Exports;
+using PolvorApp.Api.Tests.Infrastructure;
 using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.Distribution.Contracts;
@@ -53,7 +54,8 @@ public sealed class DistributionGoldenTests
     [InlineData("en")]
     public void The_form_matches_its_golden_file(string culture)
     {
-        var form = PickupAuthorisationForm.Build(PickupAuthorisationFormTests.Data(DistributionType.Powder), DistributionTexts.For(CultureInfo.GetCultureInfo(culture)));
+        var name = culture == "ca-ES-valencia" ? TestFederationNames.Valencian : TestFederationNames.Spanish;
+        var form = PickupAuthorisationForm.Build(PickupAuthorisationFormTests.Data(DistributionType.Powder, name), DistributionTexts.For(CultureInfo.GetCultureInfo(culture)));
 
         Golden.Matches($"pickup-authorisation-{culture}.pdf", DocumentText.Pdf(Renderer.RenderForm(form).Content.ToArray()));
     }

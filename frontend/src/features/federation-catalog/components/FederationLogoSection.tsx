@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import {
-  getGetFederationSettingsQueryKey,
-  useGetFederationSettings,
+  getGetFederationQueryKey,
+  useGetFederation,
   useRemoveFederationLogo,
   useUploadFederationLogo,
 } from '@/api/generated/federation/federation';
-import type { FederationSettingsResponse } from '@/api/generated/model';
+import type { FederationResponse } from '@/api/generated/model';
 import { SectionCard } from '@/components/app/SectionCard';
 import { LoadFailure } from '@/features/arquebusier-registry/components/LoadFailure';
 import { useInvalidate } from '@/lib/use-invalidate';
@@ -21,11 +21,11 @@ const STALE = new Set(['logos.notFound']);
  */
 export function FederationLogoSection() {
   const { t } = useTranslation('catalog');
-  const settings = useGetFederationSettings();
+  const settings = useGetFederation();
   const { mutateAsync: upload } = useUploadFederationLogo();
   const { mutateAsync: remove } = useRemoveFederationLogo();
-  const refresh = useInvalidate([getGetFederationSettingsQueryKey()]);
-  const logo = (settings.data?.data as FederationSettingsResponse | undefined)?.logo;
+  const refresh = useInvalidate([getGetFederationQueryKey()]);
+  const logo = (settings.data?.data as FederationResponse | undefined)?.logo;
 
   const content = () => {
     if (settings.isError && logo === undefined) {

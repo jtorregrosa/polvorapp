@@ -2,12 +2,14 @@ using System.Net.Mail;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using PolvorApp.FederationCatalog.Logos;
 using PolvorApp.FederationCatalog.Settings;
 using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.SharedKernel.Http;
+using PolvorApp.SharedKernel.Security;
 
 namespace PolvorApp.FederationCatalog.Endpoints;
 
@@ -26,7 +28,7 @@ internal static class SettingsEndpoints
         var group = endpoints.MapGroup("/federation-settings").WithTags("Settings")
             .RequireAuthorization(AuthorizationPolicies.Admin)
             .ProducesProblem(StatusCodes.Status401Unauthorized).ProducesProblem(StatusCodes.Status403Forbidden);
-        group.MapGet("/", GetAsync).WithName("GetSettings").WithSummary("Every Federation settings section, with its version.");
+        group.MapGet("/", GetAsync).WithName("GetFederationSettings").WithSummary("Every Federation settings section, with its version.");
         group.MapPut("/identity", SaveIdentityAsync).WithName("UpdateIdentitySettings")
             .WithSummary("Saves the Federation's names and public contact.").WithSaveProblems();
         group.MapPut("/emails", SaveEmailsAsync).WithName("UpdateEmailSettings")
@@ -38,31 +40,38 @@ internal static class SettingsEndpoints
         return endpoints;
     }
 
+    /// <summary>A save's body is a few short fields.</summary>
+    private const long MaxRequestBytes = 8 * 1024;
+
+    /// <summary>Saves are small JSON bodies under the Admin write rate limit (security review).</summary>
     private static RouteHandlerBuilder WithSaveProblems(this RouteHandlerBuilder builder) =>
-        builder.ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status409Conflict)
+        builder.WithMetadata(new RequestSizeLimitAttribute(MaxRequestBytes))
+            .RequireRateLimiting(RateLimitPolicies.OrderWrites)
+            .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status413PayloadTooLarge).ProducesProblem(StatusCodes.Status429TooManyRequests)
             .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
 
-    private static async Task<Ok<SettingsResponse>> GetAsync(
+    private static async Task<Ok<FederationSettingsResponse>> GetAsync(
         FederationSettingsAdministration administration, IConfiguration configuration, CancellationToken cancellationToken) =>
-        TypedResults.Ok(SettingsResponse.From(await administration.GetAsync(cancellationToken), SenderAddress(configuration)));
+        TypedResults.Ok(FederationSettingsResponse.From(await administration.GetAsync(cancellationToken), SenderAddress(configuration)));
 
-    private static Task<Results<Ok<SettingsResponse>, ProblemHttpResult>> SaveIdentityAsync(
+    private static Task<Results<Ok<FederationSettingsResponse>, ProblemHttpResult>> SaveIdentityAsync(
         IdentitySettingsRequest request, FederationSettingsAdministration administration, IConfiguration configuration, CancellationToken cancellationToken) =>
         SaveAsync(request.Version, errors => SettingsInput.Identity(request, errors), administration.SaveIdentityAsync, configuration, cancellationToken);
 
-    private static Task<Results<Ok<SettingsResponse>, ProblemHttpResult>> SaveEmailsAsync(
+    private static Task<Results<Ok<FederationSettingsResponse>, ProblemHttpResult>> SaveEmailsAsync(
         EmailSettingsRequest request, FederationSettingsAdministration administration, IConfiguration configuration, CancellationToken cancellationToken) =>
         SaveAsync(request.Version, errors => SettingsInput.Emails(request, errors), administration.SaveEmailsAsync, configuration, cancellationToken);
 
-    private static Task<Results<Ok<SettingsResponse>, ProblemHttpResult>> SaveOrdersAsync(
+    private static Task<Results<Ok<FederationSettingsResponse>, ProblemHttpResult>> SaveOrdersAsync(
         OrderSettingsRequest request, FederationSettingsAdministration administration, IConfiguration configuration, CancellationToken cancellationToken) =>
         SaveAsync(request.Version, errors => SettingsInput.Orders(request, errors), administration.SaveOrdersAsync, configuration, cancellationToken);
 
-    private static Task<Results<Ok<SettingsResponse>, ProblemHttpResult>> SaveCalendarAsync(
+    private static Task<Results<Ok<FederationSettingsResponse>, ProblemHttpResult>> SaveCalendarAsync(
         CalendarSettingsRequest request, FederationSettingsAdministration administration, IConfiguration configuration, CancellationToken cancellationToken) =>
         SaveAsync(request.Version, errors => SettingsInput.Calendar(request, errors), administration.SaveCalendarAsync, configuration, cancellationToken);
 
-    private static async Task<Results<Ok<SettingsResponse>, ProblemHttpResult>> SaveAsync<TFields>(
+    private static async Task<Results<Ok<FederationSettingsResponse>, ProblemHttpResult>> SaveAsync<TFields>(
         uint? requestVersion,
         Func<Dictionary<string, string>, TFields?> read,
         Func<uint, TFields, CancellationToken, Task<(SettingsOutcome Outcome, FederationSettings? Settings)>> save,
@@ -80,7 +89,7 @@ internal static class SettingsEndpoints
 
         return await save(basedOn, fields, cancellationToken) switch
         {
-            (SettingsOutcome.Done, { } settings) => TypedResults.Ok(SettingsResponse.From(settings, SenderAddress(configuration))),
+            (SettingsOutcome.Done, { } settings) => TypedResults.Ok(FederationSettingsResponse.From(settings, SenderAddress(configuration))),
             (SettingsOutcome.Modified, _) => ProblemResults.Conflict(Modified),
             _ => CatalogProblems.From(CatalogOutcome.Busy),
         };

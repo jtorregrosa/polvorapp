@@ -12,7 +12,7 @@ using PolvorApp.FederationCatalog.Persistence;
 namespace PolvorApp.FederationCatalog.Persistence.Migrations
 {
     [DbContext(typeof(FederationCatalogDbContext))]
-    [Migration("20261005145803_AddFederationSettings")]
+    [Migration("20261005151158_AddFederationSettings")]
     partial class AddFederationSettings
     {
         /// <inheritdoc />
@@ -183,7 +183,11 @@ namespace PolvorApp.FederationCatalog.Persistence.Migrations
 
                             t.HasCheckConstraint("ck_federation_settings_names_not_blank", "btrim(official_name_es) <> '' AND btrim(official_name_ca) <> '' AND btrim(short_name) <> '' AND btrim(sender_name) <> ''");
 
+                            t.HasCheckConstraint("ck_federation_settings_sender_name", "sender_name !~ '[[:cntrl:]<>\"@]'");
+
                             t.HasCheckConstraint("ck_federation_settings_single", "id = 1");
+
+                            t.HasCheckConstraint("ck_federation_settings_website", "website IS NULL OR website LIKE 'https://%'");
                         });
                 });
 

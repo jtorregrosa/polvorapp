@@ -2,6 +2,7 @@ using System.Globalization;
 using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.Distribution.Contracts;
 using PolvorApp.Exports.Contracts;
+using PolvorApp.FederationCatalog.Contracts;
 
 namespace PolvorApp.Distribution.Documents;
 
@@ -61,7 +62,8 @@ internal sealed record DistributionTexts
     public required string ErasedPerson { get; init; }
 
     // Form.
-    public required string FederationName { get; init; }
+    /// <summary>Which form of the Federation's official name the form prints (add-federation-settings).</summary>
+    public required FederationNameForm NameForm { get; init; }
 
     /// <summary>{0} is the edition year.</summary>
     public required IReadOnlyDictionary<DistributionType, string> FormTitles { get; init; }
@@ -124,7 +126,7 @@ internal sealed record DistributionTexts
         ProxyNationalId = "DNI/NIE autorizado",
         Flasks = FlaskWords("Propia", "Alquiler 1 kg", "Alquiler 2 kg", "Ninguna"),
         ErasedPerson = "[datos borrados]",
-        FederationName = FederationNames.Spanish,
+        NameForm = FederationNameForm.Spanish,
         FormTitles = new Dictionary<DistributionType, string>
         {
             [DistributionType.Powder] = "Autorización de recogida de pólvora — Fiestas {0}",
@@ -175,7 +177,7 @@ internal sealed record DistributionTexts
         ProxyNationalId = "DNI/NIE autoritzat",
         Flasks = FlaskWords("Pròpia", "Lloguer 1 kg", "Lloguer 2 kg", "Cap"),
         ErasedPerson = "[dades esborrades]",
-        FederationName = FederationNames.Valencian,
+        NameForm = FederationNameForm.Valencian,
         FormTitles = new Dictionary<DistributionType, string>
         {
             [DistributionType.Powder] = "Autorització de recollida de pólvora — Festes {0}",
@@ -226,7 +228,7 @@ internal sealed record DistributionTexts
         ProxyNationalId = "Proxy DNI/NIE",
         Flasks = FlaskWords("Own", "Rented 1 kg", "Rented 2 kg", "None"),
         ErasedPerson = "[data erased]",
-        FederationName = FederationNames.Spanish,
+        NameForm = FederationNameForm.Spanish,
         FormTitles = new Dictionary<DistributionType, string>
         {
             [DistributionType.Powder] = "Authorisation to collect the powder — Festival {0}",

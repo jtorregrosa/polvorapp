@@ -117,6 +117,18 @@ namespace PolvorApp.FederationCatalog.Persistence.Migrations
                 schema: "catalog",
                 table: "federation_settings",
                 sql: "btrim(official_name_es) <> '' AND btrim(official_name_ca) <> '' AND btrim(short_name) <> '' AND btrim(sender_name) <> ''");
+
+            migrationBuilder.AddCheckConstraint(
+                name: "ck_federation_settings_sender_name",
+                schema: "catalog",
+                table: "federation_settings",
+                sql: "sender_name !~ '[[:cntrl:]<>\"@]'");
+
+            migrationBuilder.AddCheckConstraint(
+                name: "ck_federation_settings_website",
+                schema: "catalog",
+                table: "federation_settings",
+                sql: "website IS NULL OR website LIKE 'https://%'");
         }
 
         /// <inheritdoc />
@@ -134,6 +146,16 @@ namespace PolvorApp.FederationCatalog.Persistence.Migrations
 
             migrationBuilder.DropCheckConstraint(
                 name: "ck_federation_settings_names_not_blank",
+                schema: "catalog",
+                table: "federation_settings");
+
+            migrationBuilder.DropCheckConstraint(
+                name: "ck_federation_settings_sender_name",
+                schema: "catalog",
+                table: "federation_settings");
+
+            migrationBuilder.DropCheckConstraint(
+                name: "ck_federation_settings_website",
                 schema: "catalog",
                 table: "federation_settings");
 

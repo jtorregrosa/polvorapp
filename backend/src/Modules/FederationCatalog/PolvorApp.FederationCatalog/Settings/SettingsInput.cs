@@ -13,8 +13,11 @@ internal static class SettingsInput
 {
     public const string OutOfRange = "outOfRange";
 
-    /// <summary>Characters a sender name may not hold: they would read as address syntax in a <c>From</c> header.</summary>
-    private const string SenderNameForbidden = "<>\"";
+    /// <summary>
+    /// Characters a sender name may not hold: address syntax in a <c>From</c> header, and <c>@</c> so the
+    /// name can never pose as an address (security review).
+    /// </summary>
+    private const string SenderNameForbidden = "<>\"@";
 
     public static IdentityFields? Identity(IdentitySettingsRequest request, IDictionary<string, string> errors)
     {
@@ -89,16 +92,28 @@ internal static class SettingsInput
         return text;
     }
 
-    /// <summary>An optional absolute <c>https</c> address without credentials; blank is none.</summary>
+    /// <summary>
+    /// An optional absolute <c>https</c> address without credentials, stored in its canonical form. The
+    /// text must already be that form, so what the Admin typed is exactly what emails show: characters
+    /// that need escaping (quotes, angle brackets, spaces), backslashes and non-ASCII (lookalike) host
+    /// names are refused (security review). Blank is none.
+    /// </summary>
     private static string? OptionalWebsite(string? value, string field, IDictionary<string, string> errors)
     {
         var text = Optional(value, field, FederationSettings.WebsiteMaxLength, errors);
-        if (text is not null
-            && !(Uri.TryCreate(text, UriKind.Absolute, out var uri)
-                && uri.Scheme == Uri.UriSchemeHttps
-                && uri.Host.Length > 0
-                && uri.UserInfo.Length == 0
-                && !text.Any(char.IsWhiteSpace)))
+        if (text is null)
+        {
+            return null;
+        }
+
+        if (!Uri.TryCreate(text, UriKind.Absolute, out var uri)
+            || uri.Scheme != Uri.UriSchemeHttps
+            || uri.HostNameType != UriHostNameType.Dns
+            || !uri.Host.Contains('.', StringComparison.Ordinal)
+            || uri.UserInfo.Length > 0
+            || !Ascii.IsValid(uri.Host)
+            || uri.IdnHost != uri.Host
+            || !IsCanonical(text, uri))
         {
             errors[field] = InputFields.Invalid;
             return null;
@@ -107,7 +122,12 @@ internal static class SettingsInput
         return text;
     }
 
-    /// <summary>Blank or absent is none; otherwise the trimmed text, checked as <see cref="InputFields.Text"/> does.</summary>
+    /// <summary>Whether <paramref name="text"/> is written exactly as the parsed address (a bare host gains its trailing slash).</summary>
+    private static bool IsCanonical(string text, Uri uri) =>
+        string.Equals(text, uri.AbsoluteUri, StringComparison.Ordinal)
+        || string.Equals(text + "/", uri.AbsoluteUri, StringComparison.Ordinal);
+
+    /// <summary>Blank or absent is none; otherwise the trimmed text, checked as <see cref="InputFields.Text"/> does (oversized input first).</summary>
     private static string? Optional(string? value, string field, int maxLength, IDictionary<string, string> errors) =>
-        string.IsNullOrWhiteSpace(value) ? null : InputFields.Text(value.Normalize(NormalizationForm.FormC), field, maxLength, errors);
+        string.IsNullOrWhiteSpace(value) ? null : InputFields.Text(value, field, maxLength, errors);
 }

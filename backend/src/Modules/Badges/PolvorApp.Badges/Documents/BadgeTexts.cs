@@ -1,5 +1,5 @@
 using PolvorApp.Badges.Contracts;
-using PolvorApp.Exports.Contracts;
+using PolvorApp.FederationCatalog.Contracts;
 
 namespace PolvorApp.Badges.Documents;
 
@@ -13,7 +13,8 @@ internal sealed record BadgeTexts
 
     public required string HeaderWord { get; init; }
 
-    public required string FederationName { get; init; }
+    /// <summary>Which form of the Federation's official name the sheet prints (add-federation-settings).</summary>
+    public required FederationNameForm NameForm { get; init; }
 
     /// <summary>Surnames, name, DNI/NIE, code, expiry date and comparsa.</summary>
     public required IReadOnlyList<string> Labels { get; init; }
@@ -22,7 +23,7 @@ internal sealed record BadgeTexts
     {
         Title = "Carnets de arcabucero",
         HeaderWord = "ARCABUCERO",
-        FederationName = FederationNames.Spanish,
+        NameForm = FederationNameForm.Spanish,
         Labels = ["Apellidos", "Nombre", "DNI/NIE", "Código", "Fecha de caducidad", "Comparsa"],
     };
 
@@ -30,16 +31,16 @@ internal sealed record BadgeTexts
     {
         Title = "Carnets d'arcabusser",
         HeaderWord = "ARCABUSSER",
-        FederationName = FederationNames.Valencian,
+        NameForm = FederationNameForm.Valencian,
         Labels = ["Cognoms", "Nom", "DNI/NIE", "Codi", "Data de caducitat", "Comparsa"],
     };
 
-    /// <summary>The Federation's name is a proper name: English uses the Spanish form.</summary>
+    /// <summary>The Federation's name is a proper name: English prints the Spanish form.</summary>
     public static readonly BadgeTexts English = new()
     {
         Title = "Arquebusier badges",
         HeaderWord = "ARQUEBUSIER",
-        FederationName = FederationNames.Spanish,
+        NameForm = FederationNameForm.Spanish,
         Labels = ["Surnames", "Name", "DNI/NIE", "Code", "Expiry date", "Comparsa"],
     };
 

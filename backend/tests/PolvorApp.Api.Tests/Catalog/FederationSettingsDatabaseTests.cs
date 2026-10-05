@@ -67,6 +67,18 @@ public sealed class FederationSettingsDatabaseTests(PostgresFixture postgres) : 
         Assert.Equal((PostgresErrorCodes.CheckViolation, "ck_federation_settings_names_not_blank"), (error.SqlState, error.ConstraintName));
     }
 
+    [Theory]
+    [InlineData("UPDATE catalog.federation_settings SET sender_name = E'Uni\\nBcc'", "ck_federation_settings_sender_name")]
+    [InlineData("UPDATE catalog.federation_settings SET sender_name = 'soporte@banco.example'", "ck_federation_settings_sender_name")]
+    [InlineData("UPDATE catalog.federation_settings SET sender_name = 'Uni <x>'", "ck_federation_settings_sender_name")]
+    [InlineData("UPDATE catalog.federation_settings SET website = 'http://federacion.example'", "ck_federation_settings_website")]
+    public async Task Unsafe_sender_names_and_websites_are_refused(string sql, string constraint)
+    {
+        var error = await Assert.ThrowsAsync<PostgresException>(() => ExecuteAsync(sql));
+
+        Assert.Equal((PostgresErrorCodes.CheckViolation, constraint), (error.SqlState, error.ConstraintName));
+    }
+
     [Fact]
     public async Task The_version_changes_with_every_write()
     {
