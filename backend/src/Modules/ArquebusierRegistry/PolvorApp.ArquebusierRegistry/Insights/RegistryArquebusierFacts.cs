@@ -24,6 +24,21 @@ internal sealed class RegistryArquebusierFacts(ArquebusierRegistryDbContext db) 
             : ReadAsync([.. comparsaIds], cancellationToken);
     }
 
+    public async Task<IReadOnlyDictionary<Guid, Gender>> FindGendersAsync(IReadOnlyCollection<Guid> arquebusierIds, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(arquebusierIds);
+        if (arquebusierIds.Count == 0)
+        {
+            return new Dictionary<Guid, Gender>();
+        }
+
+        Guid[] ids = [.. arquebusierIds];
+        return await db.Arquebusiers.AsNoTracking()
+            .Where(a => ids.Contains(a.Id))
+            .Select(a => new { a.Id, a.Gender })
+            .ToDictionaryAsync(a => a.Id, a => a.Gender, cancellationToken);
+    }
+
     private async Task<IReadOnlyList<ArquebusierFacts>> ReadAsync(Guid[]? comparsaIds, CancellationToken cancellationToken)
     {
         var arquebusiers = db.Arquebusiers.AsNoTracking();

@@ -22,6 +22,14 @@ public interface IArquebusierFacts
 
     /// <summary>The facts of the arquebusiers of <paramref name="comparsaIds"/>, in no defined order; none for an empty set.</summary>
     Task<IReadOnlyList<ArquebusierFacts>> ListAsync(IReadOnlyCollection<Guid> comparsaIds, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The gender of each of <paramref name="arquebusierIds"/> still in the registry, whatever their
+    /// comparsa today; ids no longer in it are absent (add-statistics-trends, design D2). Only for
+    /// counting the entries a caller may already see by gender: the ids MUST come from data within the
+    /// caller's scope, and only the counts may leave the server.
+    /// </summary>
+    Task<IReadOnlyDictionary<Guid, Gender>> FindGendersAsync(IReadOnlyCollection<Guid> arquebusierIds, CancellationToken cancellationToken);
 }
 
 /// <summary>

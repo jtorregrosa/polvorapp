@@ -31,6 +31,15 @@ internal sealed class ScopedFacts(IArquebusierFacts facts, IComplianceRules rule
         return [.. read.Select(f => new EvaluatedFacts(f, rules.AgeOn(f.BirthDate, today), rules.Evaluate(ComplianceFactsOf(f), today)))];
     }
 
+    /// <summary>
+    /// The gender of today of the arquebusiers of entries the caller may already see, whatever their
+    /// comparsa now (add-statistics-trends, design D2): the ids come from the scoped orders, so a
+    /// moved arquebusier keeps their gender and only one no longer in the registry is unknown. The
+    /// genders stay in this module: only counts by gender leave it.
+    /// </summary>
+    public Task<IReadOnlyDictionary<Guid, Gender>> GendersOfAsync(IReadOnlyCollection<Guid> arquebusierIds, CancellationToken cancellationToken) =>
+        facts.FindGendersAsync(arquebusierIds, cancellationToken);
+
     /// <summary>The registry's facts as the rules read them; the license hierarchy maps one to one.</summary>
     private static ComplianceFacts ComplianceFactsOf(ArquebusierFacts facts) =>
         new(

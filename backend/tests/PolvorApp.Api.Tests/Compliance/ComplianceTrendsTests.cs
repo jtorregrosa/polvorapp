@@ -56,6 +56,54 @@ public sealed class ComplianceTrendsTests(PostgresFixture postgres, MailpitFixtu
     }
 
     [Fact]
+    public async Task An_arquebusier_who_moved_comparsa_keeps_their_gender_and_unspecified_is_counted()
+    {
+        var moved = RegistryData.NewArquebusier(_orders.Other.Id, "Tendencia Trasladada");
+        moved.Gender = Gender.Female;
+        var unspecified = RegistryData.NewArquebusier(_orders.Own.Id, "Tendencia Sin Definir");
+        unspecified.Gender = Gender.Unspecified;
+        await _orders.Services.SaveRegistryAsync(moved, unspecified);
+        // Last year they paraded with the FiringChief's comparsa; today they belong to another one.
+        var order = NewOrder(_orders.Previous, _orders.Own.Id, OrderStatus.Validated);
+        await _orders.Services.SaveOrdersAsync(order, NewEntry(order, moved.Id), NewEntry(order, unspecified.Id));
+
+        var gender = Row(await TrendsAsync(_orders.FiringChief, null), 2030).GetProperty("gender");
+
+        Assert.Equal((1, 0, 1, 0), (Int(gender, "female"), Int(gender, "male"), Int(gender, "unspecified"), Int(gender, "unknown")));
+    }
+
+    [Fact]
+    public async Task A_comparsa_without_active_entries_in_an_edition_counts_zero_there()
+    {
+        var previous = NewOrder(_orders.Previous, _orders.Own.Id, OrderStatus.Validated);
+        var current = NewOrder(_orders.Current, _orders.Other.Id);
+        await _orders.Services.SaveOrdersAsync(previous, NewEntry(previous, _woman.Id), current, NewEntry(current, await PersonAsync(_orders.Other.Id)));
+
+        var trends = await TrendsAsync(_orders.Admin, null);
+
+        var current2031 = Row(trends, 2031).GetProperty("comparsas").EnumerateArray()
+            .ToDictionary(c => c.GetProperty("comparsaId").GetGuid(), c => Int(c, "active"));
+        Assert.Equal(new Dictionary<Guid, int> { [_orders.Own.Id] = 0, [_orders.Other.Id] = 1 }, current2031);
+        Assert.Equal(2, trends.GetProperty("comparsas").GetArrayLength());
+    }
+
+    [Fact]
+    public async Task Too_many_trend_reads_are_refused()
+    {
+        await using var limited = await OrderTestHost.StartAsync(
+            postgres, mailpit, settings: new Dictionary<string, string?> { ["RateLimits:InsightsReads:PermitLimit"] = "2" });
+
+        for (var i = 0; i < 2; i++)
+        {
+            using var allowed = await limited.Admin.GetAsync("/api/compliance/trends", Token);
+            Assert.Equal(HttpStatusCode.OK, allowed.StatusCode);
+        }
+
+        using var refused = await limited.Admin.GetAsync("/api/compliance/trends", Token);
+        Assert.Equal(HttpStatusCode.TooManyRequests, refused.StatusCode);
+    }
+
+    [Fact]
     public async Task Rentals_are_counted_by_weapon_kind()
     {
         var order = NewOrder(_orders.Current, _orders.Own.Id);
@@ -87,7 +135,7 @@ public sealed class ComplianceTrendsTests(PostgresFixture postgres, MailpitFixtu
     }
 
     [Fact]
-    public async Task A_FiringChief_counts_only_their_comparsas_and_a_filter_drops_the_per_comparsa_figures()
+    public async Task A_FiringChief_with_two_comparsas_counts_only_theirs_and_a_filter_drops_the_per_comparsa_figures()
     {
         var own = NewOrder(_orders.Current, _orders.Own.Id);
         var other = NewOrder(_orders.Current, _orders.Other.Id);
@@ -96,8 +144,14 @@ public sealed class ComplianceTrendsTests(PostgresFixture postgres, MailpitFixtu
         var all = await TrendsAsync(_orders.FiringChief, null);
         var filtered = await TrendsAsync(_orders.FiringChief, _orders.Own.Id);
 
+        // The FiringChief is assigned to two comparsas (one inactive, without entries): per-comparsa
+        // figures name only comparsas in their scope, never the other one.
         Assert.Equal(1, Int(Row(all, 2031), "active"));
-        Assert.DoesNotContain(all.GetProperty("comparsas").EnumerateArray(), c => c.GetProperty("id").GetGuid() == _orders.Other.Id);
+        var perComparsa = Row(all, 2031).GetProperty("comparsas").EnumerateArray()
+            .ToDictionary(c => c.GetProperty("comparsaId").GetGuid(), c => Int(c, "active"));
+        Assert.Equal(new Dictionary<Guid, int> { [_orders.Own.Id] = 1 }, perComparsa);
+        Assert.Equal([_orders.Own.Id], all.GetProperty("comparsas").EnumerateArray().Select(c => c.GetProperty("id").GetGuid()));
+        Assert.Equal(1, Int(Row(filtered, 2031), "active"));
         Assert.Empty(Row(filtered, 2031).GetProperty("comparsas").EnumerateArray());
         Assert.Empty(filtered.GetProperty("comparsas").EnumerateArray());
     }

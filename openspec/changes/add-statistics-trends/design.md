@@ -36,8 +36,11 @@ See `proposal.md` and the delta specs. The facts below come from the current cod
 ### D1. `IEditionTrends` in `ComparsaOrders.Contracts`
 
 ```text
-Task<IReadOnlyList<EditionTrendRow>> ListAsync(ComparsaAccess access, Guid? comparsaId, CancellationToken)
+Task<IReadOnlyList<EditionTrendRow>> ListAsync(IReadOnlyCollection<Guid>? comparsaIds, CancellationToken)
 ```
+
+`ComparsaOrders.Contracts` cannot depend on `IdentityAccess.Contracts`, so the caller resolves the
+scope and passes the comparsa ids (null only for an access that covers every comparsa).
 
 `EditionTrendRow` holds `Year`, `Provisional`, counts by status, `PowderKg`, `CapsBoxes`, counts by
 weapon source, rentals by `WeaponKind`, flask rentals, first-year count (or null), and a map of
@@ -47,17 +50,19 @@ used only inside the server for the gender join (D2), never serialised.
   editions (`status <> DRAFT`, latest 10 years). Rentals by kind come from the catalogue through
   `ICatalogDirectory.FindWeaponModelsAsync` for the distinct model ids.
 - The first year reuses `IParticipationHistory`'s rule: an ACTIVE entry with no ACTIVE entry in an
-  earlier edition. It is computed in SQL with a window over `arquebusier_id`, and is null for the
-  oldest edition with orders.
+  earlier edition. It is computed from each arquebusier's first `ACTIVE` year (a second grouped
+  query), and is null until an earlier edition than the row's has orders.
 
 *Alternative*: compute in `ComplianceInsights` from raw entries through a new "list entries"
 contract. Rejected, because it moves ~8,000 rows across the boundary for counts.
 
 ### D2. Gender from the registry, counted on the server
 
-`ComplianceInsights` asks `IArquebusierFacts` (already used by `ScopedFacts`) for the gender of the
-returned arquebusier ids, within the same scope. Each edition's ACTIVE ids are counted by gender.
-Ids that are null or not found count as `UNKNOWN`. Only counts leave the module (see
+`ComplianceInsights` asks `IArquebusierFacts.FindGendersAsync` (through `ScopedFacts`) for the gender
+of the returned arquebusier ids only, whatever their comparsa today: the ids come from the scoped
+orders, so an arquebusier who moved comparsa keeps their gender, and only `Id` and `Gender` are read.
+Each edition's ACTIVE ids are counted by gender. Ids that are null (deleted) or not found count as
+`UNKNOWN`; the reads are separate, so `UNKNOWN` is clamped at zero. Only counts leave the module (see
 `docs/compliance.md`, gender for equality reports).
 
 ### D3. Endpoint
@@ -65,7 +70,9 @@ Ids that are null or not found count as `UNKNOWN`. Only counts leave the module 
 `GET /compliance/trends?comparsaId=` is in `ComplianceEndpoints`, with the same authorisation,
 scope and `404` rules as `/statistics`. Its response is `TrendsResponse { rows: TrendRowResponse[],
 comparsas?: { id, name }[] }`, and per-comparsa figures are present only for multi-comparsa scopes
-without a filter. It is not audited, like `/statistics` (reads of aggregates).
+without a filter: one count per comparsa with entries in any of the editions, zero where it has none
+in that edition. It is not audited, like `/statistics` (reads of aggregates). It is heavier than
+`/statistics`, so it has its own per-user rate limit (`InsightsReads`, 60 per minute).
 
 ### D4. Charts stack
 

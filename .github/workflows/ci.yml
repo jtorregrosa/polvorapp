@@ -175,6 +175,7 @@ jobs:
           echo "RATE_LIMIT_SPREADSHEET_IMPORTS_PER_MINUTE=100" >> .env
           echo "RATE_LIMIT_EXPORTS_PER_MINUTE=300" >> .env
           echo "RATE_LIMIT_PRIVACY_PER_MINUTE=100" >> .env
+          echo "RATE_LIMIT_INSIGHTS_READS_PER_MINUTE=600" >> .env
           # Notification emails every 2 s, so the E2E run reads them in Mailpit without waiting long.
           echo "NOTIFICATIONS_DISPATCH_INTERVAL_SECONDS=2" >> .env
           # Building the images and installing the browsers are independent: run them side by side.

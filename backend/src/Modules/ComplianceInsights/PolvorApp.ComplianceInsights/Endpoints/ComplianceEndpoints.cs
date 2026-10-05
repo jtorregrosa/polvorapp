@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using PolvorApp.ArquebusierRegistry.Contracts;
 using PolvorApp.SharedKernel.Http;
+using PolvorApp.SharedKernel.Security;
 using PolvorApp.SharedKernel.Validation;
 
 namespace PolvorApp.ComplianceInsights.Endpoints;
@@ -27,7 +28,9 @@ internal static class ComplianceEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound);
         group.MapGet("/trends", TrendsAsync).WithName("GetComplianceTrends")
             .WithSummary("Participation counts of the caller's comparsas in the 10 most recent started editions, optionally of one comparsa.")
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .RequireRateLimiting(RateLimitPolicies.InsightsReads)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
         return endpoints;
     }
 
