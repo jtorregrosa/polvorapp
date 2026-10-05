@@ -28,7 +28,7 @@
 | UC-04 | Register an owned weapon (model, weapon number, ownership guide) | FC | MVP |
 | UC-05 | Set an arquebusier as Active or Reserve; delete when they leave the Federation | FC | MVP |
 | UC-06 | Alerts dashboard: license expired / expiring / pending, no course, under age | FC, AD | MVP |
-| UC-07 | Statistics and equality report (age brackets, gender, course, owned weapons, first year) | FC, AD | MVP |
+| UC-07 | Statistics and equality report (age brackets, gender, course, owned weapons, first year); a "Trends" tab charts the 10 most recent started editions (active and reserve, share of women, first year, powder and caps, weapon source and rentals, and per comparsa), each with its table, the edition in progress marked provisional (`add-statistics-trends`) | FC, AD | MVP |
 | UC-08 | Internal comparsa notes | FC | L |
 | UC-09 | Bulk import arquebusiers from a spreadsheet (initial load): the PolvorApp template, one comparsa per file, checked first and imported all or nothing, new arquebusiers only (`add-registry-import`) | AD | MVP |
 | UC-29 | Transfer an arquebusier to another comparsa (between editions) | AD | MVP |

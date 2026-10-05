@@ -63,13 +63,13 @@
 
 ## 4. Trends screen
 
-- [ ] 4.1 Regenerate the API client. Write `StatisticsPage` tests:
+- [x] 4.1 Regenerate the API client. Write `StatisticsPage` tests:
   - "Today" by default;
   - `?view=trends` selects "Trends";
   - the comparsa filter is shared and kept in the address.
 
   Then add the tabs (D5). Verify: the tests and axe pass.
-- [ ] 4.2 Write `TrendsTab` tests:
+- [x] 4.2 Write `TrendsTab` tests:
   - the six views with their summaries and tables, from MSW data;
   - provisional marking;
   - the fewer-than-two-editions message with the single table;
@@ -78,9 +78,9 @@
   - 360 px layout.
 
   Then implement the tab, lazy-loaded. Verify: the tests and axe pass.
-- [ ] 4.3 Add the `insights:statistics.tabs.*`, `insights:trends.*` and `ui:chart.*` texts in
+- [x] 4.3 Add the `insights:statistics.tabs.*`, `insights:trends.*` and `ui:chart.*` texts in
   es-ES, ca-ES-valencia and en. Verify: `npm run check-i18n` passes.
-- [ ] 4.4 Update `docs/use-cases.md` (UC-07 trends note). Verify: the note matches the screen.
+- [x] 4.4 Update `docs/use-cases.md` (UC-07 trends note). Verify: the note matches the screen.
 - [ ] 4.5 Review group 4 in parallel with `react-reviewer` and `a11y-architect`. Fix CRITICAL/HIGH
   findings.
 

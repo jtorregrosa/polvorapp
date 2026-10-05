@@ -8,7 +8,7 @@ import { problem, renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN, SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
-import { STATISTICS, STATISTICS_EMPTY } from '../test-data';
+import { STATISTICS, STATISTICS_EMPTY, TRENDS } from '../test-data';
 
 // Specs "Statistics (UC-07)" and "Statistics screen". Synthetic data only.
 
@@ -24,6 +24,18 @@ function statistics(
       return respond(url.searchParams);
     }),
     mock.get('/api/comparsas', () => HttpResponse.json(comparsas)),
+  );
+  return queries;
+}
+
+/** Serves the trends and records the query of each request. */
+function trends() {
+  const queries: string[] = [];
+  server.use(
+    mock.get('/api/compliance/trends', ({ request }) => {
+      queries.push(new URL(request.url).search);
+      return HttpResponse.json(TRENDS);
+    }),
   );
   return queries;
 }
@@ -254,5 +266,65 @@ describe('StatisticsPage (spec: Statistics screen)', () => {
     await screen.findByRole('table', { name: 'Cifras por comparsa' });
 
     expect(await axeViolations(container)).toEqual([]);
+  });
+
+  describe('tabs (spec: Statistics screen, Tabs kept in the address)', () => {
+    it('opens on "Today" and keeps the chosen tab in the address', async () => {
+      const user = userEvent.setup();
+      statistics();
+      trends();
+      const app = await renderApp('/statistics', { session: SYNTHETIC_ADMIN });
+
+      expect(await screen.findByRole('tab', { name: 'Hoy' })).toHaveAttribute('aria-selected', 'true');
+      expect(await screen.findByRole('table', { name: 'Arcabuceros por género' })).toBeInTheDocument();
+
+      await user.click(screen.getByRole('tab', { name: 'Tendencias' }));
+
+      expect(app.location()).toBe('/statistics?view=trends');
+      expect(
+        await screen.findByRole('heading', { level: 2, name: 'Arcabuceros por edición' }),
+      ).toBeInTheDocument();
+      // The status filter belongs to "Today" only.
+      expect(screen.queryByRole('combobox', { name: 'Estado del arcabucero' })).not.toBeInTheDocument();
+    });
+
+    it('opens on "Trends" from the address, with its comparsa filter, without asking for today\'s figures', async () => {
+      const today = statistics();
+      const asked = trends();
+      await renderApp(`/statistics?comparsaId=${NORTE.id}&view=trends`, { session: SYNTHETIC_ADMIN });
+
+      expect(await screen.findByRole('tab', { name: 'Tendencias' })).toHaveAttribute('aria-selected', 'true');
+      expect(
+        await screen.findByRole('heading', { level: 2, name: 'Arcabuceros por edición' }),
+      ).toBeInTheDocument();
+      expect(asked).toEqual([`?comparsaId=${NORTE.id}`]);
+      expect(today).toEqual([]);
+    });
+
+    it('shares the comparsa filter across both tabs', async () => {
+      const user = userEvent.setup();
+      statistics();
+      const asked = trends();
+      const app = await renderApp('/statistics?view=trends', { session: SYNTHETIC_ADMIN });
+
+      await user.selectOptions(await screen.findByRole('combobox', { name: 'Comparsa' }), SUR.id);
+      await screen.findByRole('heading', { level: 2, name: 'Arcabuceros por edición' });
+      expect(asked).toContain(`?comparsaId=${SUR.id}`);
+
+      await user.click(screen.getByRole('tab', { name: 'Hoy' }));
+
+      expect(app.location()).toBe(`/statistics?comparsaId=${SUR.id}`);
+      expect(screen.getByRole('combobox', { name: 'Comparsa' })).toHaveValue(SUR.id);
+    });
+
+    it('has no accessibility violations on the trends tab', async () => {
+      statistics();
+      trends();
+      const { container } = await renderApp('/statistics?view=trends', { session: SYNTHETIC_ADMIN });
+
+      await screen.findByRole('heading', { level: 2, name: 'Arcabuceros por edición' });
+
+      expect(await axeViolations(container)).toEqual([]);
+    });
   });
 });

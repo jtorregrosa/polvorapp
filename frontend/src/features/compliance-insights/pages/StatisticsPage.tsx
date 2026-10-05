@@ -1,6 +1,6 @@
 import { keepPreviousData } from '@tanstack/react-query';
 import { IdCard } from 'lucide-react';
-import { useMemo } from 'react';
+import { lazy, Suspense, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
 import { useListComparsas } from '@/api/generated/comparsas/comparsas';
@@ -22,13 +22,19 @@ import { PageHeader } from '@/components/app/PageHeader';
 import { SectionCard } from '@/components/app/SectionCard';
 import { SectionGrid } from '@/components/app/SectionGrid';
 import { StatCard } from '@/components/app/StatCard';
+import { Tabs } from '@/components/app/Tabs';
 import { LoadFailure } from '@/features/arquebusier-registry/components/LoadFailure';
 import { useSession } from '@/features/identity-access/session';
 import { useFormatters } from '@/lib/format';
 import { knownFilter, withFilter } from '@/lib/search-filters';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 
+// Recharts is loaded with the trends only, so the other pages do not carry it (ADR-0014).
+const TrendsTab = lazy(() => import('../components/TrendsTab'));
+
 const STATUSES = Object.values(ArquebusierStatus);
+const VIEWS = ['today', 'trends'] as const;
+type View = (typeof VIEWS)[number];
 type CountColumn = 'total' | 'active' | 'reserve' | 'female' | 'male' | 'unspecified' | 'withWarnings';
 /** Women first, as in the Federation's equality reports. */
 const GENDERS = ['female', 'male', 'unspecified'] as const satisfies readonly (keyof GenderCounts)[];
@@ -239,9 +245,11 @@ function ComparsaTable({ rows }: { rows: readonly ComparsaStatisticsResponse[] }
 }
 
 /**
- * Specs "Statistics (UC-07)" and "Statistics screen": the aggregates of the user's scope, filtered
- * by comparsa and status in the address, with the equality report (dashboard template). Only
- * counts reach the page; there is no download (exports belong to add-exports).
+ * Specs "Statistics (UC-07)", "Statistics screen" and "Trends screen": the aggregates of the user's
+ * scope in two tabs, "Today" (filtered by comparsa and status, with the equality report) and
+ * "Trends" (the editions, lazy-loaded). The tab and the filters are kept in the address, and the
+ * comparsa filter is shared by both tabs. Only counts reach the page; there is no download (exports
+ * belong to add-exports).
  */
 export function StatisticsPage() {
   const { t } = useTranslation('insights');
@@ -259,7 +267,8 @@ export function StatisticsPage() {
     search.get('comparsaId'),
     comparsaList.map((comparsa) => comparsa.id),
   );
-  const status = knownFilter(search.get('status'), STATUSES);
+  const view: View = knownFilter(search.get('view'), VIEWS) || 'today';
+  const status = view === 'today' ? knownFilter(search.get('status'), STATUSES) : '';
   const filtered = comparsaId !== '' || status !== '';
   // A FiringChief's scope is only known once their comparsas are: nothing is shown before, so a
   // FiringChief without comparsas never sees figures flash.
@@ -275,13 +284,13 @@ export function StatisticsPage() {
   // The previous figures stay while new filters load, so the page neither empties nor jumps.
   const query = useGetComplianceStatistics(params, {
     query: {
-      enabled: signedIn && scopeKnown && !unassigned && !waitingForComparsas,
+      enabled: view === 'today' && signedIn && scopeKnown && !unassigned && !waitingForComparsas,
       placeholderData: keepPreviousData,
     },
   });
   const statistics = query.isSuccess ? (query.data.data as ComplianceStatisticsResponse) : undefined;
 
-  const setFilter = (key: 'comparsaId' | 'status', value: string): void => {
+  const setFilter = (key: 'comparsaId' | 'status' | 'view', value: string): void => {
     setSearch(withFilter(search, key, value), { replace: true });
   };
   const noMatches = statistics?.total === 0 && filtered;
@@ -297,42 +306,46 @@ export function StatisticsPage() {
         />
       ) : (
         <>
-          <FilterBar
-            filters={
-              <>
-                {comparsaList.length > 1 && (
-                  <FilterSelect
-                    label={t('statistics.filters.comparsa')}
-                    value={comparsaId}
-                    onChange={(value) => {
-                      setFilter('comparsaId', value);
-                    }}
-                    options={[
-                      { value: '', label: t('statistics.filters.allComparsas') },
-                      ...comparsaList.map((comparsa) => ({ value: comparsa.id, label: comparsa.name })),
-                    ]}
-                  />
-                )}
-                <FilterSelect
-                  label={t('statistics.filters.status')}
-                  value={status}
-                  onChange={(value) => {
-                    setFilter('status', value);
-                  }}
-                  options={[
-                    { value: '', label: t('statistics.filters.allStatuses') },
-                    ...STATUSES.map((value) => ({ value, label: t(`statistics.filters.${value}`) })),
-                  ]}
-                />
-              </>
-            }
-            // Announced whenever the figures change, filtered or not, once they have loaded.
-            resultText={
-              statistics && !query.isPlaceholderData
-                ? t('statistics.resultCount', { count: statistics.total })
-                : ''
-            }
-          />
+          {(view === 'today' || comparsaList.length > 1) && (
+            <FilterBar
+              filters={
+                <>
+                  {comparsaList.length > 1 && (
+                    <FilterSelect
+                      label={t('statistics.filters.comparsa')}
+                      value={comparsaId}
+                      onChange={(value) => {
+                        setFilter('comparsaId', value);
+                      }}
+                      options={[
+                        { value: '', label: t('statistics.filters.allComparsas') },
+                        ...comparsaList.map((comparsa) => ({ value: comparsa.id, label: comparsa.name })),
+                      ]}
+                    />
+                  )}
+                  {view === 'today' && (
+                    <FilterSelect
+                      label={t('statistics.filters.status')}
+                      value={status}
+                      onChange={(value) => {
+                        setFilter('status', value);
+                      }}
+                      options={[
+                        { value: '', label: t('statistics.filters.allStatuses') },
+                        ...STATUSES.map((value) => ({ value, label: t(`statistics.filters.${value}`) })),
+                      ]}
+                    />
+                  )}
+                </>
+              }
+              // Announced whenever the figures change, filtered or not, once they have loaded.
+              resultText={
+                view === 'today' && statistics && !query.isPlaceholderData
+                  ? t('statistics.resultCount', { count: statistics.total })
+                  : ''
+              }
+            />
+          )}
           {comparsas.isError && (
             <LoadFailure
               error={comparsas.error}
@@ -340,44 +353,76 @@ export function StatisticsPage() {
               onRetry={() => comparsas.refetch()}
             />
           )}
-          {query.isError && <LoadFailure error={query.error} onRetry={() => query.refetch()} />}
-          {noMatches && (
-            <NoMatches
-              title={t('statistics.noMatches')}
-              onClear={() => {
-                setSearch(new URLSearchParams(), { replace: true });
-              }}
-            />
-          )}
-          {statistics && !noMatches && (
-            <div className="flex flex-col gap-section" aria-busy={query.isFetching || undefined}>
-              <ul className="grid gap-3 sm:grid-cols-3">
-                <li className="flex">
-                  <StatCard
-                    className="w-full"
-                    label={t('statistics.figures.total')}
-                    value={number(statistics.total)}
-                  />
-                </li>
-                <li className="flex">
-                  <StatCard
-                    className="w-full"
-                    label={t('statistics.figures.active')}
-                    value={number(statistics.active)}
-                  />
-                </li>
-                <li className="flex">
-                  <StatCard
-                    className="w-full"
-                    label={t('statistics.figures.reserve')}
-                    value={number(statistics.reserve)}
-                  />
-                </li>
-              </ul>
-              <Report statistics={statistics} />
-              {statistics.comparsas.length > 0 && <ComparsaTable rows={statistics.comparsas} />}
-            </div>
-          )}
+          <Tabs
+            label={t('statistics.tabs.label')}
+            value={view}
+            onValueChange={(value) => {
+              setFilter('view', value === 'trends' ? 'trends' : '');
+            }}
+            tabs={[
+              {
+                id: 'today',
+                label: t('statistics.tabs.today'),
+                content: (
+                  <div className="flex flex-col gap-section">
+                    {query.isError && <LoadFailure error={query.error} onRetry={() => query.refetch()} />}
+                    {noMatches && (
+                      <NoMatches
+                        title={t('statistics.noMatches')}
+                        onClear={() => {
+                          setSearch(new URLSearchParams(), { replace: true });
+                        }}
+                      />
+                    )}
+                    {statistics && !noMatches && (
+                      <div className="flex flex-col gap-section" aria-busy={query.isFetching || undefined}>
+                        <ul className="grid gap-3 sm:grid-cols-3">
+                          <li className="flex">
+                            <StatCard
+                              className="w-full"
+                              label={t('statistics.figures.total')}
+                              value={number(statistics.total)}
+                            />
+                          </li>
+                          <li className="flex">
+                            <StatCard
+                              className="w-full"
+                              label={t('statistics.figures.active')}
+                              value={number(statistics.active)}
+                            />
+                          </li>
+                          <li className="flex">
+                            <StatCard
+                              className="w-full"
+                              label={t('statistics.figures.reserve')}
+                              value={number(statistics.reserve)}
+                            />
+                          </li>
+                        </ul>
+                        <Report statistics={statistics} />
+                        {statistics.comparsas.length > 0 && <ComparsaTable rows={statistics.comparsas} />}
+                      </div>
+                    )}
+                  </div>
+                ),
+              },
+              {
+                id: 'trends',
+                label: t('statistics.tabs.trends'),
+                content: (
+                  <Suspense
+                    fallback={
+                      <p role="status" className="text-muted-foreground">
+                        {t('trends.loading')}
+                      </p>
+                    }
+                  >
+                    <TrendsTab comparsaId={comparsaId} enabled={signedIn && !waitingForComparsas} />
+                  </Suspense>
+                ),
+              },
+            ]}
+          />
         </>
       )}
     </>

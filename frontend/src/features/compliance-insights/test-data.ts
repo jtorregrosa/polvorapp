@@ -3,6 +3,8 @@ import {
   type ArquebusierRowResponse,
   type ComplianceStatisticsResponse,
   type ComplianceSummaryResponse,
+  type TrendRowResponse,
+  type TrendsResponse,
 } from '@/api/generated/model';
 import { NORTE, SUR } from '@/features/federation-catalog/test-data';
 
@@ -133,5 +135,85 @@ export const STATISTICS_EMPTY: ComplianceStatisticsResponse = {
     byKind: STATISTICS.ownedWeapons.byKind.map((kind) => ({ ...kind, count: 0 })),
   },
   firstYear: { firstYear: genders(0, 0, 0), notFirstYear: genders(0, 0, 0) },
+  comparsas: [],
+};
+
+/** One synthetic edition of the trends. */
+function trendRow(
+  year: number,
+  active: number,
+  reserve: number,
+  extra: Partial<TrendRowResponse> = {},
+): TrendRowResponse {
+  return {
+    year,
+    provisional: false,
+    active,
+    reserve,
+    gender: {
+      female: Math.round(active / 4),
+      male: active - Math.round(active / 4) - 1,
+      unspecified: 1,
+      unknown: 0,
+    },
+    firstYear: 3,
+    powderKg: active * 2,
+    capsBoxes: active,
+    weaponSources: { owned: active - 4, rental: 2, loan: 1, none: 1 },
+    rentalsByKind: [
+      { kind: 'TRABUCO', count: 0 },
+      { kind: 'ARCABUZ', count: 2 },
+      { kind: 'PISTOL', count: 0 },
+    ],
+    flaskRentals: 1,
+    comparsas: [],
+    ...extra,
+  };
+}
+
+/** Three synthetic editions: 2029 is the first with orders, 2031 is in progress (design D5). */
+export const TRENDS: TrendsResponse = {
+  rows: [
+    trendRow(2029, 20, 4, {
+      firstYear: null,
+      comparsas: [
+        { comparsaId: NORTE.id, active: 12 },
+        { comparsaId: SUR.id, active: 8 },
+      ],
+    }),
+    trendRow(2030, 24, 3, {
+      comparsas: [
+        { comparsaId: NORTE.id, active: 14 },
+        { comparsaId: SUR.id, active: 10 },
+      ],
+    }),
+    trendRow(2031, 30, 2, {
+      provisional: true,
+      gender: { female: 9, male: 18, unspecified: 1, unknown: 2 },
+      firstYear: 6,
+      comparsas: [
+        { comparsaId: NORTE.id, active: 18 },
+        { comparsaId: SUR.id, active: 12 },
+      ],
+    }),
+  ],
+  comparsas: [
+    { id: NORTE.id, name: NORTE.name },
+    { id: SUR.id, name: SUR.name },
+  ],
+};
+
+/** The trends of a FiringChief with one comparsa: no per-comparsa figures. */
+export const TRENDS_ONE_COMPARSA: TrendsResponse = {
+  rows: TRENDS.rows.map((row) => ({ ...row, comparsas: [] })),
+  comparsas: [],
+};
+
+/** Only one edition has orders. */
+export const TRENDS_ONE_EDITION: TrendsResponse = {
+  rows: [
+    trendRow(2030, 0, 0, { firstYear: null }),
+    trendRow(2031, 30, 2, { provisional: true, firstYear: null }),
+  ],
   comparsas: [],
 };
