@@ -34,6 +34,8 @@ COPY src/Modules/Badges/PolvorApp.Badges.Contracts/PolvorApp.Badges.Contracts.cs
 RUN dotnet restore src/PolvorApp.Api/PolvorApp.Api.csproj
 
 COPY src/ src/
+# The seed's generated faces and emblems, published as SyntheticData/ (realistic-seed-data).
+COPY synthetic-data/ synthetic-data/
 ARG APP_VERSION=0.1.0
 ARG GIT_COMMIT=unknown
 # The committed contract is checked in CI; the image build does not regenerate it.
