@@ -16,5 +16,12 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true
   },
-  "include": ["vite.config.ts", "orval.config.ts", "playwright.config.ts", "eslint.config.js", "scripts"]
+  "include": [
+    "vite.config.ts",
+    "orval.config.ts",
+    "playwright.config.ts",
+    "playwright.cloud.config.ts",
+    "eslint.config.js",
+    "scripts"
+  ]
 }

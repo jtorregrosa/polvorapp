@@ -1,0 +1,20 @@
+# Claude Code cloud sessions only: scripts/cloud-setup.sh adds this file through COMPOSE_FILE.
+# The session's proxy inspects TLS, also from containers, so the image builds trust its CA bundle
+# (the optional `proxy_ca` build secret of both Dockerfiles). See docs/development.md.
+services:
+  api-migrate:
+    build:
+      secrets: [proxy_ca]
+  api-seed:
+    build:
+      secrets: [proxy_ca]
+  api:
+    build:
+      secrets: [proxy_ca]
+  web:
+    build:
+      secrets: [proxy_ca]
+
+secrets:
+  proxy_ca:
+    file: ${PROXY_CA_BUNDLE:?set by scripts/cloud-setup.sh}

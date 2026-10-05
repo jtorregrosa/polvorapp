@@ -31,7 +31,11 @@ COPY src/Modules/Notifications/PolvorApp.Notifications/PolvorApp.Notifications.c
 COPY src/Modules/Notifications/PolvorApp.Notifications.Contracts/PolvorApp.Notifications.Contracts.csproj src/Modules/Notifications/PolvorApp.Notifications.Contracts/
 COPY src/Modules/Badges/PolvorApp.Badges/PolvorApp.Badges.csproj src/Modules/Badges/PolvorApp.Badges/
 COPY src/Modules/Badges/PolvorApp.Badges.Contracts/PolvorApp.Badges.Contracts.csproj src/Modules/Badges/PolvorApp.Badges.Contracts/
-RUN dotnet restore src/PolvorApp.Api/PolvorApp.Api.csproj
+# An optional `proxy_ca` build secret (a full CA bundle) is trusted for the download, for networks
+# that inspect TLS such as Claude Code cloud sessions (compose.cloud.yaml); it never enters a layer.
+RUN --mount=type=secret,id=proxy_ca \
+    if [ -f /run/secrets/proxy_ca ]; then export SSL_CERT_FILE=/run/secrets/proxy_ca; fi; \
+    dotnet restore src/PolvorApp.Api/PolvorApp.Api.csproj
 
 COPY src/ src/
 # The seed's generated faces and emblems, published as SyntheticData/ (realistic-seed-data).

@@ -28,6 +28,7 @@
     "test:coverage": "vitest run --coverage",
     "preview": "vite preview",
     "e2e": "playwright test",
+    "e2e:cloud": "playwright test --config playwright.cloud.config.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build -o storybook-static --quiet"
   },
