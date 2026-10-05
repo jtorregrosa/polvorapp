@@ -70,9 +70,9 @@ record, read with `AsNoTracking`. It is registered scoped and memoised for the r
 - the host's email sender takes the sender name and reply-to. The host already references the
   module contracts.
 
-`FederationNames` is deleted once no reader is left. The architecture tests forbid `Exports` from
-depending on `FederationCatalog`, so the documents receive the name from their callers, which
-already pass texts in.
+`FederationNames` is deleted once no reader is left. Its only readers are `BadgeTexts` and
+`DistributionTexts`, which build the texts that `Exports` renders, so `Exports` itself needs no
+change: the documents keep receiving the name from their callers.
 
 ### D4. Email header handling
 
