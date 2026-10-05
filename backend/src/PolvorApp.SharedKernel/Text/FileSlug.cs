@@ -9,7 +9,7 @@ namespace PolvorApp.SharedKernel.Text;
 /// </summary>
 public static class FileSlug
 {
-    /// <summary>"Comparsa Sintética Norte" → "comparsa-sintetica-norte": ASCII letters and digits only.</summary>
+    /// <summary>"Caballeros de Sant Jordi" → "caballeros-de-sant-jordi", "Zegríes" → "zegries": ASCII letters and digits only.</summary>
     public static string Of(string text)
     {
         ArgumentNullException.ThrowIfNull(text);

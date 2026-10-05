@@ -5,9 +5,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Bogus" />
     <PackageReference Include="EFCore.NamingConventions" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+  </ItemGroup>
+
+  <!-- Geist (SIL OFL 1.1) from the `geist` npm package 1.7.2, unmodified, with its license: the font
+       of the PDF exports and of the seed's specimen license cards, because the runtime image has no
+       system fonts (add-exports design D4, realistic-seed-data design D6). -->
+  <ItemGroup>
+    <EmbeddedResource Include="Fonts\Geist-Regular.ttf" LogicalName="PolvorApp.SharedKernel.Fonts.Geist-Regular.ttf" />
+    <EmbeddedResource Include="Fonts\Geist-Bold.ttf" LogicalName="PolvorApp.SharedKernel.Fonts.Geist-Bold.ttf" />
+    <None Update="Fonts\Geist-OFL.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

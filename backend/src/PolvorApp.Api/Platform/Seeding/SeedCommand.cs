@@ -25,6 +25,20 @@ internal static partial class SeedCommand
             return 1;
         }
 
+        SeedDataset dataset;
+        try
+        {
+            // Checked before any seeder runs, so an unknown name writes nothing. The host always
+            // registers IConfiguration; a missing one is a wiring error, not "use the default".
+            dataset = SeedDatasets.Read(services.GetRequiredService<IConfiguration>());
+        }
+        catch (InvalidOperationException exception)
+        {
+            LogInvalidDataset(logger, exception);
+            return 1;
+        }
+
+        LogDataset(logger, dataset);
         try
         {
             await using var scope = services.CreateAsyncScope();
@@ -53,6 +67,12 @@ internal static partial class SeedCommand
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Seeding refused in environment '{Environment}': seeding only runs in Development, Staging or Testing (SEC-11).")]
     private static partial void LogRefused(ILogger logger, string environment);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Seeding refused: the dataset setting could not be read")]
+    private static partial void LogInvalidDataset(ILogger logger, Exception exception);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Seeding the {Dataset} dataset")]
+    private static partial void LogDataset(ILogger logger, SeedDataset dataset);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Running seeder {Seeder}")]
     private static partial void LogSeederStarting(ILogger logger, string seeder);
