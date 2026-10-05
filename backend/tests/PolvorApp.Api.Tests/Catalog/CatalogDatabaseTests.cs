@@ -100,6 +100,16 @@ public sealed class CatalogDatabaseTests(PostgresFixture postgres) : IAsyncLifet
     }
 
     [Fact]
+    public async Task Rolling_back_the_pistol_rule_keeps_the_non_rentable_pistols()
+    {
+        await SaveAsync(NewModel(WeaponKind.Pistol, "PISTOLA PROPIA", rentable: false, attributes: false));
+
+        await RollBackToAsync(BeforeRentablePistols);
+
+        await SaveAsync(NewModel(WeaponKind.Pistol, "PISTOLA PROPIA BIS", rentable: false, attributes: false));
+    }
+
+    [Fact]
     public async Task Rolling_back_the_pistol_rule_restores_its_constraint()
     {
         await RollBackToAsync(BeforeRentablePistols);

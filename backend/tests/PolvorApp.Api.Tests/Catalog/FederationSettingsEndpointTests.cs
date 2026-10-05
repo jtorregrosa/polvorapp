@@ -1,7 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
 using PolvorApp.Api.Tests.Infrastructure;
+using PolvorApp.FederationCatalog;
+using PolvorApp.FederationCatalog.Persistence;
 using PolvorApp.IdentityAccess.Contracts;
 using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 
@@ -145,6 +148,11 @@ public sealed class FederationSettingsEndpointTests(PostgresFixture postgres, Ma
         { "emails", new { senderName = new string('a', 81) }, "senderName", "tooLong" },
         { "emails", new { senderName = "" }, "senderName", "required" },
         { "emails", new { senderName = "PolvorApp", replyTo = "no es correo" }, "replyTo", "invalid" },
+        { "emails", new { senderName = "PolvorApp", replyTo = "info@federacion.example\r\nBcc: x@y.example" }, "replyTo", "invalid" },
+        { "emails", new { senderName = "PolvorApp", replyTo = "Nombre <info@federacion.example>" }, "replyTo", "invalid" },
+        { "emails", new { senderName = "PolvorApp", replyTo = "info@federacion" }, "replyTo", "invalid" },
+        { "emails", new { senderName = "PolvorApp", replyTo = new string('a', 243) + "@fed.example" }, "replyTo", "tooLong" },
+        { "identity", Identity(contactEmail: "info@federacion.example\nBcc: x@y.example"), "contactEmail", "invalid" },
         { "orders", new { closeReminderLeadDays = 1 }, "closeReminderLeadDays", "outOfRange" },
         { "orders", new { closeReminderLeadDays = 15 }, "closeReminderLeadDays", "outOfRange" },
         { "orders", new { }, "closeReminderLeadDays", "required" },
@@ -217,6 +225,26 @@ public sealed class FederationSettingsEndpointTests(PostgresFixture postgres, Ma
     }
 
     [Fact]
+    public async Task A_save_while_the_row_is_locked_past_the_timeout_is_busy_and_changes_nothing()
+    {
+        var version = (await SettingsAsync()).GetProperty("version").GetUInt32();
+        await using var holder = _host.Services.CreateAsyncScope();
+        var db = holder.ServiceProvider.GetRequiredService<FederationCatalogDbContext>();
+        await using var transaction = await db.Database.BeginTransactionAsync(Token);
+        await db.LockFederationSettingsAsync(Token);
+
+        // The row stays locked for longer than the 5 s lock timeout of the save.
+        using var response = await PutAsync("emails", new { senderName = "Bloqueada" }, version);
+        await transaction.RollbackAsync(Token);
+
+        await AssertProblemAsync(response, HttpStatusCode.ServiceUnavailable, "federationSettings.busy");
+        var settings = await SettingsAsync();
+        Assert.Equal(version, settings.GetProperty("version").GetUInt32());
+        Assert.Equal("PolvorApp", settings.GetProperty("emails").GetProperty("senderName").GetString());
+        Assert.Empty(await _host.AuditEntriesAsync("FederationSettingsChanged"));
+    }
+
+    [Fact]
     public async Task A_save_without_a_version_is_refused()
     {
         using var response = await _admin.PutAsJsonAsync("/api/federation-settings/calendar", new { milestoneLeadDays = 3 }, Token);
@@ -253,7 +281,10 @@ public sealed class FederationSettingsEndpointTests(PostgresFixture postgres, Ma
         Assert.Equal("Unión de Comparsas de Moros y Cristianos «Ber-Largas»", federation.GetProperty("officialNameEs").GetString());
         Assert.Equal("Unió de Comparses de Moros i Cristians «Ber-Largas»", federation.GetProperty("officialNameCa").GetString());
         Assert.Equal(JsonValueKind.Null, federation.GetProperty("logo").ValueKind);
-        Assert.False(federation.TryGetProperty("senderName", out _));
+        foreach (var adminOnly in new[] { "senderName", "senderAddress", "replyTo", "closeReminderLeadDays", "milestoneLeadDays", "emails", "orders", "calendar", "version" })
+        {
+            Assert.False(federation.TryGetProperty(adminOnly, out _), adminOnly);
+        }
     }
 
     [Fact]

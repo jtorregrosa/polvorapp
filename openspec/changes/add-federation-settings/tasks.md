@@ -78,14 +78,14 @@
   - `.env.example` comments for `EMAIL_FROM`.
 
   Verify: the docs match the screens and variables.
-- [ ] 5.2 Add Playwright specs on the seeded stack:
+- [x] 5.2 Add Playwright specs on the seeded stack:
   - an Admin changes the sender name and the milestone lead time, then sees them after reload;
   - the Federation logo is managed from Settings;
   - a FiringChief gets "not allowed";
   - axe in both themes.
 
   Verify: the specs pass, and the suite passes twice in a row.
-- [ ] 5.3 Run `verification-loop`:
+- [x] 5.3 Run `verification-loop`:
   - build, types and lint;
   - backend and frontend tests with at least 80 % coverage on the settings module code, the
     readers and the page;
@@ -93,3 +93,19 @@
   - a diff review.
 
   Run `e2e-runner` and `pr-test-analyzer`. Verify: the PASS report.
+
+  Result (2026-10-05): PASS.
+  - Build, types, lint and format are clean.
+  - Backend tests pass with 96 % line coverage. Frontend: 2,613 tests pass with 95.6 % line coverage.
+  - The security grep finds no secrets and no real personal data. Writes are Admin-only and audited,
+    and the header-injection guards are tested.
+  - The whole Playwright suite passes, and the settings spec passes twice in a row.
+  - `pr-test-analyzer` raised two HIGH gaps, both now tested:
+    - `503 federationSettings.busy`, in the API and on the page;
+    - the reply-to guard, with more API cases and a `SmtpEmailSender` compose-phase test.
+  - Its MEDIUM gaps are covered in part: the emails conflict on the page, and admin-only values
+    absent from `/api/federation`.
+  - Left as is:
+    - documents when the settings cannot be read: the error handler answers 500, and nothing is
+      printed with a fallback name;
+    - a scheduler test for a lead-time change between runs.
