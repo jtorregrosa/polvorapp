@@ -53,15 +53,22 @@ export function UsersPage() {
         sortValue: (user) => userEmail(user),
         cell: (user) => userEmail(user),
       },
-      { id: 'role', header: t('users.columns.role'), cell: (user) => t(`roles.${user.role}`) },
+      {
+        id: 'role',
+        header: t('users.columns.role'),
+        sortValue: (user) => t(`roles.${user.role}`),
+        cell: (user) => t(`roles.${user.role}`),
+      },
       {
         id: 'status',
         header: t('users.columns.status'),
+        sortValue: (user) => tUi(`status.user.${user.status}`),
         cell: (user) => <StatusBadge kind="user" value={user.status} />,
       },
       {
         id: 'twoFactor',
         header: t('users.columns.twoFactor'),
+        sortValue: (user) => (user.twoFactorEnabled ? t('users.enabled') : t('users.disabled')),
         cell: (user) => (user.twoFactorEnabled ? t('users.enabled') : t('users.disabled')),
       },
       {
@@ -69,15 +76,17 @@ export function UsersPage() {
         header: t('users.columns.lastSignIn'),
         sortValue: (user) => user.lastSignInAt ?? '',
         cell: (user) =>
-          user.lastSignInAt
-            ? formatDate(new Date(user.lastSignInAt), i18n.language, {
-                dateStyle: 'medium',
-                timeStyle: 'short',
-              })
-            : t('users.never'),
+          user.lastSignInAt ? (
+            formatDate(new Date(user.lastSignInAt), i18n.language, {
+              dateStyle: 'medium',
+              timeStyle: 'short',
+            })
+          ) : (
+            <span className="text-muted-foreground">{t('users.never')}</span>
+          ),
       },
     ],
-    [t, i18n.language],
+    [t, tUi, i18n.language],
   );
 
   const setFilter = (key: 'role' | 'status', value: string): void => {

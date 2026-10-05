@@ -122,7 +122,8 @@ export function AuditLogPage() {
       {
         id: 'comparsa',
         header: t('columns.comparsa'),
-        cell: (entry) => entry.comparsaName ?? t('record.none'),
+        cell: (entry) =>
+          entry.comparsaName ?? <span className="text-muted-foreground">{t('record.none')}</span>,
       },
       {
         id: 'details',
