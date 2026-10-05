@@ -181,6 +181,20 @@ public sealed class EmailTests(MailpitFixture mailpit)
         Assert.Contains(logs.Entries, e => e.Level == LogLevel.Warning && e.Message.Contains("Compose failed", StringComparison.Ordinal));
     }
 
+    [Theory]
+    [InlineData("Secretaría <secretaria@federacion.example>")]
+    [InlineData("secretaria@federacion.example\r\nBcc: copia@otro.example")]
+    [InlineData("secretaria")]
+    public async Task A_reply_to_that_is_not_a_plain_address_fails_the_delivery_in_the_compose_phase(string replyTo)
+    {
+        using var loggerFactory = LoggerFactory.Create(_ => { });
+        var sender = Sender(mailpit.SmtpHost, mailpit.SmtpPortOnHost, loggerFactory, new EmailSenderProfile("PolvorApp", replyTo));
+
+        var error = await Assert.ThrowsAsync<EmailDeliveryException>(() => sender.SendAsync(Message("respuesta.rara@example.test"), TestContext.Current.CancellationToken));
+
+        Assert.Equal(("Compose", "InvalidOperationException"), (error.Phase, error.Code));
+    }
+
     [Fact]
     public async Task An_unreachable_server_raises_a_delivery_exception_and_logs_the_phase()
     {

@@ -230,6 +230,54 @@ describe('SettingsPage (specs: Settings screen, Federation settings)', () => {
     expect(bodies).toEqual([{ milestoneLeadDays: 4, version: 1300 }]);
   });
 
+  it("shows the other Admin's sender name in the emails panel after a conflict", async () => {
+    const user = userEvent.setup();
+    const api = settings();
+    server.use(
+      mock.put('/api/federation-settings/emails', () => {
+        api.set({
+          ...SETTINGS,
+          version: 1400,
+          emails: { ...SETTINGS.emails, senderName: 'Secretaría Sintética' },
+        });
+        return problem(409, 'federationSettings.modified');
+      }),
+    );
+    await asAdmin();
+
+    const panel = await openPanel(user, 'los correos');
+    const name = within(panel).getByRole('textbox', { name: /Nombre del remitente/ });
+    await user.clear(name);
+    await user.type(name, 'Mi Remitente');
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
+
+    expect(await within(panel).findByRole('group', { name: 'Hay un problema' })).toHaveTextContent(
+      'Otra persona ha cambiado los ajustes mientras editabas.',
+    );
+    await waitFor(() => {
+      expect(name).toHaveValue('Secretaría Sintética');
+    });
+  });
+
+  it('keeps the panel and what was typed when the settings are busy', async () => {
+    const user = userEvent.setup();
+    settings();
+    server.use(mock.put('/api/federation-settings/emails', () => problem(503, 'federationSettings.busy')));
+    await asAdmin();
+
+    const panel = await openPanel(user, 'los correos');
+    const name = within(panel).getByRole('textbox', { name: /Nombre del remitente/ });
+    await user.clear(name);
+    await user.type(name, 'Mi Remitente');
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
+
+    expect(await within(panel).findByRole('group', { name: 'Hay un problema' })).toHaveTextContent(
+      'Los ajustes se están guardando desde otra sesión.',
+    );
+    expect(screen.getByRole('dialog')).toBe(panel);
+    expect(name).toHaveValue('Mi Remitente');
+  });
+
   it('keeps what was typed and says why when the newer values cannot be loaded after a conflict', async () => {
     const user = userEvent.setup();
     settings();

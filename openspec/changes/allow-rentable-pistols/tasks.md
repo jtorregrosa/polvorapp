@@ -46,6 +46,12 @@
   - `docs/development.md`: the seed note.
 
   Verify: no remaining "never rentable" in docs or specs outside the archive (`grep`).
-- [ ] 3.2 Run `verification-loop` (build, types, lint, backend and frontend tests, a diff review)
+- [x] 3.2 Run `verification-loop` (build, types, lint, backend and frontend tests, a diff review)
   and the weapon-model and order Playwright specs. Run `pr-test-analyzer`. Verify: the PASS
   report.
+
+  Result (2026-10-05): PASS. The build, types, lint and format are clean. The backend suite passes
+  with 96 % line coverage; the only red is the Testcontainers PostgreSQL container failing to
+  dispose at the end of the run, outside any test. The frontend has 2,613 tests passing with 95.6 %
+  line coverage. The Playwright suite passes. `pr-test-analyzer` found every scenario covered, and
+  its MEDIUM gap is now tested: a rollback with only non-rentable pistols succeeds.
