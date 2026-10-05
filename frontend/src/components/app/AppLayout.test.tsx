@@ -422,6 +422,18 @@ describe('AppLayout icon rail (platform: Application shell)', () => {
     });
   });
 
+  it('shows the full drawer with its counter badge on a phone, even when collapsed on a wide screen', async () => {
+    window.localStorage.setItem('polvorapp.sidebar', 'collapsed');
+    const user = userEvent.setup();
+    await renderRail(360);
+
+    await user.click(screen.getByRole('button', { name: 'Mostrar u ocultar la navegación' }));
+
+    const drawer = await screen.findByRole('dialog');
+    expect(within(drawer).getByText('5', { selector: '[data-sidebar="menu-badge"]' })).toBeInTheDocument();
+    expect(drawer.querySelector('[data-nav-dot]')).toBeNull();
+  });
+
   it('toggles with Ctrl+B, but not while typing in a field or holding the key', async () => {
     const user = userEvent.setup();
     await renderRail();

@@ -72,7 +72,15 @@ describe('WeaponModelsPage (specs: Weapon models, Weapon catalogue access)', () 
     const table = await screen.findByRole('table', { name: 'Modelos de arma' });
     await within(table).findByRole('link', { name: TRABUCO.label });
 
-    expect(sortableColumns(table)).toHaveLength(7);
+    expect(sortableColumns(table)).toEqual([
+      'Nombre',
+      'Tipo',
+      'Bando',
+      'Mano',
+      'Tamaño',
+      'Alquilable',
+      'Estado',
+    ]);
   });
 
   it.each([
@@ -94,6 +102,25 @@ describe('WeaponModelsPage (specs: Weapon models, Weapon catalogue access)', () 
         .getAllByRole('link')
         .map((link) => link.textContent),
     ).toEqual(descending);
+  });
+
+  it('stacks each model on a phone, its kind and side as tags with their terms', async () => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 360 });
+    try {
+      server.use(mock.get('/api/weapon-models', () => HttpResponse.json([TRABUCO])));
+      await asAdmin('/weapon-models');
+
+      const list = await screen.findByRole('list', { name: 'Modelos de arma' });
+      await within(list).findByRole('link', { name: TRABUCO.label });
+      const item = within(list).getAllByRole('listitem')[0];
+      if (!item) throw new Error('No item');
+      expect(item).toHaveTextContent('Tipo: Trabuco');
+      expect(item).toHaveTextContent('Bando: Cristiano');
+      expect(within(item).getByText('Cristiano').closest('[data-tag]')).toBeInTheDocument();
+      expect(item).toHaveTextContent('Zurdo · Pequeño');
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 });
+    }
   });
 
   it('lists inactive models by default, asking the API for them', async () => {

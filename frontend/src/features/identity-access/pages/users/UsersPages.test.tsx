@@ -107,6 +107,27 @@ describe('UsersPage (spec: User management by Admins)', () => {
     expect(names).toEqual(['Persona Invitada', 'Jefa Sintética']);
   });
 
+  it('stacks each user on a phone with every column, each tag and badge with its term', async () => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 360 });
+    try {
+      server.use(mock.get('/api/users', () => HttpResponse.json([INVITED])));
+      await asAdmin('/users');
+
+      const list = await screen.findByRole('list', { name: 'Usuarios' });
+      await within(list).findByRole('link', { name: 'Persona Invitada' });
+      const item = within(list)
+        .getAllByRole('listitem')
+        .find((entry) => entry.textContent.includes('Persona Invitada'));
+      if (!item) throw new Error('No item for the invited user');
+      expect(item).toHaveTextContent('Rol: Jefe de disparo');
+      expect(item).toHaveTextContent('Estado: Invitado');
+      expect(item).toHaveTextContent('Verificación en dos pasosNo configurada');
+      expect(item).toHaveTextContent('Último acceso: Nunca');
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 });
+    }
+  });
+
   it('sorts the role tags by the label they show', async () => {
     const user = userEvent.setup();
     const admin: UserResponse = {

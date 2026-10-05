@@ -62,9 +62,9 @@ describe('Tag', () => {
     const moorish = tagOf('Moro');
     const christian = tagOf('Cristià');
     expect(moorish?.getAttribute('data-tone')).not.toBe(christian?.getAttribute('data-tone'));
-    for (const tag of [moorish, christian]) {
-      expect(tag?.className).not.toMatch(/success|warning|destructive|info/);
-    }
+    // Categorical tokens, never a semantic tone.
+    expect(moorish).toHaveClass('bg-tag-3', 'text-tag-3-foreground');
+    expect(christian).toHaveClass('bg-tag-1', 'text-tag-1-foreground');
   });
 
   it('shows "no" in the neutral tone', async () => {
@@ -80,6 +80,15 @@ describe('Tag', () => {
 
     expect(tagOf('NEUTRAL')).toHaveAttribute('data-tone', 'neutral');
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('NEUTRAL'));
+  });
+
+  it.each(['constructor', 'toString'])('treats %s as an unknown value, not a list entry', async (value) => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    await renderWithProviders(<CategoryTag category="role" value={value} />);
+
+    expect(tagOf(value)).toHaveAttribute('data-tone', 'neutral');
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining(value));
   });
 
   it('renders a free tag with the given tone', async () => {
