@@ -163,3 +163,46 @@ No new open question.
 ## Migration Plan
 
 No schema change. Deploy API and web together. Rollback is reverting the change.
+
+## Verification (task 5.2, 2026-10-05)
+
+**Result: PASS**, with the note on the bundle below.
+
+- **Build, types, lint and format** are clean (`dotnet build`, `dotnet format --verify-no-changes`,
+  `tsc -b`, ESLint, `check-i18n`).
+- **Backend**: all 2,688 tests pass (the compliance route guard now classifies `/trends`), and line
+  coverage is 96.06 %. The architecture tests pass (39). The trends contract, implementation and
+  endpoint are covered by `EditionTrendsTests` (10) and `ComplianceTrendsTests` (12).
+- **Frontend**: 2,638 tests pass, with 95.65 % line coverage overall. Line coverage of the new code:
+  - `BarChart`, `LineChart` and `ChartFrame`: 100 %;
+  - `chart-parts`: 95.5 %;
+  - `chart-data`: 85 %;
+  - `TrendsTab`: 97.8 %;
+  - `StatisticsPage`: 98.5 %;
+  - `trends.ts` and `TrendsUnavailable`: 100 %.
+- **E2E**: the whole Playwright suite passes (267, desktop and 360 px). The insights spec passes
+  twice in a row. A pre-existing race in `editions.spec.ts` (it opened an edition another test was
+  deleting) was fixed on the way.
+- **Bundle**:
+  - Recharts is only in the lazy `TrendsTab` chunk (393 kB, 113 kB gzip), not in the main chunk.
+  - The main chunk grew from 1,518.1 to 1,533.4 kB (+3.9 kB gzip). The growth is the new
+    translations (three languages) and the tab code, not the chart library.
+- **Security grep**:
+  - The trends response holds only counts, years and comparsa names.
+  - Scope (BR-12) and the 404 are tested, including for a FiringChief with no comparsas.
+  - Reads are not audited, there are no secrets, and test data is synthetic.
+  - Trend reads have a per-user rate limit (`InsightsReads`).
+- **Reviews**:
+  - Group 2 (C#, database, security): one HIGH, fixed. An arquebusier who moved comparsa was counted
+    as unknown gender.
+  - Group 3 (React, a11y, TypeScript): two HIGH, fixed. The tooltip had no live region, and the
+    percent axis showed whole units only.
+  - Group 4 (React, a11y): no HIGH.
+  - The MEDIUM findings were fixed or are recorded here.
+- **`pr-test-analyzer`**: its HIGH gaps are now tested:
+  - the first year over HTTP with a comparsa filter;
+  - a FiringChief without comparsas;
+  - the first year within one comparsa.
+- **Left as is**:
+  - Escape does not dismiss the chart tooltip, which only repeats the table.
+  - Pointer hover is not unit-tested; jsdom has no layout, and the E2E covers the keyboard.

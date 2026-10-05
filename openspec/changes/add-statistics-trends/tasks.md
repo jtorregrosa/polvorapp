@@ -93,7 +93,7 @@
   - axe in both themes.
 
   Verify: the spec passes on the compose stack, and the suite passes twice in a row.
-- [ ] 5.2 Run `verification-loop`:
+- [x] 5.2 Run `verification-loop`:
   - build, types and lint;
   - backend and frontend tests with at least 80 % coverage on the new contract, endpoint,
     composites and tab;
