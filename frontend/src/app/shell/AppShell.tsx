@@ -7,7 +7,7 @@ import { UserMenu } from '@/components/app/UserMenu';
 import { useWarningCount } from '@/features/compliance-insights/components/useWarningCount';
 import { useFiringChiefComparsaCards } from '@/features/federation-catalog/components/useFiringChiefComparsaCards';
 import { useSaveLanguage, useSession, useSignOut } from '@/features/identity-access/session';
-import { NAVIGATION, navigationSections } from '../navigation';
+import { navigationFor, navigationSections } from '../navigation';
 import { useFocusMainOnNavigation } from './useFocusMainOnNavigation';
 import { VersionFooter } from './VersionFooter';
 
@@ -35,11 +35,8 @@ export function AppShell() {
   const warningCount = useWarningCount();
 
   const navigation = useMemo((): NavigationSection[] => {
-    const allowed = NAVIGATION.filter(
-      (entry) => !entry.roles || (role !== undefined && entry.roles.includes(role)),
-    );
     // Sections left empty by the role filter are left out (refine-navigation-and-lists D4).
-    return navigationSections(allowed).map(({ section, entries }) => ({
+    return navigationSections(navigationFor(role)).map(({ section, entries }) => ({
       id: section,
       label: section === 'home' ? undefined : tUi(`nav.sections.${section}`),
       items: entries.map(({ to, labelKey, icon, matches, count }): NavigationItem => {

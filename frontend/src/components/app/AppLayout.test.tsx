@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { House } from 'lucide-react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
@@ -246,7 +246,9 @@ describe('AppLayout navigation sections (platform: Application shell)', () => {
       ),
     ).toEqual([['Arcabuceros', 'Comparsas'], ['Ediciones']]);
     expect(within(navigation).getByRole('group', { name: 'Registro' })).toBeInTheDocument();
-    expect(within(navigation).getByRole('heading', { level: 2, name: 'Fiestas' })).toBeInTheDocument();
+    expect(within(navigation).getByRole('group', { name: 'Fiestas' })).toBeInTheDocument();
+    // Labels, not headings: they would come before the page's h1 on every page.
+    expect(within(navigation).queryByRole('heading')).toBeNull();
   });
 
   it('shows the unlabelled first section without a group', async () => {
@@ -255,7 +257,7 @@ describe('AppLayout navigation sections (platform: Application shell)', () => {
     const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
     const home = within(navigation).getByRole('link', { name: 'Inicio' });
     expect(home.closest('[role="group"]')).toBeNull();
-    expect(within(navigation).getAllByRole('heading', { level: 2 })).toHaveLength(2);
+    expect(within(navigation).getAllByRole('group')).toHaveLength(2);
   });
 
   it('has no automatically detectable accessibility violations with sections', async () => {
@@ -321,12 +323,22 @@ describe('AppLayout icon rail (platform: Application shell)', () => {
     await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
 
     expect(document.querySelector('[data-slot="sidebar-container"]')).not.toHaveAttribute('inert');
-    const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
-    for (const name of ['Inicio', 'Arcabuceros, 5 con avisos', 'Pedidos']) {
-      const link = within(navigation).getByRole('link', { name });
-      expect(link).not.toHaveAttribute('tabindex', '-1');
+    // From the mark, Tab goes through the cards and every entry of the rail.
+    screen.getByRole('link', { name: 'PolvorApp' }).focus();
+    const reached: (string | null)[] = [];
+    for (let i = 0; i < 5; i += 1) {
+      await user.tab();
+      reached.push(
+        document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.textContent ?? null,
+      );
     }
-    expect(screen.getByRole('link', { name: 'Comparsa Sintética Norte' })).toBeInTheDocument();
+    expect(reached).toEqual([
+      'Comparsa Sintética Norte',
+      LONG_NAME,
+      'Inicio',
+      'Arcabuceros, 5 con avisos',
+      'Pedidos',
+    ]);
   });
 
   it('shows the entry name in a tooltip on keyboard focus in the rail', async () => {
@@ -334,9 +346,23 @@ describe('AppLayout icon rail (platform: Application shell)', () => {
     await renderRail();
 
     await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
-    screen.getByRole('link', { name: 'Pedidos' }).focus();
+    act(() => {
+      screen.getByRole('link', { name: 'Pedidos' }).focus();
+    });
 
     expect(await screen.findByRole('tooltip', { name: 'Pedidos' })).toBeInTheDocument();
+  });
+
+  it('opens no tooltip and adds no description while the sidebar is expanded', async () => {
+    await renderRail();
+
+    const link = screen.getByRole('link', { name: 'Pedidos' });
+    act(() => {
+      link.focus();
+    });
+
+    expect(screen.queryByRole('tooltip')).toBeNull();
+    expect(link).not.toHaveAttribute('aria-describedby');
   });
 
   it('turns a counter into a dot, keeping the count in the name and the tooltip', async () => {
@@ -348,7 +374,9 @@ describe('AppLayout icon rail (platform: Application shell)', () => {
 
     expect(document.querySelector('[data-sidebar="menu-badge"]')).toBeNull();
     expect(document.querySelector('[data-nav-dot]')).toHaveAttribute('aria-hidden', 'true');
-    screen.getByRole('link', { name: 'Arcabuceros, 5 con avisos' }).focus();
+    act(() => {
+      screen.getByRole('link', { name: 'Arcabuceros, 5 con avisos' }).focus();
+    });
     expect(await screen.findByRole('tooltip', { name: 'Arcabuceros, 5 con avisos' })).toBeInTheDocument();
   });
 
@@ -358,7 +386,9 @@ describe('AppLayout icon rail (platform: Application shell)', () => {
 
     await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
     const card = screen.getByRole('link', { name: 'Comparsa Sintética Norte' });
-    card.focus();
+    act(() => {
+      card.focus();
+    });
 
     expect(await screen.findByRole('tooltip', { name: 'Comparsa Sintética Norte' })).toBeInTheDocument();
     expect(card.querySelector('[data-card-label]')).toHaveClass('group-data-[collapsible=icon]:opacity-0');
@@ -371,7 +401,7 @@ describe('AppLayout icon rail (platform: Application shell)', () => {
     await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
 
     expect(screen.getByText('Versión 1.4.0').closest('[data-slot="sidebar-footer"]')).toHaveClass(
-      'group-data-[collapsible=icon]:invisible',
+      'group-data-[collapsible=icon]:hidden',
     );
   });
 
@@ -383,7 +413,60 @@ describe('AppLayout icon rail (platform: Application shell)', () => {
 
     const drawer = await screen.findByRole('dialog');
     expect(within(drawer).getByRole('group', { name: 'Registro' })).toBeInTheDocument();
-    expect(within(drawer).queryByRole('tooltip')).toBeNull();
+    // A focused entry opens no tooltip, so one Escape closes the drawer.
+    await user.tab();
+    expect(screen.queryByRole('tooltip')).toBeNull();
+    await user.keyboard('{Escape}');
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+  });
+
+  it('toggles with Ctrl+B, but not while typing in a field or holding the key', async () => {
+    const user = userEvent.setup();
+    await renderRail();
+
+    await user.keyboard('{Control>}b{/Control}');
+    expect(sidebar()).toHaveAttribute('data-state', 'collapsed');
+
+    const field = document.createElement('input');
+    document.body.append(field);
+    field.focus();
+    await user.keyboard('{Control>}b{/Control}');
+    expect(sidebar()).toHaveAttribute('data-state', 'collapsed');
+    field.remove();
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', ctrlKey: true, repeat: true }));
+    });
+    expect(sidebar()).toHaveAttribute('data-state', 'collapsed');
+  });
+
+  it('marks the sidebar as moving for the 200 ms of the width animation', async () => {
+    await renderRail();
+    vi.useFakeTimers();
+    try {
+      const wrapper = document.querySelector('[data-slot="sidebar-wrapper"]');
+      expect(wrapper).toHaveAttribute('data-moving', 'false');
+
+      act(() => {
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', ctrlKey: true }));
+      });
+      expect(wrapper).toHaveAttribute('data-moving', 'true');
+      act(() => {
+        vi.advanceTimersByTime(150);
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', ctrlKey: true }));
+        vi.advanceTimersByTime(150);
+      });
+      // A second toggle restarts the 200 ms.
+      expect(wrapper).toHaveAttribute('data-moving', 'true');
+      act(() => {
+        vi.advanceTimersByTime(60);
+      });
+      expect(wrapper).toHaveAttribute('data-moving', 'false');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('remembers the collapsed state on the device and restores it on the next visit', async () => {
@@ -403,6 +486,7 @@ describe('AppLayout icon rail (platform: Application shell)', () => {
   it('starts expanded when the stored state cannot be read or written', async () => {
     const user = userEvent.setup();
     // Blocked for this preference only: the test setup stores the language too.
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- re-invoked with `.call(this)` below
     const { getItem, setItem } = Storage.prototype;
     const read = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(function (this: Storage, key) {
       if (key === 'polvorapp.sidebar') throw new Error('blocked');

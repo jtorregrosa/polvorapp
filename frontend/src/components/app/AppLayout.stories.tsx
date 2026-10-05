@@ -107,3 +107,17 @@ export const LongValencian: Story = {
     ],
   },
 };
+
+/** The icon rail (refine-navigation-and-lists D1): the sidebar as the user left it, collapsed. */
+export const IconRail: Story = {
+  decorators: [
+    (Story) => {
+      try {
+        window.localStorage.setItem('polvorapp.sidebar', 'collapsed');
+      } catch {
+        // Without storage the story shows the expanded sidebar.
+      }
+      return <Story />;
+    },
+  ],
+};

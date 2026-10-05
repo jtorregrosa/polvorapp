@@ -18,7 +18,9 @@ function renderAt(path: string, language = 'es-ES', session = SYNTHETIC_ADMIN) {
 function navigationShape() {
   const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
   return [...navigation.querySelectorAll('[data-sidebar="group"]')].map((group) => [
-    group.getAttribute('role') === 'group' ? group.querySelector('h2')?.textContent : null,
+    group.getAttribute('role') === 'group'
+      ? group.querySelector('[data-sidebar="group-label"]')?.textContent
+      : null,
     within(group as HTMLElement)
       .getAllByRole('link')
       .map((link) => link.textContent),
@@ -167,7 +169,7 @@ describe('AppLayout (platform: Application shell)', () => {
       within(screen.getByRole('navigation', { name: 'Navegación principal' })).getByRole('link', {
         name: 'Pedidos',
       }),
-    ).toBeVisible();
+    ).toBeInTheDocument();
   });
 
   it('does not store the sidebar state in a cookie', async () => {

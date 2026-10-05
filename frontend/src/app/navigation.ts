@@ -75,13 +75,18 @@ export const NAVIGATION: readonly NavigationEntry[] = [
   { to: '/privacy', section: 'administration', labelKey: 'nav.privacy', icon: ShieldCheck, roles: ['ADMIN'] },
 ];
 
+/** The entries a user with `role` sees (none of the role-restricted ones without a role). */
+export function navigationFor(role: UserRole | undefined): readonly NavigationEntry[] {
+  return NAVIGATION.filter((entry) => !entry.roles || (role !== undefined && entry.roles.includes(role)));
+}
+
 /**
  * `entries` grouped by section, in the sections' order and keeping the entries' order; a section
  * left empty (e.g. by the role filter) is left out.
  */
-export function navigationSections<T extends Pick<NavigationEntry, 'section'>>(
-  entries: readonly T[],
-): { section: NavigationSectionId; entries: T[] }[] {
+export function navigationSections(
+  entries: readonly NavigationEntry[],
+): { section: NavigationSectionId; entries: readonly NavigationEntry[] }[] {
   return NAVIGATION_SECTIONS.map((section) => ({
     section,
     entries: entries.filter((entry) => entry.section === section),

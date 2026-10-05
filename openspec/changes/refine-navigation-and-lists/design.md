@@ -122,7 +122,10 @@ exist in `tokens.css`.
   section labels give way to a line in their own slot instead of collapsing with a negative margin
   (the separators between sections are dropped for it); labels do not wrap while
   `data-moving` is set on the wrapper (200 ms after each toggle). The FiringChief's comparsa cards
-  drop their padding at once in the rail, the one small jump left. The labels share one class
+  drop their padding at once in the rail, and the API version disappears at once (it takes no
+  room in the rail); the trigger exposes the shortcut with `aria-keyshortcuts`. Tooltips are
+  controlled and closed outside the rail, so an expanded entry or a drawer link gets no repeated
+  description and Escape closes the drawer at once. The labels share one class
   list (`SIDEBAR_LABEL` in `AppLayout.tsx`), checked by `motion.test.ts`; reduced motion removes
   the width transition and the labels' delay in `globals.css`.
 
@@ -135,9 +138,10 @@ because the content would snap while the sidebar slid, which feels worse than an
 - `NAVIGATION` keeps the order in the spec.
 - `AppShell` groups the filtered entries by section and passes `sections: { labelKey?, items }[]`
   to `AppLayout`, so a section left empty by the role filter disappears.
-- `AppLayout` renders a `SidebarGroup` per section, with a `SidebarGroupLabel` (an `h2`, giving
-  `aria-labelledby` on a `role="group"` list) and a `SidebarSeparator` between sections. The rail
-  shows only the separators.
+- `AppLayout` renders a `SidebarGroup` per section, with a `SidebarGroupLabel` naming it through
+  `aria-labelledby` on `role="group"`. *As implemented*: the label is not a heading (three `h2`s
+  before every page's `h1` were heading noise, a11y review), and in the rail it gives way to a line
+  in its own slot instead of separate `SidebarSeparator`s (see D3).
 - The Admin-only `roles` on the administration entries stay as they are; the section only groups
   them.
 
