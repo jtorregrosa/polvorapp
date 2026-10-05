@@ -69,7 +69,11 @@ export function useArquebusierColumns() {
         id: 'comparsa',
         header: t('arquebusiers.columns.comparsa'),
         sortValue: (row) => row.comparsaName,
-        cell: (row) => row.comparsaName,
+        cell: (row) => (
+          <Link to={`/comparsas/${row.comparsaId}`} className="text-foreground hover:underline">
+            {row.comparsaName}
+          </Link>
+        ),
       },
       {
         id: 'status',

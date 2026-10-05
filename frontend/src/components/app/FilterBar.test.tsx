@@ -159,3 +159,24 @@ describe('FilterBar', () => {
     expect(await axeViolations(container)).toEqual([]);
   });
 });
+
+describe('FilterBar order', () => {
+  it('puts the search first, before the other filters', async () => {
+    await renderWithProviders(
+      <FilterBar
+        filters={
+          <label>
+            Comparsa
+            <select />
+          </label>
+        }
+        search={<SearchField label="Buscar" value="" onChange={() => undefined} />}
+        resultText="3 arcabuceros"
+      />,
+    );
+
+    const search = screen.getByRole('searchbox', { name: 'Buscar' });
+    const select = screen.getByRole('combobox', { name: 'Comparsa' });
+    expect(search.compareDocumentPosition(select)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+});

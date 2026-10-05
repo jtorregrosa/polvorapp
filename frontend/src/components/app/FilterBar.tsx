@@ -5,7 +5,7 @@ import { Button } from './Button';
 import { EmptyState } from './EmptyState';
 
 export interface FilterBarProps {
-  /** `FilterSelect`s and other filters, before the search. */
+  /** `FilterSelect`s and other filters, after the search. */
   filters?: ReactNode;
   /** The list's `SearchField`. */
   search?: ReactNode;
@@ -14,14 +14,14 @@ export interface FilterBarProps {
 }
 
 /**
- * The filters of a list in one bar (spec: Data tables, Arquebusier visibility): filters, search and
+ * The filters of a list in one bar (spec: Data tables, Arquebusier visibility): search, filters and
  * the number of results, which is announced when a filter or the search changes it.
  */
 export function FilterBar({ filters, search, resultText }: FilterBarProps) {
   return (
     <div data-slot="filter-bar" className="flex flex-wrap items-end gap-3">
-      {filters}
       {search && <div className="w-full max-w-field-long min-w-0 sm:w-auto sm:flex-1">{search}</div>}
+      {filters}
       <p role="status" className="ml-auto text-help text-muted-foreground tabular-nums">
         {resultText}
       </p>
