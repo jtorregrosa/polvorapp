@@ -136,9 +136,10 @@
       "same": "igual que en {{previous}}"
     },
     "fewEditions": "Las tendencias necesitan al menos dos ediciones con pedidos. Estas son las cifras de {{year}}.",
-    "noEditions": "Las tendencias necesitan al menos dos ediciones con pedidos, y todavía no hay ninguna.",
+    "noEditions": "Las tendencias necesitan al menos dos ediciones con pedidos, y todavía no hay pedidos en esta selección.",
     "single": {
-      "title": "Cifras de {{year}}"
+      "title": "Cifras de {{year}}",
+      "measure": "Cifra"
     },
     "arquebusiers": {
       "title": "Arcabuceros por edición",
@@ -194,9 +195,10 @@
       "summary": "Los arcabuceros en activo de cada comparsa por edición, con el cambio en {{year}}.",
       "caption": "Arcabuceros en activo por comparsa y edición",
       "comparsa": "Comparsa",
-      "change": "Cambio sobre {{previous}}",
+      "change": "Cambio respecto a {{previous}}",
       "yearCount": "{{year}}: {{count}}",
-      "changeText": "Cambio sobre {{previous}}: {{change}}"
-    }
+      "changeText": "Cambio respecto a {{previous}}: {{change}}"
+    },
+    "unavailable": "No se han podido cargar las tendencias: recarga la página para volver a intentarlo."
   }
 }

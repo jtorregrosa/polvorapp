@@ -29,8 +29,11 @@ import { useFormatters } from '@/lib/format';
 import { knownFilter, withFilter } from '@/lib/search-filters';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 
-// Recharts is loaded with the trends only, so the other pages do not carry it (ADR-0014).
-const TrendsTab = lazy(() => import('../components/TrendsTab'));
+// Recharts is loaded with the trends only, so the other pages do not carry it (ADR-0014). When the
+// chunk cannot be loaded (offline, or replaced by a deploy), the tab says so instead of the page failing.
+const TrendsTab = lazy(() =>
+  import('../components/TrendsTab').catch(() => import('../components/TrendsUnavailable')),
+);
 
 const STATUSES = Object.values(ArquebusierStatus);
 const VIEWS = ['today', 'trends'] as const;
@@ -190,6 +193,7 @@ function ComparsaTable({ rows }: { rows: readonly ComparsaStatisticsResponse[] }
       {
         id: 'name',
         header: t('statistics.comparsas.columns.name'),
+        rowHeader: true,
         sortValue: (row) => row.name,
         cell: (row) => (
           <Link to={`/comparsas/${row.comparsaId}`} className="font-semibold text-foreground hover:underline">

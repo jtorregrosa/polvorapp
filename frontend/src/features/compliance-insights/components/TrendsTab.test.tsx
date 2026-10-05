@@ -114,11 +114,11 @@ describe('TrendsTab (spec: Trends screen)', () => {
       within(table)
         .getAllByRole('columnheader')
         .map((header) => header.textContent.split(',')[0]),
-    ).toEqual(['Comparsa', '2029', '2030', '2031 (provisional)', 'Cambio sobre 2030']);
+    ).toEqual(['Comparsa', '2029', '2030', '2031 (provisional)', 'Cambio respecto a 2030']);
     expect(rowTexts(table, NORTE.name)).toEqual(['12', '14', '18', '+4']);
     expect(rowTexts(table, SUR.name)).toEqual(['8', '10', '12', '+2']);
 
-    await user.click(within(table).getByRole('button', { name: /Cambio sobre 2030/ }));
+    await user.click(within(table).getByRole('button', { name: /Cambio respecto a 2030/ }));
 
     expect(
       within(table)
@@ -142,12 +142,14 @@ describe('TrendsTab (spec: Trends screen)', () => {
     serve(TRENDS_ONE_EDITION);
     const { container } = await open();
 
-    const section = chart('Cifras de 2031');
+    const section = chart('Cifras de 2031 (provisional)');
     expect(section).toHaveTextContent(
-      'Las tendencias necesitan al menos dos ediciones con pedidos. Estas son las cifras de 2031.',
+      'Las tendencias necesitan al menos dos ediciones con pedidos. Estas son las cifras de 2031 (provisional).',
     );
+    // One row per figure, so the table reads on a phone.
     const table = within(section).getByRole('table');
-    expect(rowTexts(table, '2031 (provisional)').slice(0, 2)).toEqual(['30', '2']);
+    expect(rowTexts(table, 'En activo')).toEqual(['30']);
+    expect(rowTexts(table, 'Cantimploras')).toEqual(['1']);
     expect(container.querySelector('svg.recharts-surface')).toBeNull();
   });
 
@@ -157,7 +159,7 @@ describe('TrendsTab (spec: Trends screen)', () => {
 
     expect(
       await screen.findByText(
-        'Las tendencias necesitan al menos dos ediciones con pedidos, y todavía no hay ninguna.',
+        'Las tendencias necesitan al menos dos ediciones con pedidos, y todavía no hay pedidos en esta selección.',
       ),
     ).toBeInTheDocument();
   });
@@ -184,8 +186,8 @@ describe('TrendsTab (spec: Trends screen)', () => {
       await open();
 
       const item = screen.getByRole('link', { name: NORTE.name }).closest('li');
-      expect(item).toHaveTextContent('2029: 12 · 2030: 14 · 2031 (provisional): 18');
-      expect(item).toHaveTextContent('Cambio sobre 2030: +4');
+      expect(item).toHaveTextContent('2029: 12, 2030: 14 y 2031 (provisional): 18');
+      expect(item).toHaveTextContent('Cambio respecto a 2030: +4');
     } finally {
       Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 });
     }

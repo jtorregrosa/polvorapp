@@ -81,7 +81,7 @@
 - [x] 4.3 Add the `insights:statistics.tabs.*`, `insights:trends.*` and `ui:chart.*` texts in
   es-ES, ca-ES-valencia and en. Verify: `npm run check-i18n` passes.
 - [x] 4.4 Update `docs/use-cases.md` (UC-07 trends note). Verify: the note matches the screen.
-- [ ] 4.5 Review group 4 in parallel with `react-reviewer` and `a11y-architect`. Fix CRITICAL/HIGH
+- [x] 4.5 Review group 4 in parallel with `react-reviewer` and `a11y-architect`. Fix CRITICAL/HIGH
   findings.
 
 ## 5. End-to-end and verification

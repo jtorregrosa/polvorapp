@@ -1,4 +1,3 @@
-import { keepPreviousData } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
@@ -41,6 +40,9 @@ function useSummaries() {
     const year = (row: TrendRowResponse) =>
       row.provisional ? t('ui:chart.provisionalLabel', { label: yearLabel(row) }) : yearLabel(row);
     const percent = (value: number) => format.number(value, { style: 'percent', maximumFractionDigits: 0 });
+    // A change under 1 % keeps a decimal, so "0 % more" never contradicts different figures.
+    const changePercent = (ratio: number) =>
+      format.number(ratio, { style: 'percent', maximumFractionDigits: ratio < 0.01 ? 1 : 0 });
     /** `{{key}}.summary` with the change of `value`, or `{{key}}.summaryAlone` without a previous figure. */
     const counted = (
       key: 'arquebusiers' | 'firstYear' | 'powder' | 'caps',
@@ -57,7 +59,7 @@ function useSummaries() {
         change.kind === 'same'
           ? t('insights:trends.change.same', { previous: yearLabel(previous) })
           : t(`insights:trends.change.${change.kind}`, {
-              change: percent(change.ratio),
+              change: changePercent(change.ratio),
               previous: yearLabel(previous),
             });
       return t(`insights:trends.${key}.summary`, { ...values, change: changeText });
@@ -264,7 +266,7 @@ function ComparsaTrends({
   comparsas: TrendsResponse['comparsas'];
 }) {
   const { t } = useTranslation(['insights', 'ui']);
-  const { number } = useFormatters();
+  const { number, list } = useFormatters();
   const latest = rows[rows.length - 1];
   const previous = rows[rows.length - 2];
 
@@ -333,16 +335,16 @@ function ComparsaTrends({
               {row.name}
             </Link>
             <span className="text-help text-muted-foreground">
-              {rows
-                .map((edition, index) =>
+              {list(
+                rows.map((edition, index) =>
                   t('trends.comparsas.yearCount', {
                     year: edition.provisional
                       ? t('ui:chart.provisionalLabel', { label: yearLabel(edition) })
                       : yearLabel(edition),
                     count: number(row.counts[index] ?? 0),
                   }),
-                )
-                .join(' · ')}
+                ),
+              )}
             </span>
             <span className="text-help text-muted-foreground">
               {t('trends.comparsas.changeText', {
@@ -358,45 +360,35 @@ function ComparsaTrends({
   );
 }
 
-/** One edition with orders: its figures as a table, without charts (spec: Trends screen, Only one edition). */
+/**
+ * One edition with orders: its figures as a table of measures, without charts (spec: Trends screen,
+ * Only one edition), so it reads on a phone too.
+ */
 function SingleEdition({ row }: { row: TrendRowResponse }) {
-  const { t } = useTranslation(['insights', 'catalog']);
-  const series = useMemo<ChartSeries[]>(
-    () => [
-      { key: 'active', label: t('statistics.figures.active') },
-      { key: 'reserve', label: t('statistics.figures.reserve') },
-      { key: 'women', label: t('trends.women.series') },
-      { key: 'unknown', label: t('trends.women.unknown') },
-      { key: 'powder', label: t('trends.powder.series') },
-      { key: 'caps', label: t('trends.caps.series') },
-      { key: 'owned', label: t('trends.weapons.owned') },
-      { key: 'rental', label: t('trends.weapons.rental') },
-      { key: 'loan', label: t('trends.weapons.loan') },
-      { key: 'none', label: t('trends.weapons.none') },
-      { key: 'flasks', label: t('trends.rentals.flasks') },
-    ],
-    [t],
-  );
-  const data = useMemo(
-    () => [
-      point(row, {
-        active: row.active,
-        reserve: row.reserve,
-        women: row.gender.female,
-        unknown: row.gender.unknown,
-        powder: row.powderKg,
-        caps: row.capsBoxes,
-        ...row.weaponSources,
-        flasks: row.flaskRentals,
-      }),
-    ],
-    [row],
-  );
+  const { t } = useTranslation(['insights', 'ui']);
+  const year = row.provisional ? t('ui:chart.provisionalLabel', { label: yearLabel(row) }) : yearLabel(row);
+  const series = useMemo<ChartSeries[]>(() => [{ key: 'value', label: year }], [year]);
+  const data = useMemo<ChartPoint[]>(() => {
+    const measures: [string, number][] = [
+      [t('statistics.figures.active'), row.active],
+      [t('statistics.figures.reserve'), row.reserve],
+      [t('trends.women.series'), row.gender.female],
+      [t('trends.women.unknown'), row.gender.unknown],
+      [t('trends.powder.series'), row.powderKg],
+      [t('trends.caps.series'), row.capsBoxes],
+      [t('trends.weapons.owned'), row.weaponSources.owned],
+      [t('trends.weapons.rental'), row.weaponSources.rental],
+      [t('trends.weapons.loan'), row.weaponSources.loan],
+      [t('trends.weapons.none'), row.weaponSources.none],
+      [t('trends.rentals.flasks'), row.flaskRentals],
+    ];
+    return measures.map(([label, value]) => ({ id: label, label, values: { value } }));
+  }, [row, t]);
   return (
     <ChartFrame
-      title={t('trends.single.title', { year: yearLabel(row) })}
-      summary={t('trends.fewEditions', { year: yearLabel(row) })}
-      categoryLabel={t('trends.edition')}
+      title={t('trends.single.title', { year })}
+      summary={t('trends.fewEditions', { year })}
+      categoryLabel={t('trends.single.measure')}
       series={series}
       data={data}
     />
@@ -410,7 +402,8 @@ function SingleEdition({ row }: { row: TrendRowResponse }) {
 export default function TrendsTab({ comparsaId, enabled }: TrendsTabProps) {
   const { t } = useTranslation('insights');
   const query = useGetComplianceTrends(comparsaId ? { comparsaId } : {}, {
-    query: { enabled, placeholderData: keepPreviousData },
+    // No placeholder: figures of a wider scope never stay on screen while a comparsa's load.
+    query: { enabled },
   });
   const trends = query.isSuccess ? (query.data.data as TrendsResponse) : undefined;
   const rows = useMemo(() => (trends ? editionsWithOrders(trends.rows) : []), [trends]);
