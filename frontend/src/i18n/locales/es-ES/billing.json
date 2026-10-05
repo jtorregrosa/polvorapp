@@ -31,7 +31,8 @@
   },
   "overview": {
     "amount": "Importe",
-    "priceMissing": "Falta un precio"
+    "priceMissing": "Falta un precio",
+    "billingState": "Estado del importe"
   },
   "edition": {
     "title": "Resumen de pago de la edición",

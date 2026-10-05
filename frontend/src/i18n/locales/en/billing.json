@@ -31,7 +31,8 @@
   },
   "overview": {
     "amount": "Amount",
-    "priceMissing": "A price is missing"
+    "priceMissing": "A price is missing",
+    "billingState": "Amount status"
   },
   "edition": {
     "title": "Edition billing summary",

@@ -24,7 +24,7 @@ import { KeyFacts } from '@/components/app/KeyFacts';
 import { PageHeader } from '@/components/app/PageHeader';
 import { StatCard } from '@/components/app/StatCard';
 import { StatusBadge } from '@/components/app/StatusBadge';
-import { BillingAmount } from '@/features/billing/components/BillingAmount';
+import { BillingAmount, BillingTotal } from '@/features/billing/components/BillingAmount';
 import { BillingSummarySection } from '@/features/billing/components/BillingSummarySection';
 import { ApiProblemError } from '@/api/http';
 import { LoadFailure } from '@/features/arquebusier-registry/components/LoadFailure';
@@ -203,6 +203,7 @@ function EditionTotals({ totals }: { totals: OrderTotalsResponse }) {
 export function OrdersOverviewPage() {
   const { t } = useTranslation('orders');
   const { t: tBilling } = useTranslation('billing');
+  const { t: tUi } = useTranslation('ui');
   const { t: tExports } = useTranslation('exports');
   const { editionId } = useParams();
   const session = useSession();
@@ -257,6 +258,7 @@ export function OrdersOverviewPage() {
         id: 'comparsa',
         header: t('overview.columns.comparsa'),
         rowHeader: true,
+        sortValue: (row) => row.comparsa.name,
         cell: (row) =>
           row.orderId ? (
             <Link
@@ -269,13 +271,31 @@ export function OrdersOverviewPage() {
             <span className="font-semibold">{row.comparsa.name}</span>
           ),
       },
-      { id: 'status', header: t('overview.columns.status'), cell: (row) => <RowStatus row={row} /> },
-      { id: 'totals', header: t('overview.columns.totals'), cell: (row) => totalsText(row.totals) },
+      {
+        id: 'status',
+        header: t('overview.columns.status'),
+        sortValue: (row) => (row.status ? tUi(`status.order.${row.status}`) : t('overview.notPrepared')),
+        cell: (row) => <RowStatus row={row} />,
+      },
+      {
+        id: 'totals',
+        header: t('overview.columns.totals'),
+        // By the people in the order, the first figure of the cell.
+        sortValue: (row) => (row.totals ? row.totals.active + row.totals.reserve : -1),
+        cell: (row) => totalsText(row.totals),
+      },
       {
         id: 'amount',
         header: tBilling('overview.amount'),
         align: 'end',
-        cell: (row) => (row.billing ? <BillingAmount billing={row.billing} /> : null),
+        sortValue: (row) => row.billing?.total ?? -1,
+        cell: (row) => (row.billing ? <BillingTotal billing={row.billing} /> : null),
+      },
+      {
+        id: 'billingState',
+        header: tBilling('overview.billingState'),
+        sortValue: (row) => (row.billing ? tUi(`status.billing.${row.billing.state}`) : ''),
+        cell: (row) => (row.billing ? <StatusBadge kind="billing" value={row.billing.state} /> : null),
       },
       {
         id: 'action',
@@ -293,7 +313,7 @@ export function OrdersOverviewPage() {
           ) : null,
       },
     ],
-    [t, tBilling, totalsText, edition, preparing, startPrepare],
+    [t, tUi, tBilling, totalsText, edition, preparing, startPrepare],
   );
 
   if (overview.isError && overview.error instanceof ApiProblemError && overview.error.status === 404) {
@@ -371,7 +391,7 @@ export function OrdersOverviewPage() {
                 {row.billing && (
                   <span className="flex flex-wrap items-center gap-1 text-help">
                     <span className="text-muted-foreground">{tBilling('overview.amount')}:</span>
-                    <BillingAmount billing={row.billing} className="justify-start" />
+                    <BillingAmount billing={row.billing} />
                   </span>
                 )}
                 {row.canPrepare && edition && (

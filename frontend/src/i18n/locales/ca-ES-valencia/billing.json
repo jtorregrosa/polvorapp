@@ -31,7 +31,8 @@
   },
   "overview": {
     "amount": "Import",
-    "priceMissing": "Falta un preu"
+    "priceMissing": "Falta un preu",
+    "billingState": "Estat de l'import"
   },
   "edition": {
     "title": "Resum de pagament de l'edició",
