@@ -195,9 +195,8 @@ test.describe('trends (change add-statistics-trends)', () => {
     const table = page.getByRole('table', { name: 'Arcabuceros por edición: datos' });
     await expect(table.getByRole('rowheader')).toHaveCount(2);
     await expect(table.getByRole('rowheader').last()).toHaveText(/^\d{4} \(provisional\)$/);
-    await expect(
-      page.getByRole('table', { name: 'Arcabuceros en activo por comparsa y edición' }),
-    ).toBeVisible();
+    // A table on wide screens, a list of comparsas on phones.
+    await expect(region(page, 'Arcabuceros en activo por comparsa')).toBeVisible();
   });
 
   test('the keyboard moves through the editions and the values are said', async ({ page }) => {
@@ -241,7 +240,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
       '/': (current) => region(current, 'Avisos').getByRole('link').first(),
       '/statistics': (current) => current.getByRole('table', { name: 'Arcabuceros por género' }),
       '/statistics?view=trends': (current) =>
-        current.getByRole('table', { name: 'Arcabuceros en activo por comparsa y edición' }),
+        region(current, 'Arcabuceros en activo por comparsa').getByRole('link').first(),
     };
     for (const [path, marker] of Object.entries(loaded)) {
       await page.goto(path);
