@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { House } from 'lucide-react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { axeViolations } from '@/test/axe';
 import { renderWithProviders } from '@/test/render';
 import { AppLayout, type SidebarCard } from './AppLayout';
@@ -249,17 +249,190 @@ describe('AppLayout navigation sections (platform: Application shell)', () => {
     expect(within(navigation).getByRole('heading', { level: 2, name: 'Fiestas' })).toBeInTheDocument();
   });
 
-  it('shows the unlabelled first section without a group and separates the sections', async () => {
+  it('shows the unlabelled first section without a group', async () => {
     await renderSections();
 
     const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
     const home = within(navigation).getByRole('link', { name: 'Inicio' });
     expect(home.closest('[role="group"]')).toBeNull();
-    expect(navigation.querySelectorAll('[data-sidebar="separator"]')).toHaveLength(2);
+    expect(within(navigation).getAllByRole('heading', { level: 2 })).toHaveLength(2);
   });
 
   it('has no automatically detectable accessibility violations with sections', async () => {
     const { container } = await renderSections();
+
+    expect(await axeViolations(container)).toEqual([]);
+  });
+});
+
+describe('AppLayout icon rail (platform: Application shell)', () => {
+  const RAIL_SECTIONS = [
+    { id: 'home', items: [{ to: '/', label: 'Inicio', icon: House }] },
+    {
+      id: 'registry',
+      label: 'Registro',
+      items: [
+        { to: '/arquebusiers', label: 'Arcabuceros', icon: House, count: 5, countLabel: '5 con avisos' },
+      ],
+    },
+    { id: 'festival', label: 'Fiestas', items: [{ to: '/orders', label: 'Pedidos', icon: House }] },
+  ];
+
+  async function renderRail(width = 1440) {
+    setViewportWidth(width);
+    const router = createMemoryRouter(
+      [
+        {
+          path: '/',
+          element: (
+            <AppLayout navigation={RAIL_SECTIONS} sidebarCards={CARDS} sidebarFooter={<p>Versión 1.4.0</p>}>
+              <h1>Bienvenida</h1>
+            </AppLayout>
+          ),
+        },
+      ],
+      { initialEntries: ['/'] },
+    );
+    return renderWithProviders(<RouterProvider router={router} />);
+  }
+
+  afterEach(() => {
+    setViewportWidth(ORIGINAL_WIDTH);
+    window.localStorage.removeItem('polvorapp.sidebar');
+  });
+
+  const sidebar = () => document.querySelector('[data-slot="sidebar"]');
+
+  it('collapses to an icon rail from a trigger named after what it does', async () => {
+    const user = userEvent.setup();
+    await renderRail();
+
+    await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
+
+    expect(sidebar()).toHaveAttribute('data-state', 'collapsed');
+    expect(sidebar()).toHaveAttribute('data-collapsible', 'icon');
+    expect(screen.getByRole('button', { name: 'Expandir la navegación' })).toBeInTheDocument();
+  });
+
+  it('keeps every entry named and reachable by keyboard in the rail', async () => {
+    const user = userEvent.setup();
+    await renderRail();
+
+    await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
+
+    expect(document.querySelector('[data-slot="sidebar-container"]')).not.toHaveAttribute('inert');
+    const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
+    for (const name of ['Inicio', 'Arcabuceros, 5 con avisos', 'Pedidos']) {
+      const link = within(navigation).getByRole('link', { name });
+      expect(link).not.toHaveAttribute('tabindex', '-1');
+    }
+    expect(screen.getByRole('link', { name: 'Comparsa Sintética Norte' })).toBeInTheDocument();
+  });
+
+  it('shows the entry name in a tooltip on keyboard focus in the rail', async () => {
+    const user = userEvent.setup();
+    await renderRail();
+
+    await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
+    screen.getByRole('link', { name: 'Pedidos' }).focus();
+
+    expect(await screen.findByRole('tooltip', { name: 'Pedidos' })).toBeInTheDocument();
+  });
+
+  it('turns a counter into a dot, keeping the count in the name and the tooltip', async () => {
+    const user = userEvent.setup();
+    await renderRail();
+    expect(document.querySelector('[data-nav-dot]')).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
+
+    expect(document.querySelector('[data-sidebar="menu-badge"]')).toBeNull();
+    expect(document.querySelector('[data-nav-dot]')).toHaveAttribute('aria-hidden', 'true');
+    screen.getByRole('link', { name: 'Arcabuceros, 5 con avisos' }).focus();
+    expect(await screen.findByRole('tooltip', { name: 'Arcabuceros, 5 con avisos' })).toBeInTheDocument();
+  });
+
+  it('shows only the logo of a comparsa card in the rail, named and with a tooltip', async () => {
+    const user = userEvent.setup();
+    await renderRail();
+
+    await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
+    const card = screen.getByRole('link', { name: 'Comparsa Sintética Norte' });
+    card.focus();
+
+    expect(await screen.findByRole('tooltip', { name: 'Comparsa Sintética Norte' })).toBeInTheDocument();
+    expect(card.querySelector('[data-card-label]')).toHaveClass('group-data-[collapsible=icon]:opacity-0');
+  });
+
+  it('hides the API version in the rail', async () => {
+    const user = userEvent.setup();
+    await renderRail();
+
+    await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
+
+    expect(screen.getByText('Versión 1.4.0').closest('[data-slot="sidebar-footer"]')).toHaveClass(
+      'group-data-[collapsible=icon]:invisible',
+    );
+  });
+
+  it('keeps the drawer, with section labels, on a phone', async () => {
+    const user = userEvent.setup();
+    await renderRail(360);
+
+    await user.click(screen.getByRole('button', { name: 'Mostrar u ocultar la navegación' }));
+
+    const drawer = await screen.findByRole('dialog');
+    expect(within(drawer).getByRole('group', { name: 'Registro' })).toBeInTheDocument();
+    expect(within(drawer).queryByRole('tooltip')).toBeNull();
+  });
+
+  it('remembers the collapsed state on the device and restores it on the next visit', async () => {
+    const user = userEvent.setup();
+    const first = await renderRail();
+    await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
+    expect(window.localStorage.getItem('polvorapp.sidebar')).toBe('collapsed');
+    first.unmount();
+
+    await renderRail();
+
+    expect(sidebar()).toHaveAttribute('data-state', 'collapsed');
+    await user.click(screen.getByRole('button', { name: 'Expandir la navegación' }));
+    expect(window.localStorage.getItem('polvorapp.sidebar')).toBe('expanded');
+  });
+
+  it('starts expanded when the stored state cannot be read or written', async () => {
+    const user = userEvent.setup();
+    // Blocked for this preference only: the test setup stores the language too.
+    const { getItem, setItem } = Storage.prototype;
+    const read = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(function (this: Storage, key) {
+      if (key === 'polvorapp.sidebar') throw new Error('blocked');
+      return getItem.call(this, key);
+    });
+    const write = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (
+      this: Storage,
+      key,
+      value,
+    ) {
+      if (key === 'polvorapp.sidebar') throw new Error('blocked');
+      setItem.call(this, key, value);
+    });
+    try {
+      await renderRail();
+
+      expect(sidebar()).toHaveAttribute('data-state', 'expanded');
+      await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
+      expect(sidebar()).toHaveAttribute('data-state', 'collapsed');
+    } finally {
+      read.mockRestore();
+      write.mockRestore();
+    }
+  });
+
+  it('has no automatically detectable accessibility violations in the rail', async () => {
+    const user = userEvent.setup();
+    const { container } = await renderRail();
+
+    await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
 
     expect(await axeViolations(container)).toEqual([]);
   });

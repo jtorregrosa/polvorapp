@@ -48,6 +48,17 @@
     animation: none !important;
   }
 
+  /* The sidebar takes its new width at once; its labels fade in without waiting for it
+     (refine-navigation-and-lists D3). */
+  [data-slot='sidebar-gap'],
+  [data-slot='sidebar-container'] {
+    transition-duration: 0s !important;
+  }
+
+  [data-sidebar-label] {
+    transition-delay: 0s !important;
+  }
+
   [data-slot='native-select-wrapper'] > select::picker(select),
   [data-slot='native-select-wrapper'] > select:not(:open)::picker(select) {
     translate: none !important;

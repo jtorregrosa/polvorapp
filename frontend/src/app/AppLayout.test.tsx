@@ -152,24 +152,29 @@ describe('AppLayout (platform: Application shell)', () => {
     expect(screen.getByRole('main')).toHaveFocus();
   });
 
-  it('exposes whether the navigation is expanded and removes a collapsed sidebar from the tab order', async () => {
+  it('collapses the sidebar to an icon rail that stays operable, from a trigger named after its action', async () => {
     const user = userEvent.setup();
     await renderAt('/');
-    const trigger = screen.getByRole('button', { name: 'Mostrar u ocultar la navegación' });
-    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    const trigger = screen.getByRole('button', { name: 'Contraer la navegación' });
+    expect(trigger).not.toHaveAttribute('aria-expanded');
 
     await user.click(trigger);
 
-    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByRole('button', { name: 'Expandir la navegación' })).toBeInTheDocument();
     const container = document.querySelector('[data-slot="sidebar-container"]');
-    expect(container).toHaveAttribute('inert');
+    expect(container).not.toHaveAttribute('inert');
+    expect(
+      within(screen.getByRole('navigation', { name: 'Navegación principal' })).getByRole('link', {
+        name: 'Pedidos',
+      }),
+    ).toBeVisible();
   });
 
   it('does not store the sidebar state in a cookie', async () => {
     const user = userEvent.setup();
     await renderAt('/');
 
-    await user.click(screen.getByRole('button', { name: 'Mostrar u ocultar la navegación' }));
+    await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
 
     expect(document.cookie).not.toContain('sidebar_state');
   });

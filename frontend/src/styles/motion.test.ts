@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest';
 
 const ui = (file: string) => readFileSync(join(import.meta.dirname, '../components/ui', file), 'utf8');
 const globals = readFileSync(join(import.meta.dirname, 'globals.css'), 'utf8');
+const appLayout = readFileSync(join(import.meta.dirname, '../components/app/AppLayout.tsx'), 'utf8');
 
 function literals(source: string): string[] {
   return [...source.matchAll(/(['"`])((?:(?!\1)[^\\\n]|\\.)*)\1/g)].map((match) => match[2] ?? '');
@@ -94,9 +95,38 @@ describe('motion of the primitives', () => {
     expect(skeleton).not.toContain('animate-pulse');
   });
 
-  it('never animates the size or position of the sidebar', () => {
-    expect(ui('sidebar.tsx')).not.toMatch(/transition-\[[^\]]*(width|height|left|right|top|padding)[^\]]*\]/);
-    expect(ui('sidebar.tsx')).not.toContain('transition-all');
+  // The one exception to "never layout" (refine-navigation-and-lists D3): the sidebar's width and
+  // the offset beside it, together, in 200 ms with the drawer easing.
+  it('animates only the sidebar width and the offset of the content, in 200 ms with the drawer easing', () => {
+    const gap = classList(ui('sidebar.tsx'), 'relative w-(--sidebar-width) bg-transparent');
+    const container = classList(ui('sidebar.tsx'), 'fixed inset-y-0 z-10 hidden h-svh');
+    expect(gap).toEqual(expect.arrayContaining(['transition-[width]', 'duration-200', 'ease-drawer']));
+    expect(container).toEqual(
+      expect.arrayContaining(['transition-[left,right,width]', 'duration-200', 'ease-drawer']),
+    );
+    const layoutTransitions = literals(ui('sidebar.tsx')).filter((text) =>
+      /transition-\[[^\]]*(width|height|left|right|top|padding|margin)[^\]]*\]/.test(text),
+    );
+    expect(layoutTransitions).toHaveLength(2);
+    expect(ui('sidebar.tsx')).not.toMatch(/transition-all|ease-linear/);
+  });
+
+  it('fades the sidebar group labels with opacity only', () => {
+    const label = classList(ui('sidebar.tsx'), 'flex h-8 shrink-0 items-center rounded-md px-2');
+    expect(label).toEqual(expect.arrayContaining(['transition-opacity', 'duration-100']));
+  });
+
+  it('fades the shell labels out at once and in after the width is restored, never wrapping meanwhile', () => {
+    const label = classList(appLayout, 'group-data-[collapsible=icon]:delay-0');
+    expect(label).toEqual(
+      expect.arrayContaining([
+        'transition-opacity',
+        'duration-100',
+        'delay-200',
+        'group-data-[collapsible=icon]:opacity-0',
+        'group-data-[moving=true]/sidebar-wrapper:whitespace-nowrap',
+      ]),
+    );
   });
 
   it('changes table rows at once on hover, without a transition', () => {
@@ -129,6 +159,13 @@ describe('reduced motion', () => {
     expect(block).toContain('animation-duration: var(--duration-fast) !important;');
     expect(block).toContain('transition-duration: var(--duration-fast) !important;');
     expect(block).toContain('animation-iteration-count: 1 !important;');
+  });
+
+  it('changes the sidebar width at once and fades its labels in without waiting', () => {
+    expect(block).toMatch(
+      /\[data-slot='sidebar-gap'\],\s*\[data-slot='sidebar-container'\]\s*\{\s*transition-duration: 0s !important;/,
+    );
+    expect(block).toMatch(/\[data-sidebar-label\]\s*\{\s*transition-delay: 0s !important;/);
   });
 
   it('stops looping animations', () => {
