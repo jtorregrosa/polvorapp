@@ -68,7 +68,7 @@ test.describe('Federation settings as the Admin', () => {
     await page.reload();
     await waitForShell(page);
     await expect(page.getByRole('region', { name: 'Correos' })).toContainText(
-      'Unión Sintética · PolvorApp <',
+      'Unión Sintética · PolvorApp (',
     );
     await expect(page.getByRole('region', { name: 'Calendario' })).toContainText('3 días antes');
   });
