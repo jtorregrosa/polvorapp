@@ -186,7 +186,7 @@ export function AccountPage() {
           <DescriptionList
             items={[
               { term: t('account.name'), value: account.name },
-              { term: t('account.email'), value: <span className="break-all">{account.email}</span> },
+              { term: t('account.email'), value: account.email },
               { term: t('account.role'), value: t(`roles.${account.role}`) },
             ]}
           />

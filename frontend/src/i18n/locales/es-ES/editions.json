@@ -75,7 +75,7 @@
       "powderPerKg": "Pólvora, por kilo",
       "capsBox": "Caja de pistones",
       "weaponRental": "Alquiler de arma",
-      "flaskRental": "Alquiler de polvorera",
+      "flaskRental": "Alquiler de cantimplora",
       "billingNote": "La edición ya está iniciada: la facturación usará los precios nuevos."
     },
     "models": {
@@ -190,7 +190,7 @@
       "powderPerKg": "el precio de la pólvora",
       "capsBox": "el precio de la caja de pistones",
       "weaponRental": "el precio del alquiler de arma",
-      "flaskRental": "el precio del alquiler de polvorera"
+      "flaskRental": "el precio del alquiler de cantimplora"
     }
   },
   "errors": {

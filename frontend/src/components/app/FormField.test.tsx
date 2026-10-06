@@ -139,7 +139,7 @@ describe('FormField', () => {
 
     const item = screen.getByRole('textbox', { name: 'Nombre' }).closest('[data-slot="form-item"]');
     expect(item).toHaveAttribute('data-invalid', 'true');
-    expect(item).toHaveClass('border-l-4', 'data-[invalid=true]:border-destructive');
+    expect(item).toHaveClass('border-s-4', 'data-[invalid=true]:border-destructive');
   });
 
   it('only references descriptions that exist', async () => {

@@ -285,6 +285,18 @@ export function DataTable<TRow extends RowData>({
   );
   const pageCheckboxId = `${captionId}-page`;
 
+  // Nothing to list: one compact line instead of headers above an empty body (UI audit T8).
+  if (!isLoading && total === 0) {
+    return (
+      <p
+        data-slot="table-empty"
+        className="rounded-lg border border-dashed bg-card px-4 py-6 text-center text-muted-foreground"
+      >
+        {emptyText ?? t('table.empty')}
+      </p>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-3">
       {stacked && selectable && (

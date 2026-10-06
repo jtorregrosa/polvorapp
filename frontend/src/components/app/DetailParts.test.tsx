@@ -192,6 +192,16 @@ describe('SectionGrid, SectionCard and DescriptionList', () => {
     expect(screen.getByText('00000001R')).toHaveClass('font-mono');
   });
 
+  it('lets an email break after "@" and "." but never mid-word (UI audit T10)', async () => {
+    const { container } = await renderWithProviders(
+      <DescriptionList items={[{ term: 'Correo', value: 'ana.sintetica@polvorapp.example' }]} />,
+    );
+
+    const value = screen.getByRole('definition');
+    expect(value).toHaveTextContent('ana.sintetica@polvorapp.example');
+    expect(container.querySelectorAll('wbr')).toHaveLength(3);
+  });
+
   it('adds columns on wide screens and lets a section span the whole row', async () => {
     await renderWithProviders(<Sections />);
 
