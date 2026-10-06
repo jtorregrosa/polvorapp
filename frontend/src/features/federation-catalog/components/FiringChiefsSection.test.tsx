@@ -20,6 +20,12 @@ function comparsaWithChiefs(comparsa: ComparsaResponse, initial: FiringChiefResp
   return state;
 }
 
+/** Opens the side panel of the section's add button (UI audit: add from the section header). */
+async function openAdd(user: ReturnType<typeof userEvent.setup>, group: HTMLElement): Promise<HTMLElement> {
+  await user.click(await within(group).findByRole('button', { name: /^Añadir jefe de disparo/ }));
+  return screen.findByRole('dialog', { name: 'Añadir un jefe de disparo' });
+}
+
 async function section() {
   return screen.findByRole('region', { name: 'Jefes de disparo' });
 }
@@ -45,12 +51,12 @@ describe('FiringChiefs section of a comparsa (spec: Managing assignments from th
   });
 
   it('offers only FiringChiefs who are neither deactivated, erased nor already assigned', async () => {
+    const user = userEvent.setup();
     comparsaWithChiefs(NORTE, [asFiringChief(CHIEF_UNO)]);
     await renderApp(`/comparsas/${NORTE.id}`, { session: SYNTHETIC_ADMIN });
 
-    const choice = await within(await section()).findByRole('combobox', {
-      name: 'Jefe de disparo que añadir',
-    });
+    const panel = await openAdd(user, await section());
+    const choice = within(panel).getByRole('combobox', { name: 'Jefe de disparo que añadir' });
     await waitFor(() => {
       expect(
         within(choice)
@@ -73,19 +79,21 @@ describe('FiringChiefs section of a comparsa (spec: Managing assignments from th
     );
     await renderApp(`/comparsas/${NORTE.id}`, { session: SYNTHETIC_ADMIN });
     const group = await section();
-    await within(group).findByRole('option', { name: /Jefa Sintética Dos/ });
+    const panel = await openAdd(user, group);
+    await within(panel).findByRole('option', { name: /Jefa Sintética Dos/ });
 
     await user.selectOptions(
-      within(group).getByRole('combobox', { name: 'Jefe de disparo que añadir' }),
+      within(panel).getByRole('combobox', { name: 'Jefe de disparo que añadir' }),
       CHIEF_DOS.id,
     );
-    await user.click(within(group).getByRole('button', { name: 'Añadir' }));
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
 
-    const notice = (
-      await within(group).findByText('Jefa Sintética Dos ya es jefe de disparo de esta comparsa.')
-    ).closest('[data-severity]');
+    // Announced, with focus back on the section's add button.
+    expect(
+      await screen.findAllByText('Jefa Sintética Dos ya es jefe de disparo de esta comparsa.'),
+    ).not.toHaveLength(0);
     await waitFor(() => {
-      expect(notice).toHaveFocus();
+      expect(within(group).getByRole('button', { name: /^Añadir jefe de disparo/ })).toHaveFocus();
     });
     expect(assigned).toEqual([CHIEF_DOS.id]);
     expect(await within(group).findByRole('table', { name: /^Jefes de disparo de / })).toHaveTextContent(
@@ -212,17 +220,19 @@ describe('FiringChiefs section of a comparsa (spec: Managing assignments from th
     );
     await renderApp(`/comparsas/${NORTE.id}`, { session: SYNTHETIC_ADMIN });
     const group = await section();
-    await within(group).findByRole('option', { name: /Jefe Sintético Uno/ });
+    const panel = await openAdd(user, group);
+    await within(panel).findByRole('option', { name: /Jefe Sintético Uno/ });
     const before = listed;
 
     await user.selectOptions(
-      within(group).getByRole('combobox', { name: 'Jefe de disparo que añadir' }),
+      within(panel).getByRole('combobox', { name: 'Jefe de disparo que añadir' }),
       CHIEF_UNO.id,
     );
-    await user.click(within(group).getByRole('button', { name: 'Añadir' }));
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
 
+    // The panel stays open with the reason.
     expect(
-      await within(group).findByText('Ese usuario está desactivado y no se puede asignar.'),
+      await within(panel).findByText('Ese usuario está desactivado y no se puede asignar.'),
     ).toBeInTheDocument();
     await waitFor(() => {
       expect(listed).toBeGreaterThan(before);
@@ -233,14 +243,16 @@ describe('FiringChiefs section of a comparsa (spec: Managing assignments from th
     const user = userEvent.setup();
     comparsaWithChiefs(NORTE, []);
     await renderApp(`/comparsas/${NORTE.id}`, { session: SYNTHETIC_ADMIN });
-    const group = await section();
-    await within(group).findByRole('option', { name: /Jefe Sintético Uno/ });
+    const panel = await openAdd(user, await section());
+    await within(panel).findByRole('option', { name: /Jefe Sintético Uno/ });
 
-    await user.click(within(group).getByRole('button', { name: 'Añadir' }));
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
 
     expect(
-      await within(group).findByText('Elige una opción.', { selector: '[data-slot="form-message"], p' }),
-    ).toBeInTheDocument();
+      await within(panel).findAllByText('Elige una opción.', {
+        selector: '[data-slot="form-message"], p, a',
+      }),
+    ).not.toHaveLength(0);
   });
 
   it('offers no new FiringChiefs on an inactive comparsa and says why', async () => {

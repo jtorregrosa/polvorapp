@@ -8,7 +8,10 @@
     "columns": {
       "name": "Nombre",
       "side": "Bando",
-      "status": "Estado"
+      "status": "Estado",
+      "active": "En activo",
+      "withWarnings": "Activos con avisos",
+      "order": "Pedido"
     },
     "filters": {
       "side": "Bando",
@@ -72,6 +75,16 @@
       "removeConfirm": "Quitar logo",
       "uploaded": "Logo guardado",
       "removed": "Logo quitado"
+    },
+    "facts": {
+      "label": "Cifras de la comparsa",
+      "active": "En activo",
+      "reserve": "En reserva",
+      "withWarnings": "Activos con avisos",
+      "order": "Pedido de {{year}}",
+      "notPrepared": "Sin preparar",
+      "openOrder": "Ver el pedido",
+      "link": "{{value}} {{label}}"
     }
   },
   "federation": {
@@ -179,7 +192,9 @@
     "removeDescription": "Dejará de ver esta comparsa a partir de su siguiente acción.",
     "added": "{{name}} ya es jefe de disparo de esta comparsa.",
     "removed": "{{name}} ya no es jefe de disparo de esta comparsa.",
-    "caption": "Jefes de disparo de {{name}}"
+    "caption": "Jefes de disparo de {{name}}",
+    "addAction": "Añadir jefe de disparo",
+    "addTitle": "Añadir un jefe de disparo"
   },
   "userComparsas": {
     "title": "Comparsas",
@@ -195,7 +210,9 @@
     "added": "Comparsa {{name}} asignada.",
     "removed": "Comparsa {{name}} quitada.",
     "adminNoEffect": "Este usuario es administrador y ve todas las comparsas. Estas asignaciones no tienen efecto salvo que vuelva a ser jefe de disparo.",
-    "caption": "Comparsas de {{name}}"
+    "caption": "Comparsas de {{name}}",
+    "addAction": "Añadir comparsa",
+    "addTitle": "Asignar una comparsa"
   },
   "weaponModels": {
     "title": "Modelos de arma",
