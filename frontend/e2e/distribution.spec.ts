@@ -157,8 +157,10 @@ test('the Admin sees every comparsa on the plan, and the comparsas without a val
 
   const powder = page.getByRole('region', { name: 'Día de reparto de pólvora', exact: true });
   await expect(powder).toContainText('Abencerrajes');
-  await expect(powder).toContainText('Sin turno');
+  // The comparsas without a slot and without a validated order are folded under one line.
+  await expect(powder).toContainText(/\d+ comparsas? sin turno/);
   await expect(powder.getByText('Pedidos sin validar')).toBeVisible();
+  await powder.getByText(/^Ver (la comparsa|las \d+ comparsas)$/).click();
   await expect(powder.getByRole('listitem').filter({ hasText: 'Abencerrajes (en borrador)' })).toBeVisible();
   await expect(
     powder.getByRole('button', { name: 'Descargar el listado de pólvora en Excel' }),
