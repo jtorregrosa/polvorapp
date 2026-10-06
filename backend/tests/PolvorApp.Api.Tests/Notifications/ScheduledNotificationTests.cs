@@ -137,6 +137,24 @@ public sealed class ScheduledNotificationTests(PostgresFixture postgres, Mailpit
     }
 
     [Fact]
+    public async Task A_lead_time_changed_between_runs_is_used_at_once_and_never_repeats_a_reminder()
+    {
+        await SetLeadTimesAsync(closeReminderLeadDays: 3, milestoneLeadDays: 7);
+        await Services.SetOrdersCloseOnAsync(_orders.Current.Id, CloseOn);
+        await Services.SaveOrdersAsync(NewOrder(_orders.Current, _orders.Own.Id), NewOrder(_orders.Current, _orders.Other.Id, OrderStatus.Submitted));
+
+        var shortLead = await Services.RunScheduledAsync(CloseOn.AddDays(-5));
+        await SetLeadTimesAsync(closeReminderLeadDays: 6, milestoneLeadDays: 7);
+        var longerLead = await Services.RunScheduledAsync(CloseOn.AddDays(-5));
+        await SetLeadTimesAsync(closeReminderLeadDays: 14, milestoneLeadDays: 7);
+        var longestLead = await Services.RunScheduledAsync(CloseOn.AddDays(-4));
+
+        // The new lead time is read by the next run; the reminder already sent is not sent again.
+        Assert.Equal((0, 1, 0), (shortLead.CloseReminders, longerLead.CloseReminders, longestLead.CloseReminders));
+        Assert.Single(await Services.DeliveriesAsync(), d => d.Topic.StartsWith("close7:", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task A_moved_close_date_makes_the_reminder_due_again_and_closed_orders_get_none()
     {
         await Services.SetOrdersCloseOnAsync(_orders.Current.Id, CloseOn);
