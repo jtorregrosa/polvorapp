@@ -47,13 +47,22 @@ describe('Registry lock (spec: Registry lock screens)', () => {
     server.use(mock.put('/api/registry/lock', resolver));
     await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
 
-    await user.click(await screen.findByRole('button', { name: 'Bloquear registro' }));
+    // A rarely used action: in "More actions", with the registry's state beside the title (UI audit).
+    expect(await screen.findByText('Registro abierto')).toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: 'Más acciones' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Bloquear registro' }));
     const dialog = await screen.findByRole('alertdialog', { name: '¿Bloquear el registro?' });
     expect(dialog).toHaveTextContent('Los jefes de disparo podrán consultar los arcabuceros');
     await user.click(within(dialog).getByRole('button', { name: 'Bloquear registro' }));
 
     expect(await screen.findByText(ADMIN_NOTICE)).toBeInTheDocument();
-    expect(await screen.findByRole('button', { name: 'Desbloquear registro' })).toBeInTheDocument();
+    expect(await screen.findAllByText('Registro bloqueado')).not.toHaveLength(0);
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Más acciones' })).toHaveFocus();
+    });
+    await user.click(screen.getByRole('button', { name: 'Más acciones' }));
+    expect(await screen.findByRole('menuitem', { name: 'Desbloquear registro' })).toBeInTheDocument();
+    await user.keyboard('{Escape}');
     expect(bodies).toEqual([{ locked: true }]);
     // Admins still register while it is locked.
     expect(screen.getByRole('link', { name: 'Registrar arcabucero' })).toBeInTheDocument();
@@ -66,7 +75,7 @@ describe('Registry lock (spec: Registry lock screens)', () => {
 
     expect(await screen.findByText(FIRING_CHIEF_NOTICE)).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Registrar arcabucero' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Bloquear registro' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Más acciones' })).not.toBeInTheDocument();
   });
 
   it('shows a FiringChief the detail without edit, status, delete, weapon or photo actions', async () => {
@@ -190,7 +199,7 @@ describe('Registry lock (spec: Registry lock screens)', () => {
     lockIs(true);
     const { container } = await renderApp('/arquebusiers', { session: SYNTHETIC_ADMIN });
     await screen.findByText(ADMIN_NOTICE);
-    await screen.findByRole('button', { name: 'Desbloquear registro' });
+    await screen.findAllByText('Registro bloqueado');
 
     expect(await axeViolations(container)).toEqual([]);
   });

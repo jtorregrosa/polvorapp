@@ -31,13 +31,17 @@ test('the Admin locks the registry, the FiringChief can only read it, the Admin 
 }) => {
   await page.goto('/arquebusiers');
   await waitForShell(page);
-  await page.getByRole('button', { name: 'Bloquear registro' }).click();
+  // A rarely used action, in "More actions" (UI audit).
+  await expect(page.getByText('Registro abierto')).toBeVisible();
+  await page.getByRole('button', { name: 'Más acciones' }).click();
+  await page.getByRole('menuitem', { name: 'Bloquear registro' }).click();
   const confirm = page.getByRole('alertdialog', { name: '¿Bloquear el registro?' });
   await confirm.getByRole('button', { name: 'Bloquear registro' }).click();
   await expect(
     page.getByRole('status').filter({ hasText: 'Registro bloqueado para los jefes de disparo.' }),
   ).toHaveCount(1);
-  await expect(page.getByRole('button', { name: 'Desbloquear registro' })).toBeFocused();
+  await expect(page.getByRole('button', { name: 'Más acciones' })).toBeFocused();
+  await expect(page.getByText('Registro bloqueado', { exact: true }).first()).toBeVisible();
   await expect(page.getByText('El registro está bloqueado para los jefes de disparo.')).toBeVisible();
 
   const context = await browser.newContext({ storageState: FIRING_CHIEF_STATE, locale: 'es-ES' });
@@ -75,11 +79,12 @@ test('the Admin locks the registry, the FiringChief can only read it, the Admin 
   await expect(personal).toBeHidden();
 
   await page.goto('/arquebusiers');
-  await page.getByRole('button', { name: 'Desbloquear registro' }).click();
+  await page.getByRole('button', { name: 'Más acciones' }).click();
+  await page.getByRole('menuitem', { name: 'Desbloquear registro' }).click();
   await page
     .getByRole('alertdialog', { name: '¿Desbloquear el registro?' })
     .getByRole('button', { name: 'Desbloquear registro' })
     .click();
   await expect(page.getByRole('status').filter({ hasText: 'Registro desbloqueado.' })).toHaveCount(1);
-  await expect(page.getByRole('button', { name: 'Bloquear registro' })).toBeVisible();
+  await expect(page.getByText('Registro abierto')).toBeVisible();
 });

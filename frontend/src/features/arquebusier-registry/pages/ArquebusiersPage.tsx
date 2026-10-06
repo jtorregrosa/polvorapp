@@ -1,5 +1,5 @@
 import { FileUp, IdCard, Plus } from 'lucide-react';
-import { useEffect, useId, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { useListArquebusiers } from '@/api/generated/arquebusiers/arquebusiers';
@@ -21,7 +21,8 @@ import { useSession } from '@/features/identity-access/session';
 import { useNotice } from '@/lib/notices';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { LoadFailure } from '../components/LoadFailure';
-import { RegistryLockAction, RegistryLockNotice } from '../components/RegistryLock';
+import { RegistryLockNotice } from '../components/RegistryLock';
+import { useRegistryLockAction } from '../components/useRegistryLockAction';
 import { useRegistryLock } from '../registryLock';
 import { useArquebusierColumns } from '../components/useArquebusierColumns';
 import { filterRows, useArquebusierFilters, WARNING_FILTERS } from '../components/useArquebusierFilters';
@@ -242,6 +243,8 @@ export function ArquebusiersPage() {
   const [notice] = useNotice();
   const unassigned = !isAdmin && comparsas.isSuccess && comparsaList.length === 0;
   const lock = useRegistryLock();
+  const moreActions = useRef<HTMLButtonElement>(null);
+  const lockAction = useRegistryLockAction(lock, moreActions);
   // A locked registry takes no new arquebusiers from FiringChiefs (BR-10); Admins still register.
   const canRegister = lock.canWrite && (isAdmin || comparsaList.some((comparsa) => comparsa.active));
   const neverFilled = arquebusiers.isSuccess && rows.length === 0 && !comparsaId;
@@ -270,6 +273,8 @@ export function ArquebusiersPage() {
       <PageHeader
         title={t('arquebusiers.title')}
         description={isAdmin ? t('arquebusiers.description') : t('arquebusiers.descriptionFiringChief')}
+        moreActions={!unassigned && lockAction.item ? [lockAction.item] : []}
+        moreActionsRef={moreActions}
         statuses={
           isAdmin && lock.known && <StatusBadge kind="registry" value={lock.locked ? 'LOCKED' : 'OPEN'} />
         }
@@ -280,11 +285,11 @@ export function ArquebusiersPage() {
               {registerAction}
               {importAction}
               {comparsaBadges}
-              <RegistryLockAction lock={lock} />
             </>
           )
         }
       />
+      {lockAction.dialog}
       <NoticeBanner notice={notice} />
       <RegistryLockNotice lock={lock} />
       {comparsas.isError && (
