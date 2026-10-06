@@ -85,7 +85,8 @@
       "notPrepared": "Sin preparar",
       "openOrder": "Ver el pedido",
       "link": "{{value}} {{label}}"
-    }
+    },
+    "figuresLine": "En activo: {{active}} · Activos con avisos: {{warnings}}"
   },
   "federation": {
     "logo": {
@@ -183,7 +184,6 @@
     },
     "empty": "Todavía no hay ningún jefe de disparo asignado.",
     "addLabel": "Jefe de disparo que añadir",
-    "add": "Añadir",
     "noCandidates": "Todos los jefes de disparo que se pueden asignar ya están aquí.",
     "inactiveComparsa": "Reactiva la comparsa para asignar nuevos jefes de disparo.",
     "remove": "Quitar a {{name}}",
@@ -201,7 +201,6 @@
     "description": "Las comparsas que gestiona este jefe de disparo. Solo ve estas.",
     "empty": "Este jefe de disparo todavía no tiene ninguna comparsa.",
     "addLabel": "Comparsa que añadir",
-    "add": "Añadir",
     "noCandidates": "No hay ninguna otra comparsa activa que asignar.",
     "remove": "Quitar {{name}}",
     "removeShort": "Quitar",

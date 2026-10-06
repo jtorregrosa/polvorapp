@@ -273,7 +273,6 @@ export function DataTable<TRow extends RowData>({
       }}
     />
   );
-  const columnCount = columns.length + (selectable ? 1 : 0);
   const pageCheckbox = (id?: string) => (
     <Checkbox
       id={id}
@@ -286,14 +285,18 @@ export function DataTable<TRow extends RowData>({
   const pageCheckboxId = `${captionId}-page`;
 
   // Nothing to list: one compact line instead of headers above an empty body (UI audit T8).
+  // Named after the table, and with its status region kept mounted, so the end of loading is still
+  // announced and a page with several tables says which one is empty (WCAG 4.1.3, 1.3.1).
   if (!isLoading && total === 0) {
     return (
-      <p
-        data-slot="table-empty"
-        className="rounded-lg border border-dashed bg-card px-4 py-6 text-center text-muted-foreground"
-      >
-        {emptyText ?? t('table.empty')}
-      </p>
+      <div role="group" aria-label={caption} data-slot="table-empty">
+        <p className="rounded-lg border border-dashed bg-card px-4 py-6 text-center text-muted-foreground">
+          {emptyText ?? t('table.empty')}
+        </p>
+        <p role="status" className="sr-only">
+          {announcement}
+        </p>
+      </div>
     );
   }
 
@@ -323,11 +326,6 @@ export function DataTable<TRow extends RowData>({
                 <Skeleton className="h-3 w-3/4" />
               </li>
             ))}
-          {!isLoading && total === 0 && (
-            <li className="rounded-lg border bg-card px-4 py-10 text-center text-muted-foreground">
-              {emptyText ?? t('table.empty')}
-            </li>
-          )}
           {!isLoading &&
             rows.map((row) => {
               const href = getRowHref?.(row.original);
@@ -446,13 +444,6 @@ export function DataTable<TRow extends RowData>({
                   ))}
                 </TableRow>
               ))}
-            {!isLoading && total === 0 && (
-              <TableRow>
-                <TableCell colSpan={columnCount} className="py-10 text-center text-muted-foreground">
-                  {emptyText ?? t('table.empty')}
-                </TableCell>
-              </TableRow>
-            )}
             {!isLoading &&
               rows.map((row) => {
                 const href = getRowHref?.(row.original);

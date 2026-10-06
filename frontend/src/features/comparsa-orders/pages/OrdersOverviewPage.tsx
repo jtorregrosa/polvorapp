@@ -245,6 +245,12 @@ export function OrdersOverviewPage() {
   const [failure, setFailure] = useState<{ editionId: string; text: string }>();
   // The statuses chosen in the counters; none: every comparsa.
   const [chosen, setChosen] = useState<ReadonlySet<RowStatusKey>>(() => new Set());
+  // Whether the counters have been used: until then there is nothing to announce.
+  const [filtered, setFiltered] = useState(false);
+  const choose = useCallback((next: ReadonlySet<RowStatusKey>) => {
+    setChosen(next);
+    setFiltered(true);
+  }, []);
   const allRows = data?.rows;
   const rows = useMemo(
     () => (allRows ?? []).filter((row) => chosen.size === 0 || chosen.has(rowStatusKey(row))),
@@ -391,11 +397,10 @@ export function OrdersOverviewPage() {
       {/* The orders come first: what the Admin reviews; the edition's totals and billing follow (audit). */}
       {(data ? edition : !overview.isError) && (
         <Section title={t('overview.caption')}>
-          {data && edition && isAdmin && (
-            <StatusFilters overview={data} chosen={chosen} onChange={setChosen} />
-          )}
+          {data && edition && isAdmin && <StatusFilters overview={data} chosen={chosen} onChange={choose} />}
+          {/* Said on every change of the counters, clearing the last one included. */}
           <p role="status" className="sr-only">
-            {chosen.size > 0 ? t('overview.resultCount', { count: rows.length }) : ''}
+            {filtered ? t('overview.resultCount', { count: rows.length }) : ''}
           </p>
           <DataTable
             caption={t('overview.caption')}

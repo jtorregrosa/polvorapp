@@ -6,7 +6,8 @@ import { Fragment, type ReactNode } from 'react';
  */
 export function breakable(value: ReactNode): ReactNode {
   if (typeof value !== 'string' || !/^[^\s@]+@[^\s@]+$/.test(value)) return value;
-  return value.split(/(?<=[@.])/).map((part, index) => (
+  // Each part keeps the "@" or "." that ends it (no lookbehind: older Safari cannot parse it).
+  return (value.match(/[^@.]+[@.]?|[@.]/g) ?? [value]).map((part, index) => (
     <Fragment key={index}>
       {index > 0 && <wbr />}
       {part}

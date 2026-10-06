@@ -82,6 +82,8 @@ describe('OrdersOverviewPage (spec: Orders screens, Order totals and dashboard (
     await user.click(screen.getByRole('button', { name: '1 Sin preparar' }));
     await user.click(screen.getByRole('button', { name: '1 Enviados' }));
     expect(rowsShown()).toEqual(all);
+    // Clearing the last counter is announced too.
+    expect(screen.getByText(`${String(all.length)} comparsas`)).toHaveClass('sr-only');
   });
 
   it('shows each prepared order’s amount and, for an Admin, the edition billing (spec: Billing screens)', async () => {

@@ -535,7 +535,12 @@ describe('AppLayout icon rail (platform: Application shell)', () => {
 });
 
 describe('AppLayout bottom navigation (UI audit: a FiringChief on a phone)', () => {
-  function renderWithBottomBar(path: string) {
+  afterEach(() => {
+    setViewportWidth(ORIGINAL_WIDTH);
+  });
+
+  function renderWithBottomBar(path: string, width = 360) {
+    setViewportWidth(width);
     const page = (
       <AppLayout
         navigation={[{ id: 'home', items: [{ to: '/', label: 'Inicio', icon: House }] }]}
@@ -563,7 +568,15 @@ describe('AppLayout bottom navigation (UI audit: a FiringChief on a phone)', () 
     expect(await axeViolations(container)).toEqual([]);
   });
 
+  it('is not shown beside the sidebar on wider screens', async () => {
+    await renderWithBottomBar('/', 1024);
+
+    await screen.findByRole('heading', { name: 'Página' });
+    expect(screen.queryByRole('navigation', { name: 'Accesos directos' })).not.toBeInTheDocument();
+  });
+
   it('has no bottom bar without destinations', async () => {
+    setViewportWidth(360);
     await renderWithProviders(
       <RouterProvider
         router={createMemoryRouter(

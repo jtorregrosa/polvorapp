@@ -70,7 +70,6 @@ export function FiringChiefsSection({
       description: t('firingChiefs.description'),
       emptyText: t('firingChiefs.empty'),
       addLabel: t('firingChiefs.addLabel'),
-      add: t('firingChiefs.add'),
       addAction: t('firingChiefs.addAction'),
       addTitle: t('firingChiefs.addTitle'),
       noCandidates: t('firingChiefs.noCandidates'),

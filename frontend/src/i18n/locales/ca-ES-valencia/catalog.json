@@ -85,7 +85,8 @@
       "notPrepared": "Sense preparar",
       "openOrder": "Mostra la comanda",
       "link": "{{value}} {{label}}"
-    }
+    },
+    "figuresLine": "En actiu: {{active}} · Actius amb avisos: {{warnings}}"
   },
   "federation": {
     "logo": {
@@ -183,7 +184,6 @@
     },
     "empty": "Encara no hi ha cap cap de disparada assignat.",
     "addLabel": "Cap de disparada que vols afegir",
-    "add": "Afig",
     "noCandidates": "Tots els caps de disparada que es poden assignar ja són ací.",
     "inactiveComparsa": "Reactiva la comparsa per a assignar-hi nous caps de disparada.",
     "remove": "Lleva {{name}}",
@@ -201,7 +201,6 @@
     "description": "Les comparses que gestiona este cap de disparada. Només veu estes.",
     "empty": "Este cap de disparada encara no té cap comparsa.",
     "addLabel": "Comparsa que vols afegir",
-    "add": "Afig",
     "noCandidates": "No hi ha cap altra comparsa activa per a assignar.",
     "remove": "Lleva {{name}}",
     "removeShort": "Lleva",

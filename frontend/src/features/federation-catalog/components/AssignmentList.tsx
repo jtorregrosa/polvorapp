@@ -35,7 +35,6 @@ export interface AssignmentListText {
   description: string;
   emptyText: string;
   addLabel: string;
-  add: string;
   /** The section's add button, which opens the side panel, e.g. "Add firing chief". */
   addAction: string;
   /** The side panel's title. */
@@ -196,13 +195,17 @@ export function AssignmentList<TRow extends RowData>({
     announce,
   };
 
+  const failed = error !== undefined && error !== null;
   // Why nothing can be added, in place of the section's add button.
   const addNote = text.addBlocked ?? (candidates.length === 0 ? text.noCandidates : undefined);
-  const addAction = !isLoading && addNote === undefined && (
+  // Always mounted, its trigger hidden when nothing can be added: adding the last candidate must not
+  // unmount the open panel before it announces the outcome and returns focus (WCAG 4.1.3, 2.4.3).
+  const addAction = !failed && (
     <EditSheet
       title={text.addTitle}
       sectionName={text.addAction}
       trigger={{ label: text.addAction, icon: Plus }}
+      hideTrigger={isLoading || addNote !== undefined}
       form={form}
       values={EMPTY_ADD}
       onSave={add}
@@ -212,8 +215,6 @@ export function AssignmentList<TRow extends RowData>({
       </FormField>
     </EditSheet>
   );
-
-  const failed = error !== undefined && error !== null;
 
   return (
     <SectionCard
