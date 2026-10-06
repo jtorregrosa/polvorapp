@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PolvorApp.Api.Tests.Infrastructure;
 using PolvorApp.AuditPrivacy.Contracts;
 using PolvorApp.AuditPrivacy.Privacy;
+using PolvorApp.FederationCatalog.Contracts;
 
 namespace PolvorApp.Api.Tests.Privacy;
 
@@ -16,7 +17,7 @@ public sealed class PersonalDataTextsTests
     public async Task Every_sheet_and_column_is_translated_in_every_language_and_fits_excel()
     {
         var keys = NeutralKeys();
-        await using var factory = new ApiFactory("Host=offline");
+        await using var factory = new ApiFactory("Host=offline", configureServices: FixedSettings.Register);
         var previous = CultureInfo.CurrentUICulture;
         try
         {
@@ -32,8 +33,8 @@ public sealed class PersonalDataTextsTests
                         [[]]))
                     .ToList();
 
-                var package = packager.Build(
-                    [new PersonalDataExportPart(sheets, []) { Notes = ["missingPhoto:id", "activityCapped"] }], "REQ-PRUEBA");
+                var package = await packager.BuildAsync(
+                    [new PersonalDataExportPart(sheets, []) { Notes = ["missingPhoto:id", "activityCapped"] }], "REQ-PRUEBA", TestContext.Current.CancellationToken);
 
                 Assert.Equal(sheets.Count, package.Sheets.Count);
             }
@@ -47,12 +48,12 @@ public sealed class PersonalDataTextsTests
     [Fact]
     public async Task A_code_without_a_text_fails_the_export()
     {
-        await using var factory = new ApiFactory("Host=offline");
+        await using var factory = new ApiFactory("Host=offline", configureServices: FixedSettings.Register);
         await using var scope = factory.Services.CreateAsyncScope();
         var packager = scope.ServiceProvider.GetRequiredService<PersonalDataPackager>();
 
-        var error = Assert.Throws<InvalidOperationException>(() => packager.Build(
-            [new PersonalDataExportPart([new PersonalDataSheet("unknownSheet", ["nationalId"], [["x"]])], [])], "REQ-PRUEBA"));
+        var error = await Assert.ThrowsAsync<InvalidOperationException>(() => packager.BuildAsync(
+            [new PersonalDataExportPart([new PersonalDataSheet("unknownSheet", ["nationalId"], [["x"]])], [])], "REQ-PRUEBA", TestContext.Current.CancellationToken));
 
         Assert.Contains("Sheet.unknownSheet", error.Message, StringComparison.Ordinal);
     }
@@ -89,5 +90,14 @@ public sealed class PersonalDataTextsTests
         }
 
         throw new InvalidOperationException("PolvorApp.slnx not found above the test output directory.");
+    }
+
+    /// <summary>Synthetic settings, so the packager runs without a database.</summary>
+    private sealed class FixedSettings : IFederationSettings
+    {
+        public static void Register(IServiceCollection services) => services.AddScoped<IFederationSettings, FixedSettings>();
+
+        public Task<FederationSettingsSnapshot> GetAsync(CancellationToken cancellationToken) =>
+            Task.FromResult(new FederationSettingsSnapshot("Federación Sintética", "Federació Sintètica", "Sintética", null, null, "PolvorApp", null, 7, 7));
     }
 }

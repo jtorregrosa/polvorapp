@@ -115,6 +115,27 @@ public sealed class PrivacyEndpointTests(PostgresFixture postgres, MailpitFixtur
         Assert.DoesNotContain(nationalId, audit.Data!, StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData("es-ES", "Federación Sintética de Comparsas (ver la cláusula de protección de datos)")]
+    [InlineData("ca-ES-valencia", "Federació Sintètica de Comparses (vegeu la clàusula de protecció de dades)")]
+    public async Task The_export_names_the_controller_with_the_official_name_of_the_settings(string language, string controller)
+    {
+        var (_, nationalId) = await RegisterAsync();
+        await RenameFederationAsync("Federación Sintética de Comparsas", "Federació Sintètica de Comparses");
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/privacy/people/export")
+        {
+            Content = JsonContent.Create(new { nationalId, reference = Reference }),
+        };
+        request.Headers.AcceptLanguage.ParseAdd(language);
+
+        using var response = await _registry.Admin.SendAsync(request, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        using var zip = new ZipArchive(await response.Content.ReadAsStreamAsync(TestContext.Current.CancellationToken));
+        using var workbook = new XLWorkbook(Copy(zip.GetEntry("personal-data.xlsx")!));
+        Assert.Contains(workbook.Worksheets.Last().CellsUsed(), c => c.GetString() == controller);
+    }
+
     [Fact]
     public async Task An_export_that_cannot_be_audited_sends_nothing()
     {
@@ -290,6 +311,26 @@ public sealed class PrivacyEndpointTests(PostgresFixture postgres, MailpitFixtur
     {
         using var response = await _registry.Admin.PostAsJsonAsync(path, body, TestContext.Current.CancellationToken);
         return await IdentityAssertions.ReadAsync<T>(response);
+    }
+
+    /// <summary>Saves synthetic official names through the settings API, as an Admin would.</summary>
+    private async Task RenameFederationAsync(string spanish, string valencian)
+    {
+        using var current = await _registry.Admin.GetAsync("/api/federation-settings", TestContext.Current.CancellationToken);
+        var settings = await IdentityAssertions.ReadAsync<JsonElement>(current);
+        using var saved = await _registry.Admin.PutAsJsonAsync(
+            "/api/federation-settings/identity",
+            new
+            {
+                officialNameEs = spanish,
+                officialNameCa = valencian,
+                shortName = settings.GetProperty("identity").GetProperty("shortName").GetString(),
+                contactEmail = (string?)null,
+                website = (string?)null,
+                version = settings.GetProperty("version").GetUInt32(),
+            },
+            TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.OK, saved.StatusCode);
     }
 
     private static MemoryStream Copy(ZipArchiveEntry entry)

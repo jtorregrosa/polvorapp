@@ -201,7 +201,7 @@ internal static partial class PrivacyEndpoints
                 : ProblemResults.Problem(StatusCodes.Status503ServiceUnavailable, AuditUnavailable);
         }
 
-        var package = packager.Build(parts, reference);
+        var package = await packager.BuildAsync(parts, reference, cancellationToken);
         var audited = await TryAuditAsync(
             auditLog,
             logger,

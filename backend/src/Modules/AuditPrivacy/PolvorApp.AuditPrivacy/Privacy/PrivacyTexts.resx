@@ -205,7 +205,7 @@
     <value>Responsable del tratamiento</value>
   </data>
   <data name="About.ControllerValue" xml:space="preserve">
-    <value>Unión de Comparsas «Ber-Largas» (ver la cláusula de protección de datos)</value>
+    <value>{0} (ver la cláusula de protección de datos)</value>
   </data>
   <data name="About.Purposes" xml:space="preserve">
     <value>Finalidades</value>

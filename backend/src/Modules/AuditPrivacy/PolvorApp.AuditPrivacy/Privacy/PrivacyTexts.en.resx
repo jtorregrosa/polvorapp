@@ -205,7 +205,7 @@
     <value>Data controller</value>
   </data>
   <data name="About.ControllerValue" xml:space="preserve">
-    <value>Unión de Comparsas «Ber-Largas» (see the data protection notice)</value>
+    <value>{0} (see the data protection notice)</value>
   </data>
   <data name="About.Purposes" xml:space="preserve">
     <value>Purposes</value>
