@@ -293,9 +293,11 @@ export function FormField<
       control={control as unknown as Control<TValues>}
       name={name}
       render={({ field, fieldState }) => (
+        // The error bar is reserved beside the field; the negative margin puts it in the gutter, so the
+        // label lines up with the section title instead of 16 px in (UI audit).
         <FormItem
           data-invalid={Boolean(fieldState.error)}
-          className="gap-field border-l-4 border-transparent pl-3 data-[invalid=true]:border-destructive"
+          className="-ms-4 gap-field border-s-4 border-transparent ps-3 data-[invalid=true]:border-destructive"
         >
           <FieldLabel label={label} optional={optional} />
           {description && <FormDescription className="text-help">{description}</FormDescription>}

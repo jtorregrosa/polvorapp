@@ -258,12 +258,12 @@ describe('EditionDetailPage edit panels (spec: Detail pages in read mode)', () =
 
     const panel = await openPanel(user, 'precios');
     expect(within(panel).getByText(/la facturación usará los precios nuevos/)).toBeInTheDocument();
-    await user.clear(within(panel).getByRole('textbox', { name: /Alquiler de polvorera/ }));
+    await user.clear(within(panel).getByRole('textbox', { name: /Alquiler de cantimplora/ }));
     await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
 
     expect(
       await within(panel).findByRole('textbox', {
-        name: /Alquiler de polvorera/,
+        name: /Alquiler de cantimplora/,
         description: /Este campo es obligatorio/,
       }),
     ).toBeInTheDocument();
@@ -429,7 +429,7 @@ describe('EditionActions (spec: Editions screens, design D10)', () => {
 
     expect(
       await within(dialog).findByText(
-        'Para iniciar la edición faltan el cierre de pedidos y el precio del alquiler de polvorera.',
+        'Para iniciar la edición faltan el cierre de pedidos y el precio del alquiler de cantimplora.',
       ),
     ).toBeInTheDocument();
   });

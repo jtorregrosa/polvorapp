@@ -308,6 +308,8 @@ describe('DataTable', () => {
     );
 
     expect(screen.getByText('Todavía no hay ningún jefe de disparo asignado.')).toBeInTheDocument();
+    // One compact line, without headers above an empty body (UI audit T8).
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
   it('shows a translated empty state', async () => {
