@@ -1,6 +1,7 @@
 import { ChevronLeft } from 'lucide-react';
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode, type Ref } from 'react';
 import { Link } from 'react-router';
+import { MoreActionsMenu, type MoreAction } from './MoreActionsMenu';
 
 export interface PageHeaderProps {
   /** The page's only h1. */
@@ -10,6 +11,10 @@ export interface PageHeaderProps {
   statuses?: ReactNode;
   /** Primary and secondary page actions, right-aligned on wide screens. */
   actions?: ReactNode;
+  /** Rarely used actions, after the others in a "More actions" menu (spec: Action hierarchy). */
+  moreActions?: readonly MoreAction[];
+  /** The "More actions" button, e.g. to return focus to it after a confirmation it opened. */
+  moreActionsRef?: Ref<HTMLButtonElement>;
   /** Optional link to the parent page. */
   back?: { to: string; label: string };
   /**
@@ -38,6 +43,8 @@ export function PageHeader({
   description,
   statuses,
   actions,
+  moreActions = [],
+  moreActionsRef,
   back,
   focusOnMount = false,
 }: PageHeaderProps) {
@@ -63,7 +70,12 @@ export function PageHeader({
         {statuses && <div className="flex flex-wrap items-center gap-2">{statuses}</div>}
         {description && <p className="max-w-prose text-body text-muted-foreground">{description}</p>}
       </div>
-      {actions && <div className="flex max-w-full flex-wrap items-center gap-2">{actions}</div>}
+      {(Boolean(actions) || moreActions.length > 0) && (
+        <div className="flex max-w-full flex-wrap items-center gap-2">
+          {actions}
+          {moreActions.length > 0 && <MoreActionsMenu actions={moreActions} triggerRef={moreActionsRef} />}
+        </div>
+      )}
     </div>
   );
 }
