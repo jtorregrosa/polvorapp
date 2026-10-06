@@ -94,8 +94,23 @@ html:has([data-slot='action-bar']) {
   }
 }
 
-html:has([data-slot='action-bar']) :is([data-slot='bottom-nav'], [data-slot='bottom-nav-spacer']) {
+html:has([data-slot='action-bar']:not([data-above-nav]))
+  :is([data-slot='bottom-nav'], [data-slot='bottom-nav-spacer']) {
   display: none;
+}
+
+/* A page's own action bar that keeps the bottom navigation (an order's "Submit") sits right above it. */
+@media (width < 48rem) {
+  html:has([data-slot='bottom-nav']) [data-slot='action-bar'][data-above-nav] {
+    bottom: calc(var(--spacing-bottom-bar) + env(safe-area-inset-bottom, 0px));
+  }
+
+  html:has([data-slot='bottom-nav']):has([data-slot='action-bar'][data-above-nav]) {
+    scroll-padding-block-end: calc(
+      var(--action-bar-height, var(--spacing-action-bar)) + var(--spacing-bottom-bar) +
+        env(safe-area-inset-bottom, 0px) + var(--spacing-group)
+    );
+  }
 }
 
 @utility pb-safe {

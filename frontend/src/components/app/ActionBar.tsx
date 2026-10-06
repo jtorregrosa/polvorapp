@@ -7,6 +7,11 @@ export interface ActionBarProps {
   secondary?: ReactNode;
   /** A short status before the actions, e.g. "Unsaved changes"; announced politely. */
   status?: ReactNode;
+  /**
+   * Keeps a phone's bottom navigation and sits right above it, for a page's main action rather than
+   * a form's (e.g. "Submit order"); a form's bar takes the navigation's place instead.
+   */
+  aboveNavigation?: boolean;
 }
 
 /**
@@ -16,7 +21,7 @@ export interface ActionBarProps {
  * so it never hides the focused field (SC 2.4.11). On very short screens (zoomed in, landscape
  * phones) the bar scrolls with the form instead, so it does not take the reading area.
  */
-export function ActionBar({ primary, secondary, status }: ActionBarProps) {
+export function ActionBar({ primary, secondary, status, aboveNavigation = false }: ActionBarProps) {
   const bar = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -37,6 +42,7 @@ export function ActionBar({ primary, secondary, status }: ActionBarProps) {
     <div
       ref={bar}
       data-slot="action-bar"
+      data-above-nav={aboveNavigation ? '' : undefined}
       className="sticky bottom-0 z-10 -mx-1 flex min-h-action-bar flex-wrap items-center justify-end gap-2 border-t bg-background px-1 py-3"
     >
       <div role="status" className="mr-auto text-help text-muted-foreground empty:hidden">
