@@ -308,14 +308,10 @@ test.describe('arquebusier photos', () => {
     await waitForShell(page);
     await page.getByRole('searchbox').fill(lastName);
     // A table row on wide screens, a stacked item on a phone.
-    await expect(
-      page
-        .getByRole('row')
-        .or(page.getByRole('listitem'))
-        .filter({ hasText: lastName })
-        // Exactly the marker: the warnings line also names a missing ID photo.
-        .getByText('Sin foto de carnet', { exact: true }),
-    ).toBeVisible();
+    // Said once, among the row's warnings (UI audit): no separate marker under the name.
+    const listed = page.getByRole('row').or(page.getByRole('listitem')).filter({ hasText: lastName });
+    await expect(listed).toContainText('Sin foto de carnet');
+    await expect(listed.getByText('Sin foto de carnet', { exact: true })).toHaveCount(0);
 
     await page.goto(`/arquebusiers/${id}`);
     await waitForShell(page);
@@ -356,7 +352,8 @@ test.describe('arquebusier photos', () => {
     await page.getByRole('searchbox').fill(lastName);
     const row = page.getByRole('row').or(page.getByRole('listitem')).filter({ hasText: lastName });
     await expect(row).toBeVisible();
-    await expect(row.getByText('Sin foto de carnet', { exact: true })).toHaveCount(0);
+    // Neither a marker nor the warning once the photo is stored.
+    await expect(row).not.toContainText('Sin foto de carnet');
   });
 
   test('rotates a license photo both ways, replaces it and removes it after a confirmation', async ({
