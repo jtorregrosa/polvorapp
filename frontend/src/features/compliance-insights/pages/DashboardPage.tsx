@@ -20,7 +20,6 @@ import { LoadFailure } from '@/features/arquebusier-registry/components/LoadFail
 import { DashboardOrdersCard } from '@/features/comparsa-orders/components/DashboardOrdersCard';
 import { CurrentEditionCard } from '@/features/festival-editions/components/CurrentEditionCard';
 import { useSession } from '@/features/identity-access/session';
-import { useIsBelowWide } from '@/hooks/use-mobile';
 import { useFormatters } from '@/lib/format';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { SUMMARY_STALE_TIME_MS } from '../queries';
@@ -100,7 +99,7 @@ function Figures({ summary }: { summary: ComplianceSummaryResponse }) {
         </ul>
       </DashboardSection>
       <DashboardSection title={t('dashboard.warningsTitle')}>
-        <ul className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-3 wide:grid-cols-4">
           {summary.warnings.map(({ code, count }) => (
             <li key={code} className="flex">
               <StatCard
@@ -202,8 +201,6 @@ export function DashboardPage() {
   const session = useSession();
   const signedIn = session.status === 'signedIn';
   const isAdmin = session.account?.role === 'ADMIN';
-  // Below 1280 px the edition comes last; from there it sits under the orders (mounted once).
-  const narrow = useIsBelowWide();
 
   // Only a FiringChief's comparsas say whether they have a scope; an Admin always has one. Nothing
   // is shown before it is known, so a FiringChief without comparsas never sees figures flash.
@@ -222,39 +219,38 @@ export function DashboardPage() {
   return (
     <>
       <PageHeader title={t('home.title')} description={t('home.description')} />
-      {!scopeKnown ? (
-        <CurrentEditionCard />
-      ) : unassigned ? (
-        <>
-          <EmptyState
-            icon={IdCard}
-            title={tRegistry('arquebusiers.unassigned.title')}
-            description={tRegistry('arquebusiers.unassigned.description')}
-          />
-          <CurrentEditionCard />
-        </>
-      ) : (
-        // Phones: the order, the figures, the next expiries, then the edition (UI audit). From 1280 px:
-        // the figures across the top, the order and the edition on the left, the expiries on the right.
-        <div className="grid items-start gap-section xl:grid-cols-2">
-          <div className="flex min-w-0 flex-col gap-section xl:row-start-2">
-            <DashboardOrdersCard />
-            {!narrow && <CurrentEditionCard />}
-          </div>
-          <div className="flex min-w-0 flex-col gap-section xl:col-span-2 xl:row-start-1">
-            {summary.isError && <LoadFailure error={summary.error} onRetry={() => summary.refetch()} />}
-            {summary.isSuccess && <Figures summary={summary.data.data as ComplianceSummaryResponse} />}
-          </div>
-          <div className="flex min-w-0 flex-col gap-section xl:row-start-2">
-            {arquebusiers.isError ? (
+      {/* One grid whose reading order is the DOM order (WCAG 1.3.2): on phones the order, the figures,
+          the next expiries and the edition (UI audit); from 1280 px the order and the figures on the
+          left, the expiries and the edition on the right. The edition card never moves in the tree. */}
+      <div className="grid items-start gap-section xl:grid-cols-2">
+        <div className="flex min-w-0 flex-col gap-section">
+          {scopeKnown && !unassigned && <DashboardOrdersCard />}
+          {unassigned && (
+            <EmptyState
+              icon={IdCard}
+              title={tRegistry('arquebusiers.unassigned.title')}
+              description={tRegistry('arquebusiers.unassigned.description')}
+            />
+          )}
+          {/* The summary is cached by the navigation count: shown only within a known scope. */}
+          {scopeKnown && !unassigned && summary.isError && (
+            <LoadFailure error={summary.error} onRetry={() => summary.refetch()} />
+          )}
+          {scopeKnown && !unassigned && summary.isSuccess && (
+            <Figures summary={summary.data.data as ComplianceSummaryResponse} />
+          )}
+        </div>
+        <div className="flex min-w-0 flex-col gap-section">
+          {scopeKnown &&
+            !unassigned &&
+            (arquebusiers.isError ? (
               <LoadFailure error={arquebusiers.error} onRetry={() => arquebusiers.refetch()} />
             ) : (
               <NextExpiries rows={rows} loading={arquebusiers.isPending} />
-            )}
-          </div>
-          {narrow && <CurrentEditionCard />}
+            ))}
+          <CurrentEditionCard />
         </div>
-      )}
+      </div>
     </>
   );
 }

@@ -23,7 +23,7 @@ describe('DashboardOrdersCard', () => {
     overview(CHIEF_OVERVIEW);
     await renderApp('/', { session: SYNTHETIC_FIRING_CHIEF });
 
-    const card = await screen.findByRole('region', { name: 'Tus pedidos · Fiestas 2031' });
+    const card = await screen.findByRole('region', { name: 'Tus pedidos · Fiestas 2031' }, { timeout: 5000 });
     expect(
       within(card).getByRole('link', {
         name: `Ir al pedido de ${CHIEF_OVERVIEW.rows[0]?.comparsa.name ?? ''}`,

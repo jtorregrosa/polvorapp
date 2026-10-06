@@ -42,7 +42,7 @@ export function ComplianceWarnings({ warnings, licenseExpiresOn, age, targets }:
                   {' '}
                   <a
                     href={target.href}
-                    className="inline-flex min-h-6 items-center font-semibold underline underline-offset-4 hover:no-underline"
+                    className="inline-block min-h-6 font-semibold underline underline-offset-4 hover:no-underline"
                   >
                     {target.label}
                   </a>

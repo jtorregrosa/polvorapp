@@ -318,8 +318,25 @@ function BottomNavigation({ items }: { items: readonly NavigationItem[] }) {
   const { t } = useTranslation('ui');
   const { pathname } = useLocation();
   const currentTarget = currentNavigationTarget(pathname, items);
+  const bar = useRef<HTMLElement>(null);
+  // Its real height (it grows with text zoom), so a page's bar above it and the scroll padding
+  // never end up under it (WCAG 1.4.4, 2.4.11).
+  useEffect(() => {
+    const element = bar.current;
+    if (!element) return;
+    const root = document.documentElement;
+    const observer = new ResizeObserver(() => {
+      root.style.setProperty('--bottom-nav-height', `${String(element.offsetHeight)}px`);
+    });
+    observer.observe(element);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty('--bottom-nav-height');
+    };
+  }, []);
   return (
     <nav
+      ref={bar}
       aria-label={t('nav.shortcuts')}
       data-slot="bottom-nav"
       className="fixed inset-x-0 bottom-0 z-30 border-t bg-card pb-safe shadow-e1 md:hidden"

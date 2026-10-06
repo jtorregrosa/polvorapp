@@ -20,6 +20,7 @@ import { PageHeader } from '@/components/app/PageHeader';
 import { StatusBadge } from '@/components/app/StatusBadge';
 import { CategoryTag } from '@/components/app/Tag';
 import { breakable } from '@/components/app/breakable';
+import { LoadFailure } from '@/features/arquebusier-registry/components/LoadFailure';
 import { formatDate, useFormatters } from '@/lib/format';
 import { knownFilter, withFilter } from '@/lib/search-filters';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
@@ -113,7 +114,9 @@ export function UsersPage() {
         sortValue: (user) => tUi(`status.user.${user.status}`),
         cell: (user) => <StatusBadge kind="user" value={user.status} />,
         secondary: (user) => (
-          <span className="mt-1 flex">
+          <span className="mt-1 flex items-center gap-1.5">
+            {/* Visible short term; the full one for assistive technology. */}
+            <span aria-hidden="true">{t('users.twoFactorShort')}</span>
             <span className="sr-only">{t('users.columns.twoFactor')}: </span>
             <StatusBadge kind="twoFactor" value={twoFactorStatus(user)} />
           </span>
@@ -176,6 +179,14 @@ export function UsersPage() {
           </>
         }
       />
+      {/* Without them the column would look like "no comparsas": say so instead. */}
+      {assignments.isError && (
+        <LoadFailure
+          error={assignments.error}
+          consequence={t('users.comparsasFailed')}
+          onRetry={() => assignments.refetch()}
+        />
+      )}
       {users.isError ? (
         <AlertBanner severity="error">{problemMessage(t, users.error)}</AlertBanner>
       ) : (
