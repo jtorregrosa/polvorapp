@@ -40,7 +40,7 @@ test('the Admin sees the dashboard of the current edition', async ({ page, axeVi
   await waitForShell(page);
 
   await expect(page.getByRole('heading', { level: 1, name: /^Pedidos de \d{4}$/ })).toBeVisible();
-  const figures = page.getByRole('region', { name: 'Pedidos por estado' });
+  const figures = page.getByRole('group', { name: 'Pedidos por estado' });
   await expect(figures).toBeVisible();
   await expect(page.getByRole('region', { name: 'Totales de la edición' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Cruzados' })).toHaveAttribute(

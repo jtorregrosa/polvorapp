@@ -32,7 +32,10 @@
       "description": "Orders are prepared once the Federation puts an edition in progress.",
       "link": "See the editions"
     },
-    "noTotals": "No totals"
+    "noTotals": "No totals",
+    "resultCount_one": "{{count}} comparsa",
+    "resultCount_other": "{{count}} comparsas",
+    "filteredEmpty": "No comparsa has an order in the chosen statuses."
   },
   "order": {
     "title": "Order of {{comparsa}}",

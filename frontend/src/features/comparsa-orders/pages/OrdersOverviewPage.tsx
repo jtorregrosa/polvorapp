@@ -22,7 +22,7 @@ import { DataTable, type DataTableColumn } from '@/components/app/DataTable';
 import { EmptyState } from '@/components/app/EmptyState';
 import { KeyFacts } from '@/components/app/KeyFacts';
 import { PageHeader } from '@/components/app/PageHeader';
-import { StatCard } from '@/components/app/StatCard';
+import { StatFilter } from '@/components/app/StatFilter';
 import { StatusBadge } from '@/components/app/StatusBadge';
 import { BillingAmount, BillingTotal } from '@/features/billing/components/BillingAmount';
 import { BillingSummarySection } from '@/features/billing/components/BillingSummarySection';
@@ -113,30 +113,51 @@ function PrepareButton({
   );
 }
 
-/** Admins: how many orders are in each status, "not prepared" included (UC-16). */
-function StatusFigures({ overview }: { overview: OverviewResponse }) {
+/** A row's status for the filters, "not prepared" included. */
+type RowStatusKey = NonNullable<OverviewRowResponse['status']> | 'NOT_PREPARED';
+const rowStatusKey = (row: OverviewRowResponse): RowStatusKey => row.status ?? 'NOT_PREPARED';
+
+/**
+ * Admins: how many orders are in each status, "not prepared" included (UC-16), each a toggle that
+ * filters the table below to the chosen statuses (none chosen: every comparsa).
+ */
+function StatusFilters({
+  overview,
+  chosen,
+  onChange,
+}: {
+  overview: OverviewResponse;
+  chosen: ReadonlySet<RowStatusKey>;
+  onChange: (chosen: ReadonlySet<RowStatusKey>) => void;
+}) {
   const { t } = useTranslation('orders');
   const { number } = useFormatters();
   const counts = overview.statusCounts;
   if (!counts) return null;
-  const figures = [
-    { id: 'notPrepared', label: t('overview.counts.notPrepared'), value: counts.notPrepared },
-    { id: 'draft', label: t('overview.counts.draft'), value: counts.draft },
-    { id: 'submitted', label: t('overview.counts.submitted'), value: counts.submitted },
-    { id: 'returned', label: t('overview.counts.returned'), value: counts.returned },
-    { id: 'validated', label: t('overview.counts.validated'), value: counts.validated },
+  const figures: { id: RowStatusKey; label: string; value: number }[] = [
+    { id: 'NOT_PREPARED', label: t('overview.counts.notPrepared'), value: counts.notPrepared },
+    { id: 'DRAFT', label: t('overview.counts.draft'), value: counts.draft },
+    { id: 'SUBMITTED', label: t('overview.counts.submitted'), value: counts.submitted },
+    { id: 'RETURNED', label: t('overview.counts.returned'), value: counts.returned },
+    { id: 'VALIDATED', label: t('overview.counts.validated'), value: counts.validated },
   ];
   return (
-    <Section title={t('overview.counts.title')}>
-      {/* eslint-disable-next-line jsx-a11y/no-redundant-roles -- Safari drops list semantics under `list-style: none`. */}
-      <ul role="list" className="grid gap-3 sm:grid-cols-3 xl:grid-cols-5">
-        {figures.map((figure) => (
-          <li key={figure.id} className="flex">
-            <StatCard className="w-full" label={figure.label} value={number(figure.value)} />
-          </li>
-        ))}
-      </ul>
-    </Section>
+    <StatFilter
+      label={t('overview.counts.title')}
+      items={figures.map((figure) => ({
+        id: figure.id,
+        label: figure.label,
+        count: number(figure.value),
+        tone: figure.id === 'RETURNED' && figure.value > 0 ? 'warning' : 'neutral',
+        pressed: chosen.has(figure.id),
+        onPressedChange: (pressed) => {
+          const next = new Set(chosen);
+          if (pressed) next.add(figure.id);
+          else next.delete(figure.id);
+          onChange(next);
+        },
+      }))}
+    />
   );
 }
 
@@ -222,6 +243,13 @@ export function OrdersOverviewPage() {
   const [preparing, setPreparing] = useState<string>();
   // A refusal belongs to the edition it happened in: browsing another one hides it.
   const [failure, setFailure] = useState<{ editionId: string; text: string }>();
+  // The statuses chosen in the counters; none: every comparsa.
+  const [chosen, setChosen] = useState<ReadonlySet<RowStatusKey>>(() => new Set());
+  const allRows = data?.rows;
+  const rows = useMemo(
+    () => (allRows ?? []).filter((row) => chosen.size === 0 || chosen.has(rowStatusKey(row))),
+    [allRows, chosen],
+  );
   const { mutate } = prepare;
   const startPrepare = useCallback(
     (row: OverviewRowResponse) => {
@@ -332,16 +360,13 @@ export function OrdersOverviewPage() {
       <PageHeader
         title={edition ? t('overview.titleYear', { year: edition.year }) : t('overview.title')}
         description={isAdmin ? t('overview.descriptionAdmin') : t('overview.descriptionFiringChief')}
+        statuses={edition && <EditionBadges edition={edition} />}
         actions={
-          edition && (
-            <>
-              <EditionBadges edition={edition} />
-              {isAdmin && (
-                <Button asChild variant="secondary" size="sm">
-                  <Link to={`/editions/${edition.id}/exports`}>{tExports('page.link')}</Link>
-                </Button>
-              )}
-            </>
+          edition &&
+          isAdmin && (
+            <Button asChild variant="secondary" size="sm">
+              <Link to={`/editions/${edition.id}/exports`}>{tExports('page.link')}</Link>
+            </Button>
           )
         }
       />
@@ -363,20 +388,22 @@ export function OrdersOverviewPage() {
           }
         />
       )}
-      {data && edition && isAdmin && <StatusFigures overview={data} />}
-      {data && edition && isAdmin && data.editionTotals && <EditionTotals totals={data.editionTotals} />}
-      {data && edition && isAdmin && data.editionBilling && (
-        <BillingSummarySection billing={data.editionBilling} scope="edition" />
-      )}
+      {/* The orders come first: what the Admin reviews; the edition's totals and billing follow (audit). */}
       {(data ? edition : !overview.isError) && (
         <Section title={t('overview.caption')}>
+          {data && edition && isAdmin && (
+            <StatusFilters overview={data} chosen={chosen} onChange={setChosen} />
+          )}
+          <p role="status" className="sr-only">
+            {chosen.size > 0 ? t('overview.resultCount', { count: rows.length }) : ''}
+          </p>
           <DataTable
             caption={t('overview.caption')}
-            data={data?.rows ?? []}
+            data={rows}
             columns={columns}
             paginated={false}
             isLoading={overview.isPending}
-            emptyText={t('overview.empty')}
+            emptyText={chosen.size > 0 ? t('overview.filteredEmpty') : t('overview.empty')}
             getRowId={(row) => row.comparsa.id}
             mobileRow={(row) => (
               <>
@@ -408,6 +435,10 @@ export function OrdersOverviewPage() {
             )}
           />
         </Section>
+      )}
+      {data && edition && isAdmin && data.editionTotals && <EditionTotals totals={data.editionTotals} />}
+      {data && edition && isAdmin && data.editionBilling && (
+        <BillingSummarySection billing={data.editionBilling} scope="edition" />
       )}
     </>
   );

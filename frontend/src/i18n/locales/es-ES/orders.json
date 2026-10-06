@@ -32,7 +32,10 @@
       "description": "Los pedidos se preparan cuando la Federación pone una edición en curso.",
       "link": "Ver las ediciones"
     },
-    "noTotals": "Sin totales"
+    "noTotals": "Sin totales",
+    "resultCount_one": "{{count}} comparsa",
+    "resultCount_other": "{{count}} comparsas",
+    "filteredEmpty": "Ninguna comparsa tiene un pedido en los estados elegidos."
   },
   "order": {
     "title": "Pedido de {{comparsa}}",

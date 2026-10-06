@@ -32,7 +32,10 @@
       "description": "Les comandes es preparen quan la Federació posa una edició en curs.",
       "link": "Mostra les edicions"
     },
-    "noTotals": "Sense totals"
+    "noTotals": "Sense totals",
+    "resultCount_one": "{{count}} comparsa",
+    "resultCount_other": "{{count}} comparses",
+    "filteredEmpty": "Cap comparsa no té una comanda en els estats triats."
   },
   "order": {
     "title": "Comanda de {{comparsa}}",
