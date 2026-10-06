@@ -30,6 +30,8 @@ test('the Admin downloads the Arms Authority export as Excel and as PDF', async 
 
   await expect(page.getByText('Formatos provisionales')).toBeVisible();
   await expect(page.getByText('Comparsas sin pedido validado')).toBeVisible();
+  // The comparsas are folded under one line (UI audit).
+  await page.getByText(/^Ver (la comparsa|las \d+ comparsas)$/).click();
   await expect(page.getByRole('listitem').filter({ hasText: 'Cruzados (enviado)' })).toBeVisible();
   await expect(page.getByRole('listitem').filter({ hasText: 'Hospitalarios (sin preparar)' })).toBeVisible();
 

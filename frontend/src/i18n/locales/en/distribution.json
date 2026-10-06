@@ -87,8 +87,7 @@
     "timeFor": "Time for {{comparsa}}",
     "withoutSlot_one": "{{count}} comparsa without a slot",
     "withoutSlot_other": "{{count}} comparsas without a slot",
-    "yourSlot": "Your slot: {{date}} · {{time}} · {{location}}",
-    "comparsaSlot": "{{comparsa}}: {{date}} · {{time}} · {{location}}",
+    "comparsaSlot": "{{comparsa}}'s slot: {{date}} · {{time}} · {{location}}",
     "noSlotYet": "{{date}} · {{location}}. You have no slot yet."
   },
   "list": {

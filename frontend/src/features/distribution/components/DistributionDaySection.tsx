@@ -79,14 +79,13 @@ function OwnSlots({ day }: { day: DistributionDayResponse }) {
     <ul role="list" className="flex flex-col gap-1 text-body font-semibold text-foreground">
       {day.slots.map((slot) => (
         <li key={slot.comparsaId}>
-          {day.slots.length === 1
-            ? t('slots.yourSlot', { date, time: slot.startsAt, location: day.location })
-            : t('slots.comparsaSlot', {
-                comparsa: slot.comparsaName,
-                date,
-                time: slot.startsAt,
-                location: day.location,
-              })}
+          {/* Named by comparsa: a FiringChief may run more than one, and a single line must say whose. */}
+          {t('slots.comparsaSlot', {
+            comparsa: slot.comparsaName,
+            date,
+            time: slot.startsAt,
+            location: day.location,
+          })}
         </li>
       ))}
     </ul>

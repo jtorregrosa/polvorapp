@@ -39,16 +39,6 @@ function useKeyFacts(arquebusier: ArquebusierResponse): KeyFact[] {
             },
     },
     {
-      id: 'federationId',
-      label: t('form.federationId'),
-      value: <span className="font-mono text-id">{arquebusier.federationId}</span>,
-    },
-    {
-      id: 'nationalId',
-      label: t('form.nationalId'),
-      value: <span className="font-mono text-id">{arquebusier.nationalId}</span>,
-    },
-    {
       id: 'course',
       label: t('detail.keyFacts.course'),
       value: arquebusier.trainingCompletedOn
@@ -59,7 +49,10 @@ function useKeyFacts(arquebusier: ArquebusierResponse): KeyFact[] {
   ];
 }
 
-/** The facts under the header (spec: Registry screens). */
+/**
+ * The facts under the header (spec: Registry screens): license, course and weapons. The ID Unión
+ * and DNI/NIE are in "Personal data", not repeated here (UI audit).
+ */
 export function RecordFacts({ arquebusier }: { arquebusier: ArquebusierResponse }) {
   const { t } = useTranslation('registry');
   const items = useKeyFacts(arquebusier);

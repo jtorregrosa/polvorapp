@@ -87,8 +87,7 @@
     "timeFor": "Hora de {{comparsa}}",
     "withoutSlot_one": "{{count}} comparsa sin turno",
     "withoutSlot_other": "{{count}} comparsas sin turno",
-    "yourSlot": "Tu turno: {{date}} · {{time}} · {{location}}",
-    "comparsaSlot": "{{comparsa}}: {{date}} · {{time}} · {{location}}",
+    "comparsaSlot": "Turno de {{comparsa}}: {{date}} · {{time}} · {{location}}",
     "noSlotYet": "{{date}} · {{location}}. Aún no tienes turno."
   },
   "list": {

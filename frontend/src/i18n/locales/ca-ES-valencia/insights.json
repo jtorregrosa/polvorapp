@@ -4,8 +4,6 @@
     "active": "En actiu",
     "reserve": "En reserva",
     "withWarnings": "Amb avisos",
-    "attention_one": "{{count, number}} arcabusser necessita atenció.",
-    "attention_other": "{{count, number}} arcabussers necessiten atenció.",
     "upToDate": "Tots els arcabussers estan al dia: cap no té avisos.",
     "warningsTitle": "Avisos",
     "expiries": {

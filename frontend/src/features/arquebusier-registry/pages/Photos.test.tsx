@@ -525,8 +525,23 @@ describe('Missing ID photos in the list (spec: Photo screens)', () => {
       'tr',
     ) as HTMLElement;
     const without = screen.getByRole('link', { name: /Ñúñez Sintética/ }).closest('tr') as HTMLElement;
-    expect(within(without).getByText('Sin foto de carnet')).toBeInTheDocument();
-    expect(within(withPhoto).queryByText('Sin foto de carnet')).not.toBeInTheDocument();
+    // Once per row: in its warnings, which already list it (UI audit).
+    expect(without).toHaveTextContent('Sin foto de carnet');
+    expect(within(without).queryByText('Sin foto de carnet')).not.toBeInTheDocument();
+    expect(withPhoto).not.toHaveTextContent('Sin foto de carnet');
     expect(screen.queryAllByRole('img')).toEqual([]);
+  });
+
+  it('says "No ID photo" under the name when the warnings do not list it', async () => {
+    server.use(
+      mock.get('/api/comparsas', () => HttpResponse.json([NORTE])),
+      mock.get('/api/arquebusiers', () =>
+        HttpResponse.json([{ ...ROW_UNO, hasIdPhoto: false, warnings: [] }]),
+      ),
+    );
+    await renderApp('/arquebusiers', { session: SYNTHETIC_FIRING_CHIEF });
+
+    const row = (await screen.findByRole('link', { name: /García Sintético/ })).closest('tr') as HTMLElement;
+    expect(within(row).getByText('Sin foto de carnet')).toBeInTheDocument();
   });
 });

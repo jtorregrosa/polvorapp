@@ -87,8 +87,7 @@
     "timeFor": "Hora de {{comparsa}}",
     "withoutSlot_one": "{{count}} comparsa sense torn",
     "withoutSlot_other": "{{count}} comparses sense torn",
-    "yourSlot": "El teu torn: {{date}} · {{time}} · {{location}}",
-    "comparsaSlot": "{{comparsa}}: {{date}} · {{time}} · {{location}}",
+    "comparsaSlot": "Torn de {{comparsa}}: {{date}} · {{time}} · {{location}}",
     "noSlotYet": "{{date}} · {{location}}. Encara no tens torn."
   },
   "list": {

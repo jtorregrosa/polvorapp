@@ -4,8 +4,6 @@
     "active": "Active",
     "reserve": "Reserve",
     "withWarnings": "With warnings",
-    "attention_one": "{{count, number}} arquebusier needs attention.",
-    "attention_other": "{{count, number}} arquebusiers need attention.",
     "upToDate": "Every arquebusier is up to date: none has warnings.",
     "warningsTitle": "Warnings",
     "expiries": {

@@ -43,7 +43,9 @@ describe('Arquebusier detail in read mode (spec: Registry screens)', () => {
     const facts = screen.getByRole('list', { name: 'Datos clave' });
     expect(within(facts).getByText('10/03/2030')).toBeInTheDocument();
     expect(within(facts).getByRole('meter', { name: /de la vigencia de la licencia/ })).toBeInTheDocument();
-    expect(within(facts).getByText('00000001R')).toHaveClass('font-mono');
+    // The identifiers are in "Personal data", not repeated in the facts (UI audit).
+    expect(within(facts).queryByText('00000001R')).not.toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Datos personales' })).toHaveTextContent('00000001R');
     expect(within(facts).getByText('2')).toBeInTheDocument();
     // The course state is in the header too (spec: Registry screens).
     expect(screen.getByRole('heading', { level: 1 }).closest('header')).toHaveTextContent('Curso hecho');

@@ -11,15 +11,26 @@ export interface StatCardProps {
   description?: string;
   /** Makes the whole card a link to the detail view. */
   to?: string;
+  /**
+   * How serious the figure is, as a bar along the card's start edge (e.g. an expired license against
+   * a missing photo). The label still says what it is: the bar only ranks (WCAG 1.4.1).
+   */
+  tone?: 'neutral' | 'warning' | 'destructive';
   className?: string;
 }
 
+const TONES = {
+  warning: 'border-s-4 border-s-warning',
+  destructive: 'border-s-4 border-s-destructive',
+} as const;
+
 /** A key figure on a dashboard (design guide: dashboard template). */
-export function StatCard({ label, value, description, to, className }: StatCardProps) {
+export function StatCard({ label, value, description, to, tone = 'neutral', className }: StatCardProps) {
   const descriptionId = useId();
   const classes = cn(
     'flex flex-col gap-1 rounded-lg border bg-card p-4 text-card-foreground',
     to && 'transition-colors hover:border-primary',
+    tone !== 'neutral' && TONES[tone],
     className,
   );
   const figure = (

@@ -380,7 +380,9 @@ describe('Distribution days on the distribution page (spec: Distribution screens
 
     // Date, time and place of their slot in one line (UI audit).
     expect(
-      within(section).getByText('Tu turno: 18 de abril de 2031 · 09:00 · Paraje Sintético del Reparto'),
+      within(section).getByText(
+        `Turno de ${NORTE.name}: 18 de abril de 2031 · 09:00 · Paraje Sintético del Reparto`,
+      ),
     ).toBeInTheDocument();
     expect(within(section).queryByRole('table')).not.toBeInTheDocument();
     expect(within(section).queryByRole('button')).not.toBeInTheDocument();

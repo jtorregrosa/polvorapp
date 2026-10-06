@@ -73,12 +73,25 @@ describe('DashboardPage (spec: Alerts dashboard)', () => {
     expect(within(warnings).getByRole('link', { name: /Sin curso/ })).toHaveTextContent('4');
   });
 
-  it('says how many arquebusiers need attention', async () => {
+  it('says how many arquebusiers need attention once, in the "With warnings" figure (UI audit)', async () => {
     insights();
     await renderApp('/', { session: SYNTHETIC_ADMIN });
 
-    const banner = (await screen.findByText('17 arcabuceros necesitan atención.')).closest('[data-severity]');
-    expect(banner).toHaveAttribute('data-severity', 'warning');
+    const figures = await screen.findByRole('region', { name: 'Arcabuceros' });
+    expect(within(figures).getByRole('link', { name: /Con avisos/ })).toHaveTextContent('17');
+    expect(screen.queryByText(/necesitan atención/)).not.toBeInTheDocument();
+  });
+
+  it('weighs the warnings by how serious they are', async () => {
+    insights();
+    await renderApp('/', { session: SYNTHETIC_ADMIN });
+
+    const warnings = await screen.findByRole('region', { name: 'Avisos' });
+    const card = async (name: RegExp) =>
+      (await within(warnings).findByRole('link', { name })).closest('[data-stat-card]');
+    expect(await card(/Licencia caducada/)).toHaveClass('border-s-destructive');
+    expect(await card(/Sin curso/)).toHaveClass('border-s-warning');
+    expect(await card(/Sin foto de carnet/)).not.toHaveClass('border-s-4');
   });
 
   it('says that everyone is up to date when nothing is pending', async () => {

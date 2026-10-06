@@ -28,6 +28,21 @@ import { SUMMARY_STALE_TIME_MS } from '../queries';
 const NEXT_EXPIRIES = 10;
 const SHORT_DATE: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
 
+/**
+ * How serious each warning is on the start page (UI audit): no valid license weighs more than a
+ * missing photo. Figures at zero stay neutral.
+ */
+const WARNING_TONES: Readonly<Record<ComplianceWarning, 'neutral' | 'warning' | 'destructive'>> = {
+  LICENSE_MISSING: 'destructive',
+  LICENSE_EXPIRED: 'destructive',
+  UNDER_AGE: 'warning',
+  LICENSE_PENDING: 'warning',
+  LICENSE_EXPIRING: 'warning',
+  COURSE_MISSING: 'warning',
+  ID_PHOTO_MISSING: 'neutral',
+  LICENSE_PHOTOS_MISSING: 'neutral',
+};
+
 /** A titled section of the dashboard, named by its heading. */
 function DashboardSection({ title, children }: { title: string; children: ReactNode }) {
   const headingId = useId();
@@ -47,12 +62,9 @@ function Figures({ summary }: { summary: ComplianceSummaryResponse }) {
   const { number } = useFormatters();
   return (
     <>
-      {/* The page's main message comes first. A lasting state, not news: no live region. */}
-      {summary.withWarnings > 0 ? (
-        <AlertBanner severity="warning" live={false}>
-          {t('dashboard.attention', { count: summary.withWarnings })}
-        </AlertBanner>
-      ) : (
+      {/* With warnings, the "With warnings" figure says how many need attention (no second message,
+          UI audit); without any, the page says everyone is up to date. A lasting state: no live region. */}
+      {summary.withWarnings === 0 && (
         <AlertBanner severity="success" live={false}>
           {t('dashboard.upToDate')}
         </AlertBanner>
@@ -94,6 +106,7 @@ function Figures({ summary }: { summary: ComplianceSummaryResponse }) {
                 className="w-full"
                 label={t(`ui:status.warning.${code}`)}
                 value={number(count)}
+                tone={count > 0 ? WARNING_TONES[code] : 'neutral'}
                 to={`/arquebusiers?warning=${code}`}
               />
             </li>
@@ -206,28 +219,42 @@ export function DashboardPage() {
   return (
     <>
       <PageHeader title={t('home.title')} description={t('home.description')} />
-      {/* The orders first: a FiringChief's main task in season; side by side with the edition from 1280 px. */}
-      {/* One card takes the whole row, two share it (no half-empty row when there are no orders to show). */}
-      <div className="grid auto-cols-fr items-start gap-section xl:grid-flow-col">
-        {!unassigned && <DashboardOrdersCard />}
+      {!scopeKnown ? (
         <CurrentEditionCard />
-      </div>
-      {!scopeKnown ? null : unassigned ? (
-        <EmptyState
-          icon={IdCard}
-          title={tRegistry('arquebusiers.unassigned.title')}
-          description={tRegistry('arquebusiers.unassigned.description')}
-        />
-      ) : (
+      ) : unassigned ? (
         <>
-          {summary.isError && <LoadFailure error={summary.error} onRetry={() => summary.refetch()} />}
-          {summary.isSuccess && <Figures summary={summary.data.data as ComplianceSummaryResponse} />}
-          {arquebusiers.isError ? (
-            <LoadFailure error={arquebusiers.error} onRetry={() => arquebusiers.refetch()} />
-          ) : (
-            <NextExpiries rows={rows} loading={arquebusiers.isPending} />
-          )}
+          <EmptyState
+            icon={IdCard}
+            title={tRegistry('arquebusiers.unassigned.title')}
+            description={tRegistry('arquebusiers.unassigned.description')}
+          />
+          <CurrentEditionCard />
         </>
+      ) : (
+        // Phones: the order, the figures, the next expiries, then the edition (UI audit). From 1280 px:
+        // the figures across the top, the order and the edition on the left, the expiries on the right.
+        <div className="grid items-start gap-section xl:grid-cols-2">
+          <div className="flex min-w-0 flex-col gap-section xl:row-start-2">
+            <DashboardOrdersCard />
+            <div className="hidden xl:block">
+              <CurrentEditionCard />
+            </div>
+          </div>
+          <div className="flex min-w-0 flex-col gap-section xl:col-span-2 xl:row-start-1">
+            {summary.isError && <LoadFailure error={summary.error} onRetry={() => summary.refetch()} />}
+            {summary.isSuccess && <Figures summary={summary.data.data as ComplianceSummaryResponse} />}
+          </div>
+          <div className="flex min-w-0 flex-col gap-section xl:row-start-2">
+            {arquebusiers.isError ? (
+              <LoadFailure error={arquebusiers.error} onRetry={() => arquebusiers.refetch()} />
+            ) : (
+              <NextExpiries rows={rows} loading={arquebusiers.isPending} />
+            )}
+          </div>
+          <div className="xl:hidden">
+            <CurrentEditionCard />
+          </div>
+        </div>
       )}
     </>
   );
