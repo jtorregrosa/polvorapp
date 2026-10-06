@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { currentNavigationTarget } from '@/components/app/navigation-match';
 import type { UserRole } from '@/api/generated/model';
-import { NAVIGATION, navigationFor, navigationSections, type NavigationEntry } from './navigation';
+import {
+  bottomBarFor,
+  NAVIGATION,
+  navigationFor,
+  navigationSections,
+  type NavigationEntry,
+} from './navigation';
 
 // Spec: Application shell, grouped navigation (refine-navigation-and-lists D4).
 
@@ -40,5 +46,18 @@ describe('navigation sections', () => {
     ['/editions/7/edit', '/editions'],
   ])('marks the entry that owns %s', (pathname, expected) => {
     expect(currentNavigationTarget(pathname, NAVIGATION)).toBe(expected);
+  });
+});
+
+describe('bottomBarFor (UI audit: a FiringChief on a phone)', () => {
+  it('gives a FiringChief Home, Arquebusiers, Orders and Distribution, and an Admin nothing', () => {
+    expect(bottomBarFor('FIRING_CHIEF').map((entry) => entry.to)).toEqual([
+      '/',
+      '/arquebusiers',
+      '/orders',
+      '/distribution',
+    ]);
+    expect(bottomBarFor('ADMIN')).toEqual([]);
+    expect(bottomBarFor(undefined)).toEqual([]);
   });
 });

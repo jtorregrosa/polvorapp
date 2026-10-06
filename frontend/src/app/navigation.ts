@@ -32,6 +32,8 @@ export interface NavigationEntry {
   matches?: readonly string[];
   /** A counter the shell shows on the entry: `warnings`, the arquebusiers with compliance warnings. */
   count?: 'warnings';
+  /** Also in a FiringChief's bottom bar on phones (UI audit): their everyday destinations. */
+  bottomBar?: boolean;
 }
 
 /**
@@ -39,8 +41,15 @@ export interface NavigationEntry {
  * needs no changes. Entries are filtered by role; the server enforces access regardless.
  */
 export const NAVIGATION: readonly NavigationEntry[] = [
-  { to: '/', section: 'home', labelKey: 'nav.home', icon: House },
-  { to: '/arquebusiers', section: 'registry', labelKey: 'nav.arquebusiers', icon: IdCard, count: 'warnings' },
+  { to: '/', section: 'home', labelKey: 'nav.home', icon: House, bottomBar: true },
+  {
+    to: '/arquebusiers',
+    section: 'registry',
+    labelKey: 'nav.arquebusiers',
+    icon: IdCard,
+    count: 'warnings',
+    bottomBar: true,
+  },
   { to: '/comparsas', section: 'registry', labelKey: 'nav.comparsas', icon: Flag },
   { to: '/statistics', section: 'registry', labelKey: 'nav.statistics', icon: ChartColumn },
   { to: '/editions', section: 'festival', labelKey: 'nav.editions', icon: CalendarDays },
@@ -50,6 +59,7 @@ export const NAVIGATION: readonly NavigationEntry[] = [
     labelKey: 'nav.orders',
     icon: ClipboardList,
     matches: ['/editions/*/orders', '/editions/*/exports'],
+    bottomBar: true,
   },
   {
     to: '/distribution',
@@ -57,6 +67,7 @@ export const NAVIGATION: readonly NavigationEntry[] = [
     labelKey: 'nav.distribution',
     icon: Truck,
     matches: ['/editions/*/distribution'],
+    bottomBar: true,
   },
   {
     to: '/weapon-models',
@@ -80,6 +91,11 @@ export const NAVIGATION: readonly NavigationEntry[] = [
 /** The entries a user with `role` sees (none of the role-restricted ones without a role). */
 export function navigationFor(role: UserRole | undefined): readonly NavigationEntry[] {
   return NAVIGATION.filter((entry) => !entry.roles || (role !== undefined && entry.roles.includes(role)));
+}
+
+/** A FiringChief's bottom bar on phones (UI audit): Home, Arquebusiers, Orders and Distribution. */
+export function bottomBarFor(role: UserRole | undefined): readonly NavigationEntry[] {
+  return role === 'FIRING_CHIEF' ? navigationFor(role).filter((entry) => entry.bottomBar === true) : [];
 }
 
 /**

@@ -7,7 +7,7 @@ import { UserMenu } from '@/components/app/UserMenu';
 import { useWarningCount } from '@/features/compliance-insights/components/useWarningCount';
 import { useFiringChiefComparsaCards } from '@/features/federation-catalog/components/useFiringChiefComparsaCards';
 import { useSaveLanguage, useSession, useSignOut } from '@/features/identity-access/session';
-import { navigationFor, navigationSections } from '../navigation';
+import { bottomBarFor, navigationFor, navigationSections } from '../navigation';
 import { useFocusMainOnNavigation } from './useFocusMainOnNavigation';
 import { VersionFooter } from './VersionFooter';
 
@@ -47,6 +47,16 @@ export function AppShell() {
       }),
     }));
   }, [t, tUi, role, warningCount]);
+  const bottomNavigation = useMemo(
+    (): NavigationItem[] =>
+      bottomBarFor(role).map(({ to, labelKey, icon, matches, count }): NavigationItem => {
+        const item = { to, icon, matches, label: t(labelKey) };
+        return count === 'warnings' && warningCount
+          ? { ...item, count: warningCount, countLabel: t('nav.warningCount', { count: warningCount }) }
+          : item;
+      }),
+    [t, role, warningCount],
+  );
 
   /** Runs a shell action and shows its problem, if any, above the page; only the latest counts. */
   const attempt = (action: () => Promise<boolean>, failure: ShellProblem): void => {
@@ -82,6 +92,7 @@ export function AppShell() {
       sidebarCards={comparsaCards}
       sidebarFooter={<VersionFooter />}
       userMenu={userMenu}
+      bottomNavigation={bottomNavigation}
       mainRef={main}
     >
       {problem && <AlertBanner severity="error">{t(`session.${problem}`)}</AlertBanner>}

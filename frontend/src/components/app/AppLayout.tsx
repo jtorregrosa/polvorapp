@@ -72,6 +72,11 @@ export interface AppLayoutProps {
   sidebarFooter?: ReactNode;
   /** End of the top bar: the signed-in user's menu, which holds the language and theme switchers. */
   userMenu?: ReactNode;
+  /**
+   * Up to five everyday destinations in a bar at the bottom of phones (below 768 px), e.g. a
+   * FiringChief's; the drawer keeps the full navigation. None when empty.
+   */
+  bottomNavigation?: readonly NavigationItem[];
   mainRef?: RefObject<HTMLElement | null>;
   children: ReactNode;
 }
@@ -304,6 +309,41 @@ function NavigationTrigger() {
 }
 
 /**
+ * The phone's bottom bar (UI audit): each destination with its icon and label, the current one
+ * marked by weight, colour and a bar (not colour alone). Hidden from 768 px and while a form shows
+ * its own bottom action bar (globals.css).
+ */
+function BottomNavigation({ items }: { items: readonly NavigationItem[] }) {
+  const { t } = useTranslation('ui');
+  const { pathname } = useLocation();
+  const currentTarget = currentNavigationTarget(pathname, items);
+  return (
+    <nav
+      aria-label={t('nav.shortcuts')}
+      data-slot="bottom-nav"
+      className="fixed inset-x-0 bottom-0 z-30 border-t bg-card pb-safe shadow-e1 md:hidden"
+    >
+      {/* eslint-disable-next-line jsx-a11y/no-redundant-roles -- Safari drops list semantics under `list-style: none`. */}
+      <ul role="list" className="flex h-bottom-bar items-stretch">
+        {items.map(({ to, label, icon: Icon, count, countLabel }) => (
+          <li key={to} className="flex min-w-0 flex-1">
+            <Link
+              to={to}
+              aria-current={currentTarget === to ? 'page' : undefined}
+              className="relative flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 text-help text-muted-foreground before:absolute before:inset-x-4 before:top-0 before:h-0.5 before:rounded-full focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring aria-[current=page]:font-semibold aria-[current=page]:text-foreground aria-[current=page]:before:bg-primary"
+            >
+              <Icon aria-hidden="true" className="size-5 shrink-0" />
+              <span className="max-w-full truncate">{label}</span>
+              {count !== undefined && count > 0 && <span className="sr-only">{`, ${countLabel}`}</span>}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+/**
  * Application layout (platform spec: Application shell): skip link; the night sidebar with the
  * PolvorApp mark, optional link cards (a FiringChief's comparsas), the navigation and the footer;
  * a sticky top bar with the breadcrumbs and the user menu; the main content, up to 1680 px beside
@@ -316,6 +356,7 @@ export function AppLayout({
   sidebarCards,
   sidebarFooter,
   userMenu,
+  bottomNavigation = [],
   mainRef,
   children,
 }: AppLayoutProps) {
@@ -396,7 +437,16 @@ export function AppLayout({
             className="px-gutter pt-section pb-region outline-none"
           >
             <div className="flex w-full max-w-page flex-col gap-section">{children}</div>
+            {/* Room for the bottom bar, so the end of the page is never under it. */}
+            {bottomNavigation.length > 0 && (
+              <div
+                data-slot="bottom-nav-spacer"
+                aria-hidden="true"
+                className="h-bottom-bar shrink-0 md:hidden"
+              />
+            )}
           </SidebarInset>
+          {bottomNavigation.length > 0 && <BottomNavigation items={bottomNavigation} />}
         </div>
       </SidebarProvider>
     </SaveNoticeProvider>

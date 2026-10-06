@@ -20,7 +20,8 @@
       "administration": "Administració"
     },
     "expand": "Expandix la navegació",
-    "collapse": "Replega la navegació"
+    "collapse": "Replega la navegació",
+    "shortcuts": "Accessos directes"
   },
   "theme": {
     "label": "Tema",

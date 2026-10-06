@@ -20,7 +20,8 @@
       "administration": "Administración"
     },
     "expand": "Expandir la navegación",
-    "collapse": "Contraer la navegación"
+    "collapse": "Contraer la navegación",
+    "shortcuts": "Accesos directos"
   },
   "theme": {
     "label": "Tema",
