@@ -278,9 +278,12 @@ describe('StatisticsPage (spec: Statistics screen)', () => {
     );
     await renderApp('/statistics', { session: SYNTHETIC_ADMIN });
 
-    expect(await screen.findByText('Cargando las estadísticas…')).toBeInTheDocument();
+    // Said in the status region, shown as section placeholders (UI audit).
+    expect(await screen.findByText('Cargando las estadísticas…')).toHaveClass('sr-only');
+    expect(document.querySelector('[data-slot="loading-sections"]')).toHaveAttribute('aria-hidden', 'true');
     expect(await screen.findByRole('table', { name: 'Arcabuceros por género' })).toBeInTheDocument();
     expect(screen.queryByText('Cargando las estadísticas…')).not.toBeInTheDocument();
+    expect(document.querySelector('[data-slot="loading-sections"]')).toBeNull();
   });
 
   describe('tabs (spec: Statistics screen, Tabs kept in the address)', () => {

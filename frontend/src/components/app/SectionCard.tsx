@@ -7,8 +7,11 @@ export interface SectionCardProps {
   description?: string;
   /** The section's action, e.g. the trigger of its `EditSheet`. */
   action?: ReactNode;
-  /** `full` takes the whole row of a `SectionGrid`. */
-  span?: 'auto' | 'full';
+  /**
+   * `full` takes the whole row of a `SectionGrid`; `table` takes it until 1700 px, for a wide table
+   * that would be cut in half a row.
+   */
+  span?: 'auto' | 'full' | 'table';
   /**
    * Makes the section a link target (`#id`) that can take focus, e.g. when an email links to it; the
    * page moves focus there itself.
@@ -38,6 +41,7 @@ export function SectionCard({
       className={cn(
         'flex min-w-0 flex-col gap-group rounded-lg border bg-card p-4 shadow-e1 sm:p-6',
         span === 'full' && 'col-span-full',
+        span === 'table' && 'col-span-full wide:col-span-1',
       )}
     >
       {/* The action stays at the top end whatever the description's length (audit T4); several actions wrap within half the width. */}
