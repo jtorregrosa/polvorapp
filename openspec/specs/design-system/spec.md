@@ -139,7 +139,7 @@ warning).
 
 #### Scenario: Two-step verification not set
 - **WHEN** the users table shows an invited user who has not enrolled an authenticator
-- **THEN** the two-step verification column shows a muted badge with the translated "not set" label and its icon
+- **THEN** the second line of the user's status shows a muted two-step verification badge with the translated "not set" label and its icon
 
 ### Requirement: Accessible composites
 Every composite SHALL be operable with the keyboard alone and SHALL expose correct names, roles and

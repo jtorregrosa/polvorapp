@@ -50,7 +50,10 @@ but whose history must stay visible. Deletion is for a comparsa entered by mista
 
 ### Requirement: Comparsa visibility (BR-12)
 The list of comparsas SHALL be sorted by name, and every column SHALL be sortable; the side SHALL be a
-tag (see "Tags for fixed values"). It SHALL be filterable by side and by active state,
+tag (see "Tags for fixed values"). Each comparsa SHALL show its active arquebusiers, the active
+ones with warnings and the status of its order in the current edition; its detail page SHALL show
+the same figures with the reserve arquebusiers, each linking to the filtered list or the order. It
+SHALL be filterable by side and by active state,
 and by default it SHALL show only active comparsas. An Admin SHALL see every comparsa. A FiringChief
 SHALL see only the comparsas assigned to them, active or not, and read-only. A comparsa outside the
 user's scope SHALL be answered as if it did not exist (`404 Not Found`). This rule is blocking and
@@ -85,8 +88,9 @@ Assigning an existing assignment SHALL succeed without creating a duplicate. Rem
 assignment that does not exist SHALL succeed without changing anything. Existing assignments SHALL
 be kept when the user is deactivated, when the comparsa is deactivated or when the user's role
 changes to `ADMIN`. They SHALL be removed when the comparsa is deleted. While the user is an Admin they have no effect, because an Admin's scope is
-every comparsa. Only Admins SHALL list, create or remove assignments. FiringChiefs SHALL receive
-`403 Forbidden`.
+every comparsa. Admins SHALL also be able to list every assignment at once, with each comparsa's
+name, for the users list. Only Admins SHALL list, create or remove assignments. FiringChiefs SHALL
+receive `403 Forbidden`.
 
 #### Scenario: Admin assigns a FiringChief
 - **WHEN** an Admin assigns the FiringChief "Jefe Sintético Uno" to the active comparsa "Comparsa Sintética Norte"

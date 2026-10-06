@@ -574,7 +574,9 @@ editions.
 
 The **overview** SHALL follow the list template for FiringChiefs and the dashboard template for
 Admins. It SHALL show whether the orders are open, the order rows with their status and totals,
-and a "Prepare order" action for comparsas not prepared, when the user may prepare them. A
+and a "Prepare order" action for comparsas not prepared, when the user may prepare them. For
+Admins, the order rows SHALL come before the edition's totals and billing, and the count of orders
+in each status SHALL filter the rows to the chosen statuses. A
 FiringChief with a single comparsa whose order is prepared SHALL be taken directly to it.
 
 The **order page** SHALL follow the detail template. Its header SHALL show the comparsa with its
