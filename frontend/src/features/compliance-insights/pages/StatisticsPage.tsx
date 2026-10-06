@@ -369,6 +369,13 @@ export function StatisticsPage() {
                 label: t('statistics.tabs.today'),
                 content: (
                   <div className="flex flex-col gap-section">
+                    {/* One status region for the tab, so the loading text is announced when it changes. */}
+                    <p
+                      role="status"
+                      className={query.isPending && query.isFetching ? 'text-muted-foreground' : 'sr-only'}
+                    >
+                      {query.isPending && query.isFetching ? t('statistics.loading') : ''}
+                    </p>
                     {query.isError && <LoadFailure error={query.error} onRetry={() => query.refetch()} />}
                     {noMatches && (
                       <NoMatches

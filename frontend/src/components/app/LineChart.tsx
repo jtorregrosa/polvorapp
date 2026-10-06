@@ -12,6 +12,7 @@ import {
   markerPath,
   seriesColor,
   seriesKey,
+  useDismissibleTooltip,
   useValueText,
 } from './chart-data';
 import { ChartFrame } from './ChartFrame';
@@ -72,6 +73,7 @@ export function LineChart(props: LineChartProps) {
   const [liveRegion, setLiveRegion] = useState<HTMLElement | null>(null);
   const { title, series, data, formatValue } = props;
   const valueText = useValueText(formatValue);
+  const { watch: watchTooltip, active: tooltipActive } = useDismissibleTooltip();
   const config = useMemo(() => chartConfig(series), [series]);
   const rows = useMemo(() => lineRows(drawingData(series, data), series.length), [series, data]);
   const hasProvisional = data.some((point) => point.provisional);
@@ -79,7 +81,10 @@ export function LineChart(props: LineChartProps) {
 
   return (
     <ChartFrame {...props}>
-      <div className="flex flex-col gap-3 motion-safe:animate-in motion-safe:duration-200 motion-safe:fade-in-0">
+      <div
+        ref={watchTooltip}
+        className="flex flex-col gap-3 motion-safe:animate-in motion-safe:duration-200 motion-safe:fade-in-0"
+      >
         <ChartKeyboardHint id={`${chartId}-hint`} />
         <ChartContainer config={config} className="aspect-auto h-64 w-full">
           <Recharts.LineChart
@@ -106,6 +111,7 @@ export function LineChart(props: LineChartProps) {
               tickFormatter={valueText}
             />
             <ChartTooltip
+              active={tooltipActive}
               cursor={{ className: 'stroke-border' }}
               content={
                 <ChartTooltipContent

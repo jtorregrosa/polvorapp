@@ -126,8 +126,9 @@ describe('TrendsTab (spec: Trends screen)', () => {
         .getAllByRole('columnheader')
         .map((header) => header.textContent.split(',')[0]),
     ).toEqual(['Comparsa', '2029', '2030', '2031 (provisional)', 'Cambio respecto a 2030']);
-    expect(rowTexts(table, NORTE.name)).toEqual(['12', '14', '18', '+4']);
-    expect(rowTexts(table, SUR.name)).toEqual(['8', '10', '12', '+2']);
+    // The change is digits for the eye and words for screen readers.
+    expect(rowTexts(table, NORTE.name)).toEqual(['12', '14', '18', '+4sube 4']);
+    expect(rowTexts(table, SUR.name)).toEqual(['8', '10', '12', '+2sube 2']);
 
     await user.click(within(table).getByRole('button', { name: /Cambio respecto a 2030/ }));
 
@@ -136,6 +137,42 @@ describe('TrendsTab (spec: Trends screen)', () => {
         .getAllByRole('rowheader')
         .map((cell) => cell.textContent),
     ).toEqual([SUR.name, NORTE.name]);
+  });
+
+  it('sorts the per-comparsa table both ways and says the order', async () => {
+    const user = userEvent.setup();
+    serve(TRENDS);
+    await open();
+
+    const table = screen.getByRole('table', { name: 'Arcabuceros en activo por comparsa y edición' });
+    const header = () => within(table).getAllByRole('columnheader')[3];
+    await user.click(within(table).getByRole('button', { name: /2031 \(provisional\)/ }));
+    expect(header()).toHaveAttribute('aria-sort', 'ascending');
+    expect(
+      within(table)
+        .getAllByRole('rowheader')
+        .map((cell) => cell.textContent),
+    ).toEqual([SUR.name, NORTE.name]);
+
+    await user.click(within(table).getByRole('button', { name: /2031 \(provisional\)/ }));
+
+    expect(header()).toHaveAttribute('aria-sort', 'descending');
+    expect(
+      within(table)
+        .getAllByRole('rowheader')
+        .map((cell) => cell.textContent),
+    ).toEqual([NORTE.name, SUR.name]);
+  });
+
+  it('explains that the edition in progress is provisional', async () => {
+    serve(TRENDS);
+    await open();
+
+    expect(
+      screen.getByText(
+        'Las cifras de una edición en curso (2031) son provisionales: sus pedidos aún pueden cambiar.',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('shows no per-comparsa table to a FiringChief with one comparsa', async () => {
@@ -198,7 +235,36 @@ describe('TrendsTab (spec: Trends screen)', () => {
 
       const item = screen.getByRole('link', { name: NORTE.name }).closest('li');
       expect(item).toHaveTextContent('2029: 12, 2030: 14 y 2031 (provisional): 18');
-      expect(item).toHaveTextContent('Cambio respecto a 2030: +4');
+      expect(item).toHaveTextContent('Cambio respecto a 2030: +4sube 4');
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 });
+    }
+  });
+
+  it('says a fall in words on a phone', async () => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 360 });
+    try {
+      const falling: TrendsResponse = {
+        ...TRENDS,
+        rows: TRENDS.rows.map((row) =>
+          row.year === 2031
+            ? {
+                ...row,
+                comparsas: [
+                  { comparsaId: NORTE.id, active: 11 },
+                  { comparsaId: SUR.id, active: 10 },
+                ],
+              }
+            : row,
+        ),
+      };
+      serve(falling);
+      await open();
+
+      const north = screen.getByRole('link', { name: NORTE.name }).closest('li');
+      const south = screen.getByRole('link', { name: SUR.name }).closest('li');
+      expect(north).toHaveTextContent('Cambio respecto a 2030: -3baja 3');
+      expect(south).toHaveTextContent('Cambio respecto a 2030: 0sin cambios');
     } finally {
       Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 });
     }

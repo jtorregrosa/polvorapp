@@ -113,7 +113,8 @@
       "label": "Statistics views",
       "today": "Today",
       "trends": "Trends"
-    }
+    },
+    "loading": "Loading the statistics…"
   },
   "warnings": {
     "title": "Compliance warnings",
@@ -197,8 +198,12 @@
       "comparsa": "Comparsa",
       "change": "Change from {{previous}}",
       "yearCount": "{{year}}: {{count}}",
-      "changeText": "Change from {{previous}}: {{change}}"
+      "changeText": "Change from {{previous}}:",
+      "up": "up {{count}}",
+      "down": "down {{count}}",
+      "noChange": "no change"
     },
-    "unavailable": "The trends could not be loaded: reload the page to try again."
+    "unavailable": "The trends could not be loaded: reload the page to try again.",
+    "provisionalNote": "Figures of an edition in progress ({{year}}) are provisional: its orders can still change."
   }
 }

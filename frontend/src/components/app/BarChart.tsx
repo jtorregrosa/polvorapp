@@ -12,6 +12,7 @@ import {
   isProvisionalRow,
   patternId,
   seriesKey,
+  useDismissibleTooltip,
   useValueText,
 } from './chart-data';
 import { ChartFrame } from './ChartFrame';
@@ -39,6 +40,7 @@ export function BarChart({ layout = 'grouped', ...props }: BarChartProps) {
   const [liveRegion, setLiveRegion] = useState<HTMLElement | null>(null);
   const { title, series, data, formatValue } = props;
   const valueText = useValueText(formatValue);
+  const { watch: watchTooltip, active: tooltipActive } = useDismissibleTooltip();
   const rows = useMemo(() => drawingData(series, data), [series, data]);
   const config = useMemo(() => chartConfig(series), [series]);
   const hasProvisional = data.some((point) => point.provisional);
@@ -47,7 +49,10 @@ export function BarChart({ layout = 'grouped', ...props }: BarChartProps) {
 
   return (
     <ChartFrame {...props}>
-      <div className="flex flex-col gap-3 motion-safe:animate-in motion-safe:duration-200 motion-safe:fade-in-0">
+      <div
+        ref={watchTooltip}
+        className="flex flex-col gap-3 motion-safe:animate-in motion-safe:duration-200 motion-safe:fade-in-0"
+      >
         <SeriesPatterns chartId={chartId} count={series.length} />
         <ChartKeyboardHint id={`${chartId}-hint`} />
         <ChartContainer config={config} className="aspect-auto h-64 w-full">
@@ -71,6 +76,7 @@ export function BarChart({ layout = 'grouped', ...props }: BarChartProps) {
               tickFormatter={(value: number) => (layout === 'percent' ? percent(value) : valueText(value))}
             />
             <ChartTooltip
+              active={tooltipActive}
               cursor={{ className: 'fill-muted' }}
               content={
                 <ChartTooltipContent

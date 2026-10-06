@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ChartConfig } from '@/components/ui/chart';
 import { useFormatters } from '@/lib/format';
 
@@ -49,6 +49,35 @@ export interface ChartDataProps {
 export function useValueText(formatValue?: (value: number) => string): (value: number) => string {
   const format = useFormatters();
   return useMemo(() => formatValue ?? ((value: number) => format.number(value)), [formatValue, format]);
+}
+
+/**
+ * Lets Escape hide a chart's tooltip until the arrow keys or the pointer move again (WCAG 1.4.13): put
+ * `watch` as the `ref` of the element around the drawing and pass `active` to the tooltip.
+ */
+export function useDismissibleTooltip(): {
+  watch: (element: HTMLElement | null) => void;
+  active: false | undefined;
+} {
+  const [element, setElement] = useState<HTMLElement | null>(null);
+  const [dismissed, setDismissed] = useState(false);
+  useEffect(() => {
+    if (!element) return undefined;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setDismissed(true);
+      else if (event.key.startsWith('Arrow')) setDismissed(false);
+    };
+    const onPointer = () => {
+      setDismissed(false);
+    };
+    element.addEventListener('keydown', onKey);
+    element.addEventListener('pointermove', onPointer);
+    return () => {
+      element.removeEventListener('keydown', onKey);
+      element.removeEventListener('pointermove', onPointer);
+    };
+  }, [element]);
+  return { watch: setElement, active: dismissed ? false : undefined };
 }
 
 /** Series colours, one categorical token each (spec: Charts; contrast in contrast.test.ts). */

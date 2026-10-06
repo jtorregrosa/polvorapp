@@ -268,6 +268,21 @@ describe('StatisticsPage (spec: Statistics screen)', () => {
     expect(await axeViolations(container)).toEqual([]);
   });
 
+  it('says the figures are loading until they arrive', async () => {
+    statistics(() => HttpResponse.json(STATISTICS));
+    server.use(
+      mock.get('/api/compliance/statistics', async () => {
+        await delay(100);
+        return HttpResponse.json(STATISTICS);
+      }),
+    );
+    await renderApp('/statistics', { session: SYNTHETIC_ADMIN });
+
+    expect(await screen.findByText('Cargando las estadísticas…')).toBeInTheDocument();
+    expect(await screen.findByRole('table', { name: 'Arcabuceros por género' })).toBeInTheDocument();
+    expect(screen.queryByText('Cargando las estadísticas…')).not.toBeInTheDocument();
+  });
+
   describe('tabs (spec: Statistics screen, Tabs kept in the address)', () => {
     it('opens on "Today" and keeps the chosen tab in the address', async () => {
       const user = userEvent.setup();

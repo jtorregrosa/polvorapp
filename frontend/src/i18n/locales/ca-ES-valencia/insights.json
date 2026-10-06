@@ -113,7 +113,8 @@
       "label": "Vistes de les estadístiques",
       "today": "Hui",
       "trends": "Tendències"
-    }
+    },
+    "loading": "Carregant les estadístiques…"
   },
   "warnings": {
     "title": "Avisos de compliment",
@@ -197,8 +198,12 @@
       "comparsa": "Comparsa",
       "change": "Canvi respecte a {{previous}}",
       "yearCount": "{{year}}: {{count}}",
-      "changeText": "Canvi respecte a {{previous}}: {{change}}"
+      "changeText": "Canvi respecte a {{previous}}:",
+      "up": "puja {{count}}",
+      "down": "baixa {{count}}",
+      "noChange": "sense canvis"
     },
-    "unavailable": "No s'han pogut carregar les tendències: torna a carregar la pàgina per a tornar-ho a intentar."
+    "unavailable": "No s'han pogut carregar les tendències: torna a carregar la pàgina per a tornar-ho a intentar.",
+    "provisionalNote": "Les xifres d'una edició en curs ({{year}}) són provisionals: les seues comandes encara poden canviar."
   }
 }
