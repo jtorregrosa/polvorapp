@@ -20,6 +20,7 @@ import { LoadFailure } from '@/features/arquebusier-registry/components/LoadFail
 import { DashboardOrdersCard } from '@/features/comparsa-orders/components/DashboardOrdersCard';
 import { CurrentEditionCard } from '@/features/festival-editions/components/CurrentEditionCard';
 import { useSession } from '@/features/identity-access/session';
+import { useIsBelowWide } from '@/hooks/use-mobile';
 import { useFormatters } from '@/lib/format';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { SUMMARY_STALE_TIME_MS } from '../queries';
@@ -201,6 +202,8 @@ export function DashboardPage() {
   const session = useSession();
   const signedIn = session.status === 'signedIn';
   const isAdmin = session.account?.role === 'ADMIN';
+  // Below 1280 px the edition comes last; from there it sits under the orders (mounted once).
+  const narrow = useIsBelowWide();
 
   // Only a FiringChief's comparsas say whether they have a scope; an Admin always has one. Nothing
   // is shown before it is known, so a FiringChief without comparsas never sees figures flash.
@@ -236,9 +239,7 @@ export function DashboardPage() {
         <div className="grid items-start gap-section xl:grid-cols-2">
           <div className="flex min-w-0 flex-col gap-section xl:row-start-2">
             <DashboardOrdersCard />
-            <div className="hidden xl:block">
-              <CurrentEditionCard />
-            </div>
+            {!narrow && <CurrentEditionCard />}
           </div>
           <div className="flex min-w-0 flex-col gap-section xl:col-span-2 xl:row-start-1">
             {summary.isError && <LoadFailure error={summary.error} onRetry={() => summary.refetch()} />}
@@ -251,9 +252,7 @@ export function DashboardPage() {
               <NextExpiries rows={rows} loading={arquebusiers.isPending} />
             )}
           </div>
-          <div className="xl:hidden">
-            <CurrentEditionCard />
-          </div>
+          {narrow && <CurrentEditionCard />}
         </div>
       )}
     </>
