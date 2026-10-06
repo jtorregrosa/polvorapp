@@ -16,6 +16,7 @@ import { Button } from '@/components/app/Button';
 import { ConfirmDialog } from '@/components/app/ConfirmDialog';
 import { explainFailure } from '@/components/app/confirm-failure';
 import { DataTable, type DataTableColumn } from '@/components/app/DataTable';
+import { Disclosure } from '@/components/app/Disclosure';
 import { KeyFacts } from '@/components/app/KeyFacts';
 import { useSaveNotice } from '@/components/app/save-notice';
 import { SectionCard } from '@/components/app/SectionCard';
@@ -33,14 +34,63 @@ interface SlotRow {
   startsAt: string | null;
 }
 
-/** Slots in time order, then name; the comparsas without one last, by name (spec: Distribution screens). */
+/** Slots in time order, then name (spec: Distribution screens). */
 function slotRows(day: DistributionDayResponse, locale: string): SlotRow[] {
-  const byName = (a: SlotRow, b: SlotRow) => a.comparsaName.localeCompare(b.comparsaName, locale);
-  const withSlot = [...day.slots].sort((a, b) => a.startsAt.localeCompare(b.startsAt) || byName(a, b));
-  const without = (day.withoutSlot ?? [])
-    .map((comparsa) => ({ comparsaId: comparsa.id, comparsaName: comparsa.name, startsAt: null }))
-    .sort(byName);
-  return [...withSlot, ...without];
+  return [...day.slots].sort(
+    (a, b) => a.startsAt.localeCompare(b.startsAt) || a.comparsaName.localeCompare(b.comparsaName, locale),
+  );
+}
+
+/** For Admins, the comparsas without a slot, by name, folded under their count (UI audit). */
+function WithoutSlot({ day }: { day: DistributionDayResponse }) {
+  const { t, i18n } = useTranslation('distribution');
+  const names = useMemo(
+    () =>
+      (day.withoutSlot ?? [])
+        .map((comparsa) => comparsa.name)
+        .sort((a, b) => a.localeCompare(b, i18n.language)),
+    [day.withoutSlot, i18n.language],
+  );
+  if (names.length === 0) return null;
+  return (
+    <Disclosure summary={t('slots.withoutSlot', { count: names.length })}>
+      {/* eslint-disable-next-line jsx-a11y/no-redundant-roles -- Safari drops list semantics under `list-style: none`. */}
+      <ul role="list" className="grid gap-x-4 gap-y-1 text-muted-foreground sm:grid-cols-2">
+        {names.map((name) => (
+          <li key={name}>{name}</li>
+        ))}
+      </ul>
+    </Disclosure>
+  );
+}
+
+/** For FiringChiefs: the day, the place and their slot in one line per comparsa (UI audit). */
+function OwnSlots({ day }: { day: DistributionDayResponse }) {
+  const { t } = useTranslation('distribution');
+  const dates = useEditionDates();
+  const date = dates.day(day.date);
+  if (day.slots.length === 0) {
+    return (
+      <p className="text-body text-foreground">{t('slots.noSlotYet', { date, location: day.location })}</p>
+    );
+  }
+  return (
+    // eslint-disable-next-line jsx-a11y/no-redundant-roles -- Safari drops list semantics under `list-style: none`.
+    <ul role="list" className="flex flex-col gap-1 text-body font-semibold text-foreground">
+      {day.slots.map((slot) => (
+        <li key={slot.comparsaId}>
+          {day.slots.length === 1
+            ? t('slots.yourSlot', { date, time: slot.startsAt, location: day.location })
+            : t('slots.comparsaSlot', {
+                comparsa: slot.comparsaName,
+                date,
+                time: slot.startsAt,
+                location: day.location,
+              })}
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 function Slots({ day }: { day: DistributionDayResponse }) {
@@ -94,16 +144,19 @@ function NotValidated({ comparsas }: { comparsas: readonly NotValidatedResponse[
   return (
     <AlertBanner severity="warning" live={false} title={t('list.notValidated.title')}>
       <p>{t('list.notValidated.body', { count: comparsas.length })}</p>
-      <ul className="list-disc ps-5">
-        {comparsas.map((comparsa) => (
-          <li key={comparsa.comparsaId}>
-            {t('list.notValidated.item', {
-              comparsa: comparsa.comparsaName,
-              status: t(`list.notValidated.status.${notValidatedStatus(comparsa)}`),
-            })}
-          </li>
-        ))}
-      </ul>
+      {/* A long list would push the downloads far down: folded under one line (UI audit). */}
+      <Disclosure summary={t('list.notValidated.show', { count: comparsas.length })}>
+        <ul className="list-disc ps-5">
+          {comparsas.map((comparsa) => (
+            <li key={comparsa.comparsaId}>
+              {t('list.notValidated.item', {
+                comparsa: comparsa.comparsaName,
+                status: t(`list.notValidated.status.${notValidatedStatus(comparsa)}`),
+              })}
+            </li>
+          ))}
+        </ul>
+      </Disclosure>
     </AlertBanner>
   );
 }
@@ -175,7 +228,12 @@ function DeleteDay({
         void refresh();
       }}
       trigger={
-        <Button variant="secondary" size="sm" icon={Trash2} aria-label={t(`day.deleteName.${day.type}`)}>
+        <Button
+          variant="quietDestructive"
+          size="sm"
+          icon={Trash2}
+          aria-label={t(`day.deleteName.${day.type}`)}
+        >
           {t('day.delete')}
         </Button>
       }
@@ -218,7 +276,9 @@ export function DistributionDaySection({ plan, type, isAdmin }: DistributionDayS
 
   return (
     <SectionCard title={t(`day.title.${type}`)} action={actions}>
-      {day ? (
+      {day && !isAdmin ? (
+        <OwnSlots day={day} />
+      ) : day ? (
         <>
           <KeyFacts
             label={t(`day.facts.${type}`)}
@@ -233,6 +293,7 @@ export function DistributionDaySection({ plan, type, isAdmin }: DistributionDayS
               {isAdmin && <SlotsSheet editionId={plan.editionId} day={day} hideTrigger={!plan.canPlan} />}
             </div>
             <Slots day={day} />
+            <WithoutSlot day={day} />
           </div>
           {isAdmin && <DayList day={day} notValidated={plan.notValidated ?? []} />}
         </>

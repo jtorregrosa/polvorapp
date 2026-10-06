@@ -20,7 +20,9 @@
       "DRAFT": "en esborrany",
       "SUBMITTED": "enviada",
       "RETURNED": "tornada"
-    }
+    },
+    "show_one": "Mostra la comparsa",
+    "show_other": "Mostra les {{count}} comparses"
   },
   "recipients": {
     "powder-supplier": {

@@ -84,7 +84,12 @@
       "startsAt": "Hora",
       "comparsa": "Comparsa"
     },
-    "timeFor": "Hora de {{comparsa}}"
+    "timeFor": "Hora de {{comparsa}}",
+    "withoutSlot_one": "{{count}} comparsa sense torn",
+    "withoutSlot_other": "{{count}} comparses sense torn",
+    "yourSlot": "El teu torn: {{date}} · {{time}} · {{location}}",
+    "comparsaSlot": "{{comparsa}}: {{date}} · {{time}} · {{location}}",
+    "noSlotYet": "{{date}} · {{location}}. Encara no tens torn."
   },
   "list": {
     "title": "Llistat de repartiment",
@@ -103,7 +108,9 @@
         "DRAFT": "en esborrany",
         "SUBMITTED": "enviada",
         "RETURNED": "tornada"
-      }
+      },
+      "show_one": "Mostra la comparsa",
+      "show_other": "Mostra les {{count}} comparses"
     }
   },
   "proxies": {
