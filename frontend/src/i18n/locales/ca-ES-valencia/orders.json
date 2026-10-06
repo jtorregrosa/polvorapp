@@ -272,5 +272,22 @@
       "confirm": "Retorna",
       "done": "Comanda retornada."
     }
+  },
+  "dashboardCard": {
+    "mineTitle_one": "La teua comanda · Festes {{year}}",
+    "mineTitle_other": "Les teues comandes · Festes {{year}}",
+    "allTitle": "Comandes · Festes {{year}}",
+    "toReview_one": "{{count}} comanda per revisar",
+    "toReview_other": "{{count}} comandes per revisar",
+    "noneToReview": "Cap comanda per revisar.",
+    "withWarnings_one": "{{count}} arcabusser amb avisos",
+    "withWarnings_other": "{{count}} arcabussers amb avisos",
+    "notPrepared": "Sense preparar",
+    "open": "Ves a la comanda",
+    "openFor": "Ves a la comanda de {{comparsa}}",
+    "prepare": "Prepara la comanda",
+    "review": "Revisa les comandes",
+    "countsLabel": "Comandes per estat",
+    "loadFailed": "No s'han pogut carregar les comandes."
   }
 }
