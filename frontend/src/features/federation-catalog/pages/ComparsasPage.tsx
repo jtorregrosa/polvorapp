@@ -212,7 +212,10 @@ export function ComparsasPage() {
               </span>
               {figures && (
                 <span className="text-help text-muted-foreground">
-                  {`${t('comparsas.columns.active')}: ${number(figures.byComparsa.get(comparsa.id)?.active ?? 0)} · ${t('comparsas.columns.withWarnings')}: ${number(figures.byComparsa.get(comparsa.id)?.activeWithWarnings ?? 0)}`}
+                  {t('comparsas.figuresLine', {
+                    active: number(figures.byComparsa.get(comparsa.id)?.active ?? 0),
+                    warnings: number(figures.byComparsa.get(comparsa.id)?.activeWithWarnings ?? 0),
+                  })}
                 </span>
               )}
             </>

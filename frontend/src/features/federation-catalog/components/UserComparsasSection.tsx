@@ -70,7 +70,6 @@ export function UserComparsasSection({ user }: { user: UserResponse }) {
       description: t('userComparsas.description'),
       emptyText: t('userComparsas.empty'),
       addLabel: t('userComparsas.addLabel'),
-      add: t('userComparsas.add'),
       addAction: t('userComparsas.addAction'),
       addTitle: t('userComparsas.addTitle'),
       noCandidates: t('userComparsas.noCandidates'),

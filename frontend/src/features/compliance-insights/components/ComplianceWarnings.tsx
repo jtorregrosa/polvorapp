@@ -31,7 +31,7 @@ export function ComplianceWarnings({ warnings, licenseExpiresOn, age, targets }:
   return (
     // A lasting state shown with the page, not news: no live region (design guide, Accessibility rules).
     <AlertBanner severity="warning" title={t('warnings.title')} live={false}>
-      <ul className="list-disc pl-5">
+      <ul className="list-disc ps-5">
         {warnings.map((code) => {
           const target = targets?.[code];
           return (

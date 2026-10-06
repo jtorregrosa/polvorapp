@@ -85,7 +85,8 @@
       "notPrepared": "Not prepared",
       "openOrder": "See the order",
       "link": "{{value}} {{label}}"
-    }
+    },
+    "figuresLine": "Active: {{active}} · Active with warnings: {{warnings}}"
   },
   "federation": {
     "logo": {
@@ -183,7 +184,6 @@
     },
     "empty": "No firing chief is assigned yet.",
     "addLabel": "Firing chief to add",
-    "add": "Add",
     "noCandidates": "Every firing chief who can be assigned is already here.",
     "inactiveComparsa": "Reactivate the comparsa to assign new firing chiefs.",
     "remove": "Remove {{name}}",
@@ -201,7 +201,6 @@
     "description": "The comparsas this firing chief manages. They only see these.",
     "empty": "This firing chief has no comparsa yet.",
     "addLabel": "Comparsa to add",
-    "add": "Add",
     "noCandidates": "There is no other active comparsa to assign.",
     "remove": "Remove {{name}}",
     "removeShort": "Remove",

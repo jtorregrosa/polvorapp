@@ -20,6 +20,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Breadcrumbs } from './Breadcrumbs';
 import { currentNavigationTarget, isCurrentPath } from './navigation-match';
 import { PolvorAppMark } from './PolvorAppMark';
@@ -324,20 +325,34 @@ function BottomNavigation({ items }: { items: readonly NavigationItem[] }) {
       className="fixed inset-x-0 bottom-0 z-30 border-t bg-card pb-safe shadow-e1 md:hidden"
     >
       {/* eslint-disable-next-line jsx-a11y/no-redundant-roles -- Safari drops list semantics under `list-style: none`. */}
-      <ul role="list" className="flex h-bottom-bar items-stretch">
-        {items.map(({ to, label, icon: Icon, count, countLabel }) => (
-          <li key={to} className="flex min-w-0 flex-1">
-            <Link
-              to={to}
-              aria-current={currentTarget === to ? 'page' : undefined}
-              className="relative flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 text-help text-muted-foreground before:absolute before:inset-x-4 before:top-0 before:h-0.5 before:rounded-full focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring aria-[current=page]:font-semibold aria-[current=page]:text-foreground aria-[current=page]:before:bg-primary"
-            >
-              <Icon aria-hidden="true" className="size-5 shrink-0" />
-              <span className="max-w-full truncate">{label}</span>
-              {count !== undefined && count > 0 && <span className="sr-only">{`, ${countLabel}`}</span>}
-            </Link>
-          </li>
-        ))}
+      <ul role="list" className="flex min-h-bottom-bar items-stretch">
+        {items.map(({ to, label, icon: Icon, count, countLabel }) => {
+          const counted = count !== undefined && count > 0;
+          return (
+            <li key={to} className="flex min-w-0 flex-1">
+              <Link
+                to={to}
+                aria-current={currentTarget === to ? 'page' : undefined}
+                // The name starts with the visible label (WCAG 2.5.3) and says what the badge counts.
+                aria-label={counted ? `${label}, ${countLabel}` : undefined}
+                className="relative flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-center text-help break-words text-muted-foreground before:absolute before:inset-x-4 before:top-0 before:h-0.5 before:rounded-full focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring aria-[current=page]:font-semibold aria-[current=page]:text-foreground aria-[current=page]:before:bg-primary"
+              >
+                <span className="relative">
+                  <Icon aria-hidden="true" className="size-5 shrink-0" />
+                  {counted && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute -top-1.5 left-3.5 rounded-full bg-primary px-1 text-xs font-semibold text-primary-foreground tabular-nums"
+                    >
+                      {count}
+                    </span>
+                  )}
+                </span>
+                <span className="max-w-full">{label}</span>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );
@@ -362,6 +377,8 @@ export function AppLayout({
 }: AppLayoutProps) {
   const { t } = useTranslation();
   const topBar = useRef<HTMLElement>(null);
+  // Phones only: elsewhere the sidebar holds the same links, which must not be there twice.
+  const showBottomBar = useIsMobile() && bottomNavigation.length > 0;
 
   // The top bar grows when the breadcrumbs wrap: keep its real height as scroll padding, so a
   // focused control never sits under it (SC 2.4.11).
@@ -438,7 +455,7 @@ export function AppLayout({
           >
             <div className="flex w-full max-w-page flex-col gap-section">{children}</div>
             {/* Room for the bottom bar, so the end of the page is never under it. */}
-            {bottomNavigation.length > 0 && (
+            {showBottomBar && (
               <div
                 data-slot="bottom-nav-spacer"
                 aria-hidden="true"
@@ -446,7 +463,7 @@ export function AppLayout({
               />
             )}
           </SidebarInset>
-          {bottomNavigation.length > 0 && <BottomNavigation items={bottomNavigation} />}
+          {showBottomBar && <BottomNavigation items={bottomNavigation} />}
         </div>
       </SidebarProvider>
     </SaveNoticeProvider>

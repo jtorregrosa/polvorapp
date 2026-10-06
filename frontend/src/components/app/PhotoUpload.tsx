@@ -481,7 +481,7 @@ export function PhotoUpload({
       <span
         className={cn(
           'flex flex-col items-center justify-center text-center text-muted-foreground',
-          compact ? 'min-h-24 gap-1 p-1 text-help' : 'min-h-32 gap-2 p-3 text-sm',
+          compact ? 'min-h-24 gap-1 p-1 text-help break-words hyphens-auto' : 'min-h-32 gap-2 p-3 text-sm',
         )}
       >
         {photoUrl ? (

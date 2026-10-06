@@ -207,7 +207,8 @@ export function DashboardPage() {
     <>
       <PageHeader title={t('home.title')} description={t('home.description')} />
       {/* The orders first: a FiringChief's main task in season; side by side with the edition from 1280 px. */}
-      <div className="grid items-start gap-section xl:grid-cols-2">
+      {/* One card takes the whole row, two share it (no half-empty row when there are no orders to show). */}
+      <div className="grid auto-cols-fr items-start gap-section xl:grid-flow-col">
         {!unassigned && <DashboardOrdersCard />}
         <CurrentEditionCard />
       </div>

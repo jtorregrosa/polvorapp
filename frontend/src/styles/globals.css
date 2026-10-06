@@ -88,7 +88,9 @@ html:has([data-slot='action-bar']) {
    form brings its own bottom action bar, which takes its place. */
 @media (width < 48rem) {
   html:has([data-slot='bottom-nav']):not(:has([data-slot='action-bar'])) {
-    scroll-padding-block-end: calc(var(--spacing-bottom-bar) + var(--spacing-group));
+    scroll-padding-block-end: calc(
+      var(--spacing-bottom-bar) + env(safe-area-inset-bottom, 0px) + var(--spacing-group)
+    );
   }
 }
 
@@ -107,6 +109,19 @@ html:has([data-slot='action-bar']) :is([data-slot='bottom-nav'], [data-slot='bot
   }
 
   html:has([data-slot='action-bar']) {
+    scroll-padding-block-end: var(--spacing-group);
+  }
+
+  /* So does the bottom navigation, which then needs no room kept under the page. */
+  [data-slot='bottom-nav'] {
+    position: static;
+  }
+
+  [data-slot='bottom-nav-spacer'] {
+    display: none;
+  }
+
+  html:has([data-slot='bottom-nav']) {
     scroll-padding-block-end: var(--spacing-group);
   }
 }

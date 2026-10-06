@@ -308,8 +308,11 @@ describe('DataTable', () => {
     );
 
     expect(screen.getByText('Todavía no hay ningún jefe de disparo asignado.')).toBeInTheDocument();
-    // One compact line, without headers above an empty body (UI audit T8).
+    // One compact line, without headers above an empty body (UI audit T8), named after the table.
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'Jefes de disparo' })).toHaveTextContent(
+      'Todavía no hay ningún jefe de disparo asignado.',
+    );
   });
 
   it('shows a translated empty state', async () => {
