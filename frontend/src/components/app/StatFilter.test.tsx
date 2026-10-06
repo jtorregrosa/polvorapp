@@ -69,4 +69,20 @@ describe('StatFilter', () => {
     await user.click(screen.getByRole('button', { name: '3 Licencia caducada' }));
     expect(await axeViolations(container)).toEqual([]);
   });
+
+  it.each([
+    [5, 'lg:grid-cols-5'],
+    [6, 'xl:grid-cols-6'],
+  ])('sets %i counters in rows without a lone card (UI audit T6)', async (count, columns) => {
+    const items = Array.from({ length: count }, (_, index) => ({
+      id: `c${String(index)}`,
+      label: `Contador ${String(index)}`,
+      count: index,
+      pressed: false,
+      onPressedChange: () => undefined,
+    }));
+    await renderWithProviders(<StatFilter label="Resumen" items={items} />);
+
+    expect(screen.getByRole('group', { name: 'Resumen' })).toHaveClass('sm:grid-cols-3', columns);
+  });
 });

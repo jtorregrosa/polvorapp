@@ -121,10 +121,10 @@ describe('OrderPage (spec: Orders screens)', () => {
     expect(within(table).queryByRole('columnheader', { name: 'Cantimplora' })).not.toBeInTheDocument();
     const uno = within(table).getByText('Sintético Uno, Arcabucero').closest('tr');
     if (!uno) throw new Error('No row for Sintético Uno');
-    expect(within(uno).getByText(/ de pólvora · /)).toBeInTheDocument();
+    expect(uno).toHaveTextContent(/kg de pólvora · , \d+ cajas? normal/);
     expect(within(uno).getByText(/^(Cantimplora|Sin cantimplora)/)).toBeInTheDocument();
     const edit = within(uno).getByRole('button', { name: 'Editar la línea de Sintético Uno, Arcabucero' });
-    expect(edit.closest('td')).toHaveClass('sticky', 'end-0');
+    expect(edit.closest('td')).toHaveClass('md:sticky', 'md:end-0');
   });
 
   it('shows each arquebusier’s DNI/NIE and ID Unión under the name', async () => {
