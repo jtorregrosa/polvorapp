@@ -90,14 +90,7 @@ describe('UsersPage (spec: User management by Admins)', () => {
     const table = await screen.findByRole('table', { name: 'Usuarios' });
     await within(table).findByRole('link', { name: 'Jefa Sintética' });
 
-    expect(sortableColumns(table)).toEqual([
-      'Nombre',
-      'Correo',
-      'Rol',
-      'Comparsas',
-      'Estado',
-      'Último acceso',
-    ]);
+    expect(sortableColumns(table)).toEqual(['Nombre', 'Correo', 'Rol', 'Estado', 'Último acceso']);
     const chief = within(table).getByRole('link', { name: 'Jefa Sintética' }).closest('tr') as HTMLElement;
     expect(chief).toHaveTextContent('Verificación en dos pasos: Activada');
     // "Activo" before "Invitado": ascending by status.

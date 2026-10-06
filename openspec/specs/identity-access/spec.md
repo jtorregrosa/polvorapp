@@ -223,7 +223,7 @@ and these steps SHALL be rate limited.
 - **THEN** all their sessions end, remembered devices are forgotten and the user is taken to the sign-in page
 
 ### Requirement: User management by Admins
-Admins SHALL be able to list users (name, email, role, the comparsas they are assigned to, status
+Admins SHALL be able to list users (name with the comparsas they are assigned to under it, email, role, status
 with two-factor enabled as its second line, last sign-in) in a table where every column is
 sortable, the role is a tag (see "Tags for fixed values"), the status and two-step verification are
 status badges, and a user who never signed in shows "never" in the muted text colour,
