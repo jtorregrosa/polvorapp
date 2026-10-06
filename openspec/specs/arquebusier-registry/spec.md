@@ -484,7 +484,8 @@ The detail page SHALL be read-only, following the "Detail pages in read mode" te
 SHALL show the ID photo, the comparsa and its side, the full name, the status, the license state and
 the course state. A `VALID` license with the warning `LICENSE_EXPIRING` SHALL be shown as "Expiring
 soon". Its key facts SHALL show the license expiry with how much of the license's validity has
-passed, the federationId and nationalId, the course date and the number of owned weapons.
+passed, the course date and the number of owned weapons (the federationId and nationalId are in the
+personal data, not repeated). Each compliance warning that a section resolves SHALL link to it.
 
 The detail response SHALL carry the arquebusier's compliance warnings, as derived by the compliance
 insights capability. When there is at least one, the page SHALL show them in one warning message.

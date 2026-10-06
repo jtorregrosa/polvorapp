@@ -123,9 +123,12 @@ template. Within the user's scope, it SHALL show:
 - figures for the active arquebusiers, the reserve arquebusiers and the arquebusiers with
   warnings, each linking to the arquebusier list with the matching filter;
 - one figure for each warning, with its count, linking to the arquebusier list filtered by that
-  warning;
-- a warning message that says how many arquebusiers need attention, when at least one has a
-  warning. When none has a warning, a message SHALL say that every arquebusier is up to date;
+  warning, marked by how serious the warning is (no valid license above a missing photo);
+- when no arquebusier has a warning, a message saying that every arquebusier is up to date (with
+  warnings, the "with warnings" figure says how many need attention; no second message repeats it);
+- the current edition's orders: for a FiringChief, each of their orders with its status, the
+  entries with warnings and a link to it (or to prepare it); for an Admin, how many orders wait for
+  review and how many are in each status;
 - a short table of the next license expiries: up to 10 arquebusiers with the warning
   `LICENSE_EXPIRING`, sorted by `expiresOn` and then by name. Each row SHALL show the name, the
   comparsa and the expiry date, SHALL link to the arquebusier, and the table SHALL link to the full

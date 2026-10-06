@@ -190,7 +190,10 @@ The UI SHALL render a shell on every signed-in route consisting of:
 - a top bar with the breadcrumbs and a user menu. The user menu SHALL hold the user's name and role,
   the language switcher, the theme switcher, a link to the account page and a sign-out action;
 - a main content area that uses the width beside the sidebar up to 1680 px. The top bar's
-  breadcrumbs and user menu SHALL be aligned with the edges of that content.
+  breadcrumbs and user menu SHALL be aligned with the edges of that content;
+- for a FiringChief on a phone (below 768 px), a bottom navigation bar with Home, Arquebusiers,
+  Orders and Distribution, marking the current one; the drawer keeps the full navigation. A form's
+  own bottom action bar takes its place.
 
 The primary navigation SHALL be grouped in sections, in this order, each showing only the entries
 allowed for the user's role and hidden when it has none:
