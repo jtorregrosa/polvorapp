@@ -85,6 +85,14 @@ export function UsersPage() {
             {userName(t, user)}
           </Link>
         ),
+        // The comparsas a FiringChief runs, as the name's second line, so "Last sign-in" fits (UI audit).
+        secondary: (user) =>
+          comparsasOf(user.id) ? (
+            <>
+              <span className="sr-only">{t('users.columns.comparsas')}: </span>
+              {comparsasOf(user.id)}
+            </>
+          ) : undefined,
       },
       {
         id: 'email',
@@ -99,13 +107,6 @@ export function UsersPage() {
         header: t('users.columns.role'),
         sortValue: (user) => tUi(`tag.role.${user.role}`),
         cell: (user) => <CategoryTag category="role" value={user.role} />,
-      },
-      {
-        id: 'comparsas',
-        header: t('users.columns.comparsas'),
-        sortValue: (user) => comparsasOf(user.id),
-        cell: (user) => comparsasOf(user.id),
-        wrap: true,
       },
       {
         // Two-step verification as the status's second line, so "Last sign-in" fits (UI audit).
