@@ -12,6 +12,7 @@ import { FilterSelect } from '@/components/app/FilterSelect';
 import { PageHeader } from '@/components/app/PageHeader';
 import { StatusBadge } from '@/components/app/StatusBadge';
 import { CategoryTag } from '@/components/app/Tag';
+import { breakable } from '@/components/app/breakable';
 import { formatDate } from '@/lib/format';
 import { knownFilter, withFilter } from '@/lib/search-filters';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
@@ -63,7 +64,9 @@ export function UsersPage() {
         id: 'email',
         header: t('users.columns.email'),
         sortValue: (user) => userEmail(user),
-        cell: (user) => userEmail(user),
+        // Wraps after "@" and ".", so "Last sign-in" fits at 1280 px (UI audit).
+        cell: (user) => breakable(userEmail(user)),
+        wrap: true,
       },
       {
         id: 'role',

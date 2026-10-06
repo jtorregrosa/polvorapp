@@ -30,6 +30,7 @@ const NOT_COMPOSITES = new Set([
   'picture-trigger.tsx',
   'chart-data.ts',
   'chart-parts.tsx',
+  'breakable.tsx',
 ]);
 
 /** A text that is a translation key left untranslated, e.g. `status.license.VALID`. */

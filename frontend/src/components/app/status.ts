@@ -8,6 +8,7 @@ import {
   Clock,
   Eraser,
   Lock,
+  LockOpen,
   Send,
   ShieldCheck,
   ShieldOff,
@@ -62,6 +63,11 @@ export const STATUS_MAP = {
   orders: {
     OPEN: { tone: 'success', icon: CircleCheck },
     CLOSED: { tone: 'info', icon: Lock },
+  },
+  /** Whether FiringChiefs may change the registry (BR-10). */
+  registry: {
+    OPEN: { tone: 'success', icon: LockOpen },
+    LOCKED: { tone: 'info', icon: Lock },
   },
   /** A billing summary (UC-28): it can still change until the Federation validates the order. */
   billing: {

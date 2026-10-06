@@ -117,6 +117,10 @@
       "OPEN": "Comandes obertes",
       "CLOSED": "Comandes tancades"
     },
+    "registry": {
+      "OPEN": "Registre obert",
+      "LOCKED": "Registre bloquejat"
+    },
     "twoFactor": {
       "ENABLED": "Activada",
       "NOT_SET": "No configurada"

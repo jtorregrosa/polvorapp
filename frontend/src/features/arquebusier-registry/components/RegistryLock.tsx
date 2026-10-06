@@ -58,7 +58,8 @@ export function RegistryLockAction({ lock }: { lock: RegistryLockState }) {
         void refresh();
       }}
       trigger={
-        <Button ref={button} variant="secondary" icon={next ? Lock : LockOpen}>
+        // Rarely used: quieter than the page's other actions; the header's status says the state (UI audit).
+        <Button ref={button} variant="quiet" icon={next ? Lock : LockOpen}>
           {t(`lock.${action}.action`)}
         </Button>
       }
