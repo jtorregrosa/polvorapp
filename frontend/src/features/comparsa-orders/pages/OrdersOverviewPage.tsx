@@ -301,6 +301,7 @@ export function OrdersOverviewPage() {
         id: 'action',
         header: t('overview.columns.action'),
         hideHeader: true,
+        pinned: true,
         cell: (row) =>
           row.canPrepare && edition ? (
             <PrepareButton

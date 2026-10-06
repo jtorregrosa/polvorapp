@@ -129,6 +129,7 @@ export function AuditLogPage() {
         id: 'details',
         header: t('details.title'),
         hideHeader: true,
+        pinned: true,
         align: 'end',
         cell: (entry) => <AuditEntrySheet entry={entry} />,
       },

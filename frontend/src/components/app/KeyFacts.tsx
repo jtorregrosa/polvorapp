@@ -26,17 +26,21 @@ function Meter({ value, label }: { value: number; label: string }) {
   );
 }
 
-/** The few facts that describe a record at a glance, under its header (spec: Registry screens). */
+/**
+ * The few facts that describe a record at a glance, under its header (spec: Registry screens). Each
+ * fact is at least 11rem wide and the facts of a row share its width, so the list fits the space it
+ * has (a full page or half a card) with no empty filler cells and no word split letter by letter.
+ */
 export function KeyFacts({ label, items }: KeyFactsProps) {
   return (
     // eslint-disable-next-line jsx-a11y/no-redundant-roles -- Safari drops list semantics under `list-style: none`.
     <ul
       role="list"
       aria-label={label}
-      className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border bg-border shadow-e1 sm:grid-cols-3 lg:grid-cols-5"
+      className="flex flex-wrap gap-px overflow-hidden rounded-lg border bg-border shadow-e1"
     >
       {items.map((item) => (
-        <li key={item.id} className="flex min-w-0 flex-col gap-1 bg-card px-4 py-3">
+        <li key={item.id} className="flex min-w-0 flex-1 basis-44 flex-col gap-1 bg-card px-4 py-3">
           <span className="text-help text-muted-foreground">{item.label}</span>
           <span className="text-section break-words text-foreground tabular-nums">{item.value}</span>
           {item.meter && <Meter {...item.meter} />}

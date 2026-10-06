@@ -117,6 +117,7 @@
     "columns": {
       "name": "Arcabusser",
       "status": "Estat",
+      "material": "Material",
       "powder": "Pólvora",
       "caps": "Pistons",
       "weapon": "Arma",
@@ -124,7 +125,14 @@
       "warnings": "Avisos",
       "action": "Accions"
     },
-    "sectionName": "la línia de {{name}}"
+    "sectionName": "la línia de {{name}}",
+    "powderLine": "{{kg}} de pólvora",
+    "flaskLine": {
+      "OWNED": "Cantimplora pròpia",
+      "RENTAL_1KG": "Cantimplora de lloguer d’1 kg",
+      "RENTAL_2KG": "Cantimplora de lloguer de 2 kg",
+      "NONE": "Sense cantimplora"
+    }
   },
   "entry": {
     "firstYear": "Primer any",

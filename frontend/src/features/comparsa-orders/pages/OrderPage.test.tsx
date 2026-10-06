@@ -113,6 +113,20 @@ describe('OrderPage (spec: Orders screens)', () => {
     ).toBeInTheDocument();
   });
 
+  it('shows powder, caps and flask in one material column and keeps "Edit" pinned at the end (audit T3)', async () => {
+    await open();
+
+    const table = screen.getByRole('table', { name: 'Líneas del pedido' });
+    expect(within(table).getByRole('columnheader', { name: 'Material' })).toBeInTheDocument();
+    expect(within(table).queryByRole('columnheader', { name: 'Cantimplora' })).not.toBeInTheDocument();
+    const uno = within(table).getByText('Sintético Uno, Arcabucero').closest('tr');
+    if (!uno) throw new Error('No row for Sintético Uno');
+    expect(within(uno).getByText(/ de pólvora · /)).toBeInTheDocument();
+    expect(within(uno).getByText(/^(Cantimplora|Sin cantimplora)/)).toBeInTheDocument();
+    const edit = within(uno).getByRole('button', { name: 'Editar la línea de Sintético Uno, Arcabucero' });
+    expect(edit.closest('td')).toHaveClass('sticky', 'end-0');
+  });
+
   it('shows each arquebusier’s DNI/NIE and ID Unión under the name', async () => {
     await open();
 

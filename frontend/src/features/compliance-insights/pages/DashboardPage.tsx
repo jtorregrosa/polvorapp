@@ -57,7 +57,8 @@ function Figures({ summary }: { summary: ComplianceSummaryResponse }) {
         </AlertBanner>
       )}
       <DashboardSection title={t('dashboard.figuresTitle')}>
-        <ul className="grid gap-3 sm:grid-cols-3">
+        {/* Side by side from the phone up: three short figures, no scrolling past them one by one (audit). */}
+        <ul className="grid grid-cols-3 gap-3">
           <li className="flex">
             <StatCard
               className="w-full"
@@ -85,7 +86,7 @@ function Figures({ summary }: { summary: ComplianceSummaryResponse }) {
         </ul>
       </DashboardSection>
       <DashboardSection title={t('dashboard.warningsTitle')}>
-        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-3 xl:grid-cols-4">
           {summary.warnings.map(({ code, count }) => (
             <li key={code} className="flex">
               <StatCard

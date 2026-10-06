@@ -158,6 +158,7 @@ export function ProxiesSection({ plan, isAdmin }: ProxiesSectionProps) {
         id: 'actions',
         header: t('proxies.columns.actions'),
         hideHeader: true,
+        pinned: true,
         align: 'end',
         cell: (proxy) => (
           <RowActions proxy={proxy} canRemove={canManage} focusAfterRemoval={focusAfterRemoval} />

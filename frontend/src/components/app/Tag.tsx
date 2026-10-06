@@ -29,7 +29,7 @@ export function Tag({ tone = 'neutral', children, className }: TagProps) {
       data-tag=""
       data-tone={tone}
       className={cn(
-        'inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap',
+        'inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap',
         TONE_CLASSES[tone],
         className,
       )}

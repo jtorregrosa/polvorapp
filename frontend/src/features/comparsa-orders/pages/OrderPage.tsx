@@ -248,14 +248,19 @@ export function OrderPage() {
         header: t('entries.columns.status'),
         cell: (entry) => <StatusBadge kind="arquebusier" value={entry.status} />,
       },
-      { id: 'powder', header: t('entries.columns.powder'), cell: text.powder, align: 'end' },
-      { id: 'caps', header: t('entries.columns.caps'), cell: text.caps },
-      { id: 'weapon', header: t('entries.columns.weapon'), cell: text.weapon },
-      { id: 'flask', header: t('entries.columns.flask'), cell: text.flask },
+      // Powder, caps and flask in one two-line column, so the actions stay in view (audit T3).
+      {
+        id: 'material',
+        header: t('entries.columns.material'),
+        cell: (entry) => `${t('entries.powderLine', { kg: text.powder(entry) })} · ${text.caps(entry)}`,
+        secondary: (entry) => t(`entries.flaskLine.${entry.flask}`),
+      },
+      { id: 'weapon', header: t('entries.columns.weapon'), cell: text.weapon, wrap: true },
       {
         id: 'warnings',
         header: t('entries.columns.warnings'),
         cell: (entry) => <EntryWarnings entry={entry} />,
+        wrap: true,
       },
       ...(canEdit
         ? [
@@ -263,6 +268,7 @@ export function OrderPage() {
               id: 'action',
               header: t('entries.columns.action'),
               hideHeader: true,
+              pinned: true,
               cell: (entry: EntryResponse) => (
                 <EntryEditAction orderId={orderId} entryId={entry.id} onClosedOut={onClosedOut} />
               ),
@@ -341,8 +347,6 @@ export function OrderPage() {
       )}
       <OrderMessages order={order} />
       <OrderTotals order={order} />
-      <BillingSummarySection billing={order.billing} />
-      <OrderList order={order} />
       <section
         id={ENTRIES_ID}
         aria-labelledby={`${ENTRIES_ID}-title`}
@@ -415,6 +419,9 @@ export function OrderPage() {
           </ul>
         </SectionCard>
       )}
+      {/* The entries come first: they are what the order is about; billing and the list follow (audit). */}
+      <BillingSummarySection billing={order.billing} />
+      <OrderList order={order} />
       {order.lentOut.length > 0 && (
         <SectionCard title={t('lentOut.title')} description={t('lentOut.description')} span="full">
           {/* eslint-disable-next-line jsx-a11y/no-redundant-roles -- Safari drops list semantics under `list-style: none`. */}
