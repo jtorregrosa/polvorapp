@@ -17,6 +17,7 @@ import { EmptyState } from '@/components/app/EmptyState';
 import { PageHeader } from '@/components/app/PageHeader';
 import { StatCard } from '@/components/app/StatCard';
 import { LoadFailure } from '@/features/arquebusier-registry/components/LoadFailure';
+import { DashboardOrdersCard } from '@/features/comparsa-orders/components/DashboardOrdersCard';
 import { CurrentEditionCard } from '@/features/festival-editions/components/CurrentEditionCard';
 import { useSession } from '@/features/identity-access/session';
 import { useFormatters } from '@/lib/format';
@@ -205,7 +206,11 @@ export function DashboardPage() {
   return (
     <>
       <PageHeader title={t('home.title')} description={t('home.description')} />
-      <CurrentEditionCard />
+      {/* The orders first: a FiringChief's main task in season; side by side with the edition from 1280 px. */}
+      <div className="grid items-start gap-section xl:grid-cols-2">
+        {!unassigned && <DashboardOrdersCard />}
+        <CurrentEditionCard />
+      </div>
       {!scopeKnown ? null : unassigned ? (
         <EmptyState
           icon={IdCard}

@@ -272,5 +272,22 @@
       "confirm": "Devolver",
       "done": "Pedido devuelto."
     }
+  },
+  "dashboardCard": {
+    "mineTitle_one": "Tu pedido · Fiestas {{year}}",
+    "mineTitle_other": "Tus pedidos · Fiestas {{year}}",
+    "allTitle": "Pedidos · Fiestas {{year}}",
+    "toReview_one": "{{count}} pedido por revisar",
+    "toReview_other": "{{count}} pedidos por revisar",
+    "noneToReview": "Ningún pedido por revisar.",
+    "withWarnings_one": "{{count}} arcabucero con avisos",
+    "withWarnings_other": "{{count}} arcabuceros con avisos",
+    "notPrepared": "Sin preparar",
+    "open": "Ir al pedido",
+    "openFor": "Ir al pedido de {{comparsa}}",
+    "prepare": "Preparar el pedido",
+    "review": "Revisar los pedidos",
+    "countsLabel": "Pedidos por estado",
+    "loadFailed": "No se han podido cargar los pedidos."
   }
 }

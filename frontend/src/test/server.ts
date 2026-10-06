@@ -18,6 +18,16 @@ export const server = setupServer(
   mock.get('/api/compliance/summary', () => HttpResponse.json(NOTHING_PENDING)),
   // The start page's current-edition card and the registry pages' lock notice.
   mock.get('/api/editions/current', () => HttpResponse.json({ edition: null })),
+  // The start page's orders card: no edition in progress.
+  mock.get('/api/comparsa-orders/overview', () =>
+    HttpResponse.json({
+      edition: null,
+      rows: [],
+      statusCounts: null,
+      editionTotals: null,
+      editionBilling: null,
+    }),
+  ),
   mock.get('/api/registry/lock', () => HttpResponse.json({ locked: false, changedAt: null })),
   // The comparsas page's Federation logo section, for Admins: no logo yet.
   mock.get('/api/federation', () => HttpResponse.json({ logo: null })),

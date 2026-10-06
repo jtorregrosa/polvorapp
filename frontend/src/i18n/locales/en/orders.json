@@ -272,5 +272,22 @@
       "confirm": "Return",
       "done": "Order returned."
     }
+  },
+  "dashboardCard": {
+    "mineTitle_one": "Your order · Festival {{year}}",
+    "mineTitle_other": "Your orders · Festival {{year}}",
+    "allTitle": "Orders · Festival {{year}}",
+    "toReview_one": "{{count}} order to review",
+    "toReview_other": "{{count}} orders to review",
+    "noneToReview": "No order to review.",
+    "withWarnings_one": "{{count}} arquebusier with warnings",
+    "withWarnings_other": "{{count}} arquebusiers with warnings",
+    "notPrepared": "Not prepared",
+    "open": "Go to the order",
+    "openFor": "Go to the order of {{comparsa}}",
+    "prepare": "Prepare the order",
+    "review": "Review the orders",
+    "countsLabel": "Orders by status",
+    "loadFailed": "The orders could not be loaded."
   }
 }
