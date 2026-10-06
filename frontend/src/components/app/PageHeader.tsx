@@ -6,6 +6,8 @@ export interface PageHeaderProps {
   /** The page's only h1. */
   title: string;
   description?: string;
+  /** `StatusBadge`s of what the page shows (e.g. an edition), beside the title. */
+  statuses?: ReactNode;
   /** Primary and secondary page actions, right-aligned on wide screens. */
   actions?: ReactNode;
   /** Optional link to the parent page. */
@@ -31,7 +33,14 @@ export function BackLink({ to, label }: { to: string; label: string }) {
 }
 
 /** Title block of every page template (list, detail, form, dashboard). */
-export function PageHeader({ title, description, actions, back, focusOnMount = false }: PageHeaderProps) {
+export function PageHeader({
+  title,
+  description,
+  statuses,
+  actions,
+  back,
+  focusOnMount = false,
+}: PageHeaderProps) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     if (focusOnMount) {
@@ -51,6 +60,7 @@ export function PageHeader({ title, description, actions, back, focusOnMount = f
         >
           {title}
         </h1>
+        {statuses && <div className="flex flex-wrap items-center gap-2">{statuses}</div>}
         {description && <p className="max-w-prose text-body text-muted-foreground">{description}</p>}
       </div>
       {actions && <div className="flex max-w-full flex-wrap items-center gap-2">{actions}</div>}

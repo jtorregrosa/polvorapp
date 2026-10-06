@@ -31,10 +31,16 @@ describe('OrdersOverviewPage (spec: Orders screens, Order totals and dashboard (
     await renderApp('/orders', { session: SYNTHETIC_ADMIN });
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Pedidos de 2031' })).toBeInTheDocument();
-    const figures = screen.getByRole('region', { name: 'Pedidos por estado' });
-    expect(within(figures).getByText('Sin preparar').closest('a, div')).toHaveTextContent('1');
-    expect(within(figures).getByText('Enviados').closest('a, div')).toHaveTextContent('1');
-    expect(within(figures).getByText('Validados').closest('a, div')).toHaveTextContent('1');
+    const figures = screen.getByRole('group', { name: 'Pedidos por estado' });
+    expect(within(figures).getByRole('button', { name: '1 Sin preparar' })).toBeInTheDocument();
+    expect(within(figures).getByRole('button', { name: '1 Enviados' })).toBeInTheDocument();
+    expect(within(figures).getByRole('button', { name: '1 Validados' })).toBeInTheDocument();
+    // The orders come before the edition's totals (UI audit).
+    expect(
+      screen
+        .getByRole('table', { name: 'Pedidos de las comparsas' })
+        .compareDocumentPosition(screen.getByRole('region', { name: 'Totales de la edición' })),
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     const rentals = screen.getByRole('table', { name: 'Armas de alquiler por modelo' });
     expect(
       within(rentals).getByRole('rowheader', { name: 'ARCABUZ MORO DIESTRO' }).closest('tr'),
@@ -50,6 +56,32 @@ describe('OrdersOverviewPage (spec: Orders screens, Order totals and dashboard (
       'Sin preparar',
     );
     expect(within(table).getByText('Comparsa Sintética Sur').closest('tr')).toHaveTextContent('Enviado');
+  });
+
+  it('filters the orders by the statuses chosen in the counters, and says how many remain', async () => {
+    const user = userEvent.setup();
+    overview(ADMIN_OVERVIEW);
+    await renderApp('/orders', { session: SYNTHETIC_ADMIN });
+    await screen.findByRole('link', { name: 'Comparsa Sintética Norte' });
+    const table = screen.getByRole('table', { name: 'Pedidos de las comparsas' });
+    const rowsShown = () =>
+      within(table)
+        .getAllByRole('rowheader')
+        .map((cell) => cell.textContent);
+    const all = rowsShown();
+
+    await user.click(screen.getByRole('button', { name: '1 Sin preparar' }));
+
+    expect(screen.getByRole('button', { name: '1 Sin preparar' })).toHaveAttribute('aria-pressed', 'true');
+    expect(rowsShown()).toEqual(['Comparsa Sintética Este']);
+    expect(screen.getByText('1 comparsa')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '1 Enviados' }));
+    expect(rowsShown()).toEqual(['Comparsa Sintética Este', 'Comparsa Sintética Sur']);
+
+    await user.click(screen.getByRole('button', { name: '1 Sin preparar' }));
+    await user.click(screen.getByRole('button', { name: '1 Enviados' }));
+    expect(rowsShown()).toEqual(all);
   });
 
   it('shows each prepared order’s amount and, for an Admin, the edition billing (spec: Billing screens)', async () => {
@@ -163,7 +195,7 @@ describe('OrdersOverviewPage (spec: Orders screens, Order totals and dashboard (
     expect(
       within(table).getByRole('button', { name: 'Preparar pedido de Comparsa Sintética Sur' }),
     ).toBeInTheDocument();
-    expect(screen.queryByRole('region', { name: 'Pedidos por estado' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: 'Pedidos por estado' })).not.toBeInTheDocument();
     expect(screen.queryByRole('region', { name: 'Totales de la edición' })).not.toBeInTheDocument();
   });
 
