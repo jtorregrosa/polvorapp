@@ -329,9 +329,12 @@ changed from the picture itself (`PhotoUpload variant="picture"`), not from butt
 - Define `columns` outside the component or memoise them, and pass stable `data`: new arrays on
   every render reset sorting and paging work.
 - Sorting uses a locale-aware collator; the sort state is announced to screen readers.
-- Pages of 10, 20 or 50 rows; the current page is clamped when the data shrinks.
+- Pages of 10, 20 or 50 rows; the current page is clamped when the data shrinks. The pagination
+  is hidden while every row fits in the smallest page.
 - Wide tables scroll horizontally inside their own focusable region; the page never scrolls
-  sideways.
+  sideways. Mark the row actions column `pinned` so it stays in view at the end, and let long
+  text columns `wrap` instead of widening the table; group related figures in one two-line
+  column (e.g. an order's powder, caps and flask) rather than adding columns.
 - Loading shows skeleton rows with `aria-busy`; an empty result shows "No results" in the table.
   When a list has never had data, render `EmptyState` instead of the table.
 - Statuses in cells use `StatusBadge`; numbers are right-aligned and formatted for the active
