@@ -1,4 +1,4 @@
-import { act, fireEvent, screen, within } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { axeViolations } from '@/test/axe';
@@ -120,6 +120,40 @@ describe('BarChart', () => {
     expect(screen.getByRole('status')).toHaveTextContent(
       '2031 (provisional): Propia 1,318, Alquiler 61, Préstamo 21 and Sin arma 12',
     );
+  });
+
+  it('moves back with the left arrow, stops at the ends and hides the tooltip with Escape', async () => {
+    const { container } = await renderWithProviders(<BarChart {...props} />, 'en');
+    const svg = surface(container);
+    const tooltip = () => container.querySelector('.recharts-tooltip-wrapper');
+    act(() => {
+      svg.focus();
+    });
+
+    fireEvent.keyDown(svg, { key: 'ArrowRight' });
+    fireEvent.keyDown(svg, { key: 'ArrowRight' });
+    expect(await within(container).findByText('2031 (provisional)')).toBeInTheDocument();
+    fireEvent.keyDown(svg, { key: 'ArrowLeft' });
+    expect(await within(container).findByText('2030')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(/^2030: /);
+
+    fireEvent.keyDown(svg, { key: 'Escape' });
+    await waitFor(() => {
+      expect(tooltip()?.textContent ?? '').toBe('');
+    });
+
+    fireEvent.keyDown(svg, { key: 'ArrowRight' });
+    expect(await within(container).findByText('2031 (provisional)')).toBeInTheDocument();
+  });
+
+  it('shows the values of a category when the pointer is over it', async () => {
+    const { container } = await renderWithProviders(<BarChart {...props} />, 'en');
+    const wrapper = container.querySelector('.recharts-wrapper');
+    if (!wrapper) throw new Error('No chart drawn');
+
+    fireEvent.mouseMove(wrapper, { clientX: 150, clientY: 120 });
+
+    expect(await within(container).findByText('2030')).toBeInTheDocument();
   });
 
   it('offers every value in the table', async () => {

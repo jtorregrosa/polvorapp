@@ -249,6 +249,28 @@ function TrendCharts({
   );
 }
 
+/** A change in figures as signed digits for the eye and as words for screen readers ("down 2"). */
+function ChangeText({ change }: { change: number }) {
+  const { t } = useTranslation('insights');
+  const { number } = useFormatters();
+  return (
+    <>
+      <span aria-hidden="true">{number(change, { signDisplay: 'exceptZero' })}</span>
+      <span className="sr-only">{changeLabel(t, number, change)}</span>
+    </>
+  );
+}
+
+function changeLabel(
+  t: ReturnType<typeof useTranslation<'insights'>>['t'],
+  number: ReturnType<typeof useFormatters>['number'],
+  change: number,
+): string {
+  if (change === 0) return t('trends.comparsas.noChange');
+  const count = number(Math.abs(change));
+  return change > 0 ? t('trends.comparsas.up', { count }) : t('trends.comparsas.down', { count });
+}
+
 interface ComparsaTrendRow {
   id: string;
   name: string;
@@ -312,7 +334,7 @@ function ComparsaTrends({
         header: t('trends.comparsas.change', { previous: previous ? yearLabel(previous) : '' }),
         align: 'end',
         sortValue: (row) => row.change,
-        cell: (row) => number(row.change, { signDisplay: 'exceptZero' }),
+        cell: (row) => <ChangeText change={row.change} />,
       },
     ],
     [rows, previous, t, number],
@@ -347,10 +369,8 @@ function ComparsaTrends({
               )}
             </span>
             <span className="text-help text-muted-foreground">
-              {t('trends.comparsas.changeText', {
-                previous: previous ? yearLabel(previous) : '',
-                change: number(row.change, { signDisplay: 'exceptZero' }),
-              })}
+              {t('trends.comparsas.changeText', { previous: previous ? yearLabel(previous) : '' })}{' '}
+              <ChangeText change={row.change} />
             </span>
           </>
         )}
@@ -408,24 +428,29 @@ export default function TrendsTab({ comparsaId, enabled }: TrendsTabProps) {
   const trends = query.isSuccess ? (query.data.data as TrendsResponse) : undefined;
   const rows = useMemo(() => (trends ? editionsWithOrders(trends.rows) : []), [trends]);
 
-  if (query.isError) return <LoadFailure error={query.error} onRetry={() => query.refetch()} />;
-  if (!trends) {
-    return enabled ? (
-      <p role="status" className="text-muted-foreground">
-        {t('trends.loading')}
-      </p>
-    ) : null;
-  }
+  const loading = enabled && !trends && !query.isError;
   const [only] = rows;
+  const provisional = rows.find((row) => row.provisional);
   return (
-    <div aria-busy={query.isFetching || undefined}>
-      {rows.length >= 2 ? (
-        <TrendCharts rows={rows} comparsas={trends.comparsas} />
-      ) : only ? (
-        <SingleEdition row={only} />
-      ) : (
-        <p className="text-body text-muted-foreground">{t('trends.noEditions')}</p>
+    <div className="flex flex-col gap-section" aria-busy={query.isFetching || undefined}>
+      {/* One status region for the whole tab, so the loading text is announced when it changes. */}
+      <p role="status" className={loading ? 'text-muted-foreground' : 'sr-only'}>
+        {loading ? t('trends.loading') : ''}
+      </p>
+      {query.isError && <LoadFailure error={query.error} onRetry={() => query.refetch()} />}
+      {trends && provisional && (
+        <p className="text-help text-muted-foreground">
+          {t('trends.provisionalNote', { year: String(provisional.year) })}
+        </p>
       )}
+      {trends &&
+        (rows.length >= 2 ? (
+          <TrendCharts rows={rows} comparsas={trends.comparsas} />
+        ) : only ? (
+          <SingleEdition row={only} />
+        ) : (
+          <p className="text-body text-muted-foreground">{t('trends.noEditions')}</p>
+        ))}
     </div>
   );
 }

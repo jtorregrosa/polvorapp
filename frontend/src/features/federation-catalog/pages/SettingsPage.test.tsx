@@ -278,6 +278,42 @@ describe('SettingsPage (specs: Settings screen, Federation settings)', () => {
     expect(name).toHaveValue('Mi Remitente');
   });
 
+  it('discards what was typed when the panel is cancelled', async () => {
+    const user = userEvent.setup();
+    settings();
+    await asAdmin();
+
+    let panel = await openPanel(user, 'los correos');
+    const name = within(panel).getByRole('textbox', { name: /Nombre del remitente/ });
+    await user.clear(name);
+    await user.type(name, 'Sin Guardar');
+    await user.click(within(panel).getByRole('button', { name: 'Cancelar' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    panel = await openPanel(user, 'los correos');
+
+    expect(within(panel).getByRole('textbox', { name: /Nombre del remitente/ })).toHaveValue(
+      SETTINGS.emails.senderName,
+    );
+  });
+
+  it('says so and keeps the panel when the API refuses the save', async () => {
+    const user = userEvent.setup();
+    settings();
+    server.use(mock.put('/api/federation-settings/emails', () => problem(403, 'forbidden')));
+    await asAdmin();
+
+    const panel = await openPanel(user, 'los correos');
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
+
+    expect(await within(panel).findByRole('group', { name: 'Hay un problema' })).toHaveTextContent(
+      'Algo ha fallado. Inténtalo de nuevo.',
+    );
+    expect(screen.getByRole('dialog')).toBe(panel);
+  });
+
   it('keeps what was typed and says why when the newer values cannot be loaded after a conflict', async () => {
     const user = userEvent.setup();
     settings();

@@ -113,7 +113,8 @@
       "label": "Vistas de las estadísticas",
       "today": "Hoy",
       "trends": "Tendencias"
-    }
+    },
+    "loading": "Cargando las estadísticas…"
   },
   "warnings": {
     "title": "Avisos de cumplimiento",
@@ -197,8 +198,12 @@
       "comparsa": "Comparsa",
       "change": "Cambio respecto a {{previous}}",
       "yearCount": "{{year}}: {{count}}",
-      "changeText": "Cambio respecto a {{previous}}: {{change}}"
+      "changeText": "Cambio respecto a {{previous}}:",
+      "up": "sube {{count}}",
+      "down": "baja {{count}}",
+      "noChange": "sin cambios"
     },
-    "unavailable": "No se han podido cargar las tendencias: recarga la página para volver a intentarlo."
+    "unavailable": "No se han podido cargar las tendencias: recarga la página para volver a intentarlo.",
+    "provisionalNote": "Las cifras de una edición en curso ({{year}}) son provisionales: sus pedidos aún pueden cambiar."
   }
 }

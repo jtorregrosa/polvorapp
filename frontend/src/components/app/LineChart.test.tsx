@@ -1,4 +1,4 @@
-import { act, fireEvent, screen, within } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { axeViolations } from '@/test/axe';
@@ -107,6 +107,26 @@ describe('LineChart', () => {
     const heading = await within(container).findByText('2031 (provisional)');
     expect(heading.parentElement).toHaveTextContent('Mujeres27 %');
     expect(screen.getByRole('status')).toHaveTextContent('2031 (provisional): Mujeres 27 % i Primer año 8 %');
+  });
+
+  it('fades in only when the user allows motion and hides the tooltip with Escape', async () => {
+    const { container } = await renderWithProviders(<LineChart {...props} />);
+    const svg = surface(container);
+    const frame = svg.closest('[data-slot="chart"]')?.parentElement;
+    expect(frame?.className.split(' ')).toEqual(
+      expect.arrayContaining(['motion-safe:animate-in', 'motion-safe:fade-in-0', 'motion-safe:duration-200']),
+    );
+
+    act(() => {
+      svg.focus();
+    });
+    fireEvent.keyDown(svg, { key: 'ArrowRight' });
+    expect(await within(container).findByText('2030')).toBeInTheDocument();
+    fireEvent.keyDown(svg, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(container.querySelector('.recharts-tooltip-wrapper')?.textContent ?? '').toBe('');
+    });
   });
 
   it('offers every value in the table, formatted', async () => {
