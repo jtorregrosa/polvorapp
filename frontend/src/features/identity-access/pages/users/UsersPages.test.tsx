@@ -83,7 +83,7 @@ describe('UsersPage (spec: User management by Admins)', () => {
     expect(within(invited).getByText('Nunca')).toHaveClass('text-muted-foreground');
   });
 
-  it('sorts by every column, e.g. two-step verification', async () => {
+  it('sorts by every column and shows two-step verification under the status (UI audit)', async () => {
     const user = userEvent.setup();
     server.use(mock.get('/api/users', () => HttpResponse.json([CHIEF, INVITED])));
     await asAdmin('/users');
@@ -94,17 +94,47 @@ describe('UsersPage (spec: User management by Admins)', () => {
       'Nombre',
       'Correo',
       'Rol',
+      'Comparsas',
       'Estado',
-      'Verificación en dos pasos',
       'Último acceso',
     ]);
-    // "No configurada" after "Activada": twice for descending, the opposite of the server's order.
-    await user.click(within(table).getByRole('button', { name: /^Verificación en dos pasos/ }));
-    await user.click(within(table).getByRole('button', { name: /^Verificación en dos pasos/ }));
+    const chief = within(table).getByRole('link', { name: 'Jefa Sintética' }).closest('tr') as HTMLElement;
+    expect(chief).toHaveTextContent('Verificación en dos pasos: Activada');
+    // "Activo" before "Invitado": ascending by status.
+    await user.click(within(table).getByRole('button', { name: /^Estado/ }));
     const names = within(table)
       .getAllByRole('link')
       .map((link) => link.textContent);
-    expect(names).toEqual(['Persona Invitada', 'Jefa Sintética']);
+    expect(names).toEqual(['Jefa Sintética', 'Persona Invitada']);
+  });
+
+  it("lists each FiringChief's comparsas (UI audit)", async () => {
+    server.use(
+      mock.get('/api/users', () => HttpResponse.json([CHIEF, INVITED])),
+      mock.get('/api/assignments', () =>
+        HttpResponse.json([
+          {
+            userId: CHIEF.id,
+            comparsaId: '00000000-0000-4000-8000-000000000901',
+            comparsaName: 'Comparsa Sintética Norte',
+          },
+          {
+            userId: CHIEF.id,
+            comparsaId: '00000000-0000-4000-8000-000000000902',
+            comparsaName: 'Comparsa Sintética Sur',
+          },
+        ]),
+      ),
+    );
+    await asAdmin('/users');
+    const table = await screen.findByRole('table', { name: 'Usuarios' });
+
+    const chief = (await within(table).findByRole('link', { name: 'Jefa Sintética' })).closest(
+      'tr',
+    ) as HTMLElement;
+    expect(
+      await within(chief).findByText('Comparsa Sintética Norte y Comparsa Sintética Sur'),
+    ).toBeInTheDocument();
   });
 
   it('stacks each user on a phone with every column, each tag and badge with its term', async () => {

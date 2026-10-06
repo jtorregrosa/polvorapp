@@ -36,7 +36,24 @@ internal static class AssignmentEndpoints
             .WithSummary("The comparsas a user is assigned to, active or not, sorted by name.")
             .ProducesProblem(StatusCodes.Status401Unauthorized).ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound);
+        endpoints.MapGet("/assignments", ListAssignmentsAsync).WithTags("FiringChiefAssignments")
+            .RequireAuthorization(AuthorizationPolicies.Admin).WithName("ListAssignments")
+            .WithSummary("Every FiringChief assignment with its comparsa's name, sorted by comparsa name.")
+            .ProducesProblem(StatusCodes.Status401Unauthorized).ProducesProblem(StatusCodes.Status403Forbidden);
         return endpoints;
+    }
+
+    /// <summary>Every assignment at once, so the users list shows each user's comparsas without one call per user.</summary>
+    private static async Task<Ok<List<AssignmentResponse>>> ListAssignmentsAsync(
+        FederationCatalogDbContext db, CancellationToken cancellationToken)
+    {
+        var rows = await db.Assignments.AsNoTracking()
+            .Join(db.Comparsas.AsNoTracking(), a => a.ComparsaId, c => c.Id, (a, c) => new { a.UserId, a.ComparsaId, c.Name })
+            .ToListAsync(cancellationToken);
+        return TypedResults.Ok(rows
+            .OrderBy(r => r.Name, SpanishOrder.Names)
+            .Select(r => new AssignmentResponse(r.UserId, r.ComparsaId, r.Name))
+            .ToList());
     }
 
     /// <summary>Users unknown to the directory are skipped: users are never deleted, so this is defensive only.</summary>
