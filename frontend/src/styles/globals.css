@@ -84,6 +84,22 @@ html:has([data-slot='action-bar']) {
   scroll-padding-block-end: calc(var(--action-bar-height, var(--spacing-action-bar)) + var(--spacing-group));
 }
 
+/* The phone's bottom navigation (a FiringChief's shortcuts): focus never sits under it (SC 2.4.11). A
+   form brings its own bottom action bar, which takes its place. */
+@media (width < 48rem) {
+  html:has([data-slot='bottom-nav']):not(:has([data-slot='action-bar'])) {
+    scroll-padding-block-end: calc(var(--spacing-bottom-bar) + var(--spacing-group));
+  }
+}
+
+html:has([data-slot='action-bar']) :is([data-slot='bottom-nav'], [data-slot='bottom-nav-spacer']) {
+  display: none;
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* On very short screens the action bar scrolls with the form, leaving room to read (SC 1.4.10). */
 @media (max-height: 32rem) {
   [data-slot='action-bar'] {

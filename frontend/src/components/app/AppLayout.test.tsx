@@ -533,3 +533,55 @@ describe('AppLayout icon rail (platform: Application shell)', () => {
     expect(await axeViolations(container)).toEqual([]);
   });
 });
+
+describe('AppLayout bottom navigation (UI audit: a FiringChief on a phone)', () => {
+  function renderWithBottomBar(path: string) {
+    const page = (
+      <AppLayout
+        navigation={[{ id: 'home', items: [{ to: '/', label: 'Inicio', icon: House }] }]}
+        bottomNavigation={[
+          { to: '/', label: 'Inicio', icon: House },
+          { to: '/orders', label: 'Pedidos', icon: House, matches: ['/editions/*/orders'] },
+        ]}
+      >
+        <h1>Página</h1>
+      </AppLayout>
+    );
+    const router = createMemoryRouter([{ path: '*', element: page }], { initialEntries: [path] });
+    return renderWithProviders(<RouterProvider router={router} />);
+  }
+
+  it('offers the everyday destinations in a named navigation, marking the current one', async () => {
+    const { container } = await renderWithBottomBar('/editions/7/orders');
+
+    const bar = screen.getByRole('navigation', { name: 'Accesos directos' });
+    expect(within(bar).getByRole('link', { name: 'Pedidos' })).toHaveAttribute('aria-current', 'page');
+    expect(within(bar).getByRole('link', { name: 'Inicio' })).not.toHaveAttribute('aria-current');
+    // Phones only, with room kept at the end of the page.
+    expect(bar).toHaveClass('md:hidden');
+    expect(container.querySelector('[data-slot="bottom-nav-spacer"]')).not.toBeNull();
+    expect(await axeViolations(container)).toEqual([]);
+  });
+
+  it('has no bottom bar without destinations', async () => {
+    await renderWithProviders(
+      <RouterProvider
+        router={createMemoryRouter(
+          [
+            {
+              path: '/',
+              element: (
+                <AppLayout navigation={[{ id: 'home', items: [{ to: '/', label: 'Inicio', icon: House }] }]}>
+                  <h1>Página</h1>
+                </AppLayout>
+              ),
+            },
+          ],
+          { initialEntries: ['/'] },
+        )}
+      />,
+    );
+
+    expect(screen.queryByRole('navigation', { name: 'Accesos directos' })).not.toBeInTheDocument();
+  });
+});

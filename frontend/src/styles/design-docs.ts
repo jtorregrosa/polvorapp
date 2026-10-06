@@ -102,6 +102,8 @@ const SCALE_ROLES: Readonly<Record<string, string>> = {
   'spacing-topbar': 'Height of the top bar.',
   'spacing-action-bar':
     'Height of the sticky form action bar, and the scroll padding that keeps focus above it.',
+  'spacing-bottom-bar':
+    "Height of a FiringChief's bottom navigation on phones, the room kept under the page and the scroll padding that keeps focus above it.",
   'radius-sm': 'Badges, checkboxes and small chips.',
   'radius-md': 'Buttons, inputs, menus and items.',
   'radius-lg': 'Cards, sections, dialogs and panels.',

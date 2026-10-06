@@ -104,6 +104,7 @@ scale stays available for small inner gaps. The elevation tokens change with the
 | `spacing-row` | `3.25rem` | Height of a table row. |
 | `spacing-topbar` | `3.75rem` | Height of the top bar. |
 | `spacing-action-bar` | `4.5rem` | Height of the sticky form action bar, and the scroll padding that keeps focus above it. |
+| `spacing-bottom-bar` | `4rem` | Height of a FiringChief's bottom navigation on phones, the room kept under the page and the scroll padding that keeps focus above it. |
 | `radius-sm` | `0.375rem` | Badges, checkboxes and small chips. |
 | `radius-md` | `0.5625rem` | Buttons, inputs, menus and items. |
 | `radius-lg` | `0.875rem` | Cards, sections, dialogs and panels. |

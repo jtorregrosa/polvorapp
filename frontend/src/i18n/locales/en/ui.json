@@ -20,7 +20,8 @@
       "administration": "Administration"
     },
     "expand": "Expand navigation",
-    "collapse": "Collapse navigation"
+    "collapse": "Collapse navigation",
+    "shortcuts": "Shortcuts"
   },
   "theme": {
     "label": "Theme",
