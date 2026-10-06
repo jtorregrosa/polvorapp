@@ -272,6 +272,16 @@ public sealed class AssignmentTests(PostgresFixture postgres, MailpitFixture mai
     }
 
     [Fact]
+    public async Task Listing_every_assignment_needs_a_session()
+    {
+        using var anonymous = _host.Factory.CreateClient();
+
+        using var response = await anonymous.GetAsync("/api/assignments", TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
     public async Task A_firing_chief_cannot_list_assignments()
     {
         var chief = await _host.CreateUserAsync("jefe.curioso@example.test");
