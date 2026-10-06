@@ -149,6 +149,10 @@
     "courseState": {
       "done": "Curso hecho",
       "missing": "Sin curso"
+    },
+    "warningLinks": {
+      "license": "Ir a la licencia",
+      "course": "Ir al curso"
     }
   },
   "ownedWeapons": {

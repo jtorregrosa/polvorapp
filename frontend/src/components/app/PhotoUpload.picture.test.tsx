@@ -110,6 +110,15 @@ describe('PhotoUpload variant="picture"', () => {
     pickFile.mockRestore();
   });
 
+  it('compact, shows what is missing in its frame and names the add action after it', async () => {
+    await setup({ size: 'compact', photoUrl: null }).view;
+
+    const add = screen.getByRole('button', { name: 'Sin logo Añadir logo de la comparsa' });
+    expect(add).toHaveTextContent('Sin logo');
+    await userEvent.click(add);
+    expect(pickFile).toHaveBeenCalledTimes(1);
+  });
+
   it('makes the picture a button named after it, without separate replace or remove buttons', async () => {
     await setup().view;
 

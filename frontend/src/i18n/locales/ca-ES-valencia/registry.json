@@ -149,6 +149,10 @@
     "courseState": {
       "done": "Curs fet",
       "missing": "Sense curs"
+    },
+    "warningLinks": {
+      "license": "Ves a la llicència",
+      "course": "Ves al curs"
     }
   },
   "ownedWeapons": {

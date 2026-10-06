@@ -100,8 +100,11 @@ describe('Photos on the detail page (spec: Photo screens, Private photo access)'
     detail(() => ({ ...DETAIL_UNO, photos: { ...NO_PHOTOS, id: ID_PHOTO } }));
     await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
 
-    const photo = await screen.findByRole('img', { name: 'Foto de carnet de Arcabucero García Sintético' });
-    expect(photo).toHaveAttribute(
+    // The photo is its own button, named by what it shows, with a menu to replace or remove it.
+    const photo = await screen.findByRole('button', {
+      name: 'Foto de carnet de Arcabucero García Sintético, opciones',
+    });
+    expect(photo.querySelector('img')).toHaveAttribute(
       'src',
       `/api/arquebusiers/${DETAIL_UNO.id}/photos/id?v=${ID_PHOTO.version}`,
     );
@@ -110,17 +113,19 @@ describe('Photos on the detail page (spec: Photo screens, Private photo access)'
     expect(header).toContainElement(
       screen.getByRole('heading', { level: 1, name: 'Arcabucero García Sintético' }),
     );
-    expect(
-      await within(header ?? document.body).findByRole('button', { name: 'Sustituir foto de carnet' }),
-    ).toBeInTheDocument();
+    await userEvent.click(photo);
+    expect(await screen.findByRole('menuitem', { name: 'Sustituir' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Quitar' })).toBeInTheDocument();
   });
 
   it('says there is no ID photo, and offers adding one', async () => {
     detail(() => ({ ...DETAIL_UNO, photos: NO_PHOTOS }));
     await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
 
-    expect(await screen.findByText('Sin foto de carnet')).toBeInTheDocument();
-    expect(await screen.findByRole('button', { name: 'Añadir foto de carnet' })).toBeEnabled();
+    // The empty frame says what is missing and is the add action itself.
+    expect(
+      await screen.findByRole('button', { name: 'Sin foto de carnet Añadir foto de carnet' }),
+    ).toBeEnabled();
   });
 
   it('offers license photos only while a license is saved, and says so', async () => {
@@ -151,11 +156,12 @@ describe('Photos on the detail page (spec: Photo screens, Private photo access)'
     });
     await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
 
-    await screen.findByRole('button', { name: 'Añadir foto de carnet' });
+    await screen.findByRole('button', { name: /Añadir foto de carnet$/ });
     chooseFile(0);
     await userEvent.click(await screen.findByRole('button', { name: 'Usar foto' }));
 
-    expect(await screen.findByRole('img', { name: /^Foto de carnet de/ })).toHaveAttribute(
+    const photo = await screen.findByRole('button', { name: /^Foto de carnet de .*, opciones$/ });
+    expect(photo.querySelector('img')).toHaveAttribute(
       'src',
       expect.stringContaining(`v=${ID_PHOTO.version}`),
     );
@@ -195,7 +201,7 @@ describe('Photos on the detail page (spec: Photo screens, Private photo access)'
     });
     await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
 
-    await screen.findByRole('button', { name: 'Añadir foto de carnet' });
+    await screen.findByRole('button', { name: /Añadir foto de carnet$/ });
     chooseFile(0);
     await userEvent.click(await screen.findByRole('button', { name: 'Usar foto' }));
 
@@ -207,7 +213,7 @@ describe('Photos on the detail page (spec: Photo screens, Private photo access)'
       await screen.findByText(/Puedes consultar los arcabuceros, pero no cambiarlos/),
     ).toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.queryByRole('button', { name: 'Añadir foto de carnet' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /Añadir foto de carnet$/ })).not.toBeInTheDocument();
     });
   });
 

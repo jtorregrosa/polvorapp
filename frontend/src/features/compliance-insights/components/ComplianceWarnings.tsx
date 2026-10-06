@@ -13,13 +13,16 @@ export interface ComplianceWarningsProps {
   licenseExpiresOn: string | null;
   /** The age the server derived, for the under-age sentence. */
   age: number;
+  /** Where each warning is resolved on the page, e.g. the license section: a link after its sentence. */
+  targets?: Partial<Record<ComplianceWarning, { href: string; label: string }>>;
 }
 
 /**
  * The compliance warnings of one arquebusier in words, in one warning message that says they never
- * block saving (spec: Registry screens, BR-04). Renders nothing without warnings.
+ * block saving (spec: Registry screens, BR-04), each linking to where it is resolved when given.
+ * Renders nothing without warnings.
  */
-export function ComplianceWarnings({ warnings, licenseExpiresOn, age }: ComplianceWarningsProps) {
+export function ComplianceWarnings({ warnings, licenseExpiresOn, age, targets }: ComplianceWarningsProps) {
   const { t } = useTranslation('insights');
   const { date: formatDate } = useFormatters();
   if (warnings.length === 0) return null;
@@ -29,9 +32,25 @@ export function ComplianceWarnings({ warnings, licenseExpiresOn, age }: Complian
     // A lasting state shown with the page, not news: no live region (design guide, Accessibility rules).
     <AlertBanner severity="warning" title={t('warnings.title')} live={false}>
       <ul className="list-disc pl-5">
-        {warnings.map((code) => (
-          <li key={code}>{t(`warnings.${code}`, { date, age })}</li>
-        ))}
+        {warnings.map((code) => {
+          const target = targets?.[code];
+          return (
+            <li key={code}>
+              {t(`warnings.${code}`, { date, age })}
+              {target && (
+                <>
+                  {' '}
+                  <a
+                    href={target.href}
+                    className="font-semibold underline underline-offset-4 hover:no-underline"
+                  >
+                    {target.label}
+                  </a>
+                </>
+              )}
+            </li>
+          );
+        })}
       </ul>
       <p className="mt-2">{t('warnings.hint')}</p>
     </AlertBanner>

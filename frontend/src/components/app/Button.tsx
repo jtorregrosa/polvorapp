@@ -9,11 +9,21 @@ const VARIANTS = {
   secondary: 'outline',
   destructive: 'destructive',
   quiet: 'ghost',
+  /** A destructive action that should not weigh like the others (e.g. "Remove" in a row); always confirmed. */
+  quietDestructive: 'ghost',
   link: 'link',
 } as const;
 
+/** Classes a variant adds to its primitive's. */
+const EXTRA: Partial<Record<keyof typeof VARIANTS, string>> = {
+  quietDestructive: 'text-destructive hover:bg-destructive-soft hover:text-destructive-soft-foreground',
+};
+
 export interface ButtonProps extends Omit<ComponentProps<typeof ButtonPrimitive>, 'variant' | 'size'> {
-  /** `primary` for the main action of a page or form, `secondary` for the others. */
+  /**
+   * `primary` for the main action of a page or form, `secondary` for the others; `quietDestructive`
+   * for a destructive action beside them (spec: Action hierarchy).
+   */
   variant?: keyof typeof VARIANTS;
   size?: 'default' | 'sm' | 'lg';
   icon?: LucideIcon;
@@ -52,7 +62,7 @@ export function Button({
         size={size}
         asChild
         onClick={onClick}
-        className={className}
+        className={cn(EXTRA[variant], className)}
         aria-label={ariaLabel}
         {...props}
       >
@@ -69,7 +79,7 @@ export function Button({
       aria-disabled={pending || undefined}
       aria-busy={pending || undefined}
       aria-label={label}
-      className={cn('aria-disabled:cursor-progress aria-disabled:opacity-50', className)}
+      className={cn('aria-disabled:cursor-progress aria-disabled:opacity-50', EXTRA[variant], className)}
       onClick={(event) => {
         if (pending) {
           event.preventDefault();

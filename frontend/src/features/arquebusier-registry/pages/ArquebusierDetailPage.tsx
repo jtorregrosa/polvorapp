@@ -176,6 +176,14 @@ function ArquebusierRecord({ details, notice, announce, reload, staleError, onRe
         warnings={details.warnings}
         licenseExpiresOn={details.license?.expiresOn ?? null}
         age={details.age}
+        targets={{
+          LICENSE_MISSING: { href: '#license', label: t('detail.warningLinks.license') },
+          LICENSE_PENDING: { href: '#license', label: t('detail.warningLinks.license') },
+          LICENSE_EXPIRED: { href: '#license', label: t('detail.warningLinks.license') },
+          LICENSE_EXPIRING: { href: '#license', label: t('detail.warningLinks.license') },
+          LICENSE_PHOTOS_MISSING: { href: '#license', label: t('detail.warningLinks.license') },
+          COURSE_MISSING: { href: '#course', label: t('detail.warningLinks.course') },
+        }}
       />
       <RecordFacts arquebusier={details} />
       <ArquebusierSections
