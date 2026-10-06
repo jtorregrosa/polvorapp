@@ -96,7 +96,7 @@ function ChangePasswordForm() {
             )}
           </AlertBanner>
         )}
-        <Button type="submit" variant="secondary" className="justify-self-start" pending={change.isPending}>
+        <Button type="submit" variant="secondary" className="self-start" pending={change.isPending}>
           {t('account.changePassword')}
         </Button>
       </Form>
@@ -133,6 +133,12 @@ function RecoveryCodesSection({ codesLeft }: { codesLeft: number }) {
       description={t('account.recoveryLeft', { count: codesLeft })}
     >
       <Form form={form} onSubmit={onSubmit} requiredNote={false}>
+        {/* Without codes, a lost phone locks the account: a warning, not a quiet count (UI audit). */}
+        {codesLeft === 0 && !codes && (
+          <AlertBanner severity="warning" live={false}>
+            {t('account.recoveryNoneLeft')}
+          </AlertBanner>
+        )}
         {codes ? (
           <>
             <AlertBanner severity="success" focusOnMount>
@@ -151,12 +157,7 @@ function RecoveryCodesSection({ codesLeft }: { codesLeft: number }) {
           <AlertBanner severity="error">{problemMessage(t, regenerate.error)}</AlertBanner>
         )}
         {!codes && (
-          <Button
-            type="submit"
-            variant="secondary"
-            className="justify-self-start"
-            pending={regenerate.isPending}
-          >
+          <Button type="submit" variant="secondary" className="self-start" pending={regenerate.isPending}>
             {t('account.regenerate')}
           </Button>
         )}
@@ -209,7 +210,7 @@ export function AccountPage() {
               await forgetSession(); // The server has already ended this session too.
             }}
             trigger={
-              <Button type="button" variant="destructive" className="justify-self-start">
+              <Button type="button" variant="destructive" className="self-start">
                 {t('account.signOutEverywhere')}
               </Button>
             }

@@ -101,7 +101,8 @@
     "signOutEverywhereDescription": "Tanca la sessió en tots els teus dispositius i oblida els dispositius recordats.",
     "signOutEverywhere": "Tanca totes les sessions",
     "signOutEverywhereConfirmTitle": "Vols tancar la sessió en tots els teus dispositius?",
-    "signOutEverywhereConfirmDescription": "També es tancarà ací i hauràs de tornar a iniciar sessió amb el codi de la teua aplicació."
+    "signOutEverywhereConfirmDescription": "També es tancarà ací i hauràs de tornar a iniciar sessió amb el codi de la teua aplicació.",
+    "recoveryNoneLeft": "No et queden codis de recuperació: si perds el mòbil, no podràs entrar. Genera codis nous i guarda'ls en un lloc segur."
   },
   "users": {
     "title": "Usuaris",

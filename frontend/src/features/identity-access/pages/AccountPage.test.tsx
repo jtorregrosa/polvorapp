@@ -34,6 +34,17 @@ describe('AccountPage (spec: Account self-service)', () => {
     expect(screen.getByText('Te quedan 10 códigos sin usar.')).toBeInTheDocument();
   });
 
+  it('warns, not just counts, when no recovery code is left (UI audit)', async () => {
+    await renderApp('/account', { session: { ...SYNTHETIC_FIRING_CHIEF, recoveryCodesLeft: 0 } });
+
+    const section = await screen.findByRole('region', { name: 'Códigos de recuperación' });
+    expect(
+      within(section)
+        .getByText(/No te quedan códigos de recuperación/)
+        .closest('[data-severity]'),
+    ).toHaveAttribute('data-severity', 'warning');
+  });
+
   it('changes the password', async () => {
     const user = userEvent.setup();
     const change = recordBodies(() => new HttpResponse(null, { status: 204 }));
