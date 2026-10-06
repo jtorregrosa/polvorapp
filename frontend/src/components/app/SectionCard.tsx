@@ -40,14 +40,15 @@ export function SectionCard({
         span === 'full' && 'col-span-full',
       )}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-col gap-1">
+      {/* The action stays at the top end whatever the description's length (audit T4); several actions wrap within half the width. */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
           <h2 id={titleId} className="text-section break-words text-foreground">
             {title}
           </h2>
           {description && <p className="text-help text-muted-foreground">{description}</p>}
         </div>
-        {action}
+        {action && <div className="flex max-w-1/2 shrink-0 flex-wrap justify-end gap-2">{action}</div>}
       </div>
       {children}
     </section>

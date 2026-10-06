@@ -205,13 +205,13 @@ describe('DataTable', () => {
     await user.click(screen.getByRole('button', { name: 'Siguiente' }));
     await user.click(screen.getByRole('button', { name: 'Siguiente' }));
 
-    const fewer = people.slice(0, 4);
+    const fewer = people.slice(0, 14);
     rerender(
       <DataTable caption="Arcabuceros" data={fewer} columns={columns} getRowId={(r) => r.id} pageSize={10} />,
     );
 
-    expect(bodyRows()).toHaveLength(4);
-    expect(screen.getByText('1–4 de 4')).toBeInTheDocument();
+    expect(bodyRows()).toHaveLength(10);
+    expect(screen.getByText('1–10 de 14')).toBeInTheDocument();
   });
 
   it('names its pagination after the table', async () => {
@@ -238,6 +238,32 @@ describe('DataTable', () => {
     expect(
       screen.queryByRole('navigation', { name: 'Paginación de Jefes de disparo' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('hides the pagination when every row fits in the smallest page', async () => {
+    await renderWithProviders(
+      <DataTable caption="Arcabuceros" data={people.slice(0, 10)} columns={columns} getRowId={(r) => r.id} />,
+    );
+
+    expect(bodyRows()).toHaveLength(10);
+    expect(screen.queryByRole('navigation', { name: 'Paginación de Arcabuceros' })).not.toBeInTheDocument();
+  });
+
+  it('keeps a pinned column at the end of the scroll region, header and cells', async () => {
+    await renderWithProviders(
+      <DataTable
+        caption="Arcabuceros"
+        data={people.slice(0, 2)}
+        columns={[...columns, { id: 'actions', header: 'Acciones', pinned: true, cell: () => 'x' }]}
+        getRowId={(r) => r.id}
+      />,
+    );
+
+    expect(screen.getByRole('columnheader', { name: 'Acciones' })).toHaveClass('sticky', 'end-0');
+    for (const row of bodyRows()) {
+      expect(within(row).getByText('x')).toHaveClass('sticky', 'end-0', 'bg-card');
+      expect(within(row).getByText('Apellido', { exact: false })).not.toHaveClass('sticky');
+    }
   });
 
   it('can keep a column header for screen readers only', async () => {

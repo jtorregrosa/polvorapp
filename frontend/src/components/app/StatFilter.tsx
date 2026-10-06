@@ -34,6 +34,19 @@ const TONES: Record<NonNullable<StatFilterItem['tone']>, string> = {
  * filters and announces the result count (see `FilterBar`). A pressed counter shows a check and a
  * ring besides its tint, so the state never depends on colour alone (WCAG 1.4.1, 1.4.11).
  */
+/**
+ * Columns by number of counters, so no row ends with a lone card (audit T6): six make 2×3, 3×2 or
+ * one row; five keep one row on wide screens.
+ */
+const COLUMNS: Readonly<Record<number, string>> = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-2',
+  3: 'grid-cols-1 sm:grid-cols-3',
+  4: 'grid-cols-2 lg:grid-cols-4',
+  5: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5',
+  6: 'grid-cols-2 sm:grid-cols-3 xl:grid-cols-6',
+};
+
 export function StatFilter({ label, items }: StatFilterProps) {
   const baseId = useId();
   return (
@@ -41,7 +54,7 @@ export function StatFilter({ label, items }: StatFilterProps) {
       role="group"
       aria-label={label}
       data-slot="stat-filter"
-      className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5"
+      className={cn('grid gap-2', COLUMNS[items.length] ?? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4')}
     >
       {items.map((item) => {
         const id = `${baseId}-${item.id}`;

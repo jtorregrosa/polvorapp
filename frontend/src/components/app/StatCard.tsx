@@ -24,12 +24,12 @@ export function StatCard({ label, value, description, to, className }: StatCardP
   );
   const figure = (
     <>
-      <span className="text-sm text-muted-foreground">{label}</span>{' '}
-      <span className="text-2xl font-semibold text-foreground tabular-nums">{value}</span>
+      <span className="text-label break-words text-muted-foreground">{label}</span>{' '}
+      <span className="font-display text-figure text-foreground tabular-nums">{value}</span>
     </>
   );
   const context = description && (
-    <span id={descriptionId} className="text-xs text-muted-foreground">
+    <span id={descriptionId} className="text-help text-muted-foreground">
       {description}
     </span>
   );

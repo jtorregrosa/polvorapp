@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { statusStyle, UNKNOWN_STATUS, type StatusKind, type StatusTone } from './status';
 
 const badge = cva(
-  'inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap',
+  // `w-fit`: never stretched by a stacked (column) parent, e.g. a table's row on a phone.
+  'inline-flex w-fit items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap',
   {
     variants: {
       tone: {

@@ -220,6 +220,7 @@ export function MilestonesSection({ edition, canEdit }: { edition: EditionRespon
               id: 'actions',
               header: t('sections.milestones.columns.actions'),
               hideHeader: true,
+              pinned: true,
               align: 'end' as const,
               cell: (milestone: CalendarMilestoneResponse) => (
                 <MilestoneActions editionId={edition.id} milestone={milestone} addRef={addRef} />

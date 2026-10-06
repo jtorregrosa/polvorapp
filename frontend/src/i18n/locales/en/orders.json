@@ -117,6 +117,7 @@
     "columns": {
       "name": "Arquebusier",
       "status": "Status",
+      "material": "Supplies",
       "powder": "Powder",
       "caps": "Caps",
       "weapon": "Weapon",
@@ -124,7 +125,14 @@
       "warnings": "Warnings",
       "action": "Actions"
     },
-    "sectionName": "the entry of {{name}}"
+    "sectionName": "the entry of {{name}}",
+    "powderLine": "{{kg}} of powder",
+    "flaskLine": {
+      "OWNED": "Own flask",
+      "RENTAL_1KG": "1 kg rental flask",
+      "RENTAL_2KG": "2 kg rental flask",
+      "NONE": "No flask"
+    }
   },
   "entry": {
     "firstYear": "First year",

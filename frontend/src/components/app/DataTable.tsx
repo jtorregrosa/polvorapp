@@ -45,6 +45,13 @@ export interface DataTableColumn<TRow extends RowData> {
    * announce it with each cell of the row. At most one column.
    */
   rowHeader?: boolean;
+  /**
+   * Keeps the column at the end of the visible table while the rest scrolls sideways, so a row's
+   * actions stay in view on narrow screens. At most one column, usually the last.
+   */
+  pinned?: boolean;
+  /** Lets long text (e.g. a weapon's description) wrap onto more lines instead of widening the table. */
+  wrap?: boolean;
 }
 
 /** Selected rows by row id (`getRowId`); ids of rows not in `data` (filtered out, other pages) are kept. */
@@ -209,6 +216,11 @@ export function DataTable<TRow extends RowData>({
   const to = Math.min(total, from + currentPageSize - 1);
   const summary = () => t('table.pagination.summary', { from, to, total });
   const alignment = (id: string) => (byId.get(id)?.align === 'end' ? 'text-end' : 'text-start');
+  const wrapping = (id: string) => byId.get(id)?.wrap === true && 'min-w-40 whitespace-normal';
+  // A pinned cell paints the row's own background so the cells scrolling under it never show through.
+  const pinning = (id: string) =>
+    byId.get(id)?.pinned === true &&
+    'sticky end-0 z-10 border-s bg-card group-hover:bg-surface-2 group-has-aria-expanded:bg-surface-2 group-data-[state=selected]:bg-muted';
   const sortLabel = (sorted: false | 'asc' | 'desc') =>
     sorted === 'asc'
       ? t('table.sortAscending')
@@ -355,7 +367,7 @@ export function DataTable<TRow extends RowData>({
           </TableCaption>
           <TableHeader>
             {table.getHeaderGroups().map((group) => (
-              <TableRow key={group.id}>
+              <TableRow key={group.id} className="group">
                 {selectable && <TableHead className="w-10">{pageCheckbox()}</TableHead>}
                 {group.headers.map((header) => {
                   const sortable = header.column.getCanSort();
@@ -370,7 +382,11 @@ export function DataTable<TRow extends RowData>({
                   const SortIcon = sorted === 'asc' ? ArrowUp : sorted === 'desc' ? ArrowDown : ArrowUpDown;
                   const title = String(header.column.columnDef.header);
                   return (
-                    <TableHead key={header.id} aria-sort={ariaSort} className={alignment(header.column.id)}>
+                    <TableHead
+                      key={header.id}
+                      aria-sort={ariaSort}
+                      className={cn(alignment(header.column.id), pinning(header.column.id))}
+                    >
                       {sortable ? (
                         <Button
                           variant="ghost"
@@ -408,7 +424,7 @@ export function DataTable<TRow extends RowData>({
                 <TableRow key={index}>
                   {selectable && <TableCell />}
                   {columns.map((column) => (
-                    <TableCell key={column.id}>
+                    <TableCell key={column.id} className={cn(pinning(column.id))}>
                       <Skeleton className="h-4 w-full" />
                     </TableCell>
                   ))}
@@ -436,7 +452,7 @@ export function DataTable<TRow extends RowData>({
                           }
                     }
                     data-state={selectable && isSelected(row.id) ? 'selected' : undefined}
-                    className={cn('h-row', href !== undefined && 'cursor-pointer')}
+                    className={cn('group h-row', href !== undefined && 'cursor-pointer')}
                   >
                     {selectable && (
                       <TableCell data-row-select="" className="w-10">
@@ -457,7 +473,14 @@ export function DataTable<TRow extends RowData>({
                           <table.FlexRender cell={cell} />
                         </th>
                       ) : (
-                        <TableCell key={cell.id} className={alignment(cell.column.id)}>
+                        <TableCell
+                          key={cell.id}
+                          className={cn(
+                            alignment(cell.column.id),
+                            wrapping(cell.column.id),
+                            pinning(cell.column.id),
+                          )}
+                        >
                           <table.FlexRender cell={cell} />
                         </TableCell>
                       ),
@@ -473,13 +496,14 @@ export function DataTable<TRow extends RowData>({
         {isLoading ? t('table.loading') : announcement}
       </p>
 
-      {paginated && !isLoading && total > 0 && (
+      {/* Nothing to page through when every row fits in the smallest page. */}
+      {paginated && !isLoading && total > PAGE_SIZES[0] && (
         <nav
           aria-label={t('table.pagination.label', { caption })}
           className="flex flex-wrap items-center justify-between gap-3 text-sm"
         >
           <div className="flex items-center gap-2">
-            <label htmlFor={pageSizeId} className="text-muted-foreground">
+            <label htmlFor={pageSizeId} className="whitespace-nowrap text-muted-foreground">
               {t('table.pagination.pageSize')}
             </label>
             <NativeSelect id={pageSizeId} value={String(currentPageSize)} onChange={onPageSize}>

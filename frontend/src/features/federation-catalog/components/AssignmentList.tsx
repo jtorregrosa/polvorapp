@@ -165,6 +165,7 @@ export function AssignmentList<TRow extends RowData>({
         id: 'remove',
         header: actionsHeader,
         hideHeader: true,
+        pinned: true,
         align: 'end',
         cell: (row) => <RemoveCell row={row} />,
       },

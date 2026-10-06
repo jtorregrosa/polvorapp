@@ -112,6 +112,7 @@ export function OwnedWeaponsSection({
               id: 'actions',
               header: t('ownedWeapons.columns.actions'),
               hideHeader: true,
+              pinned: true,
               cell: renderActions,
             },
           ]

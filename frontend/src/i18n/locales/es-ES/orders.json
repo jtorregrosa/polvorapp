@@ -117,6 +117,7 @@
     "columns": {
       "name": "Arcabucero",
       "status": "Estado",
+      "material": "Material",
       "powder": "Pólvora",
       "caps": "Pistones",
       "weapon": "Arma",
@@ -124,7 +125,14 @@
       "warnings": "Avisos",
       "action": "Acciones"
     },
-    "sectionName": "la línea de {{name}}"
+    "sectionName": "la línea de {{name}}",
+    "powderLine": "{{kg}} de pólvora",
+    "flaskLine": {
+      "OWNED": "Cantimplora propia",
+      "RENTAL_1KG": "Cantimplora de alquiler de 1 kg",
+      "RENTAL_2KG": "Cantimplora de alquiler de 2 kg",
+      "NONE": "Sin cantimplora"
+    }
   },
   "entry": {
     "firstYear": "Primer año",
