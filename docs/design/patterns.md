@@ -416,9 +416,10 @@ and a share of one total is a `Breakdown` (ADR-0014). Feature screens use the `B
 
 | Width                | What changes                                                                                                                                                     |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| < 768 px (`md`)      | The sidebar is a drawer opened from the top bar; lists become stacked items (`DataTable` `mobileRow`); side panels become bottom sheets; side margins are 16 px. |
-| ≥ 768 px             | The sidebar is shown; tables; side margins 28 px.                                                                                                                |
-| ≥ 1024 px (`lg`)     | Detail sections in two columns.                                                                                                                                  |
+| < 768 px (`md`)      | Lists become stacked items (`DataTable` `mobileRow`); side panels become bottom sheets; side margins are 16 px.                                              |
+| < 1024 px (`lg`)     | The sidebar is a drawer opened from the top bar, so a tablet's content keeps the full width.                                                                     |
+| ≥ 768 px             | Tables; side margins 28 px.                                                                                                                                      |
+| ≥ 1024 px (`lg`)     | The sidebar is shown; detail sections in two columns.                                                                                                            |
 | ≥ 1280 px (`xl`)     | Forms get the section index beside them.                                                                                                                         |
 | ≥ 1700 px (`wide`)   | The type steps up; detail sections in three columns; forms get the help column.                                                                                  |
 | > 1680 px of content | The content stops at 1680 px (`max-w-page`), left-aligned; the top bar is aligned with it.                                                                       |
