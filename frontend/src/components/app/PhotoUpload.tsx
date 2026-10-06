@@ -9,6 +9,7 @@ import {
   Plus,
   RotateCcw,
   RotateCw,
+  Trash2,
   type LucideIcon,
 } from 'lucide-react';
 import { useCallback, useEffect, useId, useRef, useState, type ChangeEvent } from 'react';
@@ -107,6 +108,11 @@ export interface PhotoUploadProps extends PhotoRules {
    * action when there is none (spec: Picture actions; logos).
    */
   variant?: 'section' | 'picture';
+  /**
+   * `compact`: a 72 px frame for a record header (the ID photo), its placeholder an icon and a short
+   * text; 160 px otherwise.
+   */
+  size?: 'default' | 'compact';
 }
 
 type Status = 'idle' | 'uploading' | 'uploaded' | 'removed';
@@ -236,6 +242,7 @@ export function PhotoUpload({
   disabledHint,
   readOnly = false,
   variant = 'section',
+  size = 'default',
   ...rules
 }: PhotoUploadProps) {
   const { t } = useTranslation('ui');
@@ -459,7 +466,8 @@ export function PhotoUpload({
   const picture = variant === 'picture' && !readOnly;
   const pickFile = () => fileInput.current?.click();
   /** The image, or a placeholder saying why there is none; inside the picture button the image is decorative. */
-  const content = (emptyLabel: string, EmptyIcon = ImageOff) =>
+  const compact = size === 'compact';
+  const content = (emptyLabel: string, EmptyIcon = ImageOff, hiddenLabel?: string) =>
     photoUrl && !loadFailed ? (
       <img
         src={photoUrl}
@@ -470,13 +478,24 @@ export function PhotoUpload({
         }}
       />
     ) : (
-      <span className="flex min-h-32 flex-col items-center justify-center gap-2 p-3 text-center text-sm text-muted-foreground">
+      <span
+        className={cn(
+          'flex flex-col items-center justify-center text-center text-muted-foreground',
+          compact ? 'min-h-24 gap-1 p-1 text-help' : 'min-h-32 gap-2 p-3 text-sm',
+        )}
+      >
         {photoUrl ? (
-          <ImageOff aria-hidden="true" className="size-6" />
+          <ImageOff aria-hidden="true" className={compact ? 'size-5' : 'size-6'} />
         ) : (
-          <EmptyIcon aria-hidden="true" className="size-6" />
+          <EmptyIcon aria-hidden="true" className={compact ? 'size-5' : 'size-6'} />
         )}
         <span>{photoUrl ? copy.loadFailed : emptyLabel}</span>
+        {hiddenLabel && (
+          <>
+            {' '}
+            <span className="sr-only">{hiddenLabel}</span>
+          </>
+        )}
       </span>
     );
 
@@ -486,6 +505,7 @@ export function PhotoUpload({
         <PictureTrigger
           ref={pictureButton}
           frameClassName={transparencyClass}
+          compact={compact}
           // A picture that failed to load is named by what it shows first (WCAG 2.5.3).
           menuName={
             photoUrl
@@ -504,12 +524,20 @@ export function PhotoUpload({
             keepFocus.current = false;
           }}
         >
-          {content(t('pictureActions.add', { label }), ImagePlus)}
+          {/* Compact, the frame says what is missing ("No ID photo") and the button's name adds the action. */}
+          {compact
+            ? content(
+                emptyText ?? t('photoUpload.empty', { label }),
+                ImagePlus,
+                t('pictureActions.add', { label }),
+              )
+            : content(t('pictureActions.add', { label }), ImagePlus)}
         </PictureTrigger>
       ) : (
         <div
           className={cn(
-            'flex w-40 items-center justify-center overflow-hidden rounded-md border',
+            'flex items-center justify-center overflow-hidden rounded-md border',
+            compact ? 'w-18' : 'w-40',
             // A transparent logo is judged on the checkerboard, as in the crop dialog.
             transparencyClass ?? 'bg-muted',
           )}
@@ -545,9 +573,11 @@ export function PhotoUpload({
             pending={opening}
             disabled={disabled}
             aria-describedby={disabled && disabledHint ? hintId : undefined}
+            // With a photo, the short verb is shown and the full name ("Replace front of the license") read.
+            aria-label={photoUrl ? t('photoUpload.replace', { label }) : undefined}
             onClick={pickFile}
           >
-            {t(photoUrl ? 'photoUpload.replace' : 'photoUpload.choose', { label })}
+            {photoUrl ? t('pictureActions.replace') : t('photoUpload.choose', { label })}
           </Button>
           {removal && photoUrl && (
             <ConfirmDialog
@@ -564,11 +594,13 @@ export function PhotoUpload({
               trigger={
                 <Button
                   type="button"
-                  variant="quiet"
+                  variant="quietDestructive"
+                  icon={Trash2}
                   disabled={disabled}
+                  aria-label={t('photoUpload.remove', { label })}
                   className="h-auto min-h-control max-w-full py-2 text-left whitespace-normal"
                 >
-                  {t('photoUpload.remove', { label })}
+                  {t('pictureActions.remove')}
                 </Button>
               }
             />

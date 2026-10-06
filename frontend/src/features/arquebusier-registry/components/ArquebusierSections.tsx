@@ -242,6 +242,7 @@ function LicenseSection({
     <>
       <SectionCard
         title={t('form.license')}
+        anchorId="license"
         action={
           <EditSheet
             hideTrigger={!canWrite}
@@ -285,6 +286,7 @@ function CourseSection({ arquebusier, values, save, formatDate, canWrite }: Sect
   return (
     <SectionCard
       title={t('form.training')}
+      anchorId="course"
       action={
         <EditSheet
           hideTrigger={!canWrite}

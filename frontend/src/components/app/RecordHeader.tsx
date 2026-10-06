@@ -86,12 +86,15 @@ export function RecordHeader({
     <header className="flex flex-col gap-group">
       {back && <BackLink {...back} />}
       <div className="flex flex-wrap items-start gap-x-section gap-y-group">
-        {/* Never wider than the screen: its actions wrap instead (WCAG 1.4.10). */}
-        {media && <div className="max-w-full min-w-0">{media}</div>}
-        <div className="flex min-w-0 flex-1 basis-64 flex-col gap-1.5">
-          {context && <p className="text-help break-words text-muted-foreground">{context}</p>}
-          <h1 className="font-display text-record break-words text-foreground">{name}</h1>
-          {statuses && <div className="flex flex-wrap items-center gap-2">{statuses}</div>}
+        {/* A small photo keeps the name beside it on phones; a wide one (a logo) moves above it. */}
+        <div className="flex min-w-0 flex-1 basis-80 flex-wrap items-start gap-4">
+          {/* Never wider than the screen: its actions wrap instead (WCAG 1.4.10). */}
+          {media && <div className="max-w-full min-w-0 shrink-0">{media}</div>}
+          <div className="flex min-w-0 flex-1 basis-48 flex-col gap-1.5">
+            {context && <p className="text-help break-words text-muted-foreground">{context}</p>}
+            <h1 className="font-display text-record break-words text-foreground">{name}</h1>
+            {statuses && <div className="flex flex-wrap items-center gap-2">{statuses}</div>}
+          </div>
         </div>
         {(actions !== undefined || moreActions.length > 0) && (
           <div className="flex flex-wrap items-center gap-2">

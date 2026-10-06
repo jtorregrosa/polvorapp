@@ -61,33 +61,32 @@ interface PhotoProps {
   canWrite?: boolean;
 }
 
-/** Spec "Photo screens": the ID photo, shown with the personal data. */
+/**
+ * Spec "Photo screens": the ID photo in the record header, 72 px wide; the picture itself opens a
+ * menu to replace or remove it, or the file chooser when there is none (spec: Picture actions).
+ */
 export function IdPhoto({ arquebusier, onChanged, canWrite = true }: PhotoProps) {
   const { t } = useTranslation('registry');
   const actions = usePhotoActions(arquebusier.id, onChanged);
-  const titleId = useId();
   const name = `${arquebusier.firstName} ${arquebusier.lastName}`;
   return (
-    <div role="group" aria-labelledby={titleId} className="flex flex-col gap-2">
-      <p id={titleId} className="text-sm font-medium">
-        {t('photos.idTitle')}
-      </p>
-      <PhotoUpload
-        label={t('photos.idPhoto')}
-        photoUrl={photoUrl(arquebusier.id, 'id', arquebusier.photos.id)}
-        photoAlt={t('photos.idPhotoAlt', { name })}
-        emptyText={t('photos.noIdPhoto')}
-        onUpload={(photo) => actions.upload('id', photo)}
-        removal={{
-          title: t('photos.removeTitle.id'),
-          description: t('photos.removeConfirm.description', { name }),
-          confirmLabel: t('photos.removeConfirm.confirm'),
-          onRemove: () => actions.remove('id'),
-        }}
-        readOnly={!canWrite}
-        {...ID_PHOTO_RULES}
-      />
-    </div>
+    <PhotoUpload
+      variant="picture"
+      size="compact"
+      label={t('photos.idPhoto')}
+      photoUrl={photoUrl(arquebusier.id, 'id', arquebusier.photos.id)}
+      photoAlt={t('photos.idPhotoAlt', { name })}
+      emptyText={t('photos.noIdPhoto')}
+      onUpload={(photo) => actions.upload('id', photo)}
+      removal={{
+        title: t('photos.removeTitle.id'),
+        description: t('photos.removeConfirm.description', { name }),
+        confirmLabel: t('photos.removeConfirm.confirm'),
+        onRemove: () => actions.remove('id'),
+      }}
+      readOnly={!canWrite}
+      {...ID_PHOTO_RULES}
+    />
   );
 }
 

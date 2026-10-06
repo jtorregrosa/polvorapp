@@ -80,7 +80,8 @@ describe('PhotoUpload', () => {
       'src',
       '/api/arquebusiers/1/photos/id?v=2',
     );
-    expect(screen.getByRole('button', { name: 'Sustituir foto de carnet' })).toBeInTheDocument();
+    // The short verb is shown; the full action is its name (WCAG 2.5.3: the name starts with it).
+    expect(screen.getByRole('button', { name: 'Sustituir foto de carnet' })).toHaveTextContent(/^Sustituir$/);
   });
 
   it('accepts images from the camera or the gallery, without forcing the camera', async () => {
@@ -397,7 +398,11 @@ describe('PhotoUpload', () => {
       },
     }).view;
 
-    await userEvent.click(screen.getByRole('button', { name: 'Quitar foto de carnet' }));
+    // A quiet destructive action: red, short, apart from the main one (UI audit T9).
+    const remove = screen.getByRole('button', { name: 'Quitar foto de carnet' });
+    expect(remove).toHaveTextContent(/^Quitar$/);
+    expect(remove).toHaveClass('text-destructive');
+    await userEvent.click(remove);
     await userEvent.click(await screen.findByRole('button', { name: 'Cancelar' }));
 
     expect(onRemove).not.toHaveBeenCalled();

@@ -37,7 +37,9 @@ describe('Arquebusier detail in read mode (spec: Registry screens)', () => {
       await screen.findByRole('heading', { level: 1, name: 'Arcabucero García Sintético' }),
     ).toBeInTheDocument();
     expect(await screen.findByText(`${NORTE.name} · Cristiano`)).toBeInTheDocument();
-    expect(screen.getByRole('group', { name: 'Foto de carnet' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /foto de carnet/i }).closest('header')).toContainElement(
+      screen.getByRole('heading', { level: 1 }),
+    );
     const facts = screen.getByRole('list', { name: 'Datos clave' });
     expect(within(facts).getByText('10/03/2030')).toBeInTheDocument();
     expect(within(facts).getByRole('meter', { name: /de la vigencia de la licencia/ })).toBeInTheDocument();
@@ -108,11 +110,19 @@ describe('Arquebusier detail in read mode (spec: Registry screens)', () => {
         .getAllByRole('listitem')
         .map((item) => item.textContent),
     ).toEqual([
-      'La licencia caduca el 10 de enero de 2027, en menos de 12 meses.',
-      'No consta el curso de arcabucería.',
+      'La licencia caduca el 10 de enero de 2027, en menos de 12 meses. Ir a la licencia',
+      'No consta el curso de arcabucería. Ir al curso',
       'Es menor de edad: tiene 16 años.',
       'Falta la foto de carnet, necesaria para el carnet de arcabucero.',
     ]);
+    // Each warning that a section resolves links to it (UI audit).
+    expect(within(banner).getByRole('link', { name: 'Ir a la licencia' })).toHaveAttribute(
+      'href',
+      '#license',
+    );
+    expect(within(banner).getByRole('link', { name: 'Ir al curso' })).toHaveAttribute('href', '#course');
+    expect(document.getElementById('license')).toHaveAccessibleName('Licencia');
+    expect(document.getElementById('course')).toHaveAccessibleName('Curso de arcabucería');
     expect(screen.getByRole('heading', { level: 1 }).closest('header')).toHaveTextContent(
       'Licencia: Caduca pronto',
     );

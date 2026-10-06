@@ -15,6 +15,8 @@ interface PictureTriggerProps {
   children: ReactNode;
   /** The frame's own look, e.g. the checkerboard behind a transparent logo. */
   frameClassName?: string;
+  /** A 72 px frame, e.g. the ID photo in a record header; 160 px otherwise. */
+  compact?: boolean;
   /**
    * With a picture: the button's name, e.g. "Logo of Comparsa Norte, options", and the button
    * opens a menu. Without one, the button opens the file chooser and its visible text names it.
@@ -41,6 +43,7 @@ export function PictureTrigger({
   ref,
   children,
   frameClassName,
+  compact = false,
   menuName,
   canRemove,
   disabled,
@@ -71,7 +74,8 @@ export function PictureTrigger({
       }}
       // At least 44 × 44 px (spec: Picture actions); the frame matches the section variant's.
       className={cn(
-        'group relative flex min-h-11 w-40 items-center justify-center overflow-hidden rounded-md border border-input focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50',
+        'group relative flex min-h-11 items-center justify-center overflow-hidden rounded-md border border-input focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50',
+        compact ? 'w-18' : 'w-40',
         frameClassName ?? 'bg-muted',
       )}
     >
@@ -81,9 +85,12 @@ export function PictureTrigger({
       <span
         data-picture-overlay=""
         aria-hidden="true"
-        className="pointer-events-none absolute top-2 right-2 flex size-8 items-center justify-center rounded-full border bg-card text-foreground opacity-0 shadow-e1 transition-opacity duration-100 ease-out group-hover:opacity-100 group-focus-visible:opacity-100 group-disabled:hidden pointer-coarse:opacity-100"
+        className={cn(
+          'pointer-events-none absolute flex items-center justify-center rounded-full border bg-card text-foreground opacity-0 shadow-e1 transition-opacity duration-100 ease-out group-hover:opacity-100 group-focus-visible:opacity-100 group-disabled:hidden pointer-coarse:opacity-100',
+          compact ? 'top-1 right-1 size-6' : 'top-2 right-2 size-8',
+        )}
       >
-        <Pencil className="size-4" />
+        <Pencil className={compact ? 'size-3' : 'size-4'} />
       </span>
     </button>
   );
