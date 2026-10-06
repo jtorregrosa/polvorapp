@@ -132,7 +132,9 @@ test.describe('as the seeded FiringChief', () => {
     const items = banner.getByRole('listitem');
     await expect(items).toHaveCount(4);
     await expect(items.nth(0)).toContainText('en menos de 12 meses');
-    await expect(items.nth(1)).toHaveText('No consta el curso de arcabucería.');
+    // Each warning a section resolves links to it (UI audit).
+    await expect(items.nth(1)).toHaveText('No consta el curso de arcabucería. Ir al curso');
+    await expect(items.nth(1).getByRole('link', { name: 'Ir al curso' })).toHaveAttribute('href', '#course');
     await expect(items.nth(2)).toHaveText('Es menor de edad: tiene 16 años.');
     await expect(items.nth(3)).toContainText('Falta la foto de carnet');
     await expect(page.locator('main header')).toContainText('Caduca pronto');

@@ -483,7 +483,8 @@ describe('ArquebusiersPage (spec: Arquebusier visibility, Registry screens)', ()
 
       const uno = rowOf('00000001R');
       expect(within(uno).getByText('Caduca el 10/03/2030')).toBeInTheDocument();
-      expect(within(rowOf('X0000002T')).getByText('Sin foto de carnet')).toBeInTheDocument();
+      // Said once: here among the row's warnings (UI audit).
+      expect(rowOf('X0000002T')).toHaveTextContent('Sin foto de carnet');
     });
 
     it('open the record when any cell is clicked', async () => {

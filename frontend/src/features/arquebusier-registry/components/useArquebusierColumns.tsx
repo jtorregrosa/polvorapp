@@ -11,6 +11,11 @@ import { licenseBadgeValue } from '../license-badge';
 /** Expiry dates in rows: day, month and year in digits, e.g. 10/03/2030. */
 const SHORT_DATE: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
 
+/** Whether the row says "No ID photo" itself: not when its warnings already list it. */
+function photoNoteShown(row: ArquebusierRowResponse): boolean {
+  return !row.hasIdPhoto && !row.warnings.includes('ID_PHOTO_MISSING');
+}
+
 /**
  * The arquebusier list as a table (two-line cells: the identity number and a missing ID photo
  * under the name, the expiry under the license) and as stacked items on phones, which say the same
@@ -55,8 +60,9 @@ export function useArquebusierColumns() {
         secondary: (row) => (
           <span className="flex flex-wrap items-center gap-x-2">
             <span className="font-mono text-id">{row.nationalId}</span>
-            {/* Spec "Photo screens": a missing ID photo is said in words, never by colour or icon alone. */}
-            {!row.hasIdPhoto && (
+            {/* Spec "Photo screens": a missing ID photo is said in words, never by colour or icon alone;
+                once per row (UI audit): here only when the warnings do not say it already. */}
+            {photoNoteShown(row) && (
               <span className="inline-flex items-center gap-1">
                 <ImageOff aria-hidden="true" className="size-3.5" />
                 {t('arquebusiers.columns.noIdPhoto')}
@@ -132,7 +138,7 @@ export function useArquebusierColumns() {
             <span className="text-help text-muted-foreground">{t('arquebusiers.noLicense')}</span>
           )}
           {row.licenseExpiresOn && <span className="text-help text-muted-foreground">{expiry(row)}</span>}
-          {!row.hasIdPhoto && (
+          {photoNoteShown(row) && (
             <span className="text-help text-muted-foreground">{t('arquebusiers.columns.noIdPhoto')}</span>
           )}
         </span>

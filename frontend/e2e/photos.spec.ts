@@ -245,10 +245,26 @@ async function register(
   return { id, lastName: identity.lastName };
 }
 
-/** Chooses a file through the visible button, as a person does, and waits for the crop dialog. */
+/**
+ * The ID photo in the record header: a picture that is its own button, named after what it shows,
+ * with a menu to replace or remove it (UI audit: compact header).
+ */
+function idPicture(page: Page, name: RegExp | string = /^Foto de carnet de .*, opciones$/) {
+  return page.getByRole('button', { name });
+}
+
+/**
+ * Chooses a file through the visible button, as a person does, and waits for the crop dialog. "Replace
+ * ID photo" opens the picture's menu first.
+ */
 async function chooseFile(page: Page, button: string, file: Buffer, type = 'image/png') {
   const chooser = page.waitForEvent('filechooser');
-  await page.getByRole('button', { name: button }).click();
+  if (button === 'Sustituir foto de carnet') {
+    await idPicture(page).click();
+    await page.getByRole('menuitem', { name: 'Sustituir' }).click();
+  } else {
+    await page.getByRole('button', { name: button }).click();
+  }
   await (
     await chooser
   ).setFiles({
@@ -271,7 +287,8 @@ async function confirmAndWait(
   const dialog = page.getByRole('dialog');
   await dialog.getByRole('button', { name: 'Usar foto' }).click();
   await expect(dialog).toBeHidden();
-  const photo = page.getByRole('img', { name: photoName });
+  // A license side is an image named after it; the ID photo is drawn inside its own named button.
+  const photo = page.getByRole('img', { name: photoName }).or(idPicture(page, photoName).locator('img'));
   await expect(photo).toBeVisible();
   if (previous) await expect(photo).not.toHaveAttribute('src', previous);
   // Decoded by the engine itself, not only present with its alt text.
@@ -414,13 +431,14 @@ test.describe('arquebusier photos', () => {
     await page.keyboard.press('Enter');
     await expect(dialog).toBeHidden();
 
-    const photo = page.getByRole('img', { name: `Foto de carnet de Arcabucera ${lastName}` });
+    const photo = idPicture(page, `Foto de carnet de Arcabucera ${lastName}`).locator('img');
     await expect(photo).toBeVisible();
     const { width, height } = jpegInfo(await storedPhoto(page, (await photo.getAttribute('src')) ?? ''));
     expect(width).toBeLessThan(810);
     expect(width).toBeGreaterThanOrEqual(600);
     expect(Math.abs(width * 4 - height * 3)).toBeLessThanOrEqual(4);
-    await expect(page.getByRole('button', { name: 'Sustituir foto de carnet' })).toBeFocused();
+    // Back on the picture, which now opens its menu.
+    await expect(idPicture(page)).toBeFocused();
   });
 
   test('crops with the buttons only, without dragging, keeping the 3:4 shape (SC 2.5.7)', async ({

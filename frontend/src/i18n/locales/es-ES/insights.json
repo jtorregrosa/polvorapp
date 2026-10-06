@@ -4,8 +4,6 @@
     "active": "En activo",
     "reserve": "En reserva",
     "withWarnings": "Con avisos",
-    "attention_one": "{{count, number}} arcabucero necesita atención.",
-    "attention_other": "{{count, number}} arcabuceros necesitan atención.",
     "upToDate": "Todos los arcabuceros están al día: ninguno tiene avisos.",
     "warningsTitle": "Avisos",
     "expiries": {
