@@ -3,8 +3,8 @@ using System.IO.Compression;
 using Microsoft.Extensions.Localization;
 using PolvorApp.AuditPrivacy.Contracts;
 using PolvorApp.Exports.Contracts;
+using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.SharedKernel.Time;
-
 namespace PolvorApp.AuditPrivacy.Privacy;
 
 /// <summary>Marker for the <c>PrivacyTexts</c> resources (sheet and column names, "About this data").</summary>
@@ -24,10 +24,11 @@ internal sealed record PersonalDataPackage(
 /// Builds a person's or a user's data export (spec: Exporting a person's / a user's data; design D11): a
 /// ZIP with one Excel workbook in the Admin's language — one sheet per category that holds data, then
 /// "About this data" with the controller, purposes, recipients, retention, rights, the request reference,
-/// the date and every note (a missing photo, a capped sheet) — and the person's photos. The file name
-/// never holds the DNI/NIE or a name. A missing text fails the export rather than print its key.
+/// the date and every note (a missing photo, a capped sheet) — and the person's photos. The controller is
+/// the Federation's official name of the settings, in Valencian for a Valencian export (add-federation-settings).
+/// The file name never holds the DNI/NIE or a name. A missing text fails the export rather than print its key.
 /// </summary>
-internal sealed class PersonalDataPackager(IDocumentRenderer renderer, IStringLocalizer<PrivacyTexts> texts, TimeProvider time)
+internal sealed class PersonalDataPackager(IDocumentRenderer renderer, IStringLocalizer<PrivacyTexts> texts, IFederationSettings settings, TimeProvider time)
 {
     public const string WorkbookName = "personal-data.xlsx";
 
@@ -36,9 +37,10 @@ internal sealed class PersonalDataPackager(IDocumentRenderer renderer, IStringLo
 
     private static readonly string[] AboutItems = ["Controller", "Purposes", "Recipients", "Retention", "Rights"];
 
-    public PersonalDataPackage Build(IReadOnlyList<PersonalDataExportPart> parts, string reference)
+    public async Task<PersonalDataPackage> BuildAsync(IReadOnlyList<PersonalDataExportPart> parts, string reference, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(parts);
+        var federation = await settings.GetAsync(cancellationToken);
         var sheets = parts.SelectMany(p => p.Sheets).Where(s => s.Rows.Count > 0).ToList();
         if (sheets.GroupBy(s => s.Code, StringComparer.Ordinal).FirstOrDefault(g => g.Count() > 1) is { } duplicate)
         {
@@ -50,7 +52,7 @@ internal sealed class PersonalDataPackager(IDocumentRenderer renderer, IStringLo
         var today = FederationCalendar.Today(time);
         var workbook = new DocumentWorkbook(
             "personal-data",
-            [.. sheets.Select(Sheet), About(notes, reference, today)]);
+            [.. sheets.Select(Sheet), About(notes, reference, today, federation)]);
 
         var files = parts.SelectMany(p => p.Files).ToList();
         using var buffer = new MemoryStream();
@@ -77,11 +79,13 @@ internal sealed class PersonalDataPackager(IDocumentRenderer renderer, IStringLo
             [.. sheet.Rows.Select(row => (IReadOnlyList<object?>)[.. row.Select((value, i) => i == role && value is string code ? Text($"Value.{code}") : value)])]);
     }
 
-    private DocumentSheet About(IEnumerable<string> notes, string reference, DateOnly today)
+    private DocumentSheet About(IEnumerable<string> notes, string reference, DateOnly today, FederationSettingsSnapshot federation)
     {
+        var form = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ca" ? FederationNameForm.Valencian : FederationNameForm.Spanish;
+        var controller = string.Format(CultureInfo.CurrentCulture, Text("About.ControllerValue"), federation.OfficialName(form));
         List<IReadOnlyList<object?>> rows =
         [
-            .. AboutItems.Select(item => (IReadOnlyList<object?>)[Text($"About.{item}"), Text($"About.{item}Value")]),
+            .. AboutItems.Select(item => (IReadOnlyList<object?>)[Text($"About.{item}"), item == "Controller" ? controller : Text($"About.{item}Value")]),
             [Text("About.Reference"), reference],
             [Text("About.GeneratedAt"), today],
         ];

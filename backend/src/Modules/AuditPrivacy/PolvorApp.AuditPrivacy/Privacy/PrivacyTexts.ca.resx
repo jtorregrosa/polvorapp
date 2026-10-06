@@ -205,7 +205,7 @@
     <value>Responsable del tractament</value>
   </data>
   <data name="About.ControllerValue" xml:space="preserve">
-    <value>Unió de Comparses «Ber-Largas» (vegeu la clàusula de protecció de dades)</value>
+    <value>{0} (vegeu la clàusula de protecció de dades)</value>
   </data>
   <data name="About.Purposes" xml:space="preserve">
     <value>Finalitats</value>
