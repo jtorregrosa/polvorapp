@@ -29,12 +29,6 @@ const TONES: Record<NonNullable<StatFilterItem['tone']>, string> = {
 };
 
 /**
- * Counters above a list that are also filters (spec: Arquebusier visibility): each is a toggle
- * button with its figure and label, pressed while its filter is on. The page combines the
- * filters and announces the result count (see `FilterBar`). A pressed counter shows a check and a
- * ring besides its tint, so the state never depends on colour alone (WCAG 1.4.1, 1.4.11).
- */
-/**
  * Columns by number of counters, so no row ends with a lone card (audit T6): six make 2×3, 3×2 or
  * one row; five keep one row on wide screens.
  */
@@ -47,6 +41,12 @@ const COLUMNS: Readonly<Record<number, string>> = {
   6: 'grid-cols-2 sm:grid-cols-3 xl:grid-cols-6',
 };
 
+/**
+ * Counters above a list that are also filters (spec: Arquebusier visibility): each is a toggle
+ * button with its figure and label, pressed while its filter is on. The page combines the
+ * filters and announces the result count (see `FilterBar`). A pressed counter shows a check and a
+ * ring besides its tint, so the state never depends on colour alone (WCAG 1.4.1, 1.4.11).
+ */
 export function StatFilter({ label, items }: StatFilterProps) {
   const baseId = useId();
   return (

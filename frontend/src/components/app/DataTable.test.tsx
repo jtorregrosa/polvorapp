@@ -249,6 +249,21 @@ describe('DataTable', () => {
     expect(screen.queryByRole('navigation', { name: 'Paginación de Arcabuceros' })).not.toBeInTheDocument();
   });
 
+  it('keeps paging a caller’s smaller page size', async () => {
+    await renderWithProviders(
+      <DataTable
+        caption="Arcabuceros"
+        data={people.slice(0, 8)}
+        columns={columns}
+        getRowId={(r) => r.id}
+        pageSize={5}
+      />,
+    );
+
+    expect(bodyRows()).toHaveLength(5);
+    expect(screen.getByRole('navigation', { name: 'Paginación de Arcabuceros' })).toBeInTheDocument();
+  });
+
   it('keeps a pinned column at the end of the scroll region, header and cells', async () => {
     await renderWithProviders(
       <DataTable
@@ -259,10 +274,11 @@ describe('DataTable', () => {
       />,
     );
 
-    expect(screen.getByRole('columnheader', { name: 'Acciones' })).toHaveClass('sticky', 'end-0');
+    expect(screen.getByRole('columnheader', { name: 'Acciones' })).toHaveClass('md:sticky', 'md:end-0');
+    expect(screen.getByRole('region', { name: 'Arcabuceros' })).toHaveClass('md:scroll-pe-48');
     for (const row of bodyRows()) {
-      expect(within(row).getByText('x')).toHaveClass('sticky', 'end-0', 'bg-card');
-      expect(within(row).getByText('Apellido', { exact: false })).not.toHaveClass('sticky');
+      expect(within(row).getByText('x')).toHaveClass('md:sticky', 'md:end-0', 'md:bg-card');
+      expect(within(row).getByText('Apellido', { exact: false })).not.toHaveClass('md:sticky');
     }
   });
 

@@ -217,10 +217,13 @@ export function DataTable<TRow extends RowData>({
   const summary = () => t('table.pagination.summary', { from, to, total });
   const alignment = (id: string) => (byId.get(id)?.align === 'end' ? 'text-end' : 'text-start');
   const wrapping = (id: string) => byId.get(id)?.wrap === true && 'min-w-40 whitespace-normal';
-  // A pinned cell paints the row's own background so the cells scrolling under it never show through.
+  // Pinned from 768 px only: on a narrow screen it would cover too much of the row (WCAG 1.4.10).
+  // It paints the row's own background so the cells scrolling under it never show through, and
+  // draws its edge itself: a collapsed table border does not follow a sticky cell.
   const pinning = (id: string) =>
     byId.get(id)?.pinned === true &&
-    'sticky end-0 z-10 border-s bg-card group-hover:bg-surface-2 group-has-aria-expanded:bg-surface-2 group-data-[state=selected]:bg-muted';
+    'md:sticky md:end-0 md:z-10 md:bg-card md:before:absolute md:before:inset-y-0 md:before:start-0 md:before:w-px md:before:bg-border md:group-hover:bg-surface-2 md:group-has-aria-expanded:bg-surface-2 md:group-data-[state=selected]:bg-muted';
+  const hasPinned = columns.some((column) => column.pinned === true);
   const sortLabel = (sorted: false | 'asc' | 'desc') =>
     sorted === 'asc'
       ? t('table.sortAscending')
@@ -359,7 +362,8 @@ export function DataTable<TRow extends RowData>({
             role: 'region',
             'aria-labelledby': captionId,
             tabIndex: 0,
-            className: 'rounded-lg border bg-card',
+            // Tabbing to a cell scrolls it clear of the pinned column, not under it (WCAG 2.4.11).
+            className: cn('rounded-lg border bg-card', hasPinned && 'md:scroll-pe-48'),
           }}
         >
           <TableCaption id={captionId} className="sr-only">
@@ -497,7 +501,7 @@ export function DataTable<TRow extends RowData>({
       </p>
 
       {/* Nothing to page through when every row fits in the smallest page. */}
-      {paginated && !isLoading && total > PAGE_SIZES[0] && (
+      {paginated && !isLoading && total > Math.min(PAGE_SIZES[0], currentPageSize) && (
         <nav
           aria-label={t('table.pagination.label', { caption })}
           className="flex flex-wrap items-center justify-between gap-3 text-sm"

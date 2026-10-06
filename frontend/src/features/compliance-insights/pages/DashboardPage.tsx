@@ -57,8 +57,8 @@ function Figures({ summary }: { summary: ComplianceSummaryResponse }) {
         </AlertBanner>
       )}
       <DashboardSection title={t('dashboard.figuresTitle')}>
-        {/* Side by side from the phone up: three short figures, no scrolling past them one by one (audit). */}
-        <ul className="grid grid-cols-3 gap-3">
+        {/* Two per row on phones, the third across both; three in a row from 640 px (audit). */}
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <li className="flex">
             <StatCard
               className="w-full"
@@ -75,7 +75,7 @@ function Figures({ summary }: { summary: ComplianceSummaryResponse }) {
               to="/arquebusiers?status=RESERVE"
             />
           </li>
-          <li className="flex">
+          <li className="col-span-2 flex sm:col-span-1">
             <StatCard
               className="w-full"
               label={t('dashboard.withWarnings')}

@@ -252,7 +252,9 @@ export function OrderPage() {
       {
         id: 'material',
         header: t('entries.columns.material'),
-        cell: (entry) => `${t('entries.powderLine', { kg: text.powder(entry) })} · ${text.caps(entry)}`,
+        cell: (entry) => (
+          <EntryNotes notes={[t('entries.powderLine', { kg: text.powder(entry) }), text.caps(entry)]} />
+        ),
         secondary: (entry) => t(`entries.flaskLine.${entry.flask}`),
       },
       { id: 'weapon', header: t('entries.columns.weapon'), cell: text.weapon, wrap: true },
