@@ -40,8 +40,9 @@ export function PageHeader({ title, description, actions, back, focusOnMount = f
   }, [focusOnMount]);
 
   return (
-    <div className="flex flex-col gap-group sm:flex-row sm:items-end sm:justify-between">
-      <div className="flex min-w-0 flex-col gap-1.5">
+    // The title takes at least 16rem before the actions wrap below it, so it never breaks letter by letter.
+    <div className="flex flex-wrap items-end justify-between gap-group">
+      <div className="flex min-w-0 flex-1 basis-64 flex-col gap-1.5">
         {back && <BackLink {...back} />}
         <h1
           ref={heading}
@@ -52,7 +53,7 @@ export function PageHeader({ title, description, actions, back, focusOnMount = f
         </h1>
         {description && <p className="max-w-prose text-body text-muted-foreground">{description}</p>}
       </div>
-      {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
+      {actions && <div className="flex max-w-full flex-wrap items-center gap-2">{actions}</div>}
     </div>
   );
 }
