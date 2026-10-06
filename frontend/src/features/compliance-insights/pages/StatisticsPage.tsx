@@ -20,6 +20,7 @@ import { FilterBar, NoMatches } from '@/components/app/FilterBar';
 import { FilterSelect } from '@/components/app/FilterSelect';
 import { PageHeader } from '@/components/app/PageHeader';
 import { SectionCard } from '@/components/app/SectionCard';
+import { LoadingSections } from '@/components/app/LoadingSections';
 import { SectionGrid } from '@/components/app/SectionGrid';
 import { StatCard } from '@/components/app/StatCard';
 import { Tabs } from '@/components/app/Tabs';
@@ -66,7 +67,20 @@ function Report({ statistics }: { statistics: ComplianceStatisticsResponse }) {
           total={total}
         />
       </SectionCard>
-      <SectionCard title={t('statistics.ageBrackets.title')}>
+      <SectionCard title={t('statistics.licenses.title')}>
+        <Breakdown
+          title={t('statistics.licenses.table')}
+          categoryLabel={t('statistics.licenses.category')}
+          columns={[{ id: 'count', label: t('statistics.figures.total') }]}
+          rows={(['valid', 'expiring', 'expired', 'pending', 'none'] as const).map((state) => ({
+            id: state,
+            label: t(`statistics.licenses.${state}`),
+            counts: [licenses[state]],
+          }))}
+          total={total}
+        />
+      </SectionCard>
+      <SectionCard title={t('statistics.ageBrackets.title')} span="table">
         <Breakdown
           title={t('statistics.ageBrackets.table')}
           categoryLabel={t('statistics.ageBrackets.category')}
@@ -80,7 +94,7 @@ function Report({ statistics }: { statistics: ComplianceStatisticsResponse }) {
           showRowTotal
         />
       </SectionCard>
-      <SectionCard title={t('statistics.course.title')}>
+      <SectionCard title={t('statistics.course.title')} span="table">
         <Breakdown
           title={t('statistics.course.table')}
           categoryLabel={t('statistics.course.category')}
@@ -97,7 +111,7 @@ function Report({ statistics }: { statistics: ComplianceStatisticsResponse }) {
           showRowTotal
         />
       </SectionCard>
-      <SectionCard title={t('statistics.firstYear.title')}>
+      <SectionCard title={t('statistics.firstYear.title')} span="table">
         {statistics.firstYear ? (
           <Breakdown
             title={t('statistics.firstYear.table')}
@@ -121,19 +135,6 @@ function Report({ statistics }: { statistics: ComplianceStatisticsResponse }) {
         ) : (
           <p className="text-body text-muted-foreground">{t('statistics.firstYear.unknown')}</p>
         )}
-      </SectionCard>
-      <SectionCard title={t('statistics.licenses.title')}>
-        <Breakdown
-          title={t('statistics.licenses.table')}
-          categoryLabel={t('statistics.licenses.category')}
-          columns={[{ id: 'count', label: t('statistics.figures.total') }]}
-          rows={(['valid', 'expiring', 'expired', 'pending', 'none'] as const).map((state) => ({
-            id: state,
-            label: t(`statistics.licenses.${state}`),
-            counts: [licenses[state]],
-          }))}
-          total={total}
-        />
       </SectionCard>
       <SectionCard title={t('statistics.ownedWeapons.title')} span="full">
         <div className="grid gap-group lg:grid-cols-2">
@@ -370,12 +371,10 @@ export function StatisticsPage() {
                 content: (
                   <div className="flex flex-col gap-section">
                     {/* One status region for the tab, so the loading text is announced when it changes. */}
-                    <p
-                      role="status"
-                      className={query.isPending && query.isFetching ? 'text-muted-foreground' : 'sr-only'}
-                    >
+                    <p role="status" className="sr-only">
                       {query.isPending && query.isFetching ? t('statistics.loading') : ''}
                     </p>
+                    {query.isPending && query.isFetching && <LoadingSections count={4} />}
                     {query.isError && <LoadFailure error={query.error} onRetry={() => query.refetch()} />}
                     {noMatches && (
                       <NoMatches

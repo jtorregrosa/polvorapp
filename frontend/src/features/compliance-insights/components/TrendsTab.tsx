@@ -9,6 +9,7 @@ import { ChartFrame } from '@/components/app/ChartFrame';
 import { DataTable, type DataTableColumn } from '@/components/app/DataTable';
 import { LineChart } from '@/components/app/LineChart';
 import { SectionCard } from '@/components/app/SectionCard';
+import { LoadingSections } from '@/components/app/LoadingSections';
 import { LoadFailure } from '@/features/arquebusier-registry/components/LoadFailure';
 import { useFormatters } from '@/lib/format';
 import { changeOf, editionsWithOrders, shareOf } from '../trends';
@@ -434,9 +435,10 @@ export default function TrendsTab({ comparsaId, enabled }: TrendsTabProps) {
   return (
     <div className="flex flex-col gap-section" aria-busy={query.isFetching || undefined}>
       {/* One status region for the whole tab, so the loading text is announced when it changes. */}
-      <p role="status" className={loading ? 'text-muted-foreground' : 'sr-only'}>
+      <p role="status" className="sr-only">
         {loading ? t('trends.loading') : ''}
       </p>
+      {loading && <LoadingSections count={2} />}
       {query.isError && <LoadFailure error={query.error} onRetry={() => query.refetch()} />}
       {trends && provisional && (
         <p className="text-help text-muted-foreground">
