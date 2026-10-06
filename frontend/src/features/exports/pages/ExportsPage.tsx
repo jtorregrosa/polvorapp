@@ -9,6 +9,7 @@ import {
 import type { ExportCatalogResponse, OverviewResponse, OverviewRowResponse } from '@/api/generated/model';
 import { ApiProblemError } from '@/api/http';
 import { AlertBanner } from '@/components/app/AlertBanner';
+import { Disclosure } from '@/components/app/Disclosure';
 import { PageHeader } from '@/components/app/PageHeader';
 import { SectionCard } from '@/components/app/SectionCard';
 import { SectionGrid } from '@/components/app/SectionGrid';
@@ -42,14 +43,17 @@ function Missing({ rows }: { rows: readonly OverviewRowResponse[] }) {
   return (
     <AlertBanner severity="warning" live={false} title={t('missing.title')}>
       <p>{t('missing.body', { count: missing.length })}</p>
-      {/* eslint-disable-next-line jsx-a11y/no-redundant-roles -- Safari drops list semantics under `list-style: none`. */}
-      <ul role="list" className="mt-1 flex flex-col gap-1">
-        {missing.map(({ row, status }) => (
-          <li key={row.comparsa.id}>
-            {t('missing.item', { comparsa: row.comparsa.name, status: t(`missing.status.${status}`) })}
-          </li>
-        ))}
-      </ul>
+      {/* A long list would push the downloads far down: folded under one line, in columns (UI audit). */}
+      <Disclosure summary={t('missing.show', { count: missing.length })}>
+        {/* eslint-disable-next-line jsx-a11y/no-redundant-roles -- Safari drops list semantics under `list-style: none`. */}
+        <ul role="list" className="grid gap-x-4 gap-y-1 sm:grid-cols-2 xl:grid-cols-3">
+          {missing.map(({ row, status }) => (
+            <li key={row.comparsa.id}>
+              {t('missing.item', { comparsa: row.comparsa.name, status: t(`missing.status.${status}`) })}
+            </li>
+          ))}
+        </ul>
+      </Disclosure>
     </AlertBanner>
   );
 }

@@ -1,3 +1,4 @@
+import { Trash2 } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { RowData } from '@tanstack/react-table';
 import { createContext, use, useMemo, useState, type ReactNode } from 'react';
@@ -105,7 +106,13 @@ function RemoveCell({ row }: { row: unknown }) {
         void onChanged();
       }}
       trigger={
-        <Button type="button" variant="quiet" size="sm" aria-label={text.remove(name)}>
+        <Button
+          type="button"
+          variant="quietDestructive"
+          size="sm"
+          icon={Trash2}
+          aria-label={text.remove(name)}
+        >
           {text.removeShort}
         </Button>
       }

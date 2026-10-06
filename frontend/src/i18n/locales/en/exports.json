@@ -20,7 +20,9 @@
       "DRAFT": "draft",
       "SUBMITTED": "submitted",
       "RETURNED": "returned"
-    }
+    },
+    "show_one": "Show the comparsa",
+    "show_other": "Show the {{count}} comparsas"
   },
   "recipients": {
     "powder-supplier": {

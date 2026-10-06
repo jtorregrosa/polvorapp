@@ -84,7 +84,12 @@
       "startsAt": "Hora",
       "comparsa": "Comparsa"
     },
-    "timeFor": "Hora de {{comparsa}}"
+    "timeFor": "Hora de {{comparsa}}",
+    "withoutSlot_one": "{{count}} comparsa sin turno",
+    "withoutSlot_other": "{{count}} comparsas sin turno",
+    "yourSlot": "Tu turno: {{date}} · {{time}} · {{location}}",
+    "comparsaSlot": "{{comparsa}}: {{date}} · {{time}} · {{location}}",
+    "noSlotYet": "{{date}} · {{location}}. Aún no tienes turno."
   },
   "list": {
     "title": "Listado de reparto",
@@ -103,7 +108,9 @@
         "DRAFT": "en borrador",
         "SUBMITTED": "enviado",
         "RETURNED": "devuelto"
-      }
+      },
+      "show_one": "Ver la comparsa",
+      "show_other": "Ver las {{count}} comparsas"
     }
   },
   "proxies": {

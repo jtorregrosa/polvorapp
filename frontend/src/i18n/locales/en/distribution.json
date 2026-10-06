@@ -84,7 +84,12 @@
       "startsAt": "Time",
       "comparsa": "Comparsa"
     },
-    "timeFor": "Time for {{comparsa}}"
+    "timeFor": "Time for {{comparsa}}",
+    "withoutSlot_one": "{{count}} comparsa without a slot",
+    "withoutSlot_other": "{{count}} comparsas without a slot",
+    "yourSlot": "Your slot: {{date}} · {{time}} · {{location}}",
+    "comparsaSlot": "{{comparsa}}: {{date}} · {{time}} · {{location}}",
+    "noSlotYet": "{{date}} · {{location}}. You have no slot yet."
   },
   "list": {
     "title": "Distribution list",
@@ -103,7 +108,9 @@
         "DRAFT": "draft",
         "SUBMITTED": "submitted",
         "RETURNED": "returned"
-      }
+      },
+      "show_one": "Show the comparsa",
+      "show_other": "Show the {{count}} comparsas"
     }
   },
   "proxies": {

@@ -299,3 +299,8 @@ meter[data-slot='meter']::-moz-meter-bar {
   outline-offset: 2px;
   box-shadow: 0 0 0 4px var(--background);
 }
+
+/* Disclosure: Safari still draws the native marker of a `list-none` summary. */
+[data-slot='disclosure-summary']::-webkit-details-marker {
+  display: none;
+}

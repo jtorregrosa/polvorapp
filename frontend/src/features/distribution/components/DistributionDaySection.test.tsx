@@ -44,11 +44,10 @@ describe('Distribution days on the distribution page (spec: Distribution screens
     expect(facts).toHaveTextContent('Paraje Sintético del Reparto');
     const table = within(section).getByRole('table', { name: 'Turnos del día de reparto de pólvora' });
     const rows = within(table).getAllByRole('row').slice(1);
-    expect(rows.map((row) => row.textContent)).toEqual([
-      `09:00${NORTE.name}`,
-      `09:30${SUR.name}`,
-      `Sin turno${ESTE.name}`,
-    ]);
+    expect(rows.map((row) => row.textContent)).toEqual([`09:00${NORTE.name}`, `09:30${SUR.name}`]);
+    // The comparsas without a slot, folded under their count (UI audit).
+    const without = within(section).getByText('1 comparsa sin turno');
+    expect(without.closest('details')).toHaveTextContent(ESTE.name);
   });
 
   it('says a day is not planned and offers an Admin to plan it, without a list', async () => {
@@ -379,13 +378,11 @@ describe('Distribution days on the distribution page (spec: Distribution screens
     await renderApp(PAGE, { session: SYNTHETIC_FIRING_CHIEF });
     const section = await powder();
 
-    const table = within(section).getByRole('table', { name: 'Turnos del día de reparto de pólvora' });
+    // Date, time and place of their slot in one line (UI audit).
     expect(
-      within(table)
-        .getAllByRole('row')
-        .slice(1)
-        .map((row) => row.textContent),
-    ).toEqual([`09:00${NORTE.name}`]);
+      within(section).getByText('Tu turno: 18 de abril de 2031 · 09:00 · Paraje Sintético del Reparto'),
+    ).toBeInTheDocument();
+    expect(within(section).queryByRole('table')).not.toBeInTheDocument();
     expect(within(section).queryByRole('button')).not.toBeInTheDocument();
     expect(within(await weapons()).queryByRole('button')).not.toBeInTheDocument();
   });

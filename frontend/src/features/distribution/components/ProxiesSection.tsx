@@ -40,7 +40,8 @@ function RowActions({ proxy, canRemove, focusAfterRemoval }: RowActionsProps) {
   const notify = useSaveNotice();
   const names = { holder: proxy.holder.name, type: t(`proxies.typeName.${proxy.type}`) };
   return (
-    <div className="flex flex-wrap items-start justify-end gap-2">
+    // One line per row: print, then the quieter destructive remove (UI audit T9).
+    <div className="flex flex-nowrap items-center justify-end gap-2">
       {proxy.problem === null && (
         <DownloadButtons
           what={t('proxies.formWhat', names)}
@@ -80,7 +81,12 @@ function RowActions({ proxy, canRemove, focusAfterRemoval }: RowActionsProps) {
             void refresh();
           }}
           trigger={
-            <Button variant="secondary" size="sm" icon={Trash2} aria-label={t('proxies.removeName', names)}>
+            <Button
+              variant="quietDestructive"
+              size="sm"
+              icon={Trash2}
+              aria-label={t('proxies.removeName', names)}
+            >
               {t('proxies.remove')}
             </Button>
           }
