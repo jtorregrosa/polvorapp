@@ -52,6 +52,7 @@ internal static class AssignmentEndpoints
             .ToListAsync(cancellationToken);
         return TypedResults.Ok(rows
             .OrderBy(r => r.Name, SpanishOrder.Names)
+            .ThenBy(r => r.UserId)
             .Select(r => new AssignmentResponse(r.UserId, r.ComparsaId, r.Name))
             .ToList());
     }
