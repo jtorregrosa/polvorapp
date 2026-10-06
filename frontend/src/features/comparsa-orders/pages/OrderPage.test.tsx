@@ -392,6 +392,16 @@ describe('OrderPage (spec: Orders screens)', () => {
     expect(screen.getByText(/DNI\/NIE 00000091E/)).toHaveTextContent('Ya no está en el registro');
   });
 
+  it('puts "Submit order" in a bar at the bottom on a phone, after the lines (UI audit)', async () => {
+    setViewportWidth(360);
+    await open();
+
+    const submit = await screen.findByRole('button', { name: 'Enviar pedido' });
+    expect(submit.closest('[data-slot="action-bar"]')).toHaveAttribute('data-above-nav');
+    expect(submit.closest('header')).toBeNull();
+    expect(screen.getAllByRole('button', { name: 'Enviar pedido' })).toHaveLength(1);
+  });
+
   it('shows the not-found page for an order it cannot see', async () => {
     server.use(mock.get('/api/comparsa-orders/unknown', () => problem(404, 'orders.notFound')));
     await renderApp('/orders/unknown', { session: SYNTHETIC_FIRING_CHIEF });

@@ -17,6 +17,8 @@ import { PageHeader } from '@/components/app/PageHeader';
 import { RecordHeader } from '@/components/app/RecordHeader';
 import { SectionCard } from '@/components/app/SectionCard';
 import { StatusBadge } from '@/components/app/StatusBadge';
+import { ActionBar } from '@/components/app/ActionBar';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { BillingSummarySection } from '@/features/billing/components/BillingSummarySection';
 import { DownloadButtons } from '@/features/exports/components/DownloadButtons';
 import { LoadFailure } from '@/features/arquebusier-registry/components/LoadFailure';
@@ -29,6 +31,7 @@ import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { personName, useEntryText } from '../orderText';
 import { EntryEditSheet } from '../components/EntryEditSheet';
 import { OrderActions } from '../components/OrderActions';
+import { hasOrderActions } from '../orderMoves';
 import { needsReload, problemCode, problemMessage } from '../problems';
 import { orderChanged, reloadOrder } from '../queries';
 
@@ -219,6 +222,7 @@ export function OrderPage() {
   const [notice, announce] = useNotice();
   const add = useAddEditionEntry();
   const isAdmin = useSession().account?.role === 'ADMIN';
+  const isMobile = useIsMobile();
   const [adding, setAdding] = useState<string>();
   const canEdit = order?.canEdit === true;
   // Called once the panel is gone (the reload removed it): announced on the page, which takes focus.
@@ -336,7 +340,8 @@ export function OrderPage() {
             )}
           </>
         }
-        actions={<OrderActions order={order} isAdmin={isAdmin} announce={announce} />}
+        // On phones the moves sit in a bar at the bottom, within thumb's reach after the lines (UI audit).
+        actions={!isMobile && <OrderActions order={order} isAdmin={isAdmin} announce={announce} />}
         back={{ to: `/editions/${order.edition.id}/orders`, label: t('order.back') }}
       />
       <NoticeBanner notice={notice} />
@@ -442,6 +447,12 @@ export function OrderPage() {
             ))}
           </ul>
         </SectionCard>
+      )}
+      {isMobile && hasOrderActions(order, isAdmin) && (
+        <ActionBar
+          aboveNavigation
+          primary={<OrderActions order={order} isAdmin={isAdmin} announce={announce} />}
+        />
       )}
     </>
   );
