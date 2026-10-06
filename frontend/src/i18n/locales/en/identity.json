@@ -101,7 +101,8 @@
     "signOutEverywhereDescription": "Ends your session on all your devices and forgets remembered devices.",
     "signOutEverywhere": "Sign out everywhere",
     "signOutEverywhereConfirmTitle": "Sign out on all your devices?",
-    "signOutEverywhereConfirmDescription": "You will be signed out here too and will need the code from your app to sign in again."
+    "signOutEverywhereConfirmDescription": "You will be signed out here too and will need the code from your app to sign in again.",
+    "recoveryNoneLeft": "You have no recovery codes left: if you lose your phone, you will not be able to sign in. Generate new codes and keep them somewhere safe."
   },
   "users": {
     "title": "Users",

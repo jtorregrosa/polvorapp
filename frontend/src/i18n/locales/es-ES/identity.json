@@ -101,7 +101,8 @@
     "signOutEverywhereDescription": "Cierra la sesión en todos tus dispositivos y olvida los dispositivos recordados.",
     "signOutEverywhere": "Cerrar todas las sesiones",
     "signOutEverywhereConfirmTitle": "¿Cerrar la sesión en todos tus dispositivos?",
-    "signOutEverywhereConfirmDescription": "También se cerrará aquí y tendrás que volver a iniciar sesión con el código de tu aplicación."
+    "signOutEverywhereConfirmDescription": "También se cerrará aquí y tendrás que volver a iniciar sesión con el código de tu aplicación.",
+    "recoveryNoneLeft": "No te quedan códigos de recuperación: si pierdes el móvil, no podrás entrar. Genera códigos nuevos y guárdalos en un lugar seguro."
   },
   "users": {
     "title": "Usuarios",
