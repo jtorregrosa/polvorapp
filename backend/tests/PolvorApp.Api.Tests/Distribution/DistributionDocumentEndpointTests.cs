@@ -11,6 +11,7 @@ using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.ComparsaOrders.Entries;
 using PolvorApp.ComparsaOrders.Orders;
 using PolvorApp.ComparsaOrders.Persistence;
+using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.FederationCatalog.Logos;
 using PolvorApp.FederationCatalog.Persistence;
 using PolvorApp.SharedKernel.Auditing;
@@ -18,7 +19,6 @@ using PolvorApp.SharedKernel.Storage;
 using UglyToad.PdfPig;
 using static PolvorApp.Api.Tests.Infrastructure.DistributionData;
 using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
-
 namespace PolvorApp.Api.Tests.Distribution;
 
 /// <summary>
@@ -234,6 +234,19 @@ public sealed class DistributionDocumentEndpointTests(PostgresFixture postgres, 
 
         await AssertProblemAsync(list, HttpStatusCode.ServiceUnavailable, "distribution.auditUnavailable");
         await AssertProblemAsync(form, HttpStatusCode.ServiceUnavailable, "distribution.auditUnavailable");
+    }
+
+    [Fact]
+    public async Task Without_the_settings_no_form_is_printed_with_a_fallback_name_nor_audited()
+    {
+        await using var unreadable = await OrderTestHost.StartAsync(postgres, mailpit, services => services.AddScoped<IFederationSettings, UnreadableFederationSettings>());
+        var (_, _, _, _, proxy) = await ArrangeAsync(unreadable);
+
+        using var form = await unreadable.Admin.GetAsync($"/api/distribution/proxies/{proxy}/form", Token);
+
+        Assert.Equal(HttpStatusCode.InternalServerError, form.StatusCode);
+        Assert.NotEqual("application/pdf", form.Content.Headers.ContentType?.MediaType);
+        Assert.Empty(await unreadable.Host.AuditEntriesAsync("DistributionDocumentDownloaded"));
     }
 
     [Fact]

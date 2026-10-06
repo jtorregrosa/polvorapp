@@ -8,11 +8,11 @@ using PolvorApp.Api.Tests.Catalog;
 using PolvorApp.Api.Tests.Infrastructure;
 using PolvorApp.Api.Tests.Registry;
 using PolvorApp.Badges.Endpoints;
+using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.SharedKernel.Images;
 using PolvorApp.SharedKernel.Storage;
 using UglyToad.PdfPig;
 using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
-
 namespace PolvorApp.Api.Tests.Badges;
 
 /// <summary>
@@ -254,6 +254,20 @@ public sealed class BadgeEndpointTests(PostgresFixture postgres, MailpitFixture 
         using var response = await PostAsync(busy.Admin, new { comparsaId = busy.Own.Id, language = "es-ES" });
 
         await AssertProblemAsync(response, HttpStatusCode.ServiceUnavailable, "badges.busy");
+    }
+
+    [Fact]
+    public async Task Without_the_settings_no_sheet_is_printed_with_a_fallback_name_nor_audited()
+    {
+        await using var unreadable = await RegistryTestHost.StartAsync(
+            postgres, mailpit, services => services.AddScoped<IFederationSettings, UnreadableFederationSettings>());
+        await unreadable.Services.SaveRegistryAsync(RegistryData.NewArquebusier(unreadable.Own.Id));
+
+        using var response = await PostAsync(unreadable.Admin, new { comparsaId = unreadable.Own.Id, language = "es-ES" });
+
+        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        Assert.NotEqual("application/pdf", response.Content.Headers.ContentType?.MediaType);
+        Assert.Empty(await unreadable.Host.AuditEntriesAsync("BadgesDownloaded"));
     }
 
     [Fact]
