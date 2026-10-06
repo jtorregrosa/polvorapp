@@ -14,6 +14,7 @@ import { FilterSelect } from '@/components/app/FilterSelect';
 import { PageHeader } from '@/components/app/PageHeader';
 import { SearchField } from '@/components/app/SearchField';
 import { StatFilter } from '@/components/app/StatFilter';
+import { StatusBadge } from '@/components/app/StatusBadge';
 import { BadgeSheet } from '@/features/badges/components/BadgeSheet';
 import { MAX_BADGES } from '@/features/badges/batch';
 import { useSession } from '@/features/identity-access/session';
@@ -269,13 +270,17 @@ export function ArquebusiersPage() {
       <PageHeader
         title={t('arquebusiers.title')}
         description={isAdmin ? t('arquebusiers.description') : t('arquebusiers.descriptionFiringChief')}
+        statuses={
+          isAdmin && lock.known && <StatusBadge kind="registry" value={lock.locked ? 'LOCKED' : 'OPEN'} />
+        }
         actions={
           !unassigned && (
+            // The main action first, so it leads when the actions wrap on a phone (UI audit).
             <>
-              <RegistryLockAction lock={lock} />
-              {comparsaBadges}
-              {importAction}
               {registerAction}
+              {importAction}
+              {comparsaBadges}
+              <RegistryLockAction lock={lock} />
             </>
           )
         }

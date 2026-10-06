@@ -117,6 +117,10 @@
       "OPEN": "Orders open",
       "CLOSED": "Orders closed"
     },
+    "registry": {
+      "OPEN": "Registry open",
+      "LOCKED": "Registry locked"
+    },
     "twoFactor": {
       "ENABLED": "Enabled",
       "NOT_SET": "Not set up"

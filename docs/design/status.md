@@ -54,6 +54,13 @@ neutral pill with the raw code and a development-only console warning.
 | `OPEN` | success | CircleCheck | Pedidos abiertos | Comandes obertes | Orders open |
 | `CLOSED` | info | Lock | Pedidos cerrados | Comandes tancades | Orders closed |
 
+## `registry`
+
+| Value | Tone | Icon | es-ES | ca-ES-valencia | en |
+|---|---|---|---|---|---|
+| `OPEN` | success | LockOpen | Registro abierto | Registre obert | Registry open |
+| `LOCKED` | info | Lock | Registro bloqueado | Registre bloquejat | Registry locked |
+
 ## `billing`
 
 | Value | Tone | Icon | es-ES | ca-ES-valencia | en |
