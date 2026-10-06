@@ -38,6 +38,7 @@ import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { ComparsaLogoSection } from '../components/ComparsaLogoSection';
 import { FiringChiefsSection } from '../components/FiringChiefsSection';
 import { useLifecycleActions } from '../components/useLifecycleActions';
+import { ComparsaFacts } from '../components/ComparsaFacts';
 import { logoUrl } from '../logos';
 import { applyFieldErrors, problemCode, problemMessage } from '../problems';
 import { ComparsaFields } from './ComparsaFields';
@@ -253,6 +254,7 @@ function DetailLayout({
           {t('comparsas.detail.inactiveNotice')}
         </AlertBanner>
       )}
+      <ComparsaFacts comparsaId={comparsa.id} />
       <SectionGrid>{children}</SectionGrid>
     </>
   );

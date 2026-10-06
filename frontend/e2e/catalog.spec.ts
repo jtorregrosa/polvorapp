@@ -86,11 +86,17 @@ test.describe('federation catalogue as an Admin', () => {
     await expect(notice(page, 'Comparsa creada.')).toBeFocused();
 
     const chiefs = page.getByRole('region', { name: 'Jefes de disparo', exact: true });
-    await chiefs
+    // Added from a side panel opened in the section's header.
+    await chiefs.getByRole('button', { name: /^Añadir jefe de disparo/ }).click();
+    const panel = page.getByRole('dialog', { name: 'Añadir un jefe de disparo' });
+    await panel
       .getByRole('combobox', { name: /Jefe de disparo que añadir/ })
       .selectOption({ label: 'Joan Moltó Sala (jefe.uno@polvorapp.example)' });
-    await chiefs.getByRole('button', { name: 'Añadir' }).click();
-    await expect(notice(chiefs, 'Joan Moltó Sala ya es jefe de disparo de esta comparsa.')).toBeFocused();
+    await panel.getByRole('button', { name: 'Guardar cambios' }).click();
+    await expect(
+      page.getByText('Joan Moltó Sala ya es jefe de disparo de esta comparsa.').first(),
+    ).toBeVisible();
+    await expect(chiefs.getByRole('button', { name: /^Añadir jefe de disparo/ })).toBeFocused();
     await expect(rows(chiefs, `Jefes de disparo de ${name}`)).toContainText('jefe.uno@polvorapp.example');
 
     // The same assignment, seen and removed from the other side: the FiringChief's user page.
@@ -240,7 +246,7 @@ test.describe('accessibility of the catalogue pages', () => {
         await page.goto(`/comparsas/${SEEDED_SUR}`);
         await waitForShell(page);
         await expect(rows(page, /^Jefes de disparo de /)).toBeVisible();
-        await expect(page.getByRole('combobox', { name: /Jefe de disparo que añadir/ })).toBeVisible();
+        await expect(page.getByRole('button', { name: /^Añadir jefe de disparo/ })).toBeVisible();
         await expectNoHorizontalOverflow(page);
         expect(await axeViolations()).toEqual([]);
       });
@@ -263,7 +269,7 @@ test.describe('accessibility of the catalogue pages', () => {
         await page.goto(`/users/${JEFE_UNO}`);
         await waitForShell(page);
         await expect(rows(page, /^Comparsas de /)).toBeVisible();
-        await expect(page.getByRole('combobox', { name: /Comparsa que añadir/ })).toBeVisible();
+        await expect(page.getByRole('button', { name: /^Añadir comparsa/ })).toBeVisible();
         await expectNoHorizontalOverflow(page);
         expect(await axeViolations()).toEqual([]);
       });

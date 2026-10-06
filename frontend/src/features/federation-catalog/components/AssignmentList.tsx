@@ -1,4 +1,4 @@
-import { Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { RowData } from '@tanstack/react-table';
 import { createContext, use, useMemo, useState, type ReactNode } from 'react';
@@ -10,7 +10,8 @@ import { Button } from '@/components/app/Button';
 import { ConfirmDialog } from '@/components/app/ConfirmDialog';
 import { explainFailure } from '@/components/app/confirm-failure';
 import { DataTable, type DataTableColumn } from '@/components/app/DataTable';
-import { Form, FormField } from '@/components/app/FormField';
+import { EditSheet, type EditResult } from '@/components/app/EditSheet';
+import { FormField } from '@/components/app/FormField';
 import { SectionCard } from '@/components/app/SectionCard';
 import { SelectInput, type SelectOption } from '@/components/app/SelectInput';
 import type { Notice } from '@/lib/notices';
@@ -18,6 +19,7 @@ import { messages, problemMessage } from '../problems';
 
 const addSchema = z.object({ candidate: z.string().min(1, messages.choice) });
 type AddValues = z.infer<typeof addSchema>;
+const EMPTY_ADD: AddValues = { candidate: '' };
 
 /** Someone or something that can be added: `label` is what the select shows, `name` what notices say. */
 export interface AssignmentCandidate {
@@ -34,6 +36,10 @@ export interface AssignmentListText {
   emptyText: string;
   addLabel: string;
   add: string;
+  /** The section's add button, which opens the side panel, e.g. "Add firing chief". */
+  addAction: string;
+  /** The side panel's title. */
+  addTitle: string;
   noCandidates: string;
   /** Replaces the add control, e.g. "Reactivate the comparsa to assign new firing chiefs.". */
   addBlocked?: string;
@@ -147,16 +153,18 @@ export function AssignmentList<TRow extends RowData>({
   };
   const form = useAppForm<AddValues>({ resolver: zodResolver(addSchema), defaultValues: { candidate: '' } });
 
-  const add = async ({ candidate }: AddValues): Promise<void> => {
+  // Added from a side panel opened in the section's header (UI audit): it says what was added and
+  // keeps a refusal open with its reason.
+  const add = async ({ candidate }: AddValues): Promise<EditResult> => {
     const name = candidates.find((option) => option.id === candidate)?.name ?? '';
     try {
       await onAdd(candidate);
-      form.reset({ candidate: '' });
-      announce('success', text.added(name));
     } catch (failure) {
-      announce('error', problemMessage(t, failure));
+      await onChanged();
+      return { status: 'rejected', reason: problemMessage(t, failure) };
     }
     await onChanged();
+    return { status: 'saved', notice: text.added(name) };
   };
 
   const options = useMemo<SelectOption[]>(
@@ -188,26 +196,32 @@ export function AssignmentList<TRow extends RowData>({
     announce,
   };
 
-  const addControl = text.addBlocked ? (
-    <p className="text-help text-muted-foreground">{text.addBlocked}</p>
-  ) : candidates.length === 0 ? (
-    <p className="text-help text-muted-foreground">{text.noCandidates}</p>
-  ) : (
-    <Form form={form} onSubmit={add} requiredNote={false} className="flex flex-wrap items-end gap-3">
+  // Why nothing can be added, in place of the section's add button.
+  const addNote = text.addBlocked ?? (candidates.length === 0 ? text.noCandidates : undefined);
+  const addAction = !isLoading && addNote === undefined && (
+    <EditSheet
+      title={text.addTitle}
+      sectionName={text.addAction}
+      trigger={{ label: text.addAction, icon: Plus }}
+      form={form}
+      values={EMPTY_ADD}
+      onSave={add}
+    >
       <FormField control={form.control} name="candidate" label={text.addLabel} width="long">
         {(field) => <SelectInput {...field} placeholder={t('validation.choice')} options={options} />}
       </FormField>
-      {/* Level with the select, whether or not an error shows between its label and it. */}
-      <Button type="submit" variant="secondary" pending={form.formState.isSubmitting}>
-        {text.add}
-      </Button>
-    </Form>
+    </EditSheet>
   );
 
   const failed = error !== undefined && error !== null;
 
   return (
-    <SectionCard span="full" title={text.title} description={text.description}>
+    <SectionCard
+      span="full"
+      title={text.title}
+      description={text.description}
+      action={addAction || undefined}
+    >
       {notice && (
         <AlertBanner key={notice.id} severity={notice.severity} focusOnMount>
           {notice.text}
@@ -236,7 +250,9 @@ export function AssignmentList<TRow extends RowData>({
               emptyText={text.emptyText}
             />
           </RowActionsContext>
-          {!isLoading && addControl}
+          {!isLoading && addNote !== undefined && (
+            <p className="text-help text-muted-foreground">{addNote}</p>
+          )}
         </>
       )}
     </SectionCard>

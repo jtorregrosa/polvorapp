@@ -8,7 +8,10 @@
     "columns": {
       "name": "Nom",
       "side": "Bàndol",
-      "status": "Estat"
+      "status": "Estat",
+      "active": "En actiu",
+      "withWarnings": "Actius amb avisos",
+      "order": "Comanda"
     },
     "filters": {
       "side": "Bàndol",
@@ -72,6 +75,16 @@
       "removeConfirm": "Lleva el logo",
       "uploaded": "Logo guardat",
       "removed": "Logo llevat"
+    },
+    "facts": {
+      "label": "Xifres de la comparsa",
+      "active": "En actiu",
+      "reserve": "En reserva",
+      "withWarnings": "Actius amb avisos",
+      "order": "Comanda de {{year}}",
+      "notPrepared": "Sense preparar",
+      "openOrder": "Mostra la comanda",
+      "link": "{{value}} {{label}}"
     }
   },
   "federation": {
@@ -179,7 +192,9 @@
     "removeDescription": "Deixarà de veure esta comparsa a partir de la seua acció següent.",
     "added": "{{name}} ja és cap de disparada d'esta comparsa.",
     "removed": "{{name}} ja no és cap de disparada d'esta comparsa.",
-    "caption": "Caps de disparada de {{name}}"
+    "caption": "Caps de disparada de {{name}}",
+    "addAction": "Afig cap de disparada",
+    "addTitle": "Afig un cap de disparada"
   },
   "userComparsas": {
     "title": "Comparses",
@@ -195,7 +210,9 @@
     "added": "Comparsa {{name}} assignada.",
     "removed": "Comparsa {{name}} llevada.",
     "adminNoEffect": "Este usuari és administrador i veu totes les comparses. Estes assignacions no tenen efecte si no torna a ser cap de disparada.",
-    "caption": "Comparses de {{name}}"
+    "caption": "Comparses de {{name}}",
+    "addAction": "Afig comparsa",
+    "addTitle": "Assigna una comparsa"
   },
   "weaponModels": {
     "title": "Models d'arma",

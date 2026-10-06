@@ -17,8 +17,10 @@ import { StatusBadge } from '@/components/app/StatusBadge';
 import { CategoryTag } from '@/components/app/Tag';
 import { useSession } from '@/features/identity-access/session';
 import { knownFilter, withFilter } from '@/lib/search-filters';
+import { useFormatters } from '@/lib/format';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { useNotice } from '@/lib/notices';
+import { useComparsaFigures } from '../comparsaFigures';
 import { logoUrl } from '../logos';
 import { problemMessage } from '../problems';
 
@@ -44,6 +46,9 @@ export function ComparsasPage() {
     : { includeInactive: true };
   const comparsas = useListComparsas(params, { query: { enabled: session.status === 'signedIn' } });
   const rows = useMemo(() => (comparsas.data?.data ?? []) as ComparsaResponse[], [comparsas.data]);
+  // Each comparsa's figures beside it, once they load (UI audit, item 17).
+  const figures = useComparsaFigures();
+  const { number } = useFormatters();
 
   const columns = useMemo<DataTableColumn<ComparsaResponse>[]>(
     () => [
@@ -73,8 +78,49 @@ export function ComparsasPage() {
         sortValue: (comparsa) => tUi(`status.catalog.${comparsa.active ? 'ACTIVE' : 'INACTIVE'}`),
         cell: (comparsa) => <StatusBadge kind="catalog" value={comparsa.active ? 'ACTIVE' : 'INACTIVE'} />,
       },
+      ...(figures
+        ? [
+            {
+              id: 'active',
+              header: t('comparsas.columns.active'),
+              align: 'end' as const,
+              sortValue: (comparsa: ComparsaResponse) => figures.byComparsa.get(comparsa.id)?.active ?? 0,
+              cell: (comparsa: ComparsaResponse) => number(figures.byComparsa.get(comparsa.id)?.active ?? 0),
+            },
+            {
+              id: 'withWarnings',
+              header: t('comparsas.columns.withWarnings'),
+              align: 'end' as const,
+              sortValue: (comparsa: ComparsaResponse) =>
+                figures.byComparsa.get(comparsa.id)?.activeWithWarnings ?? 0,
+              cell: (comparsa: ComparsaResponse) =>
+                number(figures.byComparsa.get(comparsa.id)?.activeWithWarnings ?? 0),
+            },
+            ...(figures.year !== undefined
+              ? [
+                  {
+                    id: 'order',
+                    header: t('comparsas.columns.order'),
+                    sortValue: (comparsa: ComparsaResponse) => {
+                      const status = figures.byComparsa.get(comparsa.id)?.order?.status;
+                      return status ? tUi(`status.order.${status}`) : '';
+                    },
+                    cell: (comparsa: ComparsaResponse) => {
+                      const order = figures.byComparsa.get(comparsa.id)?.order;
+                      if (!order) return null;
+                      return order.status ? (
+                        <StatusBadge kind="order" value={order.status} />
+                      ) : (
+                        <span className="text-muted-foreground">{t('comparsas.facts.notPrepared')}</span>
+                      );
+                    },
+                  },
+                ]
+              : []),
+          ]
+        : []),
     ],
-    [t, tUi],
+    [t, tUi, figures, number],
   );
 
   const setFilter = (key: 'side' | 'includeInactive', value: string): void => {
@@ -164,6 +210,11 @@ export function ComparsasPage() {
                   <StatusBadge kind="catalog" value={comparsa.active ? 'ACTIVE' : 'INACTIVE'} />
                 </span>
               </span>
+              {figures && (
+                <span className="text-help text-muted-foreground">
+                  {`${t('comparsas.columns.active')}: ${number(figures.byComparsa.get(comparsa.id)?.active ?? 0)} · ${t('comparsas.columns.withWarnings')}: ${number(figures.byComparsa.get(comparsa.id)?.activeWithWarnings ?? 0)}`}
+                </span>
+              )}
             </>
           )}
           isLoading={comparsas.isPending}

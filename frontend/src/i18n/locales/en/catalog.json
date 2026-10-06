@@ -8,7 +8,10 @@
     "columns": {
       "name": "Name",
       "side": "Side",
-      "status": "Status"
+      "status": "Status",
+      "active": "Active",
+      "withWarnings": "Active with warnings",
+      "order": "Order"
     },
     "filters": {
       "side": "Side",
@@ -72,6 +75,16 @@
       "removeConfirm": "Remove logo",
       "uploaded": "Logo saved",
       "removed": "Logo removed"
+    },
+    "facts": {
+      "label": "Comparsa figures",
+      "active": "Active",
+      "reserve": "Reserve",
+      "withWarnings": "Active with warnings",
+      "order": "{{year}} order",
+      "notPrepared": "Not prepared",
+      "openOrder": "See the order",
+      "link": "{{value}} {{label}}"
     }
   },
   "federation": {
@@ -179,7 +192,9 @@
     "removeDescription": "They will no longer see this comparsa from their next action.",
     "added": "{{name}} is now a firing chief of this comparsa.",
     "removed": "{{name}} is no longer a firing chief of this comparsa.",
-    "caption": "Firing chiefs of {{name}}"
+    "caption": "Firing chiefs of {{name}}",
+    "addAction": "Add firing chief",
+    "addTitle": "Add a firing chief"
   },
   "userComparsas": {
     "title": "Comparsas",
@@ -195,7 +210,9 @@
     "added": "Comparsa {{name}} assigned.",
     "removed": "Comparsa {{name}} removed.",
     "adminNoEffect": "This user is an administrator and sees every comparsa. These assignments have no effect unless they become a firing chief again.",
-    "caption": "Comparsas of {{name}}"
+    "caption": "Comparsas of {{name}}",
+    "addAction": "Add comparsa",
+    "addTitle": "Assign a comparsa"
   },
   "weaponModels": {
     "title": "Weapon models",

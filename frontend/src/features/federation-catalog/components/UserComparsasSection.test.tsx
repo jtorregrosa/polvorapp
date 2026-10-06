@@ -20,6 +20,12 @@ function userWithComparsas(user: UserResponse, initial: ComparsaResponse[]) {
   return state;
 }
 
+/** Opens the side panel of the section's add button (UI audit: add from the section header). */
+async function openAdd(user: ReturnType<typeof userEvent.setup>, group: HTMLElement): Promise<HTMLElement> {
+  await user.click(await within(group).findByRole('button', { name: /^Añadir comparsa/ }));
+  return screen.findByRole('dialog', { name: 'Asignar una comparsa' });
+}
+
 async function section() {
   return screen.findByRole('region', { name: 'Comparsas' });
 }
@@ -36,7 +42,8 @@ describe('Comparsas section of a user (spec: Managing assignments from the compa
     for (const side of within(table).getAllByText(/^(Moro|Cristiano)$/)) {
       expect(side.closest('[data-tag]')).toBeInTheDocument();
     }
-    const choice = within(group).getByRole('combobox', { name: 'Comparsa que añadir' });
+    const panel = await openAdd(userEvent.setup(), group);
+    const choice = within(panel).getByRole('combobox', { name: 'Comparsa que añadir' });
     await waitFor(() => {
       expect(
         within(choice)
@@ -59,16 +66,16 @@ describe('Comparsas section of a user (spec: Managing assignments from the compa
     );
     await renderApp(`/users/${CHIEF_UNO.id}`, { session: SYNTHETIC_ADMIN });
     const group = await section();
-    await within(group).findByRole('option', { name: 'Comparsa Sintética Sur' });
+    const panel = await openAdd(user, group);
+    await within(panel).findByRole('option', { name: 'Comparsa Sintética Sur' });
 
-    await user.selectOptions(within(group).getByRole('combobox', { name: 'Comparsa que añadir' }), SUR.id);
-    await user.click(within(group).getByRole('button', { name: 'Añadir' }));
+    await user.selectOptions(within(panel).getByRole('combobox', { name: 'Comparsa que añadir' }), SUR.id);
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
 
-    const notice = (await within(group).findByText('Comparsa Comparsa Sintética Sur asignada.')).closest(
-      '[data-severity]',
-    );
+    // Announced, with focus back on the section's add button.
+    expect(await screen.findAllByText('Comparsa Comparsa Sintética Sur asignada.')).not.toHaveLength(0);
     await waitFor(() => {
-      expect(notice).toHaveFocus();
+      expect(within(group).getByRole('button', { name: /^Añadir comparsa/ })).toHaveFocus();
     });
     expect(assigned).toEqual([SUR.id]);
     expect(await within(group).findByRole('table', { name: /^Comparsas de / })).toHaveTextContent(
@@ -88,14 +95,16 @@ describe('Comparsas section of a user (spec: Managing assignments from the compa
     );
     await renderApp(`/users/${CHIEF_UNO.id}`, { session: SYNTHETIC_ADMIN });
     const group = await section();
-    await within(group).findByRole('option', { name: 'Comparsa Sintética Sur' });
+    const panel = await openAdd(user, group);
+    await within(panel).findByRole('option', { name: 'Comparsa Sintética Sur' });
 
-    await user.selectOptions(within(group).getByRole('combobox', { name: 'Comparsa que añadir' }), SUR.id);
-    await user.click(within(group).getByRole('button', { name: 'Añadir' }));
+    await user.selectOptions(within(panel).getByRole('combobox', { name: 'Comparsa que añadir' }), SUR.id);
+    await user.click(within(panel).getByRole('button', { name: 'Guardar cambios' }));
 
     expect(
-      await within(group).findByText('La comparsa está inactiva y no admite nuevos jefes de disparo.'),
+      await within(panel).findByText('La comparsa está inactiva y no admite nuevos jefes de disparo.'),
     ).toBeInTheDocument();
+    await user.keyboard('{Escape}');
     expect(await within(group).findByRole('table', { name: /^Comparsas de / })).toHaveTextContent(
       'Comparsa Sintética Norte',
     );
