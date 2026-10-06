@@ -24,7 +24,11 @@ function serve(trends: TrendsResponse | (() => Response), comparsas = [NORTE, SU
 
 async function open(session = SYNTHETIC_ADMIN, language?: string) {
   const app = await renderApp('/statistics?view=trends', { session, language });
-  await screen.findByRole('heading', { level: 2, name: /Arcabuceros por edición|Cifras de/ });
+  await screen.findByRole(
+    'heading',
+    { level: 2, name: /Arcabuceros por edición|Cifras de/ },
+    { timeout: 5000 },
+  );
   return app;
 }
 

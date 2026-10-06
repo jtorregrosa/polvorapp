@@ -158,7 +158,9 @@
       "editName": "account details"
     },
     "cancel": "Cancel",
-    "erased": "Erased user"
+    "erased": "Erased user",
+    "twoFactorShort": "Two-step",
+    "comparsasFailed": "The users' comparsas could not be loaded."
   },
   "roles": {
     "ADMIN": "Administrator",

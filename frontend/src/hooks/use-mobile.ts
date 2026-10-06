@@ -9,14 +9,6 @@ export function useIsMobile() {
   return useIsBelow(MOBILE_BREAKPOINT);
 }
 
-/** Below this width a dashboard keeps one column (`xl`). */
-const WIDE_BREAKPOINT = 1280;
-
-/** Local edit (UI audit): whether a dashboard keeps one column (below 1280 px). */
-export function useIsBelowWide() {
-  return useIsBelow(WIDE_BREAKPOINT);
-}
-
 /** Local edit (UI audit T1): whether the sidebar is a drawer (below 1024 px). */
 export function useIsSidebarDrawer() {
   return useIsBelow(SIDEBAR_DRAWER_BREAKPOINT);

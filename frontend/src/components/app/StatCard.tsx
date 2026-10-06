@@ -29,7 +29,11 @@ export function StatCard({ label, value, description, to, tone = 'neutral', clas
   const descriptionId = useId();
   const classes = cn(
     'flex flex-col gap-1 rounded-lg border bg-card p-4 text-card-foreground',
-    to && 'transition-colors hover:border-primary',
+    // The hover colour leaves a severity bar's start edge alone.
+    to &&
+      (tone === 'neutral'
+        ? 'transition-colors hover:border-primary'
+        : 'transition-colors hover:border-y-primary hover:border-e-primary'),
     tone !== 'neutral' && TONES[tone],
     className,
   );

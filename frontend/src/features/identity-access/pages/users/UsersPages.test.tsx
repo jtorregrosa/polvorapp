@@ -108,6 +108,18 @@ describe('UsersPage (spec: User management by Admins)', () => {
     expect(names).toEqual(['Jefa Sintética', 'Persona Invitada']);
   });
 
+  it('says when the comparsas could not be loaded, instead of a blank column', async () => {
+    server.use(
+      mock.get('/api/users', () => HttpResponse.json([CHIEF])),
+      mock.get('/api/assignments', () => problem(500, 'server.error')),
+    );
+    await asAdmin('/users');
+
+    expect(
+      await screen.findByText(/No se han podido cargar las comparsas de los usuarios/),
+    ).toBeInTheDocument();
+  });
+
   it("lists each FiringChief's comparsas (UI audit)", async () => {
     server.use(
       mock.get('/api/users', () => HttpResponse.json([CHIEF, INVITED])),

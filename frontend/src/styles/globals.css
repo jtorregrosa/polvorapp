@@ -102,13 +102,14 @@ html:has([data-slot='action-bar']:not([data-above-nav]))
 /* A page's own action bar that keeps the bottom navigation (an order's "Submit") sits right above it. */
 @media (width < 48rem) {
   html:has([data-slot='bottom-nav']) [data-slot='action-bar'][data-above-nav] {
-    bottom: calc(var(--spacing-bottom-bar) + env(safe-area-inset-bottom, 0px));
+    bottom: var(--bottom-nav-height, calc(var(--spacing-bottom-bar) + env(safe-area-inset-bottom, 0px)));
   }
 
   html:has([data-slot='bottom-nav']):has([data-slot='action-bar'][data-above-nav]) {
     scroll-padding-block-end: calc(
-      var(--action-bar-height, var(--spacing-action-bar)) + var(--spacing-bottom-bar) +
-        env(safe-area-inset-bottom, 0px) + var(--spacing-group)
+      var(--action-bar-height, var(--spacing-action-bar)) +
+        var(--bottom-nav-height, calc(var(--spacing-bottom-bar) + env(safe-area-inset-bottom, 0px))) +
+        var(--spacing-group)
     );
   }
 }
@@ -136,8 +137,13 @@ html:has([data-slot='action-bar']:not([data-above-nav]))
     display: none;
   }
 
-  html:has([data-slot='bottom-nav']) {
+  html:has([data-slot='bottom-nav']),
+  html:has([data-slot='bottom-nav']):has([data-slot='action-bar'][data-above-nav]) {
     scroll-padding-block-end: var(--spacing-group);
+  }
+
+  html:has([data-slot='bottom-nav']) [data-slot='action-bar'][data-above-nav] {
+    bottom: auto;
   }
 }
 

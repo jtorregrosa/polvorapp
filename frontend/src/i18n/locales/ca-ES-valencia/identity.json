@@ -158,7 +158,9 @@
       "editName": "dades del compte"
     },
     "cancel": "Cancel·la",
-    "erased": "Usuari esborrat"
+    "erased": "Usuari esborrat",
+    "twoFactorShort": "Dos passos",
+    "comparsasFailed": "No s'han pogut carregar les comparses dels usuaris."
   },
   "roles": {
     "ADMIN": "Administrador",

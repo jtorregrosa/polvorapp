@@ -158,7 +158,9 @@
       "editName": "datos de la cuenta"
     },
     "cancel": "Cancelar",
-    "erased": "Usuario borrado"
+    "erased": "Usuario borrado",
+    "twoFactorShort": "Dos pasos",
+    "comparsasFailed": "No se han podido cargar las comparsas de los usuarios."
   },
   "roles": {
     "ADMIN": "Administrador",
