@@ -2,8 +2,15 @@ import { UserPlus } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
+import { useListAssignments } from '@/api/generated/firing-chief-assignments/firing-chief-assignments';
 import { useListUsers } from '@/api/generated/users/users';
-import { UserRole, UserStatus, type ListUsersParams, type UserResponse } from '@/api/generated/model';
+import {
+  UserRole,
+  UserStatus,
+  type AssignmentResponse,
+  type ListUsersParams,
+  type UserResponse,
+} from '@/api/generated/model';
 import { AlertBanner } from '@/components/app/AlertBanner';
 import { Button } from '@/components/app/Button';
 import { DataTable, type DataTableColumn } from '@/components/app/DataTable';
@@ -13,7 +20,7 @@ import { PageHeader } from '@/components/app/PageHeader';
 import { StatusBadge } from '@/components/app/StatusBadge';
 import { CategoryTag } from '@/components/app/Tag';
 import { breakable } from '@/components/app/breakable';
-import { formatDate } from '@/lib/format';
+import { formatDate, useFormatters } from '@/lib/format';
 import { knownFilter, withFilter } from '@/lib/search-filters';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
 import { problemMessage } from '../../problems';
@@ -22,7 +29,10 @@ import { twoFactorStatus, userEmail, userName } from '../../user-name';
 const ROLES = Object.values(UserRole);
 const STATUSES = Object.values(UserStatus);
 
-/** Spec "User management by Admins": users with role, status, two-step state and last sign-in. */
+/**
+ * Spec "User management by Admins": users with role, comparsas, status with the two-step state under
+ * it, and last sign-in.
+ */
 export function UsersPage() {
   const { t, i18n } = useTranslation('identity');
   const { t: tUi } = useTranslation('ui');
@@ -36,6 +46,21 @@ export function UsersPage() {
   };
   const users = useListUsers(params);
   const rows = useMemo(() => (users.data?.data ?? []) as UserResponse[], [users.data]);
+
+  // The comparsas each FiringChief runs (UI audit), from every assignment at once.
+  const assignments = useListAssignments();
+  const comparsasByUser = useMemo(() => {
+    const byUser = new Map<string, string[]>();
+    for (const { userId, comparsaName } of (assignments.data?.data ?? []) as AssignmentResponse[]) {
+      byUser.set(userId, [...(byUser.get(userId) ?? []), comparsaName]);
+    }
+    return byUser;
+  }, [assignments.data]);
+  const { list } = useFormatters();
+  const comparsasOf = useCallback(
+    (userId: string) => list(comparsasByUser.get(userId) ?? []),
+    [comparsasByUser, list],
+  );
 
   const lastSignIn = useCallback(
     (user: UserResponse) =>
@@ -75,16 +100,24 @@ export function UsersPage() {
         cell: (user) => <CategoryTag category="role" value={user.role} />,
       },
       {
+        id: 'comparsas',
+        header: t('users.columns.comparsas'),
+        sortValue: (user) => comparsasOf(user.id),
+        cell: (user) => comparsasOf(user.id),
+        wrap: true,
+      },
+      {
+        // Two-step verification as the status's second line, so "Last sign-in" fits (UI audit).
         id: 'status',
         header: t('users.columns.status'),
         sortValue: (user) => tUi(`status.user.${user.status}`),
         cell: (user) => <StatusBadge kind="user" value={user.status} />,
-      },
-      {
-        id: 'twoFactor',
-        header: t('users.columns.twoFactor'),
-        sortValue: (user) => tUi(`status.twoFactor.${twoFactorStatus(user)}`),
-        cell: (user) => <StatusBadge kind="twoFactor" value={twoFactorStatus(user)} />,
+        secondary: (user) => (
+          <span className="mt-1 flex">
+            <span className="sr-only">{t('users.columns.twoFactor')}: </span>
+            <StatusBadge kind="twoFactor" value={twoFactorStatus(user)} />
+          </span>
+        ),
       },
       {
         id: 'lastSignIn',
@@ -93,7 +126,7 @@ export function UsersPage() {
         cell: (user) => lastSignIn(user),
       },
     ],
-    [t, tUi, lastSignIn],
+    [t, tUi, lastSignIn, comparsasOf],
   );
 
   const setFilter = (key: 'role' | 'status', value: string): void => {
@@ -164,6 +197,12 @@ export function UsersPage() {
                   <span className="sr-only">{t('users.columns.role')}: </span>
                   <CategoryTag category="role" value={user.role} />
                 </span>
+                {comparsasOf(user.id) && (
+                  <span>
+                    <span className="sr-only">{t('users.columns.comparsas')}: </span>
+                    {comparsasOf(user.id)}
+                  </span>
+                )}
                 <span>
                   <span className="sr-only">{t('users.columns.status')}: </span>
                   <StatusBadge kind="user" value={user.status} />

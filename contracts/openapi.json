@@ -110,6 +110,55 @@
         ]
       }
     },
+    "/api/assignments": {
+      "get": {
+        "tags": [
+          "FiringChiefAssignments"
+        ],
+        "summary": "Every FiringChief assignment with its comparsa's name, sorted by comparsa name.",
+        "operationId": "ListAssignments",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AssignmentResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
     "/api/audit-entries": {
       "get": {
         "tags": [
@@ -10469,6 +10518,27 @@
           "ACTIVE",
           "RESERVE"
         ]
+      },
+      "AssignmentResponse": {
+        "required": [
+          "userId",
+          "comparsaId",
+          "comparsaName"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "comparsaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "comparsaName": {
+            "type": "string"
+          }
+        }
       },
       "AuditActionResponse": {
         "required": [

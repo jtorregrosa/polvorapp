@@ -28,6 +28,8 @@ export const server = setupServer(
       editionBilling: null,
     }),
   ),
+  // The users list's comparsas: nobody assigned.
+  mock.get('/api/assignments', () => HttpResponse.json([])),
   mock.get('/api/registry/lock', () => HttpResponse.json({ locked: false, changedAt: null })),
   // The comparsas page's Federation logo section, for Admins: no logo yet.
   mock.get('/api/federation', () => HttpResponse.json({ logo: null })),

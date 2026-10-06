@@ -257,6 +257,21 @@ public sealed class AssignmentTests(PostgresFixture postgres, MailpitFixture mai
     }
 
     [Fact]
+    public async Task An_admin_lists_every_assignment_with_its_comparsa_name_sorted_by_comparsa()
+    {
+        var chief = await _host.CreateUserAsync("jefe.listado@example.test");
+        var sur = await CreateComparsaAsync("Comparsa Sintética Sur");
+        using var norte = await AssignAsync(_norte.Id, chief.Id);
+        using var assigned = await AssignAsync(sur.Id, chief.Id);
+
+        using var response = await _admin.GetAsync("/api/assignments", TestContext.Current.CancellationToken);
+
+        var assignments = await ReadAsync<List<AssignmentResponse>>(response);
+        var mine = assignments.Where(a => a.UserId == chief.Id).ToList();
+        Assert.Equal([(_norte.Id, _norte.Name), (sur.Id, "Comparsa Sintética Sur")], mine.Select(a => (a.ComparsaId, a.ComparsaName)));
+    }
+
+    [Fact]
     public async Task A_firing_chief_cannot_list_assignments()
     {
         var chief = await _host.CreateUserAsync("jefe.curioso@example.test");
@@ -265,9 +280,11 @@ public sealed class AssignmentTests(PostgresFixture postgres, MailpitFixture mai
 
         using var byComparsa = await client.GetAsync($"/api/comparsas/{_norte.Id}/firing-chiefs", TestContext.Current.CancellationToken);
         using var byUser = await client.GetAsync($"/api/firing-chiefs/{chief.Id}/comparsas", TestContext.Current.CancellationToken);
+        using var all = await client.GetAsync("/api/assignments", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Forbidden, byComparsa.StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, byUser.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, all.StatusCode);
     }
 
     private Task<HttpResponseMessage> AssignAsync(Guid comparsaId, Guid userId) =>

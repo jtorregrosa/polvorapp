@@ -113,6 +113,7 @@
       "name": "Nom",
       "email": "Correu",
       "role": "Rol",
+      "comparsas": "Comparses",
       "status": "Estat",
       "twoFactor": "Verificació en dos passos",
       "lastSignIn": "Últim accés"
