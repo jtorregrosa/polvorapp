@@ -24,7 +24,7 @@ services:
     # MinIO no longer publishes community images; Chainguard's source-built image (bootstrap-platform design D3).
     # No healthcheck: the image has no shell or client. The migrate command waits for it (up to 30 s)
     # and creates the bucket; the API's readiness check covers it afterwards.
-    image: cgr.dev/chainguard/minio@sha256:4692462f35d97d7e82c30371d82f057703c5d9489bcae726010594c812f2d285
+    image: cgr.dev/chainguard/minio@sha256:e7ca559d9f7c0b5f24f5f669bb92f40f3ca88d56273b808bf3a7c116c17d2ffa
     command: ["server", "/data", "--console-address", ":9001"]
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
