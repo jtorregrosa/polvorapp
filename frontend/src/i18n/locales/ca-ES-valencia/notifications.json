@@ -19,7 +19,7 @@
     },
     "ORDER_WINDOW": {
       "label": "Obertura i tancament de comandes",
-      "description": "Quan s'obrin o es tanquen les comandes, i recordatoris 7 dies i 1 dia abans del tancament previst si la teua comanda no està enviada."
+      "description": "Quan s'obrin o es tanquen les comandes, i recordatoris uns dies abans i la vespra del tancament previst si la teua comanda no està enviada."
     },
     "ORDER_STATUS": {
       "label": "Estat de les comandes",
@@ -27,7 +27,7 @@
     },
     "MILESTONE_REMINDER": {
       "label": "Recordatoris del calendari",
-      "description": "Una setmana abans de les fites que la Unió marque per a avisar."
+      "description": "Uns dies abans de les fites que la Unió marque per a avisar."
     }
   },
   "errors": {

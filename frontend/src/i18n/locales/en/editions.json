@@ -115,7 +115,7 @@
       "empty": "No milestones yet.",
       "notify": {
         "label": "Send an email reminder",
-        "hint": "A week before, to Admins and, once the edition is in progress, to firing chiefs.",
+        "hint": "As many days ahead as the calendar settings say, to Admins and, once the edition is in progress, to firing chiefs.",
         "mark": "Email reminder",
         "yes": "Yes",
         "no": "No"

@@ -62,7 +62,7 @@ describe('Milestone reminders on the edition page (specs: Calendar milestones, E
     const reminder = within(panel).getByRole('checkbox', { name: 'Enviar un recordatorio por correo' });
     expect(reminder).not.toBeChecked();
     expect(panel).toHaveTextContent(
-      'Una semana antes, a los Admins y, con la edición en curso, a los jefes de disparo.',
+      'Con la antelación fijada en los ajustes del calendario, a los Admins y, con la edición en curso, a los jefes de disparo.',
     );
     await user.type(within(panel).getByRole('textbox', { name: 'Título' }), 'Curso sintético');
     fireEvent.change(within(panel).getByLabelText('Fecha'), { target: { value: '2031-03-15' } });
