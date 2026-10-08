@@ -42,6 +42,7 @@
     "photoUnreadable": "No se puede leer la foto de carnet de: {{names}}. Vuelve a subirla o quítalos de la selección.",
     "photoUnreadableCount_one": "No se puede leer la foto de carnet de {{count}} arcabucero. Vuelve a subirla o quítalo de la selección.",
     "photoUnreadableCount_other": "No se puede leer la foto de carnet de {{count}} arcabuceros. Vuelve a subirlas o quítalos de la selección.",
+    "textUnprintable": "Algún nombre lleva una letra que no se puede imprimir. Corrígelo en el registro o quita a esa persona de la selección.",
     "busy": "Se están generando otros carnets. Inténtalo de nuevo en unos segundos.",
     "auditUnavailable": "No se ha podido registrar la descarga. Inténtalo de nuevo.",
     "storageUnavailable": "No se pueden leer las fotos ni el logo ahora mismo. Inténtalo de nuevo.",

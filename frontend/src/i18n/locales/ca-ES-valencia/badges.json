@@ -42,6 +42,7 @@
     "photoUnreadable": "No es pot llegir la foto de carnet de: {{names}}. Torna a pujar-la o lleva'ls de la selecció.",
     "photoUnreadableCount_one": "No es pot llegir la foto de carnet de {{count}} arcabusser. Torna a pujar-la o lleva'l de la selecció.",
     "photoUnreadableCount_other": "No es pot llegir la foto de carnet de {{count}} arcabussers. Torna a pujar-les o lleva'ls de la selecció.",
+    "textUnprintable": "Algun nom porta una lletra que no es pot imprimir. Corregix-lo en el registre o lleva eixa persona de la selecció.",
     "busy": "S'estan generant altres carnets. Torna-ho a intentar d'ací a uns segons.",
     "auditUnavailable": "No s'ha pogut registrar la descàrrega. Torna-ho a intentar.",
     "storageUnavailable": "Ara mateix no es poden llegir les fotos ni el logo. Torna-ho a intentar.",

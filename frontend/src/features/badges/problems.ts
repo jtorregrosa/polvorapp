@@ -5,6 +5,7 @@ export type BadgeErrorKey =
   | 'notFound'
   | 'nothingToPrint'
   | 'tooMany'
+  | 'textUnprintable'
   | 'busy'
   | 'auditUnavailable'
   | 'storageUnavailable'
@@ -23,6 +24,7 @@ const CODES: Readonly<Record<string, BadgeErrorKey>> = {
   'badges.notFound': 'notFound',
   'badges.nothingToPrint': 'nothingToPrint',
   'badges.tooMany': 'tooMany',
+  'badges.textUnprintable': 'textUnprintable',
   'badges.busy': 'busy',
   'badges.auditUnavailable': 'auditUnavailable',
   'storage.unavailable': 'storageUnavailable',

@@ -20,7 +20,8 @@ namespace PolvorApp.Badges.Documents;
 /// contracts may take the request's ids (BR-12). The order per request is: rules → people → slot →
 /// logo and photos → render → audit → file; no audit, no file. A photo is never left out silently: a
 /// storage failure answers 503, and a photo the registry holds but that cannot be read or scaled
-/// answers 409 naming the arquebusiers (maintainer decision, group 3 review).
+/// answers 409 naming the arquebusiers (maintainer decision, group 3 review); a text the fonts cannot
+/// draw answers 409 as well.
 /// </summary>
 internal sealed partial class BadgeDocuments(
     IArquebusierRoster roster,
@@ -101,8 +102,19 @@ internal sealed partial class BadgeDocuments(
         var people = subjects!.Select(s => new BadgePerson(
             s.Arquebusier.LastName, s.Arquebusier.FirstName, s.Arquebusier.NationalId, s.Arquebusier.FederationId, s.ComparsaName,
             s.Arquebusier.License, printPhotos.Scaled.GetValueOrDefault(s.Arquebusier.Id))).ToList();
-        var document = renderer.RenderBadgeSheet(BadgeSheetBuilder.Build(
-            new BadgeSheetContent(batch.Kind, comparsaName, batch.Language, federationName, FederationCalendar.Today(time), people, logo)));
+        RenderedDocument document;
+        try
+        {
+            document = renderer.RenderBadgeSheet(BadgeSheetBuilder.Build(
+                new BadgeSheetContent(batch.Kind, comparsaName, batch.Language, federationName, FederationCalendar.Today(time), people, logo)));
+        }
+        catch (DocumentRenderingException exception) when (exception.TextUnprintable)
+        {
+            // A letter the fonts cannot draw: printing it wrong is never an option, and retrying fails the same way.
+            LogUnprintable(logger, exception, batch.Kind, people.Count);
+            return ProblemResults.Problem(StatusCodes.Status409Conflict, BadgeProblems.TextUnprintable);
+        }
+
         return await DeliverAsync(document, batch, [.. subjects!.Select(s => s.Arquebusier.Id)], cancellationToken);
     }
 
@@ -232,6 +244,9 @@ internal sealed partial class BadgeDocuments(
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Badge sheet refused: {Count} ID photo(s) held by the registry cannot be read, arquebusiers {ArquebusierIds}")]
     private static partial void LogPhotosUnreadable(ILogger logger, int count, string arquebusierIds);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Badge sheet ({Kind}, {Count} badges) refused: a text holds a letter the embedded fonts cannot draw")]
+    private static partial void LogUnprintable(ILogger logger, Exception exception, BadgeBatchKind kind, int count);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Badge sheet ({Kind}, {Count} badges) not returned: the download could not be audited")]
     private static partial void LogAuditFailed(ILogger logger, Exception exception, BadgeBatchKind kind, int count);

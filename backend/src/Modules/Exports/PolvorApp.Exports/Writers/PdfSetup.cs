@@ -2,6 +2,7 @@ using PolvorApp.Exports.Contracts;
 using PolvorApp.SharedKernel.Fonts;
 using QuestPDF;
 using QuestPDF.Drawing;
+using QuestPDF.Drawing.Exceptions;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 
@@ -42,9 +43,16 @@ internal static class PdfSetup
         }
         catch (Exception exception) when (exception is not (OperationCanceledException or OutOfMemoryException))
         {
-            throw DocumentRenderingException.For(what, exception);
+            throw DocumentRenderingException.For(what, exception, IsMissingGlyph(exception));
         }
     }
+
+    /// <summary>
+    /// A glyph no embedded font has (<see cref="Settings.ThrowOnMissingTextGlyphs"/>). The message is only
+    /// inspected here, never logged or returned.
+    /// </summary>
+    private static bool IsMissingGlyph(Exception exception) =>
+        exception is DocumentDrawingException && exception.Message.Contains("glyph", StringComparison.OrdinalIgnoreCase);
 
     private static bool Apply()
     {

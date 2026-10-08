@@ -22,10 +22,13 @@ public sealed class DocumentRenderingException : Exception
     {
     }
 
+    /// <summary>Whether the cause is a letter the embedded fonts cannot draw, i.e. the content, not a fault of the code.</summary>
+    public bool TextUnprintable { get; private init; }
+
     /// <summary>The fixed message with the failing step and the library's exception type, never its message.</summary>
-    public static DocumentRenderingException For(string what, Exception cause)
+    public static DocumentRenderingException For(string what, Exception cause, bool textUnprintable = false)
     {
         ArgumentNullException.ThrowIfNull(cause);
-        return new DocumentRenderingException($"The {what} could not be rendered ({cause.GetType().Name}).");
+        return new DocumentRenderingException($"The {what} could not be rendered ({cause.GetType().Name}).") { TextUnprintable = textUnprintable };
     }
 }
