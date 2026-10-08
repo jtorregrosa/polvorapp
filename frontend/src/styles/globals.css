@@ -156,10 +156,16 @@ meter[data-slot='meter'] {
   overflow: hidden;
 }
 
+/*
+ * Chromium lays the bar out in the middle half of a grid (rows 1fr / 2fr / 1fr), so it is spanned
+ * over every row to fill the meter's height. The bar is transparent so the meter's own track and
+ * outline show through, as in Firefox.
+ */
 meter[data-slot='meter']::-webkit-meter-bar {
+  grid-row: 1 / -1;
   border: 0;
   border-radius: 999px;
-  background: var(--muted);
+  background: transparent;
 }
 
 meter[data-slot='meter']::-webkit-meter-optimum-value {
