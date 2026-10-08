@@ -24,6 +24,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Breadcrumbs } from './Breadcrumbs';
 import { currentNavigationTarget, isCurrentPath } from './navigation-match';
 import { PolvorAppMark } from './PolvorAppMark';
+import { PolvorAppWordmark } from './PolvorAppWordmark';
 import { SaveNoticeProvider } from './SaveNotice';
 
 interface NavigationLink {
@@ -427,11 +428,12 @@ export function AppLayout({
             <Link
               to="/"
               // The same padding in the rail, so the mark does not move (D3).
-              className="flex items-center gap-2.5 overflow-hidden rounded-md p-1 font-display text-section font-bold whitespace-nowrap text-sidebar-foreground focus-visible:outline-2 focus-visible:outline-sidebar-ring"
+              // No gap: the mark's square box already holds the lockup's space (ADR-0015).
+              className="flex items-center overflow-hidden rounded-md p-1 text-sidebar-foreground focus-visible:outline-2 focus-visible:outline-sidebar-ring"
             >
               <PolvorAppMark />
-              <span data-sidebar-label="" className={SIDEBAR_LABEL}>
-                {t('app.name')}
+              <span data-sidebar-label="" className={cn('flex', SIDEBAR_LABEL)}>
+                <PolvorAppWordmark label={t('app.name')} />
               </span>
             </Link>
           </SidebarHeader>
