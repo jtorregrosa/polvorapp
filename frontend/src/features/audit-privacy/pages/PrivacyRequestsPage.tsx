@@ -58,6 +58,8 @@ export function PrivacyRequestsPage() {
   const queryClient = useQueryClient();
   const summary = useRef<HTMLElement>(null);
   const nationalIdInput = useRef<HTMLInputElement | null>(null);
+  /** Bumped by every lookup and every change of the field: an answer for an older one is dropped. */
+  const lookupRequest = useRef(0);
   const form = useAppForm<LookupInput, unknown, LookupValues>({
     resolver: zodResolver(lookupSchema),
     defaultValues: { nationalId: '' },
@@ -66,10 +68,13 @@ export function PrivacyRequestsPage() {
   const submit = async ({ nationalId }: LookupValues): Promise<void> => {
     clearNotice();
     setFound(undefined);
+    const request = ++lookupRequest.current;
     try {
       const person = responseData(await lookUp.mutateAsync({ data: { nationalId } }));
-      setFound({ nationalId, person });
+      // The field may hold another DNI/NIE by now: that person's actions must not be offered under it.
+      if (request === lookupRequest.current) setFound({ nationalId, person });
     } catch (error) {
+      if (request !== lookupRequest.current) return;
       const fieldError = privacyFieldError(error, 'nationalId');
       if (fieldError) form.setError('nationalId', { type: 'server', message: fieldError });
     }
@@ -82,6 +87,7 @@ export function PrivacyRequestsPage() {
 
   /** Forgets the person: the result, the field and the requests that held their DNI/NIE. */
   const clear = (): void => {
+    lookupRequest.current += 1;
     setFound(undefined);
     form.reset({ nationalId: '' });
     lookUp.reset();
@@ -109,7 +115,10 @@ export function PrivacyRequestsPage() {
                   onChange={(event) => {
                     field.onChange(event);
                     // A result left under another DNI/NIE would offer that person's actions.
+                    lookupRequest.current += 1;
                     setFound(undefined);
+                    // The old lookup no longer holds the button pending nor shows its error.
+                    if (lookUp.isPending || lookUp.isError) lookUp.reset();
                   }}
                 />
               )}
