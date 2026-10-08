@@ -1,6 +1,6 @@
 # 0013. "Pólvora" visual identity
 
-- Status: Accepted
+- Status: Accepted (the "P" mark superseded by [0015](0015-flame-logo.md))
 - Date: 2026-10-01
 - Supersedes: [0012](0012-polvorapp-visual-identity.md) (its rules are carried over below)
 

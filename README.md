@@ -1,4 +1,9 @@
-# PolvorApp
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/design/brand/svg/lockup/polvorapp-horizontal-on-dark.svg">
+    <img alt="PolvorApp" src="docs/design/brand/svg/lockup/polvorapp-horizontal.svg" height="56">
+  </picture>
+</h1>
 
 Management portal for the arquebusiers of the Moros y Cristianos festival of San Vicente del
 Raspeig: the Federation and its ~20 comparsas keep one source of truth for arquebusiers, licenses,

@@ -17,8 +17,9 @@ One decision per file, never edited after acceptance — superseded by a new ADR
 | [0010](0010-open-source-license.md) | Open-source license: MIT | Accepted |
 | [0011](0011-frontend-react.md) | Frontend: React + Vite SPA, fixed toolset, PWA | Accepted |
 | [0012](0012-polvorapp-visual-identity.md) | PolvorApp visual identity (own brand, no third-party assets in git) | Superseded by 0013 |
-| [0013](0013-polvora-visual-identity.md) | "Pólvora" visual identity: own fonts and palette, night sidebar, ember accent | Accepted |
+| [0013](0013-polvora-visual-identity.md) | "Pólvora" visual identity: own fonts and palette, night sidebar, ember accent | Accepted (mark superseded by 0015) |
 | [0014](0014-charts.md) | Charts with Recharts through shadcn/ui | Accepted |
+| [0015](0015-flame-logo.md) | Flame logo: flame mark, Outfit Medium wordmark, brand masters in docs/design/brand | Accepted |
 
 ## Template
 
