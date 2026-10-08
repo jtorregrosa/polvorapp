@@ -139,6 +139,34 @@ describe('PrivacyRequestsPage (spec: GDPR request screens)', () => {
     expect(screen.queryByRole('region', { name: 'Datos que guarda PolvorApp' })).not.toBeInTheDocument();
   });
 
+  it('drops a lookup that answers after the DNI/NIE was changed, so it never offers that person’s actions', async () => {
+    const user = userEvent.setup();
+    let answer: () => void = () => undefined;
+    const answered = new Promise<void>((resolve) => {
+      answer = resolve;
+    });
+    server.use(
+      mock.post('/api/privacy/people/lookup', async () => {
+        await answered;
+        return HttpResponse.json(FOUND);
+      }),
+    );
+    await asAdmin();
+
+    await lookUp(user);
+    const field = screen.getByRole('textbox', { name: 'DNI/NIE' });
+    await user.clear(field);
+    await user.type(field, '00000001R');
+    expect(screen.getByRole('button', { name: 'Buscar' })).not.toHaveAttribute('aria-busy', 'true');
+    answer();
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Buscar' })).not.toHaveAttribute('aria-busy', 'true');
+    });
+    expect(screen.queryByRole('region', { name: 'Datos que guarda PolvorApp' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Borrar datos' })).not.toBeInTheDocument();
+  });
+
   it('says when nothing is held, and checks the DNI/NIE before asking', async () => {
     const user = userEvent.setup();
     const bodies = lookups(NOTHING);
