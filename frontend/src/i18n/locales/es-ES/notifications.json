@@ -19,7 +19,7 @@
     },
     "ORDER_WINDOW": {
       "label": "Apertura y cierre de pedidos",
-      "description": "Cuando se abren o cierran los pedidos, y recordatorios 7 días y 1 día antes del cierre previsto si tu pedido no está enviado."
+      "description": "Cuando se abren o cierran los pedidos, y recordatorios unos días antes y la víspera del cierre previsto si tu pedido no está enviado."
     },
     "ORDER_STATUS": {
       "label": "Estado de los pedidos",
@@ -27,7 +27,7 @@
     },
     "MILESTONE_REMINDER": {
       "label": "Recordatorios del calendario",
-      "description": "Una semana antes de los hitos que la Unión marque para avisar."
+      "description": "Unos días antes de los hitos que la Unión marque para avisar."
     }
   },
   "errors": {

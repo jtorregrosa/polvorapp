@@ -19,7 +19,7 @@
     },
     "ORDER_WINDOW": {
       "label": "Orders opened and closed",
-      "description": "When the orders open or close, and reminders 7 days and 1 day before the planned close if your order is not submitted."
+      "description": "When the orders open or close, and reminders a few days before and the day before the planned close if your order is not submitted."
     },
     "ORDER_STATUS": {
       "label": "Order status",
@@ -27,7 +27,7 @@
     },
     "MILESTONE_REMINDER": {
       "label": "Calendar reminders",
-      "description": "A week before the milestones the Federation marks for a reminder."
+      "description": "A few days before the milestones the Federation marks for a reminder."
     }
   },
   "errors": {

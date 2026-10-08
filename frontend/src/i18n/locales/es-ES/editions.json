@@ -115,7 +115,7 @@
       "empty": "Aún no hay hitos.",
       "notify": {
         "label": "Enviar un recordatorio por correo",
-        "hint": "Una semana antes, a los Admins y, con la edición en curso, a los jefes de disparo.",
+        "hint": "Con la antelación fijada en los ajustes del calendario, a los Admins y, con la edición en curso, a los jefes de disparo.",
         "mark": "Recordatorio por correo",
         "yes": "Sí",
         "no": "No"

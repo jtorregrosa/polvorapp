@@ -115,7 +115,7 @@
       "empty": "Encara no hi ha fites.",
       "notify": {
         "label": "Envia un recordatori per correu",
-        "hint": "Una setmana abans, als Admins i, amb l'edició en curs, als caps de tir.",
+        "hint": "Amb l'antelació fixada en els ajustos del calendari, als Admins i, amb l'edició en curs, als caps de tir.",
         "mark": "Recordatori per correu",
         "yes": "Sí",
         "no": "No"
