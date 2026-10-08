@@ -1,3 +1,4 @@
+using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PolvorApp.FederationCatalog.Contracts;
@@ -28,7 +29,7 @@ internal sealed record SendResult(int Sent, int Skipped, int Retried, int Failed
 /// <item>Each row is re-checked first: a recipient who no longer wants it, or a fact that no longer holds,
 /// makes it <c>SKIPPED</c> with the reason in <c>last_error</c>.</item>
 /// <item>An SMTP failure is retried with growing intervals for a day; a delivery that cannot be prepared
-/// (a bug, not an outage) fails at once.</item>
+/// (a bug, not an outage) fails at once, while an outage during the preparation is retried like an SMTP failure.</item>
 /// <item>Every state change is a conditional update on a <c>PENDING</c> row, never a tracked entity.</item>
 /// </list>
 /// Logs carry the delivery id, template and outcome, never the address, subject or body (NFR-12).
@@ -122,6 +123,11 @@ internal sealed partial class DeliverySender(
 
             email = emails.Render(recipient, prepared.Content, settings);
         }
+        catch (Exception exception) when (!cancellationToken.IsCancellationRequested && IsOutage(exception))
+        {
+            // The data could not be read just now: tried again later, within the same limit as an SMTP failure.
+            return await RetryOrFailAsync(delivery, delivery.Attempts + 1, exception.GetType().Name, cancellationToken);
+        }
         catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
         {
             // Data a template needs is missing, or a text cannot be rendered: retrying will not help.
@@ -203,6 +209,11 @@ internal sealed partial class DeliverySender(
             LogReleaseFailed(logger, ids.Count, exception.GetType().Name);
         }
     }
+
+    /// <summary>A timeout or a transient database failure (e.g. a dropped connection): it may pass, so it is no fault of the delivery's data.</summary>
+    private static bool IsOutage(Exception exception) =>
+        exception is TimeoutException or DbException { IsTransient: true }
+        || exception.InnerException is TimeoutException or DbException { IsTransient: true };
 
     /// <summary>The SMTP phase and PII-free code, e.g. <c>Send 550 MailboxUnavailable</c>.</summary>
     private static string Describe(EmailDeliveryException exception)

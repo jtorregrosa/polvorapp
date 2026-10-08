@@ -1,3 +1,4 @@
+using System.Data.Common;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PolvorApp.Api.Tests.Infrastructure;
 using PolvorApp.ComparsaOrders.Contracts;
 using PolvorApp.FederationCatalog.Persistence;
+using PolvorApp.FestivalEditions.Contracts;
 using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.IdentityAccess.Users;
 using PolvorApp.Notifications.Contracts;
@@ -23,6 +25,7 @@ namespace PolvorApp.Api.Tests.Notifications;
 public sealed class NotificationDispatchTests(PostgresFixture postgres, MailpitFixture mailpit) : IAsyncLifetime
 {
     private readonly RecordingEmailSender _smtp = new();
+    private readonly FlakyEditions _editions = new();
     private OrderTestHost _orders = null!;
     private SyntheticUser _ownChief = null!;
     private SyntheticUser _secondChief = null!;
@@ -33,7 +36,11 @@ public sealed class NotificationDispatchTests(PostgresFixture postgres, MailpitF
 
     public async ValueTask InitializeAsync()
     {
-        _orders = await OrderTestHost.StartAsync(postgres, mailpit, configureServices: _smtp.Register);
+        _orders = await OrderTestHost.StartAsync(postgres, mailpit, configureServices: services =>
+        {
+            _smtp.Register(services);
+            _editions.Register(services);
+        });
         await Services.OptOutOfEverythingAsync(_orders.Registry.AdminId, _orders.Registry.FiringChiefId);
         await Services.SetOrdersCloseOnAsync(_orders.Current.Id, new DateOnly(2031, 2, 10));
         _ownChief = await _orders.Host.CreateUserAsync("jefe.avisos.propio@example.test", locale: "ca-ES-valencia");
@@ -288,6 +295,25 @@ public sealed class NotificationDispatchTests(PostgresFixture postgres, MailpitF
     }
 
     [Fact]
+    public async Task A_brief_database_error_while_preparing_is_retried_like_a_failed_send()
+    {
+        var order = await SubmittedOrderAsync();
+        await MoveAsync(_orders.Admin, order, "validate", new { });
+        await Services.ExpandAsync();
+        _editions.FailNextFind = true;
+
+        var first = await Services.SendDueAsync();
+        _orders.Host.Time.Advance(TimeSpan.FromMinutes(2));
+        var second = await Services.SendDueAsync();
+
+        Assert.Equal((1, 1), (first.Sent, first.Retried));
+        Assert.Equal(1, second.Sent);
+        Assert.Single(_smtp.To(_ownChief.Email));
+        Assert.Single(_smtp.To(_secondChief.Email));
+        Assert.All(await Services.DeliveriesAsync(), d => Assert.Equal(DeliveryStatus.Sent, d.Status));
+    }
+
+    [Fact]
     public async Task A_lease_abandoned_by_a_crash_is_retried_after_it_expires()
     {
         var order = await SubmittedOrderAsync();
@@ -407,5 +433,43 @@ public sealed class NotificationDispatchTests(PostgresFixture postgres, MailpitF
         using var response = await PostAsync(client, order, move, body);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         return await ReadAsync<JsonElement>(response);
+    }
+
+    /// <summary>The edition directory, whose next lookup can time out once, as a dropped connection would.</summary>
+    private sealed class FlakyEditions
+    {
+        public bool FailNextFind { get; set; }
+
+        public void Register(IServiceCollection services)
+        {
+            var original = services.Last(d => d.ServiceType == typeof(IEditionDirectory));
+            services.AddScoped<IEditionDirectory>(provider =>
+                new FlakyDirectory((IEditionDirectory)ActivatorUtilities.CreateInstance(provider, original.ImplementationType!), this));
+        }
+
+        private sealed class FlakyDirectory(IEditionDirectory inner, FlakyEditions owner) : IEditionDirectory
+        {
+            public Task<EditionSnapshot?> GetCurrentAsync(CancellationToken cancellationToken) => inner.GetCurrentAsync(cancellationToken);
+
+            public Task<EditionSnapshot?> FindAsync(Guid editionId, CancellationToken cancellationToken)
+            {
+                if (owner.FailNextFind)
+                {
+                    owner.FailNextFind = false;
+                    throw new TimeoutException("Simulated command timeout.");
+                }
+
+                return inner.FindAsync(editionId, cancellationToken);
+            }
+
+            public Task<EditionSnapshot?> ReadForOrderWriteAsync(Guid editionId, DbTransaction transaction, CancellationToken cancellationToken) =>
+                inner.ReadForOrderWriteAsync(editionId, transaction, cancellationToken);
+
+            public Task<IReadOnlyList<MilestoneFacts>> ListMilestonesToNotifyAsync(DateOnly firstDate, DateOnly lastDate, CancellationToken cancellationToken) =>
+                inner.ListMilestonesToNotifyAsync(firstDate, lastDate, cancellationToken);
+
+            public Task<IReadOnlyList<EditionHeader>> ListStartedAsync(int count, CancellationToken cancellationToken) =>
+                inner.ListStartedAsync(count, cancellationToken);
+        }
     }
 }
