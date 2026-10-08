@@ -159,6 +159,7 @@ describe('BadgeSheet (spec: Badge screens)', () => {
     [problem(409, 'badges.tooMany'), 'Un PDF admite como máximo 200 carnets. Imprime una selección.'],
     [problem(409, 'badges.nothingToPrint'), 'La comparsa no tiene arcabuceros.'],
     [problem(404, 'badges.notFound'), 'La comparsa ya no existe.'],
+    [problem(409, 'badges.textUnprintable'), 'Algún nombre lleva una letra que no se puede imprimir.'],
     [problem(503, 'badges.busy'), 'Se están generando otros carnets.'],
     [problem(503, 'badges.auditUnavailable'), 'No se ha podido registrar la descarga.'],
     [problem(503, 'storage.unavailable'), 'No se pueden leer las fotos ni el logo'],

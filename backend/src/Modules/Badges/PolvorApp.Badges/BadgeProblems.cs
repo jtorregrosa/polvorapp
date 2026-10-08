@@ -12,6 +12,9 @@ internal static class BadgeProblems
     /// <summary>A photo the registry holds cannot be read or scaled; the problem lists the arquebusiers' ids.</summary>
     public const string PhotoUnreadable = "badges.photoUnreadable";
 
+    /// <summary>A text of the sheet, e.g. a name, holds a letter the embedded fonts cannot draw.</summary>
+    public const string TextUnprintable = "badges.textUnprintable";
+
     /// <summary>Shared with the other document routes: the storage could not serve the logo or a photo.</summary>
     public const string StorageUnavailable = "storage.unavailable";
 

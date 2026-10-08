@@ -205,6 +205,7 @@ public sealed class DocumentContractTests
 
         Assert.DoesNotContain("漢", error.Message, StringComparison.Ordinal);
         Assert.Null(error.InnerException);
+        Assert.True(error.TextUnprintable);
         Assert.Throws<DocumentRenderingException>(() => Renderer.RenderForm(Form("stem", ["Firma"], [new DocumentFormField("Nombre:", "漢字")])));
     }
 

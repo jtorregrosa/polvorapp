@@ -42,6 +42,7 @@
     "photoUnreadable": "The ID photo of {{names}} cannot be read. Upload it again or leave them out of the selection.",
     "photoUnreadableCount_one": "The ID photo of {{count}} arquebusier cannot be read. Upload it again or leave them out.",
     "photoUnreadableCount_other": "The ID photos of {{count}} arquebusiers cannot be read. Upload them again or leave them out.",
+    "textUnprintable": "A name holds a letter that cannot be printed. Correct it in the registry or leave that person out of the selection.",
     "busy": "Other badges are being generated. Try again in a few seconds.",
     "auditUnavailable": "The download could not be recorded. Try again.",
     "storageUnavailable": "The photos and the logo cannot be read right now. Try again.",

@@ -241,6 +241,18 @@ public sealed class BadgeEndpointTests(PostgresFixture postgres, MailpitFixture 
     }
 
     [Fact]
+    public async Task A_name_the_fonts_cannot_draw_refuses_the_sheet_with_its_own_code_and_audits_nothing()
+    {
+        await RegisterAsync(_registry.Own.Id, "漢字 Sintético");
+
+        using var response = await PostAsync(_registry.Admin, new { comparsaId = _registry.Own.Id, language = "es-ES" });
+
+        await AssertProblemAsync(response, HttpStatusCode.Conflict, "badges.textUnprintable");
+        Assert.DoesNotContain("漢字", await response.Content.ReadAsStringAsync(Token), StringComparison.Ordinal);
+        Assert.Empty(await _registry.Host.AuditEntriesAsync("BadgesDownloaded"));
+    }
+
+    [Fact]
     public async Task A_busy_image_pipeline_is_retryable()
     {
         await using var busy = await RegistryTestHost.StartAsync(
