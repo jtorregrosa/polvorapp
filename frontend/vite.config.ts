@@ -13,7 +13,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'script-defer', // External file: the CSP forbids inline scripts.
-      pwaAssets: { image: 'public/icon.svg', preset: 'minimal-2023', overrideManifestIcons: true },
+      // Hand-made icons in public/ (ADR-0015): the favicon uses the small-size cut of the flame and
+      // the app icons the night tile, which one generated source image cannot give.
+      includeAssets: ['favicon.ico', 'icon.svg', 'apple-touch-icon-180x180.png'],
       manifest: {
         name: 'PolvorApp',
         short_name: 'PolvorApp',
@@ -23,6 +25,12 @@ export default defineConfig({
         // Token values (src/styles/tokens.css): primary and light background.
         theme_color: '#b8430b',
         background_color: '#f3f3f6',
+        icons: [
+          { src: 'pwa-64x64.png', sizes: '64x64', type: 'image/png' },
+          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'maskable-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
       },
       workbox: {
         // A new version takes over at once instead of waiting for every tab to close: without

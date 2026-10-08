@@ -2,6 +2,7 @@ import type { ReactNode, RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { PolvorAppMark } from './PolvorAppMark';
+import { PolvorAppWordmark } from './PolvorAppWordmark';
 import { ThemeSwitcher } from './ThemeSwitcher';
 
 export interface PublicLayoutProps {
@@ -13,7 +14,7 @@ export interface PublicLayoutProps {
 
 /**
  * Layout of the pages used before signing in (platform spec: Application shell): the PolvorApp
- * mark on a night band, the language and theme switchers, and one centred card. No navigation.
+ * logo (mark and wordmark), the language and theme switchers, and one centred card. No navigation.
  */
 export function PublicLayout({ footer, mainRef, children }: PublicLayoutProps) {
   const { t } = useTranslation();
@@ -27,9 +28,9 @@ export function PublicLayout({ footer, mainRef, children }: PublicLayoutProps) {
         {t('shell.skipToContent')}
       </a>
       <header className="flex flex-wrap items-center gap-2 px-gutter py-3">
-        <span className="flex flex-1 items-center gap-2.5 font-display text-section font-bold text-foreground">
+        <span className="flex flex-1 items-center text-foreground">
           <PolvorAppMark />
-          <span>{t('app.name')}</span>
+          <PolvorAppWordmark label={t('app.name')} />
         </span>
         <LanguageSwitcher />
         <ThemeSwitcher />

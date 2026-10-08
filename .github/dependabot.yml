@@ -29,9 +29,6 @@ updates:
       # typescript-eslint supports TypeScript < 6.1.
       - dependency-name: typescript
         versions: ['>=6.1.0']
-      # vite-plugin-pwa 1.x requires @vite-pwa/assets-generator ^1.
-      - dependency-name: '@vite-pwa/assets-generator'
-        update-types: ['version-update:semver-major']
       # Types follow the Node runtime (24 LTS until Node 26 becomes LTS on 2026-10-28).
       - dependency-name: '@types/node'
         update-types: ['version-update:semver-major']
