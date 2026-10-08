@@ -1,9 +1,10 @@
 import { screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { http as mock, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import type { ArquebusierRowResponse, OverviewResponse } from '@/api/generated/model';
 import { ROW_UNO } from '@/features/arquebusier-registry/test-data';
-import { renderApp } from '@/test/app';
+import { problem, renderApp } from '@/test/app';
 import { axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN } from '@/test/identity';
 import { server } from '@/test/server';
@@ -84,5 +85,38 @@ describe('Comparsa figures', () => {
     const norte = within(table).getByText(NORTE.name).closest('tr');
     expect(norte).toHaveTextContent(/Activo.*2.*1.*Enviado/);
     expect(within(table).getByText(SUR.name).closest('tr')).toHaveTextContent('Sin preparar');
+  });
+
+  it('says when the orders could not be loaded instead of looking like no edition, and retries', async () => {
+    const user = userEvent.setup();
+    serve();
+    let overviewFails = true;
+    server.use(
+      mock.get('/api/comparsa-orders/overview', () =>
+        overviewFails ? problem(500, 'unexpected') : HttpResponse.json(OVERVIEW),
+      ),
+    );
+    await renderApp(`/comparsas/${NORTE.id}`, { session: SYNTHETIC_ADMIN });
+
+    const failure = await screen.findByRole('alert');
+    expect(failure).toHaveTextContent('No se han podido cargar todas las cifras de las comparsas.');
+    const facts = screen.getByRole('list', { name: 'Cifras de la comparsa' });
+    expect(within(facts).getByRole('link', { name: '2 En activo' })).toBeInTheDocument();
+    expect(facts).not.toHaveTextContent('Pedido de 2031');
+
+    overviewFails = false;
+    await user.click(within(failure).getByRole('button', { name: 'Reintentar' }));
+    expect(await within(facts).findByText('Pedido de 2031')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('says when the arquebusiers could not be loaded', async () => {
+    serve();
+    server.use(mock.get('/api/arquebusiers', () => problem(500, 'unexpected')));
+    await renderApp('/comparsas', { session: SYNTHETIC_ADMIN });
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'No se han podido cargar todas las cifras de las comparsas.',
+    );
   });
 });

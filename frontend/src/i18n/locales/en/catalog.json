@@ -86,7 +86,8 @@
       "openOrder": "See the order",
       "link": "{{value}} {{label}}"
     },
-    "figuresLine": "Active: {{active}} · Active with warnings: {{warnings}}"
+    "figuresLine": "Active: {{active}} · Active with warnings: {{warnings}}",
+    "figuresFailed": "Not all the comparsa figures could be loaded."
   },
   "federation": {
     "logo": {

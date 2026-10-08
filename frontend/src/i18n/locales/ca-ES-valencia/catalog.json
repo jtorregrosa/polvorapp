@@ -86,7 +86,8 @@
       "openOrder": "Mostra la comanda",
       "link": "{{value}} {{label}}"
     },
-    "figuresLine": "En actiu: {{active}} · Actius amb avisos: {{warnings}}"
+    "figuresLine": "En actiu: {{active}} · Actius amb avisos: {{warnings}}",
+    "figuresFailed": "No s'han pogut carregar totes les xifres de les comparses."
   },
   "federation": {
     "logo": {
