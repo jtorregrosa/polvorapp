@@ -33,16 +33,16 @@ internal static class WeaponModelEndpoints
         adminOnly.MapPost("/", CreateAsync).WithName("CreateWeaponModel").WithSummary("Creates a weapon model.")
             .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status409Conflict);
         adminOnly.MapPut("/{id:guid}", UpdateAsync).WithName("UpdateWeaponModel").WithSummary("Changes a weapon model.")
-            .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict);
+            .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict).ProducesProblem(StatusCodes.Status503ServiceUnavailable);
         adminOnly.MapPost("/{id:guid}/deactivate", (Guid id, WeaponModelAdministration administration, CancellationToken ct) => SetActiveAsync(id, false, administration, ct))
             .WithName("DeactivateWeaponModel").WithSummary("Deactivates a weapon model.")
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status503ServiceUnavailable);
         adminOnly.MapPost("/{id:guid}/reactivate", (Guid id, WeaponModelAdministration administration, CancellationToken ct) => SetActiveAsync(id, true, administration, ct))
             .WithName("ReactivateWeaponModel").WithSummary("Reactivates a deactivated weapon model.")
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status503ServiceUnavailable);
         adminOnly.MapDelete("/{id:guid}", DeleteAsync).WithName("DeleteWeaponModel")
             .WithSummary("Deletes a weapon model that no other record uses.")
-            .ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict);
+            .ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict).ProducesProblem(StatusCodes.Status503ServiceUnavailable);
         return endpoints;
     }
 

@@ -31,6 +31,9 @@ internal sealed partial class ComparsaAdministration(
 {
     public const string EntityType = "Comparsa";
 
+    /// <summary>A change that waited on a held lock too long (design D4): retryable.</summary>
+    private static readonly (CatalogOutcome, Comparsa?) Busy = (CatalogOutcome.Busy, null);
+
     public async Task<(CatalogOutcome Outcome, Comparsa? Comparsa)> CreateAsync(ComparsaInput input, CancellationToken cancellationToken)
     {
         var comparsa = new Comparsa { Id = Guid.CreateVersion7(time.GetUtcNow()), Name = input.Name, Side = input.Side, CreatedAt = time.GetUtcNow() };
@@ -39,7 +42,10 @@ internal sealed partial class ComparsaAdministration(
         return await SaveAsync(comparsa, cancellationToken);
     }
 
-    public async Task<(CatalogOutcome Outcome, Comparsa? Comparsa)> UpdateAsync(Guid id, ComparsaInput input, CancellationToken cancellationToken)
+    public Task<(CatalogOutcome Outcome, Comparsa? Comparsa)> UpdateAsync(Guid id, ComparsaInput input, CancellationToken cancellationToken) =>
+        db.BusyWhenLockedAsync(() => UpdateLockedAsync(id, input, cancellationToken), Busy);
+
+    private async Task<(CatalogOutcome Outcome, Comparsa? Comparsa)> UpdateLockedAsync(Guid id, ComparsaInput input, CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         var comparsa = await db.LockComparsaForChangeAsync(id, cancellationToken);
@@ -61,7 +67,10 @@ internal sealed partial class ComparsaAdministration(
     }
 
     /// <summary>Deactivates or reactivates a comparsa; assignments are kept either way.</summary>
-    public async Task<(CatalogOutcome Outcome, Comparsa? Comparsa)> SetActiveAsync(Guid id, bool active, CancellationToken cancellationToken)
+    public Task<(CatalogOutcome Outcome, Comparsa? Comparsa)> SetActiveAsync(Guid id, bool active, CancellationToken cancellationToken) =>
+        db.BusyWhenLockedAsync(() => SetActiveLockedAsync(id, active, cancellationToken), Busy);
+
+    private async Task<(CatalogOutcome Outcome, Comparsa? Comparsa)> SetActiveLockedAsync(Guid id, bool active, CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         var comparsa = await db.LockComparsaForChangeAsync(id, cancellationToken);
@@ -84,7 +93,10 @@ internal sealed partial class ComparsaAdministration(
     /// Deletes an unused comparsa and its assignments. The row is locked before the usage checks
     /// and the audit snapshot, so a concurrent assignment is either blocked or listed (design D10).
     /// </summary>
-    public async Task<CatalogOutcome> DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public Task<CatalogOutcome> DeleteAsync(Guid id, CancellationToken cancellationToken) =>
+        db.BusyWhenLockedAsync(() => DeleteLockedAsync(id, cancellationToken), CatalogOutcome.Busy);
+
+    private async Task<CatalogOutcome> DeleteLockedAsync(Guid id, CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         var comparsa = await db.LockComparsaForDeleteAsync(id, cancellationToken);

@@ -339,7 +339,7 @@
       "unavailable": "El almacén de imágenes no responde ahora mismo. Inténtalo de nuevo en unos minutos."
     },
     "catalog": {
-      "busy": "El servidor está procesando otras imágenes. Inténtalo de nuevo en unos segundos."
+      "busy": "El servidor está ocupado con otro cambio. Inténtalo de nuevo en unos segundos."
     },
     "tooManyRequests": "Has hecho demasiadas subidas seguidas. Espera un minuto y vuelve a intentarlo.",
     "validation": "Revisa los campos marcados.",

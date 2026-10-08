@@ -339,7 +339,7 @@
       "unavailable": "The image storage is not responding right now. Try again in a few minutes."
     },
     "catalog": {
-      "busy": "The server is processing other images. Try again in a few seconds."
+      "busy": "The server is busy with another change. Try again in a few seconds."
     },
     "tooManyRequests": "You have uploaded too many times in a row. Wait a minute and try again.",
     "validation": "Check the highlighted fields.",

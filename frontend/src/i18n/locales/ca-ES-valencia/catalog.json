@@ -339,7 +339,7 @@
       "unavailable": "El magatzem d'imatges no respon ara mateix. Torna-ho a provar d'ací a uns minuts."
     },
     "catalog": {
-      "busy": "El servidor està processant altres imatges. Torna-ho a provar d'ací a uns segons."
+      "busy": "El servidor està ocupat amb un altre canvi. Torna-ho a provar d'ací a uns segons."
     },
     "tooManyRequests": "Has fet massa pujades seguides. Espera un minut i torna-ho a provar.",
     "validation": "Revisa els camps marcats.",

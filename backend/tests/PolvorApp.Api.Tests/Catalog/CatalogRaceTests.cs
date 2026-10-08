@@ -1,9 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PolvorApp.Api.Tests.Infrastructure;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.FederationCatalog.Endpoints;
+using PolvorApp.FederationCatalog.Persistence;
 using PolvorApp.IdentityAccess.Contracts;
 using static PolvorApp.Api.Tests.Infrastructure.IdentityAssertions;
 
@@ -82,6 +84,39 @@ public sealed class CatalogRaceTests(PostgresFixture postgres, MailpitFixture ma
         Assert.Empty(await host.AuditEntriesAsync("ComparsaDeleted"));
     }
 
+    /// <summary>Design D4: a change waiting on a held row lock past the 5 s lock timeout is retryable (503), never a 500.</summary>
+    [Theory]
+    [InlineData("comparsa", "edit")]
+    [InlineData("comparsa", "delete")]
+    [InlineData("comparsa", "assign")]
+    [InlineData("weaponModel", "deactivate")]
+    public async Task A_change_waiting_on_a_held_row_lock_is_answered_as_busy(string row, string change)
+    {
+        await using var host = await IdentityTestHost.StartAsync(postgres, mailpit);
+        var admin = await AdminAsync(host);
+        var chief = await host.CreateUserAsync("jefe.ocupado@example.test");
+        var id = row == "comparsa" ? await CreateComparsaAsync(admin, "Comparsa Sintética Ocupada") : await CreateWeaponModelAsync(admin);
+
+        await using var scope = host.Services.CreateAsyncScope();
+        var holder = scope.ServiceProvider.GetRequiredService<FederationCatalogDbContext>();
+        await using var held = await holder.Database.BeginTransactionAsync(TestContext.Current.CancellationToken);
+        var locked = row == "comparsa"
+            ? holder.Database.SqlQuery<int>($"SELECT 1 AS \"Value\" FROM catalog.comparsas WHERE id = {id} FOR UPDATE")
+            : holder.Database.SqlQuery<int>($"SELECT 1 AS \"Value\" FROM catalog.weapon_models WHERE id = {id} FOR UPDATE");
+        await locked.ToListAsync(TestContext.Current.CancellationToken);
+
+        using var response = change switch
+        {
+            "edit" => await admin.PutAsJsonAsync($"/api/comparsas/{id}", new { name = "Comparsa Sintética Renombrada", side = "MOORISH" }, TestContext.Current.CancellationToken),
+            "delete" => await admin.DeleteAsync($"/api/comparsas/{id}", TestContext.Current.CancellationToken),
+            "assign" => await admin.PutAsync($"/api/comparsas/{id}/firing-chiefs/{chief.Id}", null, TestContext.Current.CancellationToken),
+            _ => await admin.PostAsync($"/api/weapon-models/{id}/deactivate", null, TestContext.Current.CancellationToken),
+        };
+
+        await AssertProblemAsync(response, HttpStatusCode.ServiceUnavailable, "catalog.busy");
+        await held.RollbackAsync(TestContext.Current.CancellationToken);
+    }
+
     private static async Task<HttpClient> AdminAsync(IdentityTestHost host) =>
         await host.SignInAsync(await host.CreateUserAsync("admin.carreras@example.test", UserRole.Admin));
 
@@ -89,5 +124,19 @@ public sealed class CatalogRaceTests(PostgresFixture postgres, MailpitFixture ma
     {
         using var created = await admin.PostAsync("/api/comparsas", new { name, side = "MOORISH" });
         return (await ReadAsync<ComparsaResponse>(created)).Id;
+    }
+
+    private static async Task<Guid> CreateWeaponModelAsync(HttpClient admin)
+    {
+        using var created = await admin.PostAsync("/api/weapon-models", new
+        {
+            kind = "TRABUCO",
+            side = "CHRISTIAN",
+            handedness = "RIGHT",
+            size = "NORMAL",
+            rentable = true,
+            label = "TRABUCO OCUPADO",
+        });
+        return (await ReadAsync<WeaponModelResponse>(created)).Id;
     }
 }

@@ -27,7 +27,7 @@ internal static class AssignmentEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound);
         assignments.MapPut("/{userId:guid}", AssignAsync).WithName("AssignFiringChief")
             .WithSummary("Assigns a FiringChief to the comparsa; repeating it changes nothing.")
-            .ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict);
+            .ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict).ProducesProblem(StatusCodes.Status503ServiceUnavailable);
         assignments.MapDelete("/{userId:guid}", UnassignAsync).WithName("UnassignFiringChief")
             .WithSummary("Removes a FiringChief from the comparsa; removing a missing assignment changes nothing.")
             .ProducesProblem(StatusCodes.Status404NotFound);

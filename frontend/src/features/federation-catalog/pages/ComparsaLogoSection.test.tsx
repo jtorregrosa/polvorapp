@@ -171,7 +171,7 @@ describe('Comparsa logo on the detail page (spec: Logo display)', () => {
   it.each([
     [400, 'validation', { errors: { file: 'tooSmall' } }, 'El logo es demasiado pequeño'],
     [503, 'storage.unavailable', {}, 'El almacén de imágenes no responde ahora mismo.'],
-    [503, 'catalog.busy', {}, 'El servidor está procesando otras imágenes'],
+    [503, 'catalog.busy', {}, 'El servidor está ocupado con otro cambio'],
     [429, 'tooManyRequests', {}, 'Has hecho demasiadas subidas seguidas'],
   ])(
     'keeps the crop open with the translated reason when the upload is refused (%i %s)',
@@ -305,7 +305,7 @@ describe('Comparsa logo on the detail page (spec: Logo display)', () => {
     await user.click(within(confirmation).getByRole('button', { name: 'Quitar logo' }));
 
     expect(
-      await within(confirmation).findByText('El servidor está procesando otras imágenes', { exact: false }),
+      await within(confirmation).findByText('El servidor está ocupado con otro cambio', { exact: false }),
     ).toBeInTheDocument();
     expect(headerTile().querySelector('img')).not.toBeNull();
   });

@@ -31,6 +31,9 @@ internal sealed partial class WeaponModelAdministration(
 {
     public const string EntityType = "WeaponModel";
 
+    /// <summary>A change that waited on a held lock too long (design D4): retryable.</summary>
+    private static readonly (CatalogOutcome, WeaponModel?) Busy = (CatalogOutcome.Busy, null);
+
     public async Task<(CatalogOutcome Outcome, WeaponModel? Model)> CreateAsync(WeaponModelInput input, CancellationToken cancellationToken)
     {
         var model = new WeaponModel { Id = Guid.CreateVersion7(time.GetUtcNow()), Kind = input.Kind, Label = input.Label, CreatedAt = time.GetUtcNow() };
@@ -40,7 +43,10 @@ internal sealed partial class WeaponModelAdministration(
         return await SaveAsync(model, cancellationToken);
     }
 
-    public async Task<(CatalogOutcome Outcome, WeaponModel? Model)> UpdateAsync(Guid id, WeaponModelInput input, CancellationToken cancellationToken)
+    public Task<(CatalogOutcome Outcome, WeaponModel? Model)> UpdateAsync(Guid id, WeaponModelInput input, CancellationToken cancellationToken) =>
+        db.BusyWhenLockedAsync(() => UpdateLockedAsync(id, input, cancellationToken), Busy);
+
+    private async Task<(CatalogOutcome Outcome, WeaponModel? Model)> UpdateLockedAsync(Guid id, WeaponModelInput input, CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         var model = await db.LockWeaponModelForChangeAsync(id, cancellationToken);
@@ -61,7 +67,10 @@ internal sealed partial class WeaponModelAdministration(
         return await CommitAsync(transaction, await SaveAsync(model, cancellationToken), cancellationToken);
     }
 
-    public async Task<(CatalogOutcome Outcome, WeaponModel? Model)> SetActiveAsync(Guid id, bool active, CancellationToken cancellationToken)
+    public Task<(CatalogOutcome Outcome, WeaponModel? Model)> SetActiveAsync(Guid id, bool active, CancellationToken cancellationToken) =>
+        db.BusyWhenLockedAsync(() => SetActiveLockedAsync(id, active, cancellationToken), Busy);
+
+    private async Task<(CatalogOutcome Outcome, WeaponModel? Model)> SetActiveLockedAsync(Guid id, bool active, CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         var model = await db.LockWeaponModelForChangeAsync(id, cancellationToken);
@@ -81,7 +90,10 @@ internal sealed partial class WeaponModelAdministration(
     }
 
     /// <summary>Deletes an unused model; the row is locked before the usage checks (design D10).</summary>
-    public async Task<CatalogOutcome> DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public Task<CatalogOutcome> DeleteAsync(Guid id, CancellationToken cancellationToken) =>
+        db.BusyWhenLockedAsync(() => DeleteLockedAsync(id, cancellationToken), CatalogOutcome.Busy);
+
+    private async Task<CatalogOutcome> DeleteLockedAsync(Guid id, CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         var model = await db.LockWeaponModelForDeleteAsync(id, cancellationToken);
