@@ -86,7 +86,8 @@
       "openOrder": "Ver el pedido",
       "link": "{{value}} {{label}}"
     },
-    "figuresLine": "En activo: {{active}} · Activos con avisos: {{warnings}}"
+    "figuresLine": "En activo: {{active}} · Activos con avisos: {{warnings}}",
+    "figuresFailed": "No se han podido cargar todas las cifras de las comparsas."
   },
   "federation": {
     "logo": {

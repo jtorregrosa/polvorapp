@@ -15,6 +15,7 @@ import { FilterSelect } from '@/components/app/FilterSelect';
 import { PageHeader } from '@/components/app/PageHeader';
 import { StatusBadge } from '@/components/app/StatusBadge';
 import { CategoryTag } from '@/components/app/Tag';
+import { LoadFailure } from '@/features/arquebusier-registry/components/LoadFailure';
 import { useSession } from '@/features/identity-access/session';
 import { knownFilter, withFilter } from '@/lib/search-filters';
 import { useFormatters } from '@/lib/format';
@@ -47,7 +48,7 @@ export function ComparsasPage() {
   const comparsas = useListComparsas(params, { query: { enabled: session.status === 'signedIn' } });
   const rows = useMemo(() => (comparsas.data?.data ?? []) as ComparsaResponse[], [comparsas.data]);
   // Each comparsa's figures beside it, once they load (UI audit, item 17).
-  const figures = useComparsaFigures();
+  const { figures, failure: figuresFailure } = useComparsaFigures();
   const { number } = useFormatters();
 
   const columns = useMemo<DataTableColumn<ComparsaResponse>[]>(
@@ -177,6 +178,13 @@ export function ComparsasPage() {
         />
       )}
       {comparsas.isError && <AlertBanner severity="error">{problemMessage(t, comparsas.error)}</AlertBanner>}
+      {!comparsas.isError && figuresFailure && (
+        <LoadFailure
+          error={figuresFailure.error}
+          consequence={t('comparsas.figuresFailed')}
+          onRetry={figuresFailure.retry}
+        />
+      )}
       {unassigned && (
         <EmptyState
           icon={Flag}
