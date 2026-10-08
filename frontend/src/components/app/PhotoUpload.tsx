@@ -321,6 +321,8 @@ export function PhotoUpload({
   }, [preview]);
 
   const close = () => {
+    // A preview still being drawn belongs to this session: it is released, never shown with the next photo.
+    previewRequest.current += 1;
     setImage(undefined);
     setPreview(undefined);
     setCrop(undefined);

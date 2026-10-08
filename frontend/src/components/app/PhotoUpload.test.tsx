@@ -346,6 +346,32 @@ describe('PhotoUpload', () => {
     expect(releaseImage).toHaveBeenCalledWith(expect.objectContaining({ url: 'blob:preview' }));
   });
 
+  it('releases a preview that finishes after the crop closed, and never shows it with the next photo', async () => {
+    let finishLate: (image: { url: string; width: number; height: number }) => void = () => undefined;
+    vi.mocked(previewOf)
+      .mockReturnValueOnce(
+        new Promise((resolve) => {
+          finishLate = resolve;
+        }),
+      )
+      .mockReturnValueOnce(new Promise(() => undefined));
+    await setup().view;
+
+    chooseFile();
+    await userEvent.click(await screen.findByRole('button', { name: 'Cancelar' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+    finishLate({ url: 'blob:late', width: 160, height: 213 });
+    await waitFor(() => {
+      expect(releaseImage).toHaveBeenCalledWith(expect.objectContaining({ url: 'blob:late' }));
+    });
+
+    chooseFile();
+    await screen.findByRole('dialog');
+    expect(screen.queryByRole('img', { name: 'Vista previa de la foto recortada' })).not.toBeInTheDocument();
+  });
+
   it('scales a large crop down to the maximum size at the exact shape', async () => {
     vi.mocked(loadImage).mockResolvedValue({ url: 'blob:large', width: 1800, height: 2400 });
     const { onUpload, view } = setup();
