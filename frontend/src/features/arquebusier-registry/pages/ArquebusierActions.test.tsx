@@ -143,6 +143,49 @@ describe('More actions (spec: Registry screens, Action hierarchy)', () => {
     ).toBeInTheDocument();
   });
 
+  it('keeps the status change disabled until the changed record is loaded again', async () => {
+    const user = userEvent.setup();
+    let current = DETAIL_UNO;
+    let reloaded: () => void = () => undefined;
+    let reload: Promise<void> = Promise.resolve();
+    server.use(
+      mock.get(`/api/arquebusiers/${DETAIL_UNO.id}`, async () => {
+        await reload;
+        return HttpResponse.json(current);
+      }),
+      mock.get('/api/comparsas', () => HttpResponse.json([NORTE, SUR, OESTE])),
+      mock.get('/api/arquebusiers', () => HttpResponse.json([])),
+    );
+    const { bodies, resolver } = recordBodies(() => {
+      current = { ...DETAIL_UNO, status: 'RESERVE', version: 8 };
+      reload = new Promise((resolve) => {
+        reloaded = resolve;
+      });
+      return HttpResponse.json(current);
+    });
+    server.use(mock.put(`/api/arquebusiers/${DETAIL_UNO.id}`, resolver));
+    await renderApp(`/arquebusiers/${DETAIL_UNO.id}`, { session: SYNTHETIC_FIRING_CHIEF });
+
+    await user.click(within(await openMoreActions(user)).getByRole('menuitem', { name: 'Pasar a reserva' }));
+    await waitFor(() => {
+      expect(bodies).toHaveLength(1);
+    });
+    const menu = await openMoreActions(user);
+    expect(within(menu).getByRole('menuitem', { name: 'Pasar a reserva' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+
+    await user.keyboard('{Escape}');
+    reloaded();
+    expect(
+      await screen.findByText('Arcabucero García Sintético está ahora en Reserva.', {
+        selector: '[role=status]',
+      }),
+    ).toBeInTheDocument();
+    expect(bodies).toHaveLength(1);
+  });
+
   it('sets the destructive action apart', async () => {
     const user = userEvent.setup();
     detail();

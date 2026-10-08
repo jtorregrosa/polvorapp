@@ -41,24 +41,42 @@ function useArquebusierActions(details: ArquebusierResponse, name: string, annou
   const refresh = useRefreshArquebusier(details.id);
   const update = useUpdateArquebusier();
   const [dialog, setDialog] = useState<'transfer' | 'delete'>();
+  // Held until the record is loaded again: the version shown is the one the next change sends.
+  const [changing, setChanging] = useState(false);
+  // Also read before the next render: two activations in a row send one change.
+  const inFlight = useRef(false);
   const nextStatus = details.status === 'ACTIVE' ? 'RESERVE' : 'ACTIVE';
 
-  const changeStatus = async () => {
+  /** Sends the change; a refusal is announced. True when it was saved. */
+  const send = async (): Promise<boolean> => {
     try {
       await update.mutateAsync({
         id: details.id,
         data: { ...requestFields({ ...valuesOf(details), status: nextStatus }), version: details.version },
       });
+      return true;
     } catch (error) {
       announce(
         'error',
         problemCode(error) === 'arquebusiers.modified' ? t('form.modified') : problemMessage(t, error),
       );
-      await refresh();
-      return;
+      return false;
     }
-    await refresh();
-    notify(t('detail.status.changed', { name, status: tUi(`status.arquebusier.${nextStatus}`) }));
+  };
+
+  const changeStatus = async () => {
+    if (inFlight.current) return;
+    inFlight.current = true;
+    setChanging(true);
+    try {
+      const saved = await send();
+      await refresh();
+      if (saved)
+        notify(t('detail.status.changed', { name, status: tUi(`status.arquebusier.${nextStatus}`) }));
+    } finally {
+      inFlight.current = false;
+      setChanging(false);
+    }
   };
 
   const items: MoreAction[] = [
@@ -67,7 +85,7 @@ function useArquebusierActions(details: ArquebusierResponse, name: string, annou
       label: t(nextStatus === 'RESERVE' ? 'detail.status.toReserve' : 'detail.status.toActive'),
       icon: nextStatus === 'RESERVE' ? CirclePause : CirclePlay,
       // One change at a time: a second one would carry the same version and conflict.
-      disabled: update.isPending,
+      disabled: changing,
       onSelect: () => {
         void changeStatus();
       },
