@@ -1,9 +1,13 @@
+using System.Data.Common;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Time.Testing;
 using Npgsql;
 using PolvorApp.Api.Tests.Infrastructure;
+using PolvorApp.AuditPrivacy.Persistence;
 using PolvorApp.AuditPrivacy.Retention;
 using PolvorApp.SharedKernel.Modules;
 
@@ -181,6 +185,29 @@ public sealed class AuditPurgeTests(PostgresFixture postgres) : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Batches_deleted_before_the_host_stops_are_still_recorded()
+    {
+        await InsertManyAsync("SignedIn", AuditPurge.BatchSize + 7);
+        using var stopping = new CancellationTokenSource();
+        await using var factory = new ApiFactory(
+            _connectionString,
+            configureServices: services =>
+            {
+                services.AddSingleton<TimeProvider>(_time);
+                services.ConfigureDbContext<AuditDbContext>(options => options.AddInterceptors(new StopAfterCommit(stopping)));
+            });
+
+        await using var scope = factory.Services.CreateAsyncScope();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            () => scope.ServiceProvider.GetRequiredService<AuditPurge>().RunAsync(stopping.Token));
+
+        Assert.Equal(
+            "{\"security\": 5000, \"standard\": 0}",
+            await ScalarAsync("SELECT data::text FROM audit.audit_entries WHERE action = 'AuditEntriesPurged'"));
+        Assert.Equal(7L, await ScalarAsync("SELECT count(*) FROM audit.audit_entries WHERE action = 'SignedIn'"));
+    }
+
+    [Fact]
     public async Task The_service_purges_a_minute_after_start_up_and_then_daily()
     {
         await using var factory = new ApiFactory(
@@ -270,5 +297,15 @@ public sealed class AuditPurgeTests(PostgresFixture postgres) : IAsyncLifetime
     {
         await using var command = _dataSource.CreateCommand(sql);
         return await command.ExecuteScalarAsync(TestContext.Current.CancellationToken);
+    }
+
+    /// <summary>Stops the host as soon as the first transaction commits, as a shutdown during a long purge would.</summary>
+    private sealed class StopAfterCommit(CancellationTokenSource stopping) : DbTransactionInterceptor
+    {
+        public override Task TransactionCommittedAsync(DbTransaction transaction, TransactionEndEventData eventData, CancellationToken cancellationToken = default)
+        {
+            stopping.Cancel();
+            return Task.CompletedTask;
+        }
     }
 }
