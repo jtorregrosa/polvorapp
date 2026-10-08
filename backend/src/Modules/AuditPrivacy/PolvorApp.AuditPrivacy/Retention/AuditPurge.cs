@@ -108,7 +108,11 @@ internal sealed partial class AuditPurge(
             }
             while (deleted == BatchSize);
         }
-        catch (Exception exception) when (!cancellationToken.IsCancellationRequested && exception is not OutOfMemoryException)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // The host is stopping: the batches already committed are recorded by the caller, which then stops too.
+        }
+        catch (Exception exception) when (exception is not OutOfMemoryException)
         {
             LogPeriodFailed(logger, retention, counter.Deleted, exception);
             failures.Add(exception);
