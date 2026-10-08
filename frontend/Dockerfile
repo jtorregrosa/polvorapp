@@ -12,7 +12,7 @@ COPY contracts/ /repo/contracts/
 COPY frontend/ ./
 RUN npm run build
 
-FROM nginxinc/nginx-unprivileged:1.30-alpine@sha256:ed04ec1ff34502c339ee5c3ae3f855442398edc1d05591e2b98981dcbbd20b1e AS runtime
+FROM nginxinc/nginx-unprivileged:1.31-alpine@sha256:b9241c6e7b8e9a862f129d8d4199ab64b10390949a78bdd5603379b32c844083 AS runtime
 COPY frontend/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY frontend/nginx/security-headers.conf /etc/nginx/snippets/security-headers.conf
 COPY --from=build /repo/frontend/dist /usr/share/nginx/html
