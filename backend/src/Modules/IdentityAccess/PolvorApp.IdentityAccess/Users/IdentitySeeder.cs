@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PolvorApp.IdentityAccess.Contracts;
+using PolvorApp.IdentityAccess.Persistence;
 using PolvorApp.IdentityAccess.Security;
 using PolvorApp.SharedKernel.Hosting;
 using PolvorApp.SharedKernel.Seeding;
@@ -21,6 +22,7 @@ namespace PolvorApp.IdentityAccess.Users;
 /// </summary>
 internal sealed partial class IdentitySeeder(
     UserManager<User> users,
+    IdentityAccessDbContext db,
     IConfiguration configuration,
     TimeProvider time,
     IHostEnvironment environment,
@@ -93,11 +95,15 @@ internal sealed partial class IdentitySeeder(
                 continue;
             }
 
-            await CreateAsync(synthetic, password, authenticatorKey);
+            await CreateAsync(synthetic, password, authenticatorKey, cancellationToken);
         }
     }
 
-    private async Task CreateAsync(SyntheticUser synthetic, string password, string authenticatorKey)
+    /// <summary>
+    /// Creates one user in one transaction: a failure halfway (e.g. before the authenticator key) leaves no
+    /// user, so a rerun creates it whole instead of skipping it unfinished.
+    /// </summary>
+    private async Task CreateAsync(SyntheticUser synthetic, string password, string authenticatorKey, CancellationToken cancellationToken)
     {
         var user = new User
         {
@@ -111,15 +117,19 @@ internal sealed partial class IdentitySeeder(
             CreatedAt = time.GetUtcNow(),
         };
 
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         if (synthetic.State == SyntheticState.Invited)
         {
             await users.CreateAsync(user).ThrowIfFailedAsync($"Seeding {synthetic.Email}");
-            return;
+        }
+        else
+        {
+            await users.CreateAsync(user, password).ThrowIfFailedAsync($"Seeding {synthetic.Email} (check {PasswordKey} against the password policy)");
+            await users.SetAuthenticationTokenAsync(user, "[AspNetUserStore]", "AuthenticatorKey", authenticatorKey).ThrowIfFailedAsync("Seeding the authenticator key");
+            await users.SetTwoFactorEnabledAsync(user, true).ThrowIfFailedAsync("Seeding two-factor authentication");
         }
 
-        await users.CreateAsync(user, password).ThrowIfFailedAsync($"Seeding {synthetic.Email} (check {PasswordKey} against the password policy)");
-        await users.SetAuthenticationTokenAsync(user, "[AspNetUserStore]", "AuthenticatorKey", authenticatorKey).ThrowIfFailedAsync("Seeding the authenticator key");
-        await users.SetTwoFactorEnabledAsync(user, true).ThrowIfFailedAsync("Seeding two-factor authentication");
+        await transaction.CommitAsync(cancellationToken);
     }
 
     private static bool IsValidKey(string key)
