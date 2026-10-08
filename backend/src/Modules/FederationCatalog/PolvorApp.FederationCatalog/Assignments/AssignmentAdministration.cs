@@ -17,7 +17,10 @@ internal sealed class AssignmentAdministration(
 {
     public const string EntityType = "FiringChiefAssignment";
 
-    public async Task<CatalogOutcome> AssignAsync(Guid comparsaId, Guid userId, CancellationToken cancellationToken)
+    public Task<CatalogOutcome> AssignAsync(Guid comparsaId, Guid userId, CancellationToken cancellationToken) =>
+        db.BusyWhenLockedAsync(() => AssignLockedAsync(comparsaId, userId, cancellationToken), CatalogOutcome.Busy);
+
+    private async Task<CatalogOutcome> AssignLockedAsync(Guid comparsaId, Guid userId, CancellationToken cancellationToken)
     {
         var user = await users.FindAsync(userId, cancellationToken);
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);

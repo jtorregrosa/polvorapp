@@ -27,7 +27,7 @@ internal enum CatalogOutcome
     ImageRejected,
     StorageUnavailable,
 
-    /// <summary>The image processor stayed busy; retryable.</summary>
+    /// <summary>The image processor stayed busy, or a row lock was held past the lock timeout; retryable.</summary>
     Busy,
 }
 

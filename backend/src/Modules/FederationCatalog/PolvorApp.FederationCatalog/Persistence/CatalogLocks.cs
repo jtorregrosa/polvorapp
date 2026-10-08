@@ -59,6 +59,24 @@ internal static class CatalogLocks
         (exception as PostgresException ?? exception.InnerException as PostgresException)?.SqlState
             is PostgresErrorCodes.LockNotAvailable or PostgresErrorCodes.DeadlockDetected;
 
+    /// <summary>
+    /// Runs a write that takes these locks: a lock wait past the timeout or a deadlock answers
+    /// <paramref name="busy"/>, and the failed change is forgotten so no later save writes it (design D4).
+    /// </summary>
+    public static async Task<T> BusyWhenLockedAsync<T>(this FederationCatalogDbContext db, Func<Task<T>> write, T busy)
+    {
+        ArgumentNullException.ThrowIfNull(write);
+        try
+        {
+            return await write();
+        }
+        catch (Exception exception) when (IsRetryable(exception))
+        {
+            db.ChangeTracker.Clear();
+            return busy;
+        }
+    }
+
     /// <remarks>
     /// Tracked results come back fresh only if the context has not loaded the row before in this
     /// scope; every caller locks first, before any other read of the row.

@@ -34,16 +34,16 @@ internal static class ComparsaEndpoints
         adminOnly.MapPost("/", CreateAsync).WithName("CreateComparsa").WithSummary("Creates a comparsa.")
             .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status409Conflict);
         adminOnly.MapPut("/{id:guid}", UpdateAsync).WithName("UpdateComparsa").WithSummary("Changes a comparsa's name and side.")
-            .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict);
+            .ProducesProblem(StatusCodes.Status400BadRequest).ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict).ProducesProblem(StatusCodes.Status503ServiceUnavailable);
         adminOnly.MapPost("/{id:guid}/deactivate", (Guid id, ComparsaAdministration administration, CancellationToken ct) => SetActiveAsync(id, false, administration, ct))
             .WithName("DeactivateComparsa").WithSummary("Deactivates a comparsa; its assignments are kept.")
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status503ServiceUnavailable);
         adminOnly.MapPost("/{id:guid}/reactivate", (Guid id, ComparsaAdministration administration, CancellationToken ct) => SetActiveAsync(id, true, administration, ct))
             .WithName("ReactivateComparsa").WithSummary("Reactivates a deactivated comparsa.")
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status503ServiceUnavailable);
         adminOnly.MapDelete("/{id:guid}", DeleteAsync).WithName("DeleteComparsa")
             .WithSummary("Deletes a comparsa that no other record uses, with its FiringChief assignments.")
-            .ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict);
+            .ProducesProblem(StatusCodes.Status404NotFound).ProducesProblem(StatusCodes.Status409Conflict).ProducesProblem(StatusCodes.Status503ServiceUnavailable);
         return endpoints;
     }
 
