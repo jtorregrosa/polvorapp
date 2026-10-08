@@ -1,5 +1,5 @@
 import { IdCard } from 'lucide-react';
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getDownloadBadgeSheetUrl } from '@/api/generated/badges/badges';
 import { useGetFederation } from '@/api/generated/federation/federation';
@@ -59,6 +59,8 @@ export function BadgeSheet({
   const [pending, setPending] = useState(false);
   const [saved, setSaved] = useState<string>();
   const [failure, setFailure] = useState<BadgeFailure>();
+  /** Whether the panel is open now: a download settling while it is closed has no panel to show its outcome. */
+  const isOpen = useRef(false);
   const settings = useGetFederation();
   const logoMissing = (settings.data?.data as FederationResponse | undefined)?.logo === null;
 
@@ -81,11 +83,18 @@ export function BadgeSheet({
     try {
       const file = await apiDownloadPost(getDownloadBadgeSheetUrl(), body);
       const name = file.fileName ?? 'polvorapp-badges.pdf';
+      // The file was asked for, so it is saved even once the panel has closed.
       saveFile(file.blob, name);
-      setSaved(t('sheet.saved', { name }));
+      if (isOpen.current) setSaved(t('sheet.saved', { name }));
     } catch (error: unknown) {
-      setFailure(badgeFailure(error, batch.kind === 'selection' ? batch.arquebusierIds : []));
-      setAttempt((value) => value + 1);
+      const reason = badgeFailure(error, batch.kind === 'selection' ? batch.arquebusierIds : []);
+      if (isOpen.current) {
+        setFailure(reason);
+        setAttempt((value) => value + 1);
+      } else if (reason.kind === 'unknownIds') {
+        // The panel closed before the answer: the ids it would have handed back on closing go now.
+        onUnknownIds(reason.ids);
+      }
     } finally {
       setPending(false);
     }
@@ -103,6 +112,7 @@ export function BadgeSheet({
   };
 
   const onOpenChange = (open: boolean) => {
+    isOpen.current = open;
     if (open) return;
     if (failure?.kind === 'unknownIds') onUnknownIds(failure.ids);
     setFailure(undefined);
