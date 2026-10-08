@@ -1,5 +1,7 @@
 using System.Net;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
@@ -7,6 +9,7 @@ using PolvorApp.Api.Platform.Seeding;
 using PolvorApp.Api.Tests.Infrastructure;
 using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.IdentityAccess.Endpoints;
+using PolvorApp.IdentityAccess.Persistence;
 using PolvorApp.IdentityAccess.Security;
 using PolvorApp.IdentityAccess.Users;
 using PolvorApp.SharedKernel.Seeding;
@@ -74,6 +77,32 @@ public sealed class IdentitySeederTests(PostgresFixture postgres, MailpitFixture
         }
     }
 
+    [Fact]
+    public async Task A_seed_that_fails_halfway_through_a_user_leaves_nothing_a_rerun_skips()
+    {
+        var fault = new FailFirstAuthenticatorKey();
+        await using var host = await IdentityTestHost.StartAsync(
+            postgres,
+            mailpit,
+            new Dictionary<string, string?>
+            {
+                [IdentitySeeder.PasswordKey] = SeedPassword,
+                [IdentitySeeder.AuthenticatorKeyKey] = SeedKey,
+                [SeedDatasets.Key] = nameof(SeedDataset.Scenarios),
+            },
+            services => services.ConfigureDbContext<IdentityAccessDbContext>(options => options.AddInterceptors(fault)));
+
+        Assert.Equal(1, await SeedAsync(host));
+        Assert.Equal(0, await SeedAsync(host));
+
+        await using var scope = host.Services.CreateAsyncScope();
+        var users = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+        var admin = await users.FindByEmailAsync("admin@polvorapp.example");
+        Assert.NotNull(admin);
+        Assert.True(await users.GetTwoFactorEnabledAsync(admin));
+        Assert.Equal(SeedKey, await users.GetAuthenticatorKeyAsync(admin));
+    }
+
     [Theory]
     [InlineData(null, SeedKey, IdentitySeeder.PasswordKey)]
     [InlineData(SeedPassword, null, IdentitySeeder.AuthenticatorKeyKey)]
@@ -97,4 +126,22 @@ public sealed class IdentitySeederTests(PostgresFixture postgres, MailpitFixture
 
     private static Task<int> SeedAsync(IdentityTestHost host) =>
         SeedCommand.RunAsync(host.Services, new HostingEnvironment { EnvironmentName = Environments.Development }, TestContext.Current.CancellationToken);
+
+    /// <summary>Fails the first save of an authenticator key, as a dropped connection would.</summary>
+    private sealed class FailFirstAuthenticatorKey : SaveChangesInterceptor
+    {
+        private int _failed;
+
+        public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
+            DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+        {
+            var savesKey = eventData.Context!.ChangeTracker.Entries<IdentityUserToken<Guid>>().Any(e => e.State == EntityState.Added);
+            if (savesKey && Interlocked.Exchange(ref _failed, 1) == 0)
+            {
+                throw new InvalidOperationException("Simulated outage while saving the authenticator key.");
+            }
+
+            return ValueTask.FromResult(result);
+        }
+    }
 }
