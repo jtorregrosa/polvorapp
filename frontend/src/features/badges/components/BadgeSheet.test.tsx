@@ -215,6 +215,87 @@ describe('BadgeSheet (spec: Badge screens)', () => {
     expect(onUnknownIds).toHaveBeenCalledWith(['a2']);
   });
 
+  it('hands back the unknown arquebusiers of a download that fails after the panel closed, and reopens clean', async () => {
+    const onUnknownIds = vi.fn();
+    let answer: () => void = () => undefined;
+    const answered = new Promise<void>((resolve) => {
+      answer = resolve;
+    });
+    server.use(
+      mock.post(SHEET, async () => {
+        await answered;
+        return problem(400, 'validation', { errors: { 'arquebusierIds[1]': 'notFound' } });
+      }),
+    );
+    const user = userEvent.setup();
+    await renderWithProviders(
+      <BadgeSheet
+        batch={{ kind: 'selection', arquebusierIds: ['a1', 'a2'] }}
+        rows={ROWS.slice(0, 2)}
+        onUnknownIds={onUnknownIds}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: /Imprimir carnets/ }));
+    await user.click(await screen.findByRole('button', { name: 'Descargar PDF' }));
+
+    await user.keyboard('{Escape}');
+    answer();
+
+    await waitFor(() => {
+      expect(onUnknownIds).toHaveBeenCalledWith(['a2']);
+    });
+    await user.click(screen.getByRole('button', { name: /Imprimir carnets/ }));
+    const reopened = await screen.findByRole('dialog');
+    expect(within(reopened).queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('shows the outcome of a download in the panel reopened while it was running', async () => {
+    let answer: () => void = () => undefined;
+    const answered = new Promise<void>((resolve) => {
+      answer = resolve;
+    });
+    server.use(
+      mock.post(SHEET, async () => {
+        await answered;
+        return problem(503, 'badges.busy');
+      }),
+    );
+    const { user, dialog } = await openComparsaSheet();
+    await user.click(within(dialog).getByRole('button', { name: 'Descargar PDF' }));
+
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByRole('button', { name: /Imprimir carnets/ }));
+    const reopened = await screen.findByRole('dialog');
+    answer();
+
+    expect(await within(reopened).findByRole('alert')).toHaveTextContent('Se están generando otros carnets.');
+  });
+
+  it('does not show the outcome of a download that finished after the panel closed', async () => {
+    let answer: () => void = () => undefined;
+    const answered = new Promise<void>((resolve) => {
+      answer = resolve;
+    });
+    server.use(
+      mock.post(SHEET, async () => {
+        await answered;
+        return pdf('polvorapp-badges.pdf');
+      }),
+    );
+    const { user, dialog } = await openComparsaSheet();
+    await user.click(within(dialog).getByRole('button', { name: 'Descargar PDF' }));
+
+    await user.keyboard('{Escape}');
+    answer();
+    await waitFor(() => {
+      expect(saved).toBe('polvorapp-badges.pdf');
+    });
+
+    await user.click(screen.getByRole('button', { name: /Imprimir carnets/ }));
+    const reopened = await screen.findByRole('dialog');
+    expect(within(reopened).getByRole('status')).toBeEmptyDOMElement();
+  });
+
   it('cannot be opened when the trigger is disabled, which stays focusable with its reason', async () => {
     const user = userEvent.setup();
     await renderWithProviders(
