@@ -40,7 +40,7 @@ internal static class ExportEndpoints
         admins.MapGet("/recipients/{definition}/{format}", RecipientAsync).WithName("DownloadRecipientExport")
             .WithSummary("The powder supplier, rental company or Arms Authority export of the validated orders, as xlsx or pdf; audited (Admins).")
             .Produces<Stream>(StatusCodes.Status200OK, XlsxExportWriter.ContentType, PdfExportWriter.ContentType)
-            .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
+            .ProducesProblem(StatusCodes.Status409Conflict).ProducesProblem(StatusCodes.Status503ServiceUnavailable);
         group.MapGet("/comparsas/{comparsaId:guid}/{format}", ComparsaListAsync).WithName("DownloadComparsaList")
             .WithSummary("A comparsa's list of its order, as xlsx or pdf, a draft until the order is validated; audited (Admins and the comparsa's FiringChiefs).")
             .Produces<Stream>(StatusCodes.Status200OK, XlsxExportWriter.ContentType, PdfExportWriter.ContentType)

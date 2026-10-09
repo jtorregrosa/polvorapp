@@ -156,6 +156,24 @@ public sealed class ExportEndpointTests(PostgresFixture postgres, MailpitFixture
         Assert.DoesNotContain("-draft", FileName(response), StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task A_name_the_fonts_cannot_draw_refuses_the_pdf_but_not_the_excel_file()
+    {
+        var order = NewOrder(_orders.Current, _orders.Own.Id, OrderStatus.Validated);
+        var entry = NewEntry(order, null);
+        entry.PowderKg = 2;
+        entry.LastName = "漢字 Sintético";
+        await _orders.Services.SaveOrdersAsync(order, entry);
+
+        using var pdf = await _orders.Admin.GetAsync($"{Base}/comparsas/{_orders.Own.Id}/pdf", TestContext.Current.CancellationToken);
+        using var excel = await _orders.Admin.GetAsync($"{Base}/comparsas/{_orders.Own.Id}/xlsx", TestContext.Current.CancellationToken);
+
+        await AssertProblemAsync(pdf, HttpStatusCode.Conflict, "exports.textUnprintable");
+        Assert.DoesNotContain("漢字", await pdf.Content.ReadAsStringAsync(TestContext.Current.CancellationToken), StringComparison.Ordinal);
+        Assert.Equal(HttpStatusCode.OK, excel.StatusCode);
+        Assert.Single(await _orders.Host.AuditEntriesAsync("ExportDownloaded"));
+    }
+
     [Theory]
     [InlineData(OrderStatus.Draft)]
     [InlineData(OrderStatus.Submitted)]

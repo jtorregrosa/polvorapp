@@ -77,7 +77,11 @@ internal sealed partial class DistributionDocuments(
             LogListGaps(logger, day.Id, built.ProxiesWithoutEntry, built.ErasedNames);
         }
 
-        var document = renderer.RenderTable(built.Table, format);
+        if (Render(() => renderer.RenderTable(built.Table, format), DistributionLists.Name(day.Type)) is not { } document)
+        {
+            return ProblemResults.Conflict(DistributionProblems.TextUnprintable);
+        }
+
         return await DeliverAsync(
             document,
             DistributionLists.Name(day.Type),
@@ -149,13 +153,34 @@ internal sealed partial class DistributionDocuments(
             : throw new InvalidOperationException($"Comparsa {proxy.ComparsaId} of pickup proxy {proxy.Id} is missing from the catalogue.");
         var data = new PickupFormData(
             edition.Year, proxy.Type, proxy.Id, comparsa, Person(texts, live, holder), Person(texts, live, proxyEntry), day?.Date, day?.Location, logo, federationName);
-        var document = renderer.RenderForm(PickupAuthorisationForm.Build(data, texts));
+        if (Render(() => renderer.RenderForm(PickupAuthorisationForm.Build(data, texts)), PickupAuthorisationForm.Name) is not { } document)
+        {
+            return ProblemResults.Conflict(DistributionProblems.TextUnprintable);
+        }
+
         return await DeliverAsync(
             document,
             PickupAuthorisationForm.Name,
             new { version = PickupAuthorisationForm.Version, format = EnumCodes.ToCode(DocumentFileFormat.Pdf), editionId = edition.Id, editionYear = edition.Year, type = EnumCodes.ToCode(proxy.Type), proxyId = proxy.Id },
             proxy.ComparsaId,
             cancellationToken);
+    }
+
+    /// <summary>
+    /// Renders a document, or null when a text holds a letter the embedded fonts cannot draw: it is never
+    /// printed with a wrong letter, and retrying fails the same way. Other rendering failures propagate.
+    /// </summary>
+    private RenderedDocument? Render(Func<RenderedDocument> render, string document)
+    {
+        try
+        {
+            return render();
+        }
+        catch (DocumentRenderingException exception) when (exception.TextUnprintable)
+        {
+            LogUnprintable(logger, exception, document);
+            return null;
+        }
     }
 
     /// <summary>Audits the download (no personal data), then returns the file; no audit, no file.</summary>
@@ -215,6 +240,9 @@ internal sealed partial class DistributionDocuments(
         Guid[] distinct = [.. ids.Distinct()];
         return distinct.Length == 0 ? new Dictionary<Guid, string>() : (await catalog.FindWeaponModelsAsync(distinct, cancellationToken)).ToDictionary(m => m.Id, m => m.Label);
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Distribution document {Document} refused: a text holds a letter the embedded fonts cannot draw")]
+    private static partial void LogUnprintable(ILogger logger, Exception exception, string document);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Distribution document {Document} for comparsa {ComparsaId} could not be audited and was not returned")]
     private static partial void LogAuditFailed(ILogger logger, Exception exception, string document, Guid? comparsaId);

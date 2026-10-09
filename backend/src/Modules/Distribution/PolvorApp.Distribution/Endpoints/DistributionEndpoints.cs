@@ -71,7 +71,7 @@ internal static class DistributionEndpoints
             .RequireAuthorization(AuthorizationPolicies.Admin).ProducesProblem(StatusCodes.Status403Forbidden)
             .RequireRateLimiting(RateLimitPolicies.Exports).ProducesProblem(StatusCodes.Status429TooManyRequests)
             .Produces<Stream>(StatusCodes.Status200OK, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/pdf")
-            .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
+            .ProducesProblem(StatusCodes.Status409Conflict).ProducesProblem(StatusCodes.Status503ServiceUnavailable);
         group.MapGet("/proxies/{id:guid}/form", FormDocumentAsync).WithName("DownloadPickupAuthorisation")
             .WithSummary("A proxy's pre-filled authorisation form as pdf, in the user's language; audited (Admins and the comparsa's FiringChiefs).")
             .RequireRateLimiting(RateLimitPolicies.Exports).ProducesProblem(StatusCodes.Status429TooManyRequests)

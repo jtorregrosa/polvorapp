@@ -88,6 +88,14 @@ describe('DownloadButtons (spec: Exports screens)', () => {
   it.each([
     [() => problem(409, 'exports.notPrepared'), 'La comparsa no ha preparado su pedido.'],
     [
+      () => problem(409, 'exports.textUnprintable'),
+      'Algún nombre lleva una letra que no se puede imprimir en PDF. Corrígelo en el registro o descarga el Excel, si lo hay.',
+    ],
+    [
+      () => problem(409, 'distribution.textUnprintable'),
+      'Algún nombre lleva una letra que no se puede imprimir en PDF. Corrígelo en el registro o descarga el Excel, si lo hay.',
+    ],
+    [
       () => problem(429, 'tooManyRequests'),
       'Has descargado demasiados ficheros seguidos. Espera un minuto y vuelve a intentarlo.',
     ],

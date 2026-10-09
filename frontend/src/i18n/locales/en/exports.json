@@ -58,6 +58,7 @@
     "notPrepared": "The comparsa has not prepared its order.",
     "tooMany": "You have downloaded too many files in a row. Wait a minute and try again.",
     "auditUnavailable": "The download could not be recorded, so the file was not generated. Try again in a few minutes.",
+    "textUnprintable": "A name holds a letter that cannot be printed in a PDF. Correct it in the registry or download the Excel file, if there is one.",
     "notApplicable": "The holder no longer collects anything of this type, so there is no form.",
     "licenseInvalid": "The proxy's weapons license is not valid on the distribution day, so there is no form.",
     "storageUnavailable": "The Federation logo could not be read. Try again in a few minutes.",

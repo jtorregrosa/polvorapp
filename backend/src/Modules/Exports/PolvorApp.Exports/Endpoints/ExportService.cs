@@ -34,6 +34,9 @@ internal sealed partial class ExportService(
     public const string NotPrepared = "exports.notPrepared";
     public const string AuditUnavailable = "exports.auditUnavailable";
 
+    /// <summary>A text of the PDF, e.g. a name, holds a letter the embedded fonts cannot draw; the Excel file still works.</summary>
+    public const string TextUnprintable = "exports.textUnprintable";
+
     /// <summary>The definitions, for the exports page (Admins).</summary>
     public async Task<ExportCatalogResponse?> CatalogAsync(Guid editionId, CancellationToken cancellationToken) =>
         await editions.FindAsync(editionId, cancellationToken) is null
@@ -89,7 +92,18 @@ internal sealed partial class ExportService(
         IExportDefinition definition, DocumentTable table, DocumentFileFormat format, EditionSnapshot edition, Guid? comparsaId, OrderStatus? orderStatus,
         CancellationToken cancellationToken)
     {
-        var document = renderer.RenderTable(table, format);
+        RenderedDocument document;
+        try
+        {
+            document = renderer.RenderTable(table, format);
+        }
+        catch (DocumentRenderingException exception) when (exception.TextUnprintable)
+        {
+            // Never printed with a wrong letter, and retrying fails the same way: nothing is generated or audited.
+            LogUnprintable(logger, exception, definition.Name, edition.Id);
+            return ProblemResults.Conflict(TextUnprintable);
+        }
+
         try
         {
             await auditLog.RecordAsync(
@@ -126,6 +140,9 @@ internal sealed partial class ExportService(
         "pdf" => DocumentFileFormat.Pdf,
         _ => null,
     };
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Export {Definition} of edition {EditionId} refused: a text holds a letter the embedded fonts cannot draw")]
+    private static partial void LogUnprintable(ILogger logger, Exception exception, string definition, Guid editionId);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Export {Definition} of edition {EditionId} could not be audited and was not returned")]
     private static partial void LogAuditFailed(ILogger logger, Exception exception, string definition, Guid editionId);

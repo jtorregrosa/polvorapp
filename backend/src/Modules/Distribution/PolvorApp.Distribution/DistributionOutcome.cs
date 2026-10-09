@@ -57,6 +57,9 @@ internal static class DistributionProblems
     public const string LicenseInvalid = "proxies.licenseInvalid";
     public const string AuditUnavailable = "distribution.auditUnavailable";
 
+    /// <summary>A text of a PDF list or form, e.g. a name, holds a letter the embedded fonts cannot draw.</summary>
+    public const string TextUnprintable = "distribution.textUnprintable";
+
     public static ProblemHttpResult From(DistributionOutcome outcome, IReadOnlyDictionary<string, string>? errors = null) => outcome switch
     {
         DistributionOutcome.Invalid => ProblemResults.Invalid(errors ?? new Dictionary<string, string>()),

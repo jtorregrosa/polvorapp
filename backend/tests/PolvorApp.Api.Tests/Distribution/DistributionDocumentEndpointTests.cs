@@ -67,6 +67,25 @@ public sealed class DistributionDocumentEndpointTests(PostgresFixture postgres, 
     }
 
     [Fact]
+    public async Task A_name_the_fonts_cannot_draw_refuses_the_pdf_list_and_the_form_but_not_the_excel_list()
+    {
+        var holder = await _orders.AddLicensedEntryAsync(_order, "漢字 Sintético", ValidThrough, powderKg: 1);
+        var proxy = await _orders.AddLicensedEntryAsync(_order, "Autorizado Sintético", ValidThrough, status: ArquebusierStatus.Reserve);
+        using var registered = await _orders.FiringChief.RegisterProxyAsync(_orders.Current.Id, holder.Id, proxy.Id);
+        var proxyId = (await ReadAsync<JsonElement>(registered)).GetProperty("id").GetGuid();
+
+        using var pdf = await _orders.Admin.GetAsync($"/api/distribution/distributions/{_powderDay}/list/pdf", Token);
+        using var form = await _orders.FiringChief.GetAsync($"/api/distribution/proxies/{proxyId}/form", Token);
+        using var excel = await _orders.Admin.GetAsync($"/api/distribution/distributions/{_powderDay}/list/xlsx", Token);
+
+        await AssertProblemAsync(pdf, HttpStatusCode.Conflict, "distribution.textUnprintable");
+        await AssertProblemAsync(form, HttpStatusCode.Conflict, "distribution.textUnprintable");
+        Assert.DoesNotContain("漢字", await pdf.Content.ReadAsStringAsync(Token), StringComparison.Ordinal);
+        Assert.Equal(HttpStatusCode.OK, excel.StatusCode);
+        Assert.Single(await _orders.Host.AuditEntriesAsync("DistributionDocumentDownloaded"));
+    }
+
+    [Fact]
     public async Task A_list_leaves_out_orders_not_validated_and_proxies_of_the_other_type()
     {
         var submitted = await _orders.AddOrderAsync(_orders.Current, _orders.Other.Id, OrderStatus.Submitted);
