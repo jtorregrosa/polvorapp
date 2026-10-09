@@ -365,6 +365,41 @@ describe('AppLayout icon rail (platform: Application shell)', () => {
     expect(link).not.toHaveAttribute('aria-describedby');
   });
 
+  it('opens no tooltip on collapsing for entries visited while the sidebar was expanded', async () => {
+    const user = userEvent.setup();
+    await renderRail();
+
+    // Visiting entries and cards in the expanded sidebar must leave no tooltip pending.
+    for (const name of ['Pedidos', 'Comparsa Sintética Norte', 'Arcabuceros, 5 con avisos']) {
+      act(() => {
+        screen.getByRole('link', { name }).focus();
+      });
+    }
+    await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
+
+    expect(screen.queryByRole('tooltip')).toBeNull();
+  });
+
+  it('opens no stale tooltip when the rail comes back after expanding with an entry focused', async () => {
+    const user = userEvent.setup();
+    await renderRail();
+    await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
+    const link = screen.getByRole('link', { name: 'Pedidos' });
+    act(() => {
+      link.focus();
+    });
+    expect(await screen.findByRole('tooltip', { name: 'Pedidos' })).toBeInTheDocument();
+
+    // The keyboard shortcut expands without moving focus; leaving the entry then closes nothing.
+    await user.keyboard('{Control>}b{/Control}');
+    act(() => {
+      link.blur();
+    });
+    await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
+
+    expect(screen.queryByRole('tooltip')).toBeNull();
+  });
+
   it('turns a counter into a dot, keeping the count in the name and the tooltip', async () => {
     const user = userEvent.setup();
     await renderRail();

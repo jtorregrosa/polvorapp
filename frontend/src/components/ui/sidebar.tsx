@@ -535,6 +535,26 @@ const sidebarMenuButtonVariants = cva(
   },
 );
 
+/**
+ * Local edit (refine-navigation-and-lists D1): open state of a tooltip that shows only in the icon
+ * rail. Radix reports a change only when it differs from the `open` prop, so a close is never
+ * reported while the prop is forced shut: an open requested outside the rail, or left over when the
+ * rail expands, would stick and show on the next collapse. Opens outside the rail are dropped and
+ * the state is cleared whenever the rail comes or goes.
+ */
+function useRailTooltip(rail: boolean) {
+  const [open, setOpen] = React.useState(false);
+  const [lastRail, setLastRail] = React.useState(rail);
+  if (lastRail !== rail) {
+    setLastRail(rail);
+    setOpen(false);
+  }
+  return {
+    open: rail && open,
+    onOpenChange: (next: boolean) => setOpen(rail && next),
+  };
+}
+
 function SidebarMenuButton({
   asChild = false,
   isActive = false,
@@ -552,8 +572,8 @@ function SidebarMenuButton({
   const { isMobile, state } = useSidebar();
   // Local edit (refine-navigation-and-lists D1): the tooltip opens only in the icon rail. Kept
   // controlled, so an expanded entry gets no hidden description that repeats its name.
-  const [tooltipOpen, setTooltipOpen] = React.useState(false);
   const rail = state === 'collapsed' && !isMobile;
+  const railTooltip = useRailTooltip(rail);
 
   const button = (
     <Comp
@@ -577,7 +597,7 @@ function SidebarMenuButton({
   }
 
   return (
-    <Tooltip open={rail && tooltipOpen} onOpenChange={setTooltipOpen}>
+    <Tooltip {...railTooltip}>
       <TooltipTrigger asChild>{button}</TooltipTrigger>
       <TooltipContent side="right" align="center" {...tooltip} />
     </Tooltip>
@@ -751,5 +771,6 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
+  useRailTooltip,
   useSidebar,
 };

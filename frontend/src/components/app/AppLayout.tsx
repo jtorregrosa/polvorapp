@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { useEffect, useId, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { useEffect, useId, useRef, type ReactNode, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router';
 import { cn } from '@/lib/cn';
@@ -17,6 +17,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  useRailTooltip,
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -218,9 +219,9 @@ function SidebarCardLink({
   rail,
   onChoose,
 }: SidebarCard & { current: boolean; rail: boolean; onChoose: () => void }) {
-  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const railTooltip = useRailTooltip(rail);
   return (
-    <Tooltip open={rail && tooltipOpen} onOpenChange={setTooltipOpen}>
+    <Tooltip {...railTooltip}>
       <TooltipTrigger asChild>
         <Link
           to={to}
