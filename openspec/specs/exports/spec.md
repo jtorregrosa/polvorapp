@@ -112,9 +112,19 @@ rows and columns. The Excel file SHALL have one worksheet with a header row and 
 columns, repeating the header on every page and numbering the pages. An unknown format or
 definition SHALL be answered `404 Not Found`.
 
+A PDF with a text, for example a name, that holds a letter the documents' embedded fonts cannot draw (for example a CJK character in a name) SHALL NOT be generated with a wrong or
+missing letter: the request SHALL be rejected (`409 Conflict`, `exports.textUnprintable`), nothing
+SHALL be audited, and neither the response nor the logs SHALL quote the text. The Excel file of the
+same export SHALL still be available. The screen SHALL say that a name cannot be printed in PDF and
+that it can be corrected in the registry or downloaded as Excel.
+
 #### Scenario: Same export in both formats
 - **WHEN** an Admin downloads the rental company export as Excel and as PDF
 - **THEN** both list the same rows, in the same order, with the same columns
+
+#### Scenario: Unprintable name in a PDF
+- **WHEN** a comparsa's order holds an entry whose last name has a letter the embedded fonts cannot draw, and an Admin downloads that comparsa's list as PDF and as Excel
+- **THEN** the PDF request is rejected with `409 Conflict` and `exports.textUnprintable` and is not audited, and the Excel file is returned and audited
 
 #### Scenario: Unknown format
 - **WHEN** a user asks for an export with the format `csv`

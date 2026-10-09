@@ -32,6 +32,11 @@ actions in the UI. The UI SHALL ask for confirmation before a deactivation. Deac
 SHALL keep its FiringChief assignments. Deactivation is for a comparsa that no longer takes part
 but whose history must stay visible. Deletion is for a comparsa entered by mistake or never used.
 
+A change to an existing comparsa or weapon model, and an assignment, SHALL wait for a concurrent
+change of the same row; when it waits longer than 5 seconds, or the database ends it to break a
+deadlock, it SHALL change nothing and answer `503 Service Unavailable` with `catalog.busy`, a
+translated, retryable message.
+
 #### Scenario: Admin edits a comparsa
 - **WHEN** an Admin changes the side of a comparsa from `CHRISTIAN` to `MOORISH`
 - **THEN** the comparsa is updated and the change is audited with its previous and new values
@@ -43,6 +48,10 @@ but whose history must stay visible. Deletion is for a comparsa entered by mista
 #### Scenario: Admin reactivates a comparsa
 - **WHEN** an Admin reactivates an inactive comparsa
 - **THEN** the comparsa becomes active again
+
+#### Scenario: Comparsa held by another change
+- **WHEN** an Admin edits a comparsa while another transaction holds that comparsa's row for more than 5 seconds
+- **THEN** the API responds `503 Service Unavailable` with `catalog.busy`, and nothing is changed or audited
 
 #### Scenario: FiringChief cannot manage comparsas
 - **WHEN** a signed-in FiringChief tries to create, edit, deactivate, reactivate or delete a comparsa through the API

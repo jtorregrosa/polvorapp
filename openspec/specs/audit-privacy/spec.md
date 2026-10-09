@@ -150,13 +150,18 @@ Audit entries SHALL be kept for a limited time (maintainer decision):
 
 A purge SHALL run once a day and delete the entries older than their period. It SHALL record one
 audit entry with the number of entries it deleted per period, without an acting user, and SHALL
-record nothing when it deletes nothing. Both periods SHALL be configurable, with these defaults.
+record nothing when it deletes nothing. A purge stopped midway, for example when PolvorApp shuts
+down, SHALL still record the entries it had already deleted. Both periods SHALL be configurable, with these defaults.
 They SHALL be refused at start-up when shorter than 1 year or 5 years respectively, or when not
 whole numbers.
 
 #### Scenario: Old sign-in removed
 - **WHEN** the purge runs and a `SignedIn` entry is 366 days old
 - **THEN** the entry is deleted, and one purge entry records one deleted security event
+
+#### Scenario: Purge stopped midway
+- **WHEN** PolvorApp shuts down after the purge has deleted a first batch of 5000 security events
+- **THEN** one purge entry records the 5000 deleted security events
 
 #### Scenario: Old change kept within five years
 - **WHEN** the purge runs and an `ArquebusierUpdated` entry is 4 years old

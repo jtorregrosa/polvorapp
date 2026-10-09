@@ -314,7 +314,10 @@ A notification caused by a change SHALL be recorded in the same transaction as t
 is recorded exactly when the change is saved. Notifications SHALL be sent in the background: the
 change SHALL NOT wait for the SMTP server, and an SMTP failure SHALL NOT fail or undo it. A
 delivery to a recipient that fails SHALL be retried with growing intervals for at least 24 hours,
-and then given up and logged without the email's content. A recipient SHALL NOT receive the same
+and then given up and logged without the email's content. A delivery that cannot be prepared
+because the database is briefly unavailable (a timeout or a dropped connection) SHALL be retried in
+the same way; one whose data cannot be prepared for any other reason SHALL be marked as failed at
+once. A recipient SHALL NOT receive the same
 notification twice; the only exception is when PolvorApp stops between handing an email to the SMTP
 server and recording that it was sent. Each delivery SHALL record the recipient user, the kind,
 what it was about, its status, its attempts and when it was sent, but SHALL NOT store the address,
@@ -327,6 +330,10 @@ subject or body. Delivery records SHALL be deleted one year after they were crea
 #### Scenario: SMTP failure is retried
 - **WHEN** the SMTP server rejects an order status email and accepts it on a later attempt
 - **THEN** the recipient receives the email once
+
+#### Scenario: Database briefly unavailable while preparing
+- **WHEN** reading the edition for an order status email times out once and works on the next attempt
+- **THEN** the delivery is retried and the recipient receives the email once
 
 #### Scenario: Giving up
 - **WHEN** a delivery keeps failing for more than 24 hours
