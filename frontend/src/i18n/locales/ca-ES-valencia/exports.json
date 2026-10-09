@@ -58,6 +58,7 @@
     "notPrepared": "La comparsa no ha preparat la seua comanda.",
     "tooMany": "Has descarregat massa fitxers seguits. Espera un minut i torna-ho a intentar.",
     "auditUnavailable": "No s'ha pogut registrar la descàrrega, així que no s'ha generat el fitxer. Torna-ho a intentar d'ací a uns minuts.",
+    "textUnprintable": "Algun nom porta una lletra que no es pot imprimir en PDF. Corregix-lo en el registre o descarrega l'Excel, si n'hi ha.",
     "notApplicable": "El titular ja no recull res d'aquest tipus, així que no hi ha formulari.",
     "licenseInvalid": "La llicència d'armes de l'autoritzat no és vàlida el dia del repartiment, així que no hi ha formulari.",
     "storageUnavailable": "No s'ha pogut llegir el logo de la Federació. Torna-ho a intentar d'ací a uns minuts.",

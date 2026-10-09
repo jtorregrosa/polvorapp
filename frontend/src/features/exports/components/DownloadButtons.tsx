@@ -36,6 +36,9 @@ function reasonKey(error: unknown) {
     switch (error.problem?.code) {
       case 'exports.notPrepared':
         return 'errors.notPrepared' as const;
+      case 'exports.textUnprintable':
+      case 'distribution.textUnprintable':
+        return 'errors.textUnprintable' as const;
       case 'exports.auditUnavailable':
       case 'distribution.auditUnavailable':
         return 'errors.auditUnavailable' as const;

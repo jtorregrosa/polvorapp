@@ -8734,6 +8734,16 @@
               }
             }
           },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
           "503": {
             "description": "Service Unavailable",
             "content": {
@@ -9316,6 +9326,16 @@
               "application/pdf": {
                 "schema": {
                   "$ref": "#/components/schemas/Stream"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
