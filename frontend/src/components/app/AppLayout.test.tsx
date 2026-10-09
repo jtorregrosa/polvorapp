@@ -633,3 +633,115 @@ describe('AppLayout bottom navigation (UI audit: a FiringChief on a phone)', () 
     expect(screen.queryByRole('navigation', { name: 'Accesos directos' })).not.toBeInTheDocument();
   });
 });
+
+describe('AppLayout armband (platform: FiringChief armband)', () => {
+  afterEach(() => {
+    setViewportWidth(ORIGINAL_WIDTH);
+    window.localStorage.removeItem('polvorapp.sidebar');
+  });
+
+  function renderArmband(armband: string | undefined, width = 1440) {
+    setViewportWidth(width);
+    const router = createMemoryRouter(
+      [
+        {
+          path: '/',
+          element: (
+            <AppLayout
+              navigation={[{ id: 'home', items: [{ to: '/', label: 'Inicio', icon: House }] }]}
+              sidebarCards={CARDS}
+              sidebarFooter={<p>Versión 1.4.0</p>}
+              armband={armband}
+              bottomNavigation={[{ to: '/', label: 'Inicio', icon: House }]}
+            >
+              <h1>Bienvenida</h1>
+            </AppLayout>
+          ),
+        },
+      ],
+      { initialEntries: ['/'] },
+    );
+    return renderWithProviders(<RouterProvider router={router} />);
+  }
+
+  const armband = () => document.querySelector('[data-slot="sidebar-armband"]');
+
+  it('shows the label below the navigation and above the version, outside every navigation', async () => {
+    await renderArmband('Jefe de disparo');
+
+    const text = screen.getByText('Jefe de disparo');
+    const band = text.closest('[data-slot="sidebar-armband"]');
+    expect(band).not.toBeNull();
+    expect(text.closest('nav')).toBeNull();
+    // Not in the scrolling content, so it stays in view while the navigation scrolls.
+    expect(band?.closest('[data-slot="sidebar-content"]')).toBeNull();
+    const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
+    const version = screen.getByText('Versión 1.4.0');
+    expect(navigation.compareDocumentPosition(text)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(text.compareDocumentPosition(version)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(band).not.toHaveAttribute('aria-hidden');
+  });
+
+  it('is plain text that keyboard focus never lands on', async () => {
+    const user = userEvent.setup();
+    await renderArmband('Jefe de disparo');
+
+    expect(armband()?.querySelector('a, button, [tabindex]')).toBeNull();
+    const navigation = screen.getByRole('navigation', { name: 'Navegación principal' });
+    within(navigation).getByRole('link', { name: 'Inicio' }).focus();
+    await user.tab();
+    expect(armband()?.contains(document.activeElement)).toBe(false);
+  });
+
+  it('renders no armband without a label', async () => {
+    await renderArmband(undefined);
+
+    await screen.findByRole('heading', { name: 'Bienvenida' });
+    expect(armband()).toBeNull();
+  });
+
+  it('becomes a stripe hidden from assistive technology in the rail, with no tooltip', async () => {
+    const user = userEvent.setup();
+    await renderArmband('Jefe de disparo');
+
+    await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
+
+    expect(armband()).toHaveAttribute('aria-hidden', 'true');
+    // The band keeps its place; only its text fades, like the other sidebar labels.
+    // One line in the rail, so the stripe does not grow (the e2e spec measures the height).
+    expect(armband()?.querySelector('[data-sidebar-label]')).toHaveClass(
+      'group-data-[collapsible=icon]:opacity-0',
+      'group-data-[collapsible=icon]:whitespace-nowrap',
+    );
+    // The version under it keeps its height, so the stripe stays where the band was.
+    expect(screen.getByText('Versión 1.4.0').closest('[data-slot="sidebar-footer"]')).toHaveClass(
+      'group-data-[collapsible=icon]:invisible',
+    );
+    await user.hover(armband() as HTMLElement);
+    expect(screen.queryByRole('tooltip')).toBeNull();
+  });
+
+  it('shows the armband in the drawer on a phone, and none in the bottom bar', async () => {
+    window.localStorage.setItem('polvorapp.sidebar', 'collapsed');
+    const user = userEvent.setup();
+    await renderArmband('Jefe de disparo', 360);
+
+    const bar = screen.getByRole('navigation', { name: 'Accesos directos' });
+    expect(within(bar).queryByText('Jefe de disparo')).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Mostrar u ocultar la navegación' }));
+
+    const drawer = await screen.findByRole('dialog');
+    const text = within(drawer).getByText('Jefe de disparo');
+    expect(text.closest('[data-slot="sidebar-armband"]')).not.toHaveAttribute('aria-hidden');
+  });
+
+  it('has no automatically detectable accessibility violations, expanded and in the rail', async () => {
+    const user = userEvent.setup();
+    const { container } = await renderArmband('Jefe de disparo');
+    expect(await axeViolations(container)).toEqual([]);
+
+    await user.click(screen.getByRole('button', { name: 'Contraer la navegación' }));
+
+    expect(await axeViolations(container)).toEqual([]);
+  });
+});

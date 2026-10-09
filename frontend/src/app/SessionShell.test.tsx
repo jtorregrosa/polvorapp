@@ -68,7 +68,7 @@ describe('signed-in shell (platform: Application shell; identity-access: role-ba
     const app = await renderApp('/', { session: SYNTHETIC_FIRING_CHIEF });
 
     await user.click(screen.getByRole('button', { name: 'Menú de Jefe Sintético' }));
-    expect(screen.getByText('Jefe de disparo')).toBeInTheDocument();
+    expect(within(await screen.findByRole('menu')).getByText('Jefe de disparo')).toBeInTheDocument();
     await user.click(screen.getByRole('menuitem', { name: 'Cerrar sesión' }));
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Iniciar sesión' })).toBeInTheDocument();

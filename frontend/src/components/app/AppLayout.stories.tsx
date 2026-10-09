@@ -55,9 +55,13 @@ const SYNTHETIC_LOGO =
       '</svg>',
   );
 
-/** A FiringChief's comparsas under the mark: one with a dark logo, one with the placeholder and a long name. */
+/**
+ * A FiringChief's sidebar: their comparsas under the mark, one with a dark logo and one with the
+ * placeholder and a long name, and the armband at the bottom (add-firing-chief-armband).
+ */
 export const WithComparsaCards: Story = {
   args: {
+    armband: 'Jefe de disparo',
     sidebarCards: [
       {
         to: '/comparsas/1',
@@ -73,9 +77,10 @@ export const WithComparsaCards: Story = {
   },
 };
 
-/** Long Valencian navigation labels. */
+/** Long Valencian navigation labels and armband. */
 export const LongValencian: Story = {
   args: {
+    armband: 'Cap de disparada',
     navigation: [
       { id: 'home', items: [{ to: '/', label: 'Inici', icon: House }] },
       {
@@ -108,8 +113,12 @@ export const LongValencian: Story = {
   },
 };
 
-/** The icon rail (refine-navigation-and-lists D1): the sidebar as the user left it, collapsed. */
+/**
+ * The icon rail (refine-navigation-and-lists D1): the sidebar as the user left it, collapsed. The
+ * armband is a yellow stripe without text in the same place.
+ */
 export const IconRail: Story = {
+  args: { armband: 'Jefe de disparo' },
   decorators: [
     (Story) => {
       try {

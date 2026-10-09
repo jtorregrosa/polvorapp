@@ -73,6 +73,11 @@ export interface AppLayoutProps {
   sidebarCards?: readonly SidebarCard[];
   /** Shown at the bottom of the sidebar (API version). */
   sidebarFooter?: ReactNode;
+  /**
+   * Already translated: the FiringChief armband, a yellow band across the bottom of the sidebar
+   * (platform spec: FiringChief armband). None when absent.
+   */
+  armband?: string;
   /** End of the top bar: the signed-in user's menu, which holds the language and theme switchers. */
   userMenu?: ReactNode;
   /**
@@ -283,6 +288,34 @@ function SidebarCards({ cards }: { cards: readonly SidebarCard[] }) {
 }
 
 /**
+ * The FiringChief armband (add-firing-chief-armband D2-D4): a yellow band from edge to edge, after
+ * the scrolling content so it stays in view. Plain text, never focusable. In the rail it keeps its
+ * height as a stripe without text, hidden from assistive technology (the role stays in the user
+ * menu), with no tooltip. A long label wraps instead of being clipped.
+ */
+function SidebarArmband({ label }: { label: string }) {
+  const rail = useIconRail();
+  return (
+    <p
+      data-slot="sidebar-armband"
+      aria-hidden={rail || undefined}
+      className="shrink-0 border-y border-sidebar-armband-edge bg-sidebar-armband px-4 py-1.5 text-center text-label font-semibold tracking-wider text-sidebar-armband-foreground uppercase group-data-[collapsible=icon]:overflow-hidden"
+    >
+      {/* In the rail the hidden text stays on one line, so the stripe keeps the band's height. */}
+      <span
+        data-sidebar-label=""
+        className={cn(
+          'block text-balance wrap-break-word group-data-[collapsible=icon]:whitespace-nowrap',
+          SIDEBAR_LABEL,
+        )}
+      >
+        {label}
+      </span>
+    </p>
+  );
+}
+
+/**
  * Opens the navigation drawer on small screens. The drawer opens from state (not a Radix
  * trigger), so focus is returned here explicitly when it closes (WCAG 2.4.3).
  */
@@ -379,7 +412,8 @@ function BottomNavigation({ items }: { items: readonly NavigationItem[] }) {
 
 /**
  * Application layout (platform spec: Application shell): skip link; the night sidebar with the
- * PolvorApp mark, optional link cards (a FiringChief's comparsas), the navigation and the footer;
+ * PolvorApp mark, optional link cards (a FiringChief's comparsas), the navigation, an optional
+ * armband (a FiringChief's) and the footer;
  * a sticky top bar with the breadcrumbs and the user menu; the main content, up to 1680 px beside
  * the sidebar, with the top bar aligned to it.
  * On small screens the sidebar becomes a drawer opened from the top bar. It mounts the page's
@@ -389,6 +423,7 @@ export function AppLayout({
   navigation,
   sidebarCards,
   sidebarFooter,
+  armband,
   userMenu,
   bottomNavigation = [],
   mainRef,
@@ -444,12 +479,17 @@ export function AppLayout({
             {sidebarCards && sidebarCards.length > 0 && <SidebarCards cards={sidebarCards} />}
             <NavigationMenu sections={navigation} />
           </SidebarContent>
+          {armband && <SidebarArmband label={armband} />}
           {sidebarFooter && (
-            // Hidden in the rail, also from assistive technology (D1).
+            // Hidden in the rail, also from assistive technology (D1). Under an armband it keeps
+            // its height on one line, so the armband does not move (add-firing-chief-armband D3).
             <SidebarFooter
               data-sidebar-label=""
               className={cn(
-                'px-4 text-xs text-sidebar-muted-foreground group-data-[collapsible=icon]:hidden',
+                'px-4 text-xs text-sidebar-muted-foreground',
+                armband
+                  ? 'group-data-[collapsible=icon]:invisible group-data-[collapsible=icon]:overflow-hidden group-data-[collapsible=icon]:whitespace-nowrap'
+                  : 'group-data-[collapsible=icon]:hidden',
                 SIDEBAR_LABEL,
               )}
             >
