@@ -127,7 +127,9 @@ label together with a semantic colour and an icon, never colour alone. The mappi
 - two-step verification of a user: `ENABLED` → success, `NOT_SET` → muted;
 - compliance warnings (BR-04): `LICENSE_MISSING`, `LICENSE_PENDING`, `LICENSE_EXPIRED`,
   `LICENSE_EXPIRING`, `COURSE_MISSING`, `UNDER_AGE`, `ID_PHOTO_MISSING` and
-  `LICENSE_PHOTOS_MISSING` → warning.
+  `LICENSE_PHOTOS_MISSING` → warning;
+- a holder's powder handover on a capture device (UC-21): `TO_DELIVER` → muted, `PENDING` → info,
+  `SYNCED` → success, `CONFLICT` → warning.
 
 Compliance warnings SHALL never use the destructive colour, because they do not block (BR-04 is a
 warning).
@@ -151,6 +153,10 @@ warning).
 #### Scenario: Two-step verification not set
 - **WHEN** the users table shows an invited user who has not enrolled an authenticator
 - **THEN** the second line of the user's status shows a muted two-step verification badge with the translated "not set" label and its icon
+
+#### Scenario: Handover in conflict
+- **WHEN** the capture screen shows a holder whose handover another device recorded first
+- **THEN** the holder's badge shows the translated "conflict" label, the warning colour and an icon
 
 ### Requirement: Accessible composites
 Every composite SHALL be operable with the keyboard alone and SHALL expose correct names, roles and

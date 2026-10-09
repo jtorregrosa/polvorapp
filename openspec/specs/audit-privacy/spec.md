@@ -251,6 +251,9 @@ Admins SHALL be able to download, for a `nationalId` and a request reference, a 
     identity as stored);
   - the pickup authorisations in which they take part (year, type, and whether they are the
     holder or the proxy);
+  - the powder handovers of their entries (year, date and time collected, kilograms, rented flask
+    number, traceability 1 and 2, and whether they collected it or their proxy did) and those they
+    collected as a proxy (year, date and time collected, rented flask number, as proxy);
   - an "About this data" sheet stating the controller, the purposes, the recipient categories and
     the retention, from translated texts;
 - the person's stored photos as JPEG files named by their kind.
@@ -283,6 +286,14 @@ invalid one `400 Bad Request`. A FiringChief SHALL receive `403 Forbidden`.
 #### Scenario: Nothing to export
 - **WHEN** an Admin exports a valid DNI that appears nowhere
 - **THEN** the response is `404 Not Found`
+
+#### Scenario: Handovers in the export
+- **WHEN** an Admin exports the data of a synthetic arquebusier whose 2030 powder was collected by their proxy with flask "P-117"
+- **THEN** the handovers sheet has one row for 2030 with "P-117" that says their proxy collected it, and not the proxy's name or DNI/NIE
+
+#### Scenario: Handover collected for someone else
+- **WHEN** an Admin exports the data of a synthetic arquebusier who collected another holder's powder as proxy with flask "P-117"
+- **THEN** the handovers sheet has one row with the year, the time, "P-117" and "proxy", and neither the holder's kilograms, traceability codes, name nor DNI/NIE
 
 ### Requirement: Erasing a person's data (UC-26)
 Admins SHALL be able to erase, for a `nationalId` and a request reference, everything PolvorApp
