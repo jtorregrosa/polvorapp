@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { checkContrast, contrastRatio, describeFailure, parseThemes, type ContrastPair } from './contrast';
@@ -92,6 +92,9 @@ const PAIRS: ContrastPair[] = [
   { foreground: 'logo-tile-foreground', background: 'logo-tile', minimum: UI },
   { foreground: 'sidebar-foreground', background: 'sidebar-border', minimum: TEXT },
   { foreground: 'sidebar-ring', background: 'sidebar-border', minimum: UI },
+  // The FiringChief armband: an insignia on the night sidebar, not an accent (add-firing-chief-armband D5).
+  { foreground: 'sidebar-armband-foreground', background: 'sidebar-armband', minimum: TEXT },
+  { foreground: 'sidebar-armband', background: 'sidebar', minimum: UI },
 ];
 
 describe('design token contrast (WCAG 2.2 AA)', () => {
@@ -102,10 +105,29 @@ describe('design token contrast (WCAG 2.2 AA)', () => {
     expect(Object.keys(themes.dark).sort()).toEqual(Object.keys(themes.light).sort());
   });
 
+  it('gives the armband the same colours in both themes, as the night sidebar is the same', () => {
+    for (const token of ['sidebar-armband', 'sidebar-armband-foreground', 'sidebar-armband-edge']) {
+      expect(themes.dark[token], token).toBe(themes.light[token]);
+    }
+  });
+
   it.each(['light', 'dark'] as const)('meets every declared pair in the %s theme', (theme) => {
     const failures = checkContrast(themes[theme], PAIRS).map((failure) => describeFailure(theme, failure));
 
     expect(failures).toEqual([]);
+  });
+});
+
+describe('armband tokens (design-system: Armband yellow is not reused)', () => {
+  it('are used by the layout composite only, never as an accent or a status', () => {
+    const src = join(import.meta.dirname, '..');
+    const users = readdirSync(src, { recursive: true, encoding: 'utf8' })
+      .filter((file) => /\.(m?[jt]sx?|css|mdx)$/.test(file) && !/\.(test|stories)\.tsx?$/.test(file))
+      .filter((file) => /sidebar-armband|#f5c518/i.test(readFileSync(join(src, file), 'utf8')))
+      .map((file) => file.replaceAll('\\', '/'))
+      .sort();
+
+    expect(users).toEqual(['components/app/AppLayout.tsx', 'styles/design-docs.ts', 'styles/tokens.css']);
   });
 });
 

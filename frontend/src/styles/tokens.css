@@ -88,6 +88,10 @@
   --sidebar-accent-foreground: #ebe8f3;
   --sidebar-border: #2e2842;
   --sidebar-ring: #ff8a4a;
+  /* The FiringChief armband: an insignia, never an accent or a status (add-firing-chief-armband D5). */
+  --sidebar-armband: #f5c518;
+  --sidebar-armband-foreground: #1f1a05;
+  --sidebar-armband-edge: #b8890a;
 
   /* Comparsa logos sit on a light tile in both themes, so dark emblems stay visible (add-comparsa-logos). */
   --logo-tile: #f7f6fa;
@@ -170,6 +174,9 @@
   --sidebar-accent-foreground: #ebe8f3;
   --sidebar-border: #221d30;
   --sidebar-ring: #ff8a4a;
+  --sidebar-armband: #f5c518;
+  --sidebar-armband-foreground: #1f1a05;
+  --sidebar-armband-edge: #b8890a;
 
   /* Light in the dark theme too: a black logo on transparency must not vanish. */
   --logo-tile: #f7f6fa;
@@ -355,6 +362,9 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-armband: var(--sidebar-armband);
+  --color-sidebar-armband-foreground: var(--sidebar-armband-foreground);
+  --color-sidebar-armband-edge: var(--sidebar-armband-edge);
   --color-logo-tile: var(--logo-tile);
   --color-logo-tile-foreground: var(--logo-tile-foreground);
 }
