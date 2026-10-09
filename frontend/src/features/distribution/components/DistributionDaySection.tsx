@@ -23,7 +23,9 @@ import { SectionCard } from '@/components/app/SectionCard';
 import { DownloadButtons } from '@/features/exports/components/DownloadButtons';
 import { useEditionDates } from '@/features/festival-editions/dates';
 import { isStale, problemCode, problemMessage } from '../problems';
+import { useSession } from '@/features/identity-access/session';
 import { useDistributionRefresh } from '../queries';
+import { DayCapture } from './DayCapture';
 import { DaySheet } from './DaySheet';
 import { SlotsSheet } from './SlotsSheet';
 
@@ -257,6 +259,10 @@ export function DistributionDaySection({ plan, type, isAdmin }: DistributionDayS
   const dates = useEditionDates();
   const day = plan.days.find((candidate) => candidate.type === type);
   const dayTrigger = useRef<HTMLButtonElement>(null);
+  const session = useSession();
+  const userId = session.status === 'signedIn' ? session.account.id : undefined;
+  // A powder day with handovers is the record of the day: it cannot be deleted (UC-21).
+  const handedOver = day?.handovers?.recorded ?? 0;
 
   // Admins keep the panels mounted (hidden triggers) once the edition stops being in progress, so an
   // open panel still shows why its save was refused.
@@ -269,7 +275,9 @@ export function DistributionDaySection({ plan, type, isAdmin }: DistributionDayS
         triggerRef={dayTrigger}
         hideTrigger={!plan.canPlan}
       />
-      {day && plan.canPlan && <DeleteDay day={day} editionId={plan.editionId} dayTrigger={dayTrigger} />}
+      {day && plan.canPlan && handedOver === 0 && (
+        <DeleteDay day={day} editionId={plan.editionId} dayTrigger={dayTrigger} />
+      )}
     </div>
   );
 
@@ -295,6 +303,10 @@ export function DistributionDaySection({ plan, type, isAdmin }: DistributionDayS
             <WithoutSlot day={day} />
           </div>
           {isAdmin && <DayList day={day} notValidated={plan.notValidated ?? []} />}
+          {isAdmin && plan.canPlan && handedOver > 0 && (
+            <p className="text-help text-muted-foreground">{t('day.cannotDelete', { count: handedOver })}</p>
+          )}
+          {isAdmin && plan.canPlan && type === 'POWDER' && userId && <DayCapture day={day} userId={userId} />}
         </>
       ) : (
         <p className="text-muted-foreground">{t('day.notPlanned')}</p>

@@ -254,3 +254,95 @@ describe('EditSheet', () => {
     expect(await axeViolations(document.body)).toEqual([]);
   });
 });
+
+describe('EditSheet controlled by a list (distribution capture)', () => {
+  function RowPanel({
+    save,
+    openerGoesAway = false,
+  }: {
+    save: (values: Values) => Promise<EditResult>;
+    openerGoesAway?: boolean;
+  }) {
+    const [row, setRow] = useState<Values | undefined>();
+    const [saved, setSaved] = useState(false);
+    const form = useAppForm<Values>({
+      resolver: zodResolver(schema),
+      defaultValues: { lastName: '', phone: '' },
+    });
+    return (
+      <SaveNoticeProvider>
+        {!(openerGoesAway && saved) && (
+          <button
+            type="button"
+            onClick={() => {
+              setRow({ lastName: 'Abad Sintética', phone: '600000002' });
+            }}
+          >
+            Abad Sintética
+          </button>
+        )}
+        <h2 tabIndex={-1}>Titulares</h2>
+        <EditSheet
+          title="Registrar entrega"
+          sectionName="entrega"
+          form={form}
+          values={row ?? { lastName: '', phone: '' }}
+          open={row !== undefined}
+          onOpenChange={(open) => {
+            if (!open) setRow(undefined);
+          }}
+          submitLabel="Registrar entrega"
+          footerStart={<button type="button">Quitar entrega</button>}
+          fallbackFocus={() => screen.getByRole('heading', { name: 'Titulares' })}
+          onSave={async (values) => {
+            const result = await save(values);
+            setSaved(true);
+            return result;
+          }}
+        >
+          <FormField control={form.control} name="lastName" label="Apellidos">
+            {(field) => <Input {...field} />}
+          </FormField>
+        </EditSheet>
+      </SaveNoticeProvider>
+    );
+  }
+
+  it('opens from a row with its values, without a trigger of its own, and returns focus to the row', async () => {
+    const user = userEvent.setup();
+    const save = vi.fn(() => Promise.resolve<EditResult>({ status: 'saved', notice: 'Entrega registrada' }));
+    await renderWithProviders(<RowPanel save={save} />);
+    expect(screen.queryByRole('button', { name: /Editar/ })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Abad Sintética' }));
+
+    const panel = await screen.findByRole('dialog', { name: 'Registrar entrega' });
+    expect(within(panel).getByLabelText('Apellidos')).toHaveValue('Abad Sintética');
+    expect(within(panel).getByRole('button', { name: 'Quitar entrega' })).toBeInTheDocument();
+    await user.click(within(panel).getByRole('button', { name: 'Registrar entrega' }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+    expect(save).toHaveBeenCalledWith(expect.objectContaining({ lastName: 'Abad Sintética' }));
+    expect(screen.getByRole('button', { name: 'Abad Sintética' })).toHaveFocus();
+  });
+
+  it('returns focus to the fallback when what opened the panel is gone', async () => {
+    const user = userEvent.setup();
+    await renderWithProviders(
+      <RowPanel openerGoesAway save={() => Promise.resolve<EditResult>({ status: 'saved' })} />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Abad Sintética' }));
+    await user.click(
+      within(await screen.findByRole('dialog', { name: 'Registrar entrega' })).getByRole('button', {
+        name: 'Registrar entrega',
+      }),
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Titulares' })).toHaveFocus();
+    });
+  });
+});

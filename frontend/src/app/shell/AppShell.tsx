@@ -2,9 +2,16 @@ import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet } from 'react-router';
 import { AlertBanner } from '@/components/app/AlertBanner';
+import { ConfirmDialog } from '@/components/app/ConfirmDialog';
+import { ConfirmFailure } from '@/components/app/confirm-failure';
 import { AppLayout, type NavigationItem, type NavigationSection } from '@/components/app/AppLayout';
 import { UserMenu } from '@/components/app/UserMenu';
 import { useWarningCount } from '@/features/compliance-insights/components/useWarningCount';
+import {
+  clearCaptureDevice,
+  countUnsynced,
+  useCaptureHousekeeping,
+} from '@/features/distribution/offline/useCaptureHousekeeping';
 import { useFiringChiefComparsaCards } from '@/features/federation-catalog/components/useFiringChiefComparsaCards';
 import { useSaveLanguage, useSession, useSignOut } from '@/features/identity-access/session';
 import { bottomBarFor, navigationFor, navigationSections } from '../navigation';
@@ -23,6 +30,7 @@ export function AppShell() {
   const { t } = useTranslation();
   const { t: tIdentity } = useTranslation('identity');
   const { t: tUi } = useTranslation('ui');
+  const { t: tDistribution } = useTranslation('distribution');
   const main = useRef<HTMLElement>(null);
   useFocusMainOnNavigation(main);
   const session = useSession();
@@ -31,6 +39,17 @@ export function AppShell() {
   const [problem, setProblem] = useState<ShellProblem>();
   const latestAttempt = useRef(0);
   const role = session.account?.role;
+  const userId = session.account?.id;
+  useCaptureHousekeeping(userId);
+  /**
+   * The sign-out warning (SEC-14): open while handovers would be lost, with how many (none when the
+   * device could not tell). The count stays while the dialog closes, so its text does not change.
+   */
+  const [unsynced, setUnsynced] = useState<{ open: boolean; count: number | undefined }>({
+    open: false,
+    count: 0,
+  });
+  const userMenuTrigger = useRef<HTMLButtonElement>(null);
   const comparsaCards = useFiringChiefComparsaCards();
   const warningCount = useWarningCount();
 
@@ -72,13 +91,34 @@ export function AppShell() {
     });
   };
 
+  /**
+   * Signs out, then clears the user's capture data from the device (SEC-14). Not the other way
+   * round: a sign-out that fails offline must not have lost the handovers still to sync. The ended
+   * session also clears the user's packages (`SESSION_ENDED_EVENT`), and a device that could not be
+   * cleared at all loses them at the next sign-in or after a week (store housekeeping).
+   */
+  const signOutAndClear = async (): Promise<boolean> => {
+    const signedOut = await signOut();
+    if (signedOut && userId) {
+      await clearCaptureDevice(userId);
+    }
+    return signedOut;
+  };
+
   const userMenu = session.account && (
     <UserMenu
       name={session.account.name}
       roleLabel={tIdentity(`roles.${session.account.role}`)}
       accountHref="/account"
+      triggerRef={userMenuTrigger}
       onSignOut={() => {
-        attempt(signOut, 'signOutFailed');
+        void (userId ? countUnsynced(userId) : Promise.resolve(0)).then((count) => {
+          if (count === 0) {
+            attempt(signOutAndClear, 'signOutFailed');
+          } else {
+            setUnsynced({ open: true, count });
+          }
+        });
       }}
       onLanguageChange={(language) => {
         attempt(() => saveLanguage(language), 'languageNotSaved');
@@ -98,6 +138,25 @@ export function AppShell() {
       mainRef={main}
     >
       {problem && <AlertBanner severity="error">{t(`session.${problem}`)}</AlertBanner>}
+      <ConfirmDialog
+        open={unsynced.open}
+        onOpenChange={(open) => {
+          setUnsynced((current) => ({ ...current, open }));
+        }}
+        returnFocus={userMenuTrigger}
+        title={tDistribution('capture.signOut.title')}
+        description={
+          unsynced.count === undefined
+            ? tDistribution('capture.signOut.unknown')
+            : tDistribution('capture.signOut.description', { count: unsynced.count })
+        }
+        confirmLabel={tDistribution('capture.signOut.confirm')}
+        onConfirm={async () => {
+          if (!(await signOutAndClear())) {
+            throw new ConfirmFailure(t('session.signOutFailed'));
+          }
+        }}
+      />
       <Outlet />
     </AppLayout>
   );

@@ -37,7 +37,13 @@ export default defineConfig({
         // these the generated worker only skips waiting on request, and users keep an old build.
         skipWaiting: true,
         clientsClaim: true,
+        // The shell, its fonts and icons open without connectivity, so the installed app reaches the
+        // distribution capture screen offline (add-offline-distribution-capture D5). A custom list
+        // must keep js, css and html, or the worker cannot find index.html.
+        globPatterns: ['**/*.{js,css,html,woff2,svg,png,ico,webmanifest}'],
+        navigateFallback: 'index.html',
         navigateFallbackDenylist: [/^\/api\//],
+        // Never any API response: the capture screen reads its data from IndexedDB (SEC-14).
         runtimeCaching: [],
       },
     }),

@@ -1,10 +1,13 @@
 import type {
+  CapturePackageResponse,
   DistributionDayResponse,
+  HandoverResponse,
   DistributionPlanResponse,
   ProxyCandidateResponse,
   ProxyResponse,
 } from '@/api/generated/model';
 import { NORTE, SUR } from '@/features/federation-catalog/test-data';
+import type { CapturedHandover } from './offline/store';
 import { CLOSED_2030, CURRENT_2031 } from '@/features/festival-editions/test-data';
 
 /** Synthetic distribution data for component tests (invented places, times and people). */
@@ -122,3 +125,96 @@ export const CANDIDATES: ProxyCandidateResponse[] = [
     ],
   },
 ];
+
+/** The powder day as a device downloads it for offline capture (synthetic people and DNI/NIE). */
+export const CAPTURE_PACKAGE: CapturePackageResponse = {
+  distributionId: POWDER_DAY.id,
+  editionId: CURRENT_2031.id,
+  editionYear: 2031,
+  date: '2031-04-18',
+  location: 'Paraje Sintético del Reparto',
+  generatedAt: '2031-04-17T18:00:00Z',
+  rows: [
+    {
+      number: 1,
+      slot: '09:00',
+      comparsaId: NORTE.id,
+      comparsaName: NORTE.name,
+      entryId: '00000000-0000-4000-8000-000000000901',
+      lastName: 'Abad Sintética',
+      firstName: 'Ana',
+      nationalId: '00000001R',
+      powderKg: 2,
+      flask: 'RENTAL_2KG',
+      proxy: {
+        entryId: '00000000-0000-4000-8000-000000000909',
+        lastName: 'Zamora Sintético',
+        firstName: 'Bruno',
+        nationalId: '00000009Y',
+      },
+    },
+    {
+      number: 2,
+      slot: '09:00',
+      comparsaId: NORTE.id,
+      comparsaName: NORTE.name,
+      entryId: '00000000-0000-4000-8000-000000000902',
+      lastName: 'Bernabeu Sintético',
+      firstName: 'Bruno',
+      nationalId: '00000002W',
+      powderKg: 1,
+      flask: 'OWNED',
+      proxy: null,
+    },
+    {
+      number: 3,
+      slot: '09:30',
+      comparsaId: SUR.id,
+      comparsaName: SUR.name,
+      entryId: '00000000-0000-4000-8000-000000000903',
+      lastName: 'Climent Sintética',
+      firstName: 'Carla',
+      nationalId: '00000003A',
+      powderKg: 1,
+      flask: 'RENTAL_1KG',
+      proxy: null,
+    },
+  ],
+  handovers: [],
+};
+
+/** A handover the server recorded for the second holder. */
+export const SERVER_HANDOVER: HandoverResponse = {
+  id: '00000000-0000-4000-8000-000000000a01',
+  holderEntryId: '00000000-0000-4000-8000-000000000902',
+  distributionNumber: 2,
+  collectedBy: 'HOLDER',
+  collectorEntryId: null,
+  powderKg: 1,
+  rentalFlaskNumber: null,
+  traceability1: null,
+  traceability2: null,
+  collectedAt: '2031-04-18T09:05:00Z',
+  recordedAt: '2031-04-18T09:06:00Z',
+  version: 7,
+};
+
+/** A handover captured on the device for the first holder, not synced yet. */
+export const CAPTURED: CapturedHandover = {
+  id: '00000000-0000-4000-8000-000000000b01',
+  distributionId: POWDER_DAY.id,
+  ownerUserId: '00000000-0000-4000-8000-0000000000a1',
+  holderEntryId: '00000000-0000-4000-8000-000000000901',
+  distributionNumber: 1,
+  collectedBy: 'HOLDER',
+  collectorEntryId: null,
+  rentalFlaskNumber: 'P-117',
+  traceability1: 'A3',
+  traceability2: null,
+  collectedAt: '2031-04-18T09:01:00.000Z',
+  capturedAt: '2031-04-18T09:01:00.000Z',
+  revision: 1,
+  state: 'pending',
+  code: null,
+  existing: null,
+};

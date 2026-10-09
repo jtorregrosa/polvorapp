@@ -31,6 +31,7 @@ import { DashboardPage } from '@/features/compliance-insights/pages/DashboardPag
 import { EditionCreatePage } from '@/features/festival-editions/pages/EditionCreatePage';
 import { EditionDetailPage } from '@/features/festival-editions/pages/EditionDetailPage';
 import { EditionsPage } from '@/features/festival-editions/pages/EditionsPage';
+import { CapturePage } from '@/features/distribution/pages/CapturePage';
 import { CurrentDistributionPage } from '@/features/distribution/pages/CurrentDistributionPage';
 import { DistributionPage } from '@/features/distribution/pages/DistributionPage';
 import { ExportsPage } from '@/features/exports/pages/ExportsPage';
@@ -39,6 +40,7 @@ import { OrdersOverviewPage } from '@/features/comparsa-orders/pages/OrdersOverv
 import { StatisticsPage } from '@/features/compliance-insights/pages/StatisticsPage';
 import { NotFoundPage } from '@/features/platform/pages/NotFoundPage';
 import { AppShell } from './shell/AppShell';
+import { CaptureShell } from './shell/CaptureShell';
 import { PublicShell } from './shell/PublicShell';
 
 /**
@@ -47,6 +49,17 @@ import { PublicShell } from './shell/PublicShell';
  * and unknown paths show the not-found page.
  */
 export const appRoutes: RouteObject[] = [
+  {
+    // Outside the signed-in shell: opens offline and with an ended session (UC-21, SEC-14).
+    Component: CaptureShell,
+    ErrorBoundary: RootErrorPage,
+    children: [
+      {
+        ErrorBoundary: ErrorPage,
+        children: [{ path: 'distribution/capture/:distributionId', Component: CapturePage }],
+      },
+    ],
+  },
   {
     Component: PublicShell,
     ErrorBoundary: RootErrorPage,

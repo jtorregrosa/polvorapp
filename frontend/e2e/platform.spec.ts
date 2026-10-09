@@ -96,6 +96,21 @@ test.describe('platform', () => {
     expect(worker).toContain('clientsClaim()');
   });
 
+  test('precaches the shell, its fonts and icons, and routes no API request (UC-21, SEC-14)', async ({
+    request,
+  }) => {
+    const worker = await (await request.get('/sw.js')).text();
+
+    // The installed app opens the capture screen offline: the shell, fonts and icons are precached.
+    expect(worker).toContain('"index.html"');
+    expect(worker).toMatch(/\.woff2"/);
+    expect(worker).toContain('"manifest.webmanifest"');
+    // Navigations fall back to the shell, except the API; no runtime route caches anything.
+    expect(worker).toContain('NavigationRoute');
+    expect(worker).toContain(String.raw`denylist:[/^\/api\//]`);
+    expect(worker.match(/registerRoute\(/g)).toHaveLength(1);
+  });
+
   test('serves static assets from the service worker but never API responses', async ({ page }) => {
     await page.goto('/');
     await waitForShell(page);

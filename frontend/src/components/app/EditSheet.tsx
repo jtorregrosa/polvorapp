@@ -1,5 +1,5 @@
 import { Pencil, type LucideIcon } from 'lucide-react';
-import { useRef, useState, type ReactNode, type Ref } from 'react';
+import { useEffect, useRef, useState, type ReactNode, type Ref } from 'react';
 import { useFormState, type FieldValues, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Button as ButtonPrimitive } from '@/components/ui/button';
@@ -59,6 +59,21 @@ export interface EditSheetProps<TValues extends FieldValues, TOutput extends Fie
    * while it is open: the panel then still shows why its save was refused.
    */
   hideTrigger?: boolean;
+  /**
+   * Controlled mode, without a trigger: one panel for a long list whose rows open it, e.g. the
+   * distribution capture screen. Focus returns to whatever opened it.
+   */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Already translated; "Save changes" by default, e.g. "Record handover" for a panel that creates. */
+  submitLabel?: string;
+  /** Other actions on the record, at the start of the footer, e.g. removing it. */
+  footerStart?: ReactNode;
+  /**
+   * Controlled mode: where focus goes on close when what opened the panel is gone, e.g. a conflict's
+   * button that the save resolved (WCAG 2.4.3).
+   */
+  fallbackFocus?: () => HTMLElement | null;
 }
 
 /**
@@ -80,9 +95,31 @@ export function EditSheet<TValues extends FieldValues, TOutput extends FieldValu
   trigger,
   triggerRef,
   hideTrigger = false,
+  open: controlledOpen,
+  onOpenChange: onControlledOpenChange,
+  submitLabel,
+  footerStart,
+  fallbackFocus,
 }: EditSheetProps<TValues, TOutput>) {
   const { t } = useTranslation('ui');
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const controlled = controlledOpen !== undefined;
+  const open = controlled ? controlledOpen : uncontrolledOpen;
+  const setOpen = (next: boolean) => {
+    if (controlled) onControlledOpenChange?.(next);
+    else setUncontrolledOpen(next);
+  };
+  // A controlled panel starts from the record each time it opens, as the trigger does.
+  const wasOpen = useRef(false);
+  // Without a trigger Radix has nowhere to return focus: back to what opened the panel (WCAG 2.4.3).
+  const opener = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (controlled && open && !wasOpen.current) {
+      opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      form.reset(values);
+    }
+    wasOpen.current = open;
+  }, [controlled, open, form, values]);
   const notify = useSaveNotice();
   const side = useIsMobile() ? 'bottom' : 'right';
   const { isSubmitting } = useFormState({ control: form.control });
@@ -90,7 +127,7 @@ export function EditSheet<TValues extends FieldValues, TOutput extends FieldValu
 
   const onOpenChange = (next: boolean) => {
     if (!next && isSubmitting) return; // A save in progress must report its outcome here.
-    if (next) form.reset(values); // Start from the record; closing discards what was typed.
+    if (next && !controlled) form.reset(values); // Start from the record; closing discards what was typed.
     setOpen(next);
   };
 
@@ -112,7 +149,7 @@ export function EditSheet<TValues extends FieldValues, TOutput extends FieldValu
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      {!hideTrigger && (
+      {!hideTrigger && !controlled && (
         <SheetTrigger asChild>
           <ButtonPrimitive ref={triggerRef} variant="outline" size="sm" className="gap-1.5">
             {trigger ? (
@@ -141,7 +178,12 @@ export function EditSheet<TValues extends FieldValues, TOutput extends FieldValu
         // Without a description, tell Radix there is none on purpose.
         {...(description ? {} : { 'aria-describedby': undefined })}
         className="w-full gap-0 sm:max-w-xl"
-        onCloseAutoFocus={() => {
+        onCloseAutoFocus={(event) => {
+          const target = opener.current?.isConnected ? opener.current : fallbackFocus?.();
+          if (controlled && target) {
+            event.preventDefault();
+            target.focus();
+          }
           // Announced once the panel is gone: while it is open the page is hidden from assistive
           // technology, and a notice inside it would be lost.
           const notice = saved.current;
@@ -156,13 +198,14 @@ export function EditSheet<TValues extends FieldValues, TOutput extends FieldValu
         <Form form={form} onSubmit={submit} className="min-h-0 flex-1 scroll-pb-40 overflow-y-auto px-6 pt-4">
           {children}
           <div className="sticky bottom-0 -mx-6 mt-auto flex flex-wrap justify-end gap-2 border-t bg-popover px-6 py-4">
+            {footerStart && <div className="me-auto flex flex-wrap gap-2">{footerStart}</div>}
             <SheetClose asChild>
               <Button variant="secondary" disabled={isSubmitting}>
                 {t('confirm.cancel')}
               </Button>
             </SheetClose>
             <Button type="submit" pending={isSubmitting}>
-              {t('detail.saveChanges')}
+              {submitLabel ?? t('detail.saveChanges')}
             </Button>
           </div>
         </Form>

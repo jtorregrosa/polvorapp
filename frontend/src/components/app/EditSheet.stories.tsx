@@ -1,7 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { z } from 'zod';
+import { Button } from './Button';
 import { DescriptionList } from './DescriptionList';
 import { EditSheet, type EditResult } from './EditSheet';
 import { FormField } from './FormField';
@@ -72,5 +74,58 @@ export const Default: Story = {};
 export const Conflict: Story = {
   args: {
     outcome: { status: 'conflict', reason: 'Otra persona ha cambiado este registro. Revisa los datos.' },
+  },
+};
+
+/**
+ * Opened from a row instead of its own "Edit" button: the screen owns `open`, names the save
+ * action ("Registrar entrega") and adds another action on the record at the start of the footer.
+ */
+export const OpenedFromARow: Story = {
+  render: function Render() {
+    const [open, setOpen] = useState(false);
+    const form = useAppForm<Values>({
+      resolver: zodResolver(schema),
+      defaultValues: { lastName: '', phone: '' },
+    });
+    return (
+      <SaveNoticeProvider>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            setOpen(true);
+          }}
+        >
+          Nº 1 · Sintética Pérez, Ana
+        </Button>
+        <EditSheet
+          title="Entrega de Sintética Pérez, Ana"
+          sectionName="entrega"
+          form={form}
+          values={{ lastName: '', phone: '' }}
+          open={open}
+          onOpenChange={setOpen}
+          submitLabel="Registrar entrega"
+          footerStart={
+            <Button
+              type="button"
+              variant="quietDestructive"
+              size="sm"
+              icon={Trash2}
+              onClick={() => {
+                setOpen(false);
+              }}
+            >
+              Quitar entrega
+            </Button>
+          }
+          onSave={() => Promise.resolve({ status: 'saved', notice: 'Entrega registrada.' })}
+        >
+          <FormField control={form.control} name="lastName" label="Nº de cantimplora" width="short">
+            {(field) => <TextInput {...field} autoComplete="off" />}
+          </FormField>
+        </EditSheet>
+      </SaveNoticeProvider>
+    );
   },
 };

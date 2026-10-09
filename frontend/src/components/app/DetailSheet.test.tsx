@@ -1,5 +1,6 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useState } from 'react';
 import { describe, expect, it } from 'vitest';
 import { axeViolations } from '@/test/axe';
 import { renderWithProviders } from '@/test/render';
@@ -43,5 +44,46 @@ describe('DetailSheet', () => {
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(trigger).toHaveFocus();
+  });
+});
+
+describe('DetailSheet controlled by a list (distribution capture)', () => {
+  function Row() {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(true);
+          }}
+        >
+          Nº 2 · Bernabeu Sintético
+        </button>
+        <DetailSheet
+          title="Entrega de Bernabeu Sintético"
+          open={open}
+          onOpenChange={setOpen}
+          footerStart={<button type="button">Deshacer entrega</button>}
+        >
+          <p>Entrega sincronizada.</p>
+        </DetailSheet>
+      </>
+    );
+  }
+
+  it('opens from a row without a trigger of its own, with its actions, and returns focus to the row', async () => {
+    const user = userEvent.setup();
+    await renderWithProviders(<Row />);
+    expect(screen.queryByRole('button', { name: /Ver/ })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Nº 2 · Bernabeu Sintético' }));
+    const panel = await screen.findByRole('dialog', { name: 'Entrega de Bernabeu Sintético' });
+    expect(within(panel).getByRole('button', { name: 'Deshacer entrega' })).toBeInTheDocument();
+    await user.click(within(panel).getByRole('button', { name: 'Cerrar' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Nº 2 · Bernabeu Sintético' })).toHaveFocus();
+    });
   });
 });

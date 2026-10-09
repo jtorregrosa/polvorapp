@@ -10,25 +10,35 @@ import { matchLanguage, rememberLanguage, type Language } from '@/i18n/config';
 
 export const SESSION_QUERY_KEY = getGetAccountQueryKey();
 
+/**
+ * Announced on `window` when a session ends without the sign-out warning (e.g. "sign out
+ * everywhere"), with the user's id, for whoever keeps that user's data on the device to clear it
+ * (distribution spec: Data kept on the device).
+ */
+export const SESSION_ENDED_EVENT = 'polvorapp:session-ended';
+
 export type Session =
   | { status: 'loading'; account?: undefined }
   | { status: 'signedOut'; account?: undefined }
   | { status: 'signedIn'; account: AccountResponse };
 
+/** Reads the session for `SESSION_QUERY_KEY`: the account, or `null` when signed out (a 401). */
+export async function fetchSession(signal: AbortSignal): Promise<AccountResponse | null> {
+  try {
+    return (await getAccount({ signal })).data as AccountResponse;
+  } catch (error) {
+    if (error instanceof ApiProblemError && error.status === 401) {
+      return null;
+    }
+    throw error;
+  }
+}
+
 /** The current session from `GET /api/account`: a 401 means "signed out", not an error. */
 export function useSession(): Session {
   const query = useQuery({
     queryKey: SESSION_QUERY_KEY,
-    queryFn: async ({ signal }) => {
-      try {
-        return (await getAccount({ signal })).data as AccountResponse;
-      } catch (error) {
-        if (error instanceof ApiProblemError && error.status === 401) {
-          return null;
-        }
-        throw error;
-      }
-    },
+    queryFn: ({ signal }) => fetchSession(signal),
     staleTime: 60_000,
     retry: false,
   });
@@ -130,6 +140,12 @@ export function useForgetSession(): () => Promise<void> {
   const navigate = useNavigate();
 
   return useCallback(async () => {
+    const userId = queryClient.getQueryData<AccountResponse | null>(SESSION_QUERY_KEY)?.id;
+    if (userId) {
+      // Whoever keeps data of this user on the device (the capture store, SEC-14) clears it, told
+      // while the signed-in pages that listen are still mounted.
+      window.dispatchEvent(new CustomEvent(SESSION_ENDED_EVENT, { detail: userId }));
+    }
     // Leave the signed-in pages first, so none renders (or redirects) without its session.
     await navigate('/login');
     queryClient.clear();

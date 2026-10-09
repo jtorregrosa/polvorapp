@@ -59,7 +59,9 @@
     },
     "deleteDescription": "También se eliminan sus turnos. Los autorizados de recogida se mantienen.",
     "deleteConfirm": "Eliminar día",
-    "deleted": "Día eliminado"
+    "deleted": "Día eliminado",
+    "cannotDelete_one": "No se puede borrar: tiene {{count}} entrega registrada.",
+    "cannotDelete_other": "No se puede borrar: tiene {{count}} entregas registradas."
   },
   "slots": {
     "title": "Turnos",
@@ -183,7 +185,18 @@
       "editionNotInProgress": "La edición no está en curso: el reparto ya no se puede cambiar.",
       "modified": "Otra persona ha cambiado este día. Se ha actualizado la página: revísalo y vuelve a intentarlo.",
       "busy": "Otra persona está cambiando estos autorizados. Vuelve a intentarlo en un momento.",
-      "auditUnavailable": "No se ha podido registrar el cambio, así que no se ha guardado. Vuelve a intentarlo en unos minutos."
+      "auditUnavailable": "No se ha podido registrar el cambio, así que no se ha guardado. Vuelve a intentarlo en unos minutos.",
+      "captureNotPowder": "Las entregas solo se registran el día de reparto de pólvora.",
+      "hasHandovers": "Este día tiene entregas registradas: es el registro del reparto y no se puede borrar.",
+      "alreadyHandedOver": "Otro dispositivo ya registró la entrega de este titular.",
+      "notInList": "Este titular ya no está en la lista del reparto (su pedido ha cambiado). Descarga la lista de nuevo.",
+      "flaskNumberRequired": "Indica el número de la cantimplora alquilada.",
+      "flaskNumberNotRented": "Este titular no alquila cantimplora: quita el número.",
+      "flaskNumberTaken": "Esa cantimplora ya se ha entregado a otra persona este día.",
+      "proxyNotValid": "El autorizado ya no puede recoger por este titular.",
+      "handoverChanged": "Esta entrega ya se sincronizó con otros datos. Revísala.",
+      "invalid": "Algún dato de la entrega no es válido (texto demasiado largo o vacío).",
+      "unknown": "El servidor rechazó la entrega sin decir por qué."
     },
     "proxies": {
       "notFound": "El autorizado ya no existe. Se ha actualizado la página.",
@@ -209,5 +222,112 @@
     "nothingToCollect": "El titular no tiene nada de este tipo que recoger.",
     "licenseInvalid": "No tiene licencia de armas en vigor ese día.",
     "entryErased": "Es una persona borrada."
+  },
+  "capture": {
+    "signOut": {
+      "title": "¿Cerrar sesión con entregas sin sincronizar?",
+      "description_one": "Este dispositivo tiene {{count}} entrega de pólvora sin sincronizar. Si cierras sesión ahora, se borrará y no llegará al servidor.",
+      "description_other": "Este dispositivo tiene {{count}} entregas de pólvora sin sincronizar. Si cierras sesión ahora, se borrarán y no llegarán al servidor.",
+      "confirm": "Cerrar sesión y borrar",
+      "unknown": "No se ha podido comprobar si este dispositivo tiene entregas de pólvora sin sincronizar. Si cierras sesión ahora, las que haya se borrarán y no llegarán al servidor."
+    },
+    "section": "Entregas de pólvora",
+    "delivered": "{{recorded}} de {{holders}} entregados",
+    "prepare": "Preparar para captura sin conexión",
+    "prepared": "La lista del reparto está guardada en este dispositivo hasta el {{date}}.",
+    "notPersistent": "El navegador podría borrarla si le falta espacio: no uses el modo privado.",
+    "open": "Abrir captura",
+    "page": {
+      "title": "Captura de entregas",
+      "description": "Reparto de pólvora del {{date}} en {{location}}.",
+      "loading": "Cargando la lista guardada en este dispositivo…",
+      "noPackage": "Este dispositivo no tiene la lista de este reparto.",
+      "noPackageHint": "Prepara el dispositivo desde la página de reparto mientras tengas conexión.",
+      "toDistribution": "Ir a la página de reparto",
+      "signInToSync": "Tu sesión ha terminado. Puedes seguir registrando entregas; inicia sesión para sincronizarlas.",
+      "signIn": "Iniciar sesión",
+      "storageUnavailable": "Este navegador no permite guardar datos en el dispositivo (¿modo privado?). La captura sin conexión no está disponible."
+    },
+    "status": {
+      "label": "Estado de la captura",
+      "online": "Con conexión",
+      "offline": "Sin conexión: las entregas se guardan en este dispositivo",
+      "pending_one": "{{count}} pendiente de sincronizar",
+      "pending_other": "{{count}} pendientes de sincronizar",
+      "conflicts_one": "{{count}} con conflicto",
+      "conflicts_other": "{{count}} con conflicto",
+      "lastSync": "Última sincronización: {{time}}",
+      "neverSynced": "Sin sincronizar todavía",
+      "syncing": "Sincronizando…",
+      "busy": "El servidor está ocupado: se volverá a intentar en un momento.",
+      "failed": "No se ha podido sincronizar: {{reason}}",
+      "failedUnknown": "No se ha podido sincronizar. Se volverá a intentar en un momento.",
+      "syncNow": "Sincronizar ahora",
+      "kept": "Lista descargada el {{downloaded}}; se borrará de este dispositivo el {{expires}}.",
+      "close": "Cerrar captura",
+      "closeTitle": "¿Cerrar la captura?",
+      "closeDescription": "Se borrará de este dispositivo la lista del reparto. Las entregas ya sincronizadas siguen en el servidor.",
+      "closeConfirm": "Cerrar captura",
+      "closeBlocked": "Aún hay entregas sin sincronizar: sincronízalas o descártalas antes de cerrar."
+    },
+    "list": {
+      "title": "Titulares",
+      "search": "Buscar por número, nombre o DNI/NIE",
+      "noResults": "Ningún titular coincide con la búsqueda.",
+      "results_one": "{{count}} titular",
+      "results_other": "{{count}} titulares",
+      "group": "{{slot}} · {{comparsa}}",
+      "noSlot": "Sin turno",
+      "holder": "Nº {{number}} · {{name}}",
+      "details": "{{nationalId}} · {{kg}} kg · {{flask}}",
+      "flasks": {
+        "OWNED": "Cantimplora propia",
+        "RENTAL_1KG": "Alquiler 1 kg",
+        "RENTAL_2KG": "Alquiler 2 kg",
+        "NONE": "Sin cantimplora"
+      }
+    },
+    "panel": {
+      "title": "Entrega de {{name}}",
+      "description": "Nº {{number}} · {{nationalId}} · {{kg}} kg · {{flask}}",
+      "sectionName": "entrega",
+      "collector": "¿Quién recoge?",
+      "byHolder": "El titular",
+      "byProxy": "Su autorizado: {{name}} ({{nationalId}})",
+      "flaskNumber": "Nº de cantimplora",
+      "traceability1": "Trazabilidad 1",
+      "traceability2": "Trazabilidad 2",
+      "record": "Registrar entrega",
+      "save": "Guardar cambios",
+      "recorded": "Entrega registrada en este dispositivo.",
+      "remove": "Quitar entrega",
+      "removeTitle": "¿Quitar la entrega de {{name}}?",
+      "removeDescription": "Se borrará de este dispositivo y no llegará al servidor.",
+      "removed": "Entrega quitada de este dispositivo.",
+      "undo": "Deshacer entrega",
+      "undoTitle": "¿Deshacer la entrega de {{name}}?",
+      "undoDescription": "La entrega con la cantimplora {{flask}} se borrará del servidor y la cantimplora quedará libre.",
+      "undoDescriptionNoFlask": "La entrega se borrará del servidor.",
+      "undone": "Entrega deshecha.",
+      "undoOffline": "Para deshacer una entrega ya sincronizada hace falta conexión.",
+      "synced": "Entrega sincronizada el {{time}}.",
+      "errors": {
+        "flaskRequired": "Indica el número de la cantimplora alquilada.",
+        "flaskTaken": "La cantimplora {{flask}} ya se ha entregado al número {{number}}.",
+        "tooLong": "Como máximo {{max}} caracteres."
+      }
+    },
+    "conflicts": {
+      "title": "Conflictos",
+      "description": "El servidor rechazó estas entregas. Corrígelas y vuelve a enviarlas, o descártalas.",
+      "existing": "Registrada antes por otro dispositivo: {{details}}.",
+      "existingFlask": "cantimplora {{flask}}",
+      "existingNoFlask": "sin cantimplora",
+      "edit": "Editar y reenviar",
+      "discard": "Descartar",
+      "discardTitle": "¿Descartar la entrega de {{name}}?",
+      "discardDescription": "Se borrará de este dispositivo y no llegará al servidor.",
+      "discarded": "Entrega descartada."
+    }
   }
 }

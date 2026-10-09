@@ -1,7 +1,15 @@
-import { readFile } from 'node:fs/promises';
-import type { Browser, Download, Page } from '@playwright/test';
-import { FIRING_CHIEF_STATE } from '../identity';
+import type { Page } from '@playwright/test';
 import { expect, test, waitForShell } from '../fixtures';
+import {
+  antiforgeryHeaders,
+  asFiringChief,
+  currentPlan,
+  powderOf,
+  restoreAll,
+  restoreOrder,
+  saved,
+  validateNorte,
+} from './distribution-support';
 
 /**
  * Distribution planning by the Admin (change add-distribution-planning): the Federation logo, the
@@ -10,48 +18,6 @@ import { expect, test, waitForShell } from '../fixtures';
  * puts everything back as it found it, even when it fails midway. The logo is a synthetic emblem
  * drawn in the browser, never the Federation's (ADR-0012).
  */
-
-const NORTE_ORDER = '0193a700-0000-7000-8000-000000000003';
-
-interface Day {
-  id: string;
-  type: 'POWDER' | 'WEAPONS';
-  date: string;
-  location: string;
-  version: number;
-  slots: { comparsaId: string; startsAt: string }[];
-}
-
-interface Plan {
-  editionId: string;
-  days: Day[];
-}
-
-async function antiforgeryHeaders(page: Page): Promise<Record<string, string>> {
-  await page.request.get('/api/auth/antiforgery');
-  const token = (await page.context().cookies()).find((cookie) => cookie.name === 'XSRF-TOKEN');
-  return { 'X-XSRF-TOKEN': decodeURIComponent(token?.value ?? '') };
-}
-
-async function currentPlan(page: Page): Promise<Plan> {
-  const current = (await (await page.request.get('/api/editions/current')).json()) as {
-    edition: { id: string };
-  };
-  return (await (await page.request.get(`/api/distribution/editions/${current.edition.id}`)).json()) as Plan;
-}
-
-const powderOf = (plan: Plan): Day => {
-  const day = plan.days.find((candidate) => candidate.type === 'POWDER');
-  if (!day) throw new Error('The seed has no powder day');
-  return day;
-};
-
-async function saved(download: Promise<Download>): Promise<{ name: string; bytes: Buffer }> {
-  const file = await download;
-  const path = await file.path();
-  return { name: file.suggestedFilename(), bytes: await readFile(path) };
-}
-
 /** A synthetic emblem: a dark disc on a transparent background. */
 async function syntheticEmblem(page: Page): Promise<Buffer> {
   const dataUrl = await page.evaluate(() => {
@@ -68,12 +34,6 @@ async function syntheticEmblem(page: Page): Promise<Buffer> {
   });
   return Buffer.from(dataUrl.split(',')[1] ?? '', 'base64');
 }
-
-async function asFiringChief(browser: Browser) {
-  const context = await browser.newContext({ storageState: FIRING_CHIEF_STATE, locale: 'es-ES' });
-  return { context, page: await context.newPage() };
-}
-
 /**
  * The seed's powder day (DistributionSeeder): four days before the festival, at the synthetic
  * place, with Norte at 09:00 and Sur at 09:30. Fixed values, so a run that failed halfway never
@@ -84,7 +44,6 @@ const SEEDED_SLOTS = [
   { comparsaId: '0193a100-0000-7000-8000-000000000001', startsAt: '09:00' },
   { comparsaId: '0193a100-0000-7000-8000-000000000002', startsAt: '09:30' },
 ];
-
 async function seededPowderDate(page: Page): Promise<string> {
   const { edition } = (await (await page.request.get('/api/editions/current')).json()) as {
     edition: { year: number; festivalStartsOn: string };
@@ -95,46 +54,6 @@ async function seededPowderDate(page: Page): Promise<string> {
   const firstDay = `${edition.year}-01-01`;
   return iso < firstDay ? firstDay : iso;
 }
-
-/** Runs every restoration step, even when one fails, and reports all failures at the end. */
-async function restoreAll(steps: [string, () => Promise<void>][]): Promise<void> {
-  const failures: string[] = [];
-  for (const [what, step] of steps) {
-    try {
-      await step();
-    } catch (error) {
-      failures.push(`${what}: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }
-  expect(failures, 'restoring the seeded state after the test').toEqual([]);
-}
-
-async function restoreOrder(page: Page, browser: Browser): Promise<void> {
-  const order = (await (await page.request.get(`/api/comparsa-orders/${NORTE_ORDER}`)).json()) as {
-    status: string;
-    version: number;
-  };
-  if (order.status !== 'VALIDATED') return;
-  const returned = await page.request.post(`/api/comparsa-orders/${NORTE_ORDER}/return`, {
-    headers: await antiforgeryHeaders(page),
-    data: { version: order.version, reason: 'Devuelto por la prueba E2E.' },
-  });
-  expect(returned.ok(), 'returning the order').toBe(true);
-  const { version } = (await (await page.request.get(`/api/comparsa-orders/${NORTE_ORDER}`)).json()) as {
-    version: number;
-  };
-  const { context, page: chief } = await asFiringChief(browser);
-  try {
-    const submitted = await chief.request.post(`/api/comparsa-orders/${NORTE_ORDER}/submit`, {
-      headers: await antiforgeryHeaders(chief),
-      data: { version, attestation: true },
-    });
-    expect(submitted.ok(), 'submitting the order again').toBe(true);
-  } finally {
-    await context.close();
-  }
-}
-
 async function restorePowderDay(page: Page): Promise<void> {
   const headers = await antiforgeryHeaders(page);
   const date = await seededPowderDate(page);
@@ -153,7 +72,6 @@ async function restorePowderDay(page: Page): Promise<void> {
   });
   expect(slots.ok(), 'restoring the powder slots').toBe(true);
 }
-
 /** Puts back Norte's submitted order (other specs read it first), the powder day and its slots, and no Federation logo. */
 test.afterEach(async ({ page, browser }) => {
   await restoreAll([
@@ -170,7 +88,6 @@ test.afterEach(async ({ page, browser }) => {
     ],
   ]);
 });
-
 test('the Admin uploads a Federation logo for the documents and removes it', async ({
   page,
   axeViolations,
@@ -179,7 +96,6 @@ test('the Admin uploads a Federation logo for the documents and removes it', asy
   await page.goto('/settings');
   await waitForShell(page);
   const section = page.getByRole('region', { name: 'Logo de la Federación' });
-
   const chooser = page.waitForEvent('filechooser');
   await section.getByRole('button', { name: 'Añadir logo de la Federación' }).click();
   await (
@@ -194,13 +110,11 @@ test('the Admin uploads a Federation logo for the documents and removes it', asy
   const logo = section.getByRole('button', { name: 'Logo de la Federación, opciones' });
   await expect(logo.locator('img')).toHaveAttribute('src', /^\/api\/federation-logo\?v=[0-9a-f-]{36}$/);
   expect(await axeViolations()).toEqual([]);
-
   await logo.click();
   await page.getByRole('menuitem', { name: 'Quitar' }).click();
   await page.getByRole('alertdialog').getByRole('button', { name: 'Quitar logo' }).click();
   await expect(section.getByRole('button', { name: 'Añadir logo de la Federación' })).toBeVisible();
 });
-
 test('a FiringChief cannot upload or remove the Federation logo', async ({ browser }) => {
   const { context, page: chief } = await asFiringChief(browser);
   try {
@@ -218,19 +132,16 @@ test('a FiringChief cannot upload or remove the Federation logo', async ({ brows
     await context.close();
   }
 });
-
 test("the Admin changes the powder day's location and Norte's slot", async ({ page }) => {
   await page.goto('/distribution');
   await waitForShell(page);
   const powder = page.getByRole('region', { name: 'Día de reparto de pólvora', exact: true });
-
   await powder.getByRole('button', { name: 'Editar día de reparto de pólvora' }).click();
   const dayPanel = page.getByRole('dialog', { name: 'Editar el día de pólvora' });
   await dayPanel.getByLabel('Lugar').fill('Paraje Cambiado');
   await dayPanel.getByRole('button', { name: 'Guardar cambios' }).click();
   await expect(dayPanel).toBeHidden();
   await expect(powder).toContainText('Paraje Cambiado');
-
   await powder.getByRole('button', { name: 'Editar turnos del día de reparto de pólvora' }).click();
   const slotsPanel = page.getByRole('dialog', { name: 'Turnos del día de pólvora' });
   await slotsPanel.getByLabel('Hora de Cruzados (opcional)').fill('08:45');
@@ -242,29 +153,18 @@ test("the Admin changes the powder day's location and Norte's slot", async ({ pa
     page.getByRole('region', { name: 'Día de reparto de pólvora', exact: true }).getByRole('table'),
   ).toContainText('08:45');
 });
-
 test('the Admin downloads the powder list as Excel and PDF once an order is validated', async ({ page }) => {
-  const order = (await (await page.request.get(`/api/comparsa-orders/${NORTE_ORDER}`)).json()) as {
-    version: number;
-  };
-  const validated = await page.request.post(`/api/comparsa-orders/${NORTE_ORDER}/validate`, {
-    headers: await antiforgeryHeaders(page),
-    data: { version: order.version },
-  });
-  expect(validated.ok(), 'validating Norte for the lists').toBe(true);
-
+  await validateNorte(page);
   await page.goto('/distribution');
   await waitForShell(page);
   const powder = page.getByRole('region', { name: 'Día de reparto de pólvora', exact: true });
   await expect(powder.getByText('Pedidos sin validar')).toBeVisible();
   await expect(powder).not.toContainText('Cruzados (enviado)');
-
   const xlsx = page.waitForEvent('download');
   await powder.getByRole('button', { name: 'Descargar el listado de pólvora en Excel' }).click();
   const workbook = await saved(xlsx);
   expect(workbook.name).toMatch(/^polvorapp-\d{4}-powder-distribution-list\.xlsx$/);
   expect(workbook.bytes.subarray(0, 2).toString()).toBe('PK');
-
   const pdf = page.waitForEvent('download');
   await powder.getByRole('button', { name: 'Descargar el listado de pólvora en PDF' }).click();
   const pdfFile = await saved(pdf);
