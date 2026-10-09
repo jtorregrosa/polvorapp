@@ -1,5 +1,6 @@
 using PolvorApp.Distribution.Days;
 using PolvorApp.Distribution.Documents;
+using PolvorApp.Distribution.Handovers;
 using PolvorApp.Distribution.Proxies;
 using PolvorApp.SharedKernel.Auditing;
 
@@ -14,6 +15,9 @@ internal static class DistributionAuditActions
     public const string DistributionSlotsChanged = "DistributionSlotsChanged";
     public const string PickupProxyAuthorised = "PickupProxyAuthorised";
     public const string PickupProxyRemoved = "PickupProxyRemoved";
+    public const string CapturePackageDownloaded = "CapturePackageDownloaded";
+    public const string HandoverRecorded = "HandoverRecorded";
+    public const string HandoverUndone = "HandoverUndone";
 
     public static readonly IReadOnlyList<AuditActionDefinition> All =
     [
@@ -24,5 +28,8 @@ internal static class DistributionAuditActions
         new(PickupProxyAuthorised, ProxyAdministration.EntityType),
         new(PickupProxyRemoved, ProxyAdministration.EntityType),
         new(DistributionDocuments.AuditAction, DistributionDocuments.EntityType),
+        new(CapturePackageDownloaded, DistributionDayAdministration.EntityType),
+        new(HandoverRecorded, HandoverSync.EntityType),
+        new(HandoverUndone, HandoverSync.EntityType),
     ];
 }

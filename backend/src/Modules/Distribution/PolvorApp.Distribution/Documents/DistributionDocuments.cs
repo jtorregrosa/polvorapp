@@ -28,7 +28,7 @@ namespace PolvorApp.Distribution.Documents;
 internal sealed partial class DistributionDocuments(
     DistributionDbContext db,
     IEditionDirectory editions,
-    IOrderExports orders,
+    DistributionListReader lists,
     IEditionEntries entries,
     IArquebusierRoster roster,
     ICatalogDirectory catalog,
@@ -55,21 +55,7 @@ internal sealed partial class DistributionDocuments(
             return DistributionProblems.From(DistributionOutcome.NotFound);
         }
 
-        var validated = await orders.ListValidatedAsync(edition.Id, cancellationToken);
-        var all = validated.SelectMany(o => o.Entries).ToList();
-        var proxies = await db.Proxies.AsNoTracking().Where(p => p.EditionId == edition.Id && p.Type == day.Type)
-            .Select(p => new ListProxy(p.HolderEntryId, p.ProxyEntryId)).ToListAsync(cancellationToken);
-        var data = new DistributionListData(
-            edition.Year,
-            day.Type,
-            day.Date,
-            day.Location,
-            day.Slots.ToDictionary(s => s.ComparsaId, s => s.StartsAt),
-            validated,
-            await ComparsaNamesAsync(validated.Select(o => o.ComparsaId), cancellationToken),
-            await ModelLabelsAsync(all.Select(e => e.RentalWeaponModelId).OfType<Guid>(), cancellationToken),
-            await LiveAsync(all.Select(e => e.ArquebusierId), cancellationToken),
-            proxies);
+        var data = await lists.ReadAsync(day, edition, cancellationToken);
         var built = DistributionLists.BuildWithCounts(data, DistributionTexts.For(CultureInfo.CurrentUICulture));
         if (built.ProxiesWithoutEntry > 0 || built.ErasedNames > 0)
         {
@@ -233,12 +219,6 @@ internal sealed partial class DistributionDocuments(
     {
         Guid[] distinct = [.. ids.Distinct()];
         return distinct.Length == 0 ? new Dictionary<Guid, string>() : (await catalog.FindComparsasAsync(distinct, cancellationToken)).ToDictionary(c => c.Id, c => c.Name);
-    }
-
-    private async Task<IReadOnlyDictionary<Guid, string>> ModelLabelsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken)
-    {
-        Guid[] distinct = [.. ids.Distinct()];
-        return distinct.Length == 0 ? new Dictionary<Guid, string>() : (await catalog.FindWeaponModelsAsync(distinct, cancellationToken)).ToDictionary(m => m.Id, m => m.Label);
     }
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Distribution document {Document} refused: a text holds a letter the embedded fonts cannot draw")]

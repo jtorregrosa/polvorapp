@@ -123,6 +123,13 @@ internal sealed class DistributionDayAdministration(
                 return refusal;
             }
 
+            // The handovers are the record of the day (UC-21). A handover saved after this check still
+            // stops the deletion through the day's RESTRICT key.
+            if (await db.Handovers.AnyAsync(h => h.DistributionId == dayId, cancellationToken))
+            {
+                return DistributionResult<DistributionDay>.Failed(DistributionOutcome.HasHandovers);
+            }
+
             db.Days.Remove(day!);
             Record(DistributionAuditActions.DistributionDeleted, day!, new
             {
@@ -259,6 +266,13 @@ internal sealed class DistributionDayAdministration(
             db.ChangeTracker.Clear();
             guard.LostRace(day.Id, "concurrency");
             return DistributionResult<DistributionDay>.Failed(DistributionOutcome.Modified);
+        }
+        catch (DbUpdateException exception) when (DistributionProblems.Violates(exception, PostgresErrorCodes.RestrictViolation, DistributionDbContext.HandoverDayForeignKey))
+        {
+            // A handover was recorded after the check: the day keeps it.
+            db.ChangeTracker.Clear();
+            guard.LostRace(day.Id, DistributionDbContext.HandoverDayForeignKey);
+            return DistributionResult<DistributionDay>.Failed(DistributionOutcome.HasHandovers);
         }
         catch (DbUpdateException exception) when (slots is not null
             && DistributionProblems.Violates(exception, PostgresErrorCodes.ForeignKeyViolation, DistributionDbContext.SlotComparsaForeignKey))

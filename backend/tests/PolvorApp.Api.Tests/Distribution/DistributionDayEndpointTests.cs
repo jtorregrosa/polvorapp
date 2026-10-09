@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PolvorApp.Api.Tests.Infrastructure;
 using PolvorApp.Distribution.Contracts;
+using PolvorApp.Distribution.Handovers;
 using PolvorApp.Distribution.Persistence;
 using PolvorApp.Distribution.Proxies;
 using PolvorApp.FestivalEditions.Contracts;
@@ -197,6 +198,33 @@ public sealed class DistributionDayEndpointTests(PostgresFixture postgres, Mailp
         var entry = Assert.Single(await _orders.Host.AuditEntriesAsync("DistributionDeleted"));
         using var data = JsonDocument.Parse(entry.Data!);
         Assert.Equal(1, data.RootElement.GetProperty("slots").GetInt32());
+    }
+
+    [Fact]
+    public async Task A_day_with_handovers_cannot_be_deleted()
+    {
+        var day = await PlanAsync("POWDER");
+        var order = NewOrder(_orders.Current, _orders.Own.Id);
+        var holder = NewEntry(order, null);
+        await _orders.Services.SaveOrdersAsync(order, holder);
+        await _orders.Services.SaveDistributionAsync(new Handover
+        {
+            Id = Guid.CreateVersion7(),
+            DistributionId = day.Id,
+            HolderEntryId = holder.Id,
+            DistributionNumber = 1,
+            CollectedBy = HandoverCollector.Holder,
+            PowderKg = 1,
+            CollectedAt = DateTimeOffset.UtcNow,
+            RecordedAt = DateTimeOffset.UtcNow,
+        });
+
+        using var delete = await DistributionRequests.DeleteAsync(_orders.Admin, day.Id, day.Version);
+
+        await AssertProblemAsync(delete, HttpStatusCode.Conflict, "distribution.hasHandovers");
+        var plan = await DistributionRequests.PlanOfAsync(_orders.Admin, _orders.Current.Id);
+        Assert.Single(plan.GetProperty("days").EnumerateArray());
+        Assert.Empty(await _orders.Host.AuditEntriesAsync("DistributionDeleted"));
     }
 
     private async Task<DayRef> PlanAsync(string type)

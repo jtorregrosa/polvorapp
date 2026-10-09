@@ -2,7 +2,7 @@ sheet: PolvorApp
 A1: Text bold Rented weapons distribution — Festival 2031
 A2: Text bold Day: 05/04/2031 · Place: Almacén Sintético
 A3: Text bold Numbering valid for this print: if the data changes, another print may number differently.
-A4: Text weapons-distribution-list, version 1
+A4: Text weapons-distribution-list, version 2
 A6: Text bold No.
 B6: Text bold Slot
 C6: Text bold Comparsa

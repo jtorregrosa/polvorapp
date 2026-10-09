@@ -48,7 +48,11 @@ internal sealed record DistributionDayResponse(
     string Location,
     uint Version,
     IReadOnlyList<SlotResponse> Slots,
-    IReadOnlyList<ComparsaRef>? WithoutSlot);
+    IReadOnlyList<ComparsaRef>? WithoutSlot,
+    HandoverCountResponse? Handovers = null);
+
+/// <summary>The powder day's handovers recorded out of its holders (spec: Handover screens); Admins only.</summary>
+internal sealed record HandoverCountResponse(int Recorded, int Holders);
 
 /// <summary>A comparsa whose order is not validated, and its status (null when not prepared).</summary>
 internal sealed record NotValidatedResponse(Guid ComparsaId, string ComparsaName, OrderStatus? Status);

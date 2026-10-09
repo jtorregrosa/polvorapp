@@ -9889,6 +9889,327 @@
         ]
       }
     },
+    "/api/distribution/distributions/{id}/capture": {
+      "get": {
+        "tags": [
+          "Distribution"
+        ],
+        "summary": "The powder day's holders and handovers for offline capture; audited (Admins).",
+        "operationId": "GetCapturePackage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapturePackageResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/distribution/distributions/{id}/handovers/sync": {
+      "post": {
+        "tags": [
+          "Distribution"
+        ],
+        "summary": "Records up to 100 handovers captured on a device, each on its own, with its outcome (Admins).",
+        "operationId": "SyncHandovers",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HandoverSyncRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HandoverSyncResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
+    "/api/distribution/handovers/{id}": {
+      "delete": {
+        "tags": [
+          "Distribution"
+        ],
+        "summary": "Undoes a recorded handover with its version, freeing the holder and the flask number; audited (Admins).",
+        "operationId": "UndoHandover",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "uint32"
+            }
+          },
+          {
+            "name": "X-XSRF-TOKEN",
+            "in": "header",
+            "description": "The anti-forgery token from the XSRF-TOKEN cookie (GET /api/auth/antiforgery).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "security": [
+          {
+            "session": [ ]
+          }
+        ]
+      }
+    },
     "/api/account/notification-preferences": {
       "get": {
         "tags": [
@@ -10672,6 +10993,7 @@
               "CalendarMilestoneAdded",
               "CalendarMilestoneRemoved",
               "CalendarMilestoneUpdated",
+              "CapturePackageDownloaded",
               "ComparsaCreated",
               "ComparsaDeactivated",
               "ComparsaDeleted",
@@ -10703,6 +11025,8 @@
               "FederationSettingsChanged",
               "FiringChiefAssigned",
               "FiringChiefUnassigned",
+              "HandoverRecorded",
+              "HandoverUndone",
               "InvitationAccepted",
               "InvitationResent",
               "LoanLenderLookedUp",
@@ -10756,6 +11080,7 @@
               "FederationSettings",
               "FestivalEdition",
               "FiringChiefAssignment",
+              "Handover",
               "OwnedWeapon",
               "PersonalDataRequest",
               "PickupProxy",
@@ -11096,6 +11421,150 @@
           "NORMAL",
           "SMALL"
         ]
+      },
+      "CapturePackageResponse": {
+        "required": [
+          "distributionId",
+          "editionId",
+          "editionYear",
+          "date",
+          "location",
+          "generatedAt",
+          "rows",
+          "handovers"
+        ],
+        "type": "object",
+        "properties": {
+          "distributionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "editionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "editionYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "date": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CaptureRowResponse"
+            }
+          },
+          "handovers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HandoverResponse"
+            }
+          }
+        }
+      },
+      "CapturePersonResponse": {
+        "required": [
+          "entryId",
+          "lastName",
+          "firstName",
+          "nationalId"
+        ],
+        "type": "object",
+        "properties": {
+          "entryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "nationalId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "CaptureRowResponse": {
+        "required": [
+          "number",
+          "slot",
+          "comparsaId",
+          "comparsaName",
+          "entryId",
+          "lastName",
+          "firstName",
+          "nationalId",
+          "powderKg",
+          "flask",
+          "proxy"
+        ],
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "slot": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "comparsaId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "comparsaName": {
+            "type": "string"
+          },
+          "entryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "nationalId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "powderKg": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "flask": {
+            "$ref": "#/components/schemas/FlaskOption"
+          },
+          "proxy": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CapturePersonResponse"
+              }
+            ]
+          }
+        }
       },
       "ChangeEditionStatusRequest": {
         "required": [
@@ -11567,6 +12036,16 @@
             "items": {
               "$ref": "#/components/schemas/ComparsaRef"
             }
+          },
+          "handovers": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/HandoverCountResponse"
+              }
+            ]
           }
         }
       },
@@ -12713,6 +13192,210 @@
           "RIGHT",
           "LEFT"
         ]
+      },
+      "HandoverCollector": {
+        "enum": [
+          "HOLDER",
+          "PROXY"
+        ]
+      },
+      "HandoverCountResponse": {
+        "required": [
+          "recorded",
+          "holders"
+        ],
+        "type": "object",
+        "properties": {
+          "recorded": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "holders": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "HandoverItemRequest": {
+        "required": [
+          "id",
+          "holderEntryId",
+          "distributionNumber",
+          "collectedBy",
+          "collectorEntryId",
+          "rentalFlaskNumber",
+          "traceability1",
+          "traceability2",
+          "collectedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "holderEntryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "distributionNumber": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "collectedBy": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "collectorEntryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "rentalFlaskNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "traceability1": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "traceability2": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "collectedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "HandoverResponse": {
+        "required": [
+          "id",
+          "holderEntryId",
+          "distributionNumber",
+          "collectedBy",
+          "collectorEntryId",
+          "powderKg",
+          "rentalFlaskNumber",
+          "traceability1",
+          "traceability2",
+          "collectedAt",
+          "recordedAt",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "holderEntryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "distributionNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "collectedBy": {
+            "$ref": "#/components/schemas/HandoverCollector"
+          },
+          "collectorEntryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "powderKg": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "rentalFlaskNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "traceability1": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "traceability2": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "collectedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "recordedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "format": "uint32"
+          }
+        }
+      },
+      "HandoverSyncRequest": {
+        "required": [
+          "handovers"
+        ],
+        "type": "object",
+        "properties": {
+          "handovers": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/HandoverItemRequest"
+            }
+          }
+        }
+      },
+      "HandoverSyncResponse": {
+        "required": [
+          "results"
+        ],
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SyncResult"
+            }
+          }
+        }
       },
       "IdentitySettingsRequest": {
         "required": [
@@ -14659,6 +15342,58 @@
             "type": [
               "null",
               "boolean"
+            ]
+          }
+        }
+      },
+      "SyncOutcome": {
+        "enum": [
+          "RECORDED",
+          "ALREADY_RECORDED",
+          "REFUSED"
+        ]
+      },
+      "SyncResult": {
+        "required": [
+          "id",
+          "outcome",
+          "code",
+          "handover",
+          "existing"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/SyncOutcome"
+          },
+          "code": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "handover": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/HandoverResponse"
+              }
+            ]
+          },
+          "existing": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/HandoverResponse"
+              }
             ]
           }
         }

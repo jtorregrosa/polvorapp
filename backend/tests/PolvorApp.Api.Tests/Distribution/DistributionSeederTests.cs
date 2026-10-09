@@ -44,6 +44,25 @@ public sealed class DistributionSeederTests(PostgresFixture postgres, MailpitFix
     }
 
     [Fact]
+    public async Task Seeding_twice_records_the_past_powder_day_handovers_once()
+    {
+        await using var host = await StartAsync();
+
+        Assert.Equal(0, await SeedAsync(host));
+        Assert.Equal(0, await SeedAsync(host));
+
+        await using var scope = host.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<DistributionDbContext>();
+        var day = await db.Days.AsNoTracking().SingleAsync(d => d.EditionId == EditionSeeder.PastEdition && d.Type == DistributionType.Powder, TestContext.Current.CancellationToken);
+        var handovers = await db.Handovers.AsNoTracking().Where(h => h.DistributionId == day.Id).ToListAsync(TestContext.Current.CancellationToken);
+        Assert.Equal(DistributionSeeder.PastHandoverCount, handovers.Count);
+        Assert.Equal(handovers.Count, handovers.Select(h => h.HolderEntryId).Distinct().Count());
+        Assert.Contains(handovers, h => h.RentalFlaskNumber is not null);
+        Assert.Empty(await db.Handovers.AsNoTracking().Join(db.Days, h => h.DistributionId, d => d.Id, (h, d) => d.EditionId)
+            .Where(e => e == EditionSeeder.CurrentEdition).ToListAsync(TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
     public async Task The_seeded_proxies_hold_and_the_seeded_days_belong_to_the_edition()
     {
         await using var host = await StartAsync();

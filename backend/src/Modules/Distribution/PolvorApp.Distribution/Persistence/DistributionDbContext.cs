@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using PolvorApp.Distribution.Contracts;
 using PolvorApp.Distribution.Days;
+using PolvorApp.Distribution.Handovers;
 using PolvorApp.Distribution.Proxies;
 using PolvorApp.SharedKernel.Auditing;
 using PolvorApp.SharedKernel.Codes;
@@ -10,11 +11,13 @@ using PolvorApp.SharedKernel.Persistence;
 namespace PolvorApp.Distribution.Persistence;
 
 /// <summary>
-/// Schema <c>distribution</c>: distribution days, their slots and the pickup proxies (design D2). The
-/// database constraints back up the API's blocking rules against races. The cross-schema foreign
-/// keys are added by the migration (Modules README): to editions and comparsas with
-/// <c>NO ACTION</c>, and to edition entries with <c>CASCADE</c>, because a proxy means nothing without
-/// both entries (BR-14).
+/// Schema <c>distribution</c>: distribution days, their slots, the pickup proxies (design D2) and the
+/// powder handovers (add-offline-distribution-capture D1). The database constraints back up the API's
+/// blocking rules against races. The cross-schema foreign keys are added by the migration (Modules
+/// README): to editions and comparsas with <c>NO ACTION</c>, and to edition entries with
+/// <c>CASCADE</c>, because a proxy means nothing without both entries (BR-14). A handover goes with its
+/// holder's entry, keeps its role when the proxy's entry goes (<c>SET NULL</c>), and keeps its day
+/// (<c>RESTRICT</c>): it is the record of the day.
 /// </summary>
 internal sealed class DistributionDbContext(DbContextOptions<DistributionDbContext> options) : DbContext(options)
 {
@@ -25,6 +28,24 @@ internal sealed class DistributionDbContext(DbContextOptions<DistributionDbConte
 
     /// <summary>At most one proxy per holder and type; violating it is <c>proxies.alreadyAuthorised</c>.</summary>
     public const string ProxyHolderIndex = "ux_pickup_proxies_holder_type";
+
+    /// <summary>The device's id: the same id sent twice at once is a resend.</summary>
+    public const string HandoverKey = "pk_handovers";
+
+    /// <summary>One handover per holder and day; violating it is <c>distribution.alreadyHandedOver</c>.</summary>
+    public const string HandoverHolderIndex = "ux_handovers_distribution_holder";
+
+    /// <summary>A flask number once per day, ignoring case (raw SQL); violating it is <c>distribution.flaskNumberTaken</c>.</summary>
+    public const string HandoverFlaskIndex = "ux_handovers_distribution_flask";
+
+    public const string HandoverCollectorCheck = "ck_handovers_collector";
+    public const string HandoverNotHolderCheck = "ck_handovers_not_holder";
+
+    /// <summary>Texts are trimmed or null, never blank: a blank flask number would take a slot of its own.</summary>
+    public const string HandoverTextsCheck = "ck_handovers_texts_not_blank";
+    public const string HandoverDayForeignKey = "fk_handovers_distribution";
+    public const string HandoverHolderEntryForeignKey = "fk_handovers_holder_entry";
+    public const string HandoverCollectorEntryForeignKey = "fk_handovers_collector_entry";
 
     public const string LocationCheck = "ck_distributions_location_not_blank";
     public const string NotHolderCheck = "ck_pickup_proxies_not_holder";
@@ -43,6 +64,8 @@ internal sealed class DistributionDbContext(DbContextOptions<DistributionDbConte
     public DbSet<DistributionSlot> Slots => Set<DistributionSlot>();
 
     public DbSet<PickupProxy> Proxies => Set<PickupProxy>();
+
+    public DbSet<Handover> Handovers => Set<Handover>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -92,6 +115,36 @@ internal sealed class DistributionDbContext(DbContextOptions<DistributionDbConte
 
             // The catalogue's deletion veto and the foreign key's check on a comparsa deletion.
             proxy.HasIndex(p => p.ComparsaId);
+        });
+
+        modelBuilder.Entity<Handover>(handover =>
+        {
+            handover.ToTable("handovers", table =>
+            {
+                table.HasCheckConstraint("ck_handovers_collected_by", In("collected_by", EnumCodes.All<HandoverCollector>()));
+                table.HasCheckConstraint(HandoverCollectorCheck, "collected_by = 'PROXY' OR collector_entry_id IS NULL");
+                table.HasCheckConstraint(HandoverNotHolderCheck, "collector_entry_id <> holder_entry_id");
+                table.HasCheckConstraint("ck_handovers_powder_kg", "powder_kg BETWEEN 1 AND 2");
+                table.HasCheckConstraint(HandoverTextsCheck,
+                    "(rental_flask_number IS NULL OR btrim(rental_flask_number) <> '')"
+                    + " AND (traceability1 IS NULL OR btrim(traceability1) <> '')"
+                    + " AND (traceability2 IS NULL OR btrim(traceability2) <> '')");
+                table.HasCheckConstraint("ck_handovers_distribution_number", "distribution_number > 0");
+            });
+            handover.HasKey(h => h.Id);
+            handover.Property(h => h.Id).ValueGeneratedNever();
+            handover.Property(h => h.CollectedBy).HasConversion(new EnumCodeConverter<HandoverCollector>()).HasMaxLength(CodeMaxLength);
+            handover.Property(h => h.RentalFlaskNumber).HasMaxLength(Handover.FlaskNumberMaxLength);
+            handover.Property(h => h.Traceability1).HasMaxLength(Handover.TraceabilityMaxLength);
+            handover.Property(h => h.Traceability2).HasMaxLength(Handover.TraceabilityMaxLength);
+            handover.Property(h => h.Version).IsRowVersion();
+            handover.HasIndex(h => new { h.DistributionId, h.HolderEntryId }).IsUnique().HasDatabaseName(HandoverHolderIndex);
+            handover.HasOne<DistributionDay>().WithMany().HasForeignKey(h => h.DistributionId)
+                .OnDelete(DeleteBehavior.Restrict).HasConstraintName(HandoverDayForeignKey);
+
+            // The holder's cascade and the proxy's SET NULL, and the privacy lookups by entry.
+            handover.HasIndex(h => h.HolderEntryId);
+            handover.HasIndex(h => h.CollectorEntryId).HasFilter("collector_entry_id IS NOT NULL");
         });
     }
 

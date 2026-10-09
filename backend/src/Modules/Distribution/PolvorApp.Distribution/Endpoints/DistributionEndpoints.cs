@@ -77,6 +77,7 @@ internal static class DistributionEndpoints
             .RequireRateLimiting(RateLimitPolicies.Exports).ProducesProblem(StatusCodes.Status429TooManyRequests)
             .Produces<Stream>(StatusCodes.Status200OK, "application/pdf")
             .ProducesProblem(StatusCodes.Status409Conflict).ProducesProblem(StatusCodes.Status503ServiceUnavailable);
+        group.MapHandoverEndpoints();
         return endpoints;
     }
 

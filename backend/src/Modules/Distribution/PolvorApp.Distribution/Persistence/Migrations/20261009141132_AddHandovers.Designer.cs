@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PolvorApp.Distribution.Persistence;
@@ -11,9 +12,11 @@ using PolvorApp.Distribution.Persistence;
 namespace PolvorApp.Distribution.Persistence.Migrations
 {
     [DbContext(typeof(DistributionDbContext))]
-    partial class DistributionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261009141132_AddHandovers")]
+    partial class AddHandovers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

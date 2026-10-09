@@ -1,7 +1,9 @@
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using PolvorApp.ComparsaOrders.Contracts;
+using PolvorApp.Distribution.Contracts;
 using PolvorApp.Distribution.Days;
+using PolvorApp.Distribution.Documents;
 using PolvorApp.Distribution.Persistence;
 using PolvorApp.FederationCatalog.Contracts;
 using PolvorApp.FestivalEditions.Contracts;
@@ -21,7 +23,8 @@ internal sealed class DistributionViews(
     ICatalogDirectory catalog,
     IEditionEntries entries,
     IComparsaScope scope,
-    ICurrentUser currentUser)
+    ICurrentUser currentUser,
+    DistributionListReader lists)
 {
     public async Task<DistributionPlanResponse?> PlanAsync(Guid editionId, CancellationToken cancellationToken)
     {
@@ -35,7 +38,15 @@ internal sealed class DistributionViews(
         var days = await db.Days.AsNoTracking().Include(d => d.Slots).Where(d => d.EditionId == editionId).OrderBy(d => d.Type).ToListAsync(cancellationToken);
         var active = await catalog.ListActiveComparsasAsync(cancellationToken);
         var names = await NamesAsync(days.SelectMany(d => d.Slots).Select(s => s.ComparsaId), active, cancellationToken);
-        var views = days.Select(d => Day(d, access, names, active)).ToList();
+        var views = new List<DistributionDayResponse>(days.Count);
+        foreach (var day in days)
+        {
+            var counts = currentUser.IsAdmin && day.Type == DistributionType.Powder && edition.Status == EditionStatus.InProgress
+                ? await CountsAsync(day, edition, cancellationToken)
+                : null;
+            views.Add(Day(day, access, names, active) with { Handovers = counts });
+        }
+
         IReadOnlyList<NotValidatedResponse>? notValidated = null;
         if (currentUser.IsAdmin)
         {
@@ -75,6 +86,14 @@ internal sealed class DistributionViews(
             ? [.. active.Where(c => !withSlot.Contains(c.Id)).OrderBy(c => c.Name, SpanishOrder.Names).Select(c => new ComparsaRef(c.Id, c.Name))]
             : null;
         return new DistributionDayResponse(day.Id, day.EditionId, day.Type, day.Date, day.Location, day.Version, slots, withoutSlot);
+    }
+
+    /// <summary>The powder day's handovers out of its list's holders (spec: Handover screens).</summary>
+    private async Task<HandoverCountResponse> CountsAsync(DistributionDay day, EditionSnapshot edition, CancellationToken cancellationToken)
+    {
+        var holders = DistributionLists.Rows(await lists.ReadAsync(day, edition, cancellationToken), DistributionTexts.Spanish).Rows.Count;
+        var recorded = await db.Handovers.CountAsync(h => h.DistributionId == day.Id, cancellationToken);
+        return new HandoverCountResponse(recorded, holders);
     }
 
     /// <summary>Names of the comparsas with a slot, inactive ones included.</summary>
