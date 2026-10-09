@@ -1,3 +1,4 @@
+using Docker.DotNet.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using PolvorApp.SharedKernel.Persistence;
@@ -17,12 +18,21 @@ public sealed class PostgresFixture : IAsyncLifetime
     /// <summary>A copy of the freshly migrated default database that test databases are cloned from.</summary>
     private const string Template = "polvorapp_template";
 
+    private const long SharedMemoryBytes = 512L * 1024 * 1024;
+
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:18.6-alpine")
         .WithDatabase("polvorapp")
         .WithUsername("polvorapp")
         .WithPassword("test-only-password")
         // Test classes run in parallel, each host with its own connection pool.
         .WithCommand("-c", "max_connections=500")
+        // Docker's default 64 MB /dev/shm runs out under that load: parallel queries then fail with
+        // 53100 "could not resize shared memory segment".
+        .WithCreateParameterModifier(parameters =>
+        {
+            parameters.HostConfig ??= new HostConfig();
+            parameters.HostConfig.ShmSize = SharedMemoryBytes;
+        })
         .Build();
 
     public string ConnectionString => _container.GetConnectionString();
