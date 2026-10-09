@@ -15,6 +15,11 @@ export interface AppOptions {
   language?: string;
   /** Starts signed in as this user; otherwise `GET /api/account` answers 401. */
   session?: AccountResponse;
+  /**
+   * Answers `GET /api/account` instead, with nothing known of the session beforehand: e.g. a server
+   * that cannot be reached, or a session that is only known after a while.
+   */
+  account?: HttpResponseResolver;
 }
 
 /**
@@ -23,17 +28,20 @@ export interface AppOptions {
  */
 export async function renderApp(
   path: string,
-  { language = 'es-ES', session }: AppOptions = {},
+  { language = 'es-ES', session, account }: AppOptions = {},
 ): Promise<AppResult> {
   server.use(
     mock.get('/api/system/info', () => HttpResponse.json({ version: '1.4.0', commit: 'abc1234' })),
     mock.get('/api/auth/antiforgery', () => new HttpResponse(null, { status: 204 })),
-    mock.get('/api/account', () =>
-      session ? HttpResponse.json(session) : problem(401, 'auth.unauthenticated'),
+    mock.get(
+      '/api/account',
+      account ?? (() => (session ? HttpResponse.json(session) : problem(401, 'auth.unauthenticated'))),
     ),
   );
   const router = createMemoryRouter(appRoutes, { initialEntries: [path] });
-  const result = await renderWithProviders(<RouterProvider router={router} />, language, { session });
+  const result = await renderWithProviders(<RouterProvider router={router} />, language, {
+    session: account ? undefined : session,
+  });
   return {
     ...result,
     router,

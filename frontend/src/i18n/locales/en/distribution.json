@@ -59,7 +59,9 @@
     },
     "deleteDescription": "Its slots are removed too. The pickup proxies are kept.",
     "deleteConfirm": "Delete day",
-    "deleted": "Day deleted"
+    "deleted": "Day deleted",
+    "cannotDelete_one": "Cannot be deleted: it has {{count}} recorded handover.",
+    "cannotDelete_other": "Cannot be deleted: it has {{count}} recorded handovers."
   },
   "slots": {
     "title": "Slots",
@@ -183,7 +185,18 @@
       "editionNotInProgress": "The edition is not in progress: the distribution can no longer be changed.",
       "modified": "Someone else changed this day. The page has been refreshed: check it and try again.",
       "busy": "Someone else is changing these proxies. Try again in a moment.",
-      "auditUnavailable": "The change could not be recorded, so it was not saved. Try again in a few minutes."
+      "auditUnavailable": "The change could not be recorded, so it was not saved. Try again in a few minutes.",
+      "captureNotPowder": "Handovers are recorded on the powder distribution day only.",
+      "hasHandovers": "This day has recorded handovers: it is the record of the distribution and cannot be deleted.",
+      "alreadyHandedOver": "Another device already recorded this holder's handover.",
+      "notInList": "This holder is no longer on the distribution list (their order changed). Download the list again.",
+      "flaskNumberRequired": "Enter the number of the rented flask.",
+      "flaskNumberNotRented": "This holder rents no flask: remove the number.",
+      "flaskNumberTaken": "That flask was already handed to someone else this day.",
+      "proxyNotValid": "The proxy can no longer collect for this holder.",
+      "handoverChanged": "This handover was already synced with other data. Check it.",
+      "invalid": "Some data of the handover is not valid (text too long or empty).",
+      "unknown": "The server refused the handover without saying why."
     },
     "proxies": {
       "notFound": "The proxy no longer exists. The page has been refreshed.",
@@ -209,5 +222,112 @@
     "nothingToCollect": "The holder has nothing of this type to collect.",
     "licenseInvalid": "Has no active weapons license on the day.",
     "entryErased": "This person was erased."
+  },
+  "capture": {
+    "signOut": {
+      "title": "Sign out with unsynced handovers?",
+      "description_one": "This device has {{count}} powder handover not synced. If you sign out now, it will be deleted and never reach the server.",
+      "description_other": "This device has {{count}} powder handovers not synced. If you sign out now, they will be deleted and never reach the server.",
+      "confirm": "Sign out and delete",
+      "unknown": "This device could not check whether it has powder handovers not synced. If you sign out now, any it has will be deleted and never reach the server."
+    },
+    "section": "Powder handovers",
+    "delivered": "{{recorded}} of {{holders}} handed over",
+    "prepare": "Prepare for offline capture",
+    "prepared": "The distribution list is kept on this device until {{date}}.",
+    "notPersistent": "The browser could delete it when short of space: do not use private browsing.",
+    "open": "Open capture",
+    "page": {
+      "title": "Handover capture",
+      "description": "Powder distribution on {{date}} at {{location}}.",
+      "loading": "Loading the list kept on this device…",
+      "noPackage": "This device does not have the list of this distribution.",
+      "noPackageHint": "Prepare the device from the distribution page while you have a connection.",
+      "toDistribution": "Go to the distribution page",
+      "signInToSync": "Your session has ended. You can keep recording handovers; sign in to sync them.",
+      "signIn": "Sign in",
+      "storageUnavailable": "This browser does not allow keeping data on the device (private browsing?). Offline capture is not available."
+    },
+    "status": {
+      "label": "Capture status",
+      "online": "Online",
+      "offline": "Offline: handovers are kept on this device",
+      "pending_one": "{{count}} waiting to sync",
+      "pending_other": "{{count}} waiting to sync",
+      "conflicts_one": "{{count}} in conflict",
+      "conflicts_other": "{{count}} in conflict",
+      "lastSync": "Last sync: {{time}}",
+      "neverSynced": "Not synced yet",
+      "syncing": "Syncing…",
+      "busy": "The server is busy: it will be tried again in a moment.",
+      "failed": "Could not sync: {{reason}}",
+      "failedUnknown": "Could not sync. It will be tried again in a moment.",
+      "syncNow": "Sync now",
+      "kept": "List downloaded on {{downloaded}}; it will be deleted from this device on {{expires}}.",
+      "close": "Close capture",
+      "closeTitle": "Close the capture?",
+      "closeDescription": "The distribution list will be deleted from this device. Synced handovers stay on the server.",
+      "closeConfirm": "Close capture",
+      "closeBlocked": "Some handovers are not synced yet: sync or discard them before closing."
+    },
+    "list": {
+      "title": "Holders",
+      "search": "Search by number, name or DNI/NIE",
+      "noResults": "No holder matches the search.",
+      "results_one": "{{count}} holder",
+      "results_other": "{{count}} holders",
+      "group": "{{slot}} · {{comparsa}}",
+      "noSlot": "No slot",
+      "holder": "No. {{number}} · {{name}}",
+      "details": "{{nationalId}} · {{kg}} kg · {{flask}}",
+      "flasks": {
+        "OWNED": "Own flask",
+        "RENTAL_1KG": "Rented 1 kg",
+        "RENTAL_2KG": "Rented 2 kg",
+        "NONE": "No flask"
+      }
+    },
+    "panel": {
+      "title": "{{name}}'s handover",
+      "description": "No. {{number}} · {{nationalId}} · {{kg}} kg · {{flask}}",
+      "sectionName": "handover",
+      "collector": "Who collects?",
+      "byHolder": "The holder",
+      "byProxy": "Their proxy: {{name}} ({{nationalId}})",
+      "flaskNumber": "Flask no.",
+      "traceability1": "Traceability 1",
+      "traceability2": "Traceability 2",
+      "record": "Record handover",
+      "save": "Save changes",
+      "recorded": "Handover recorded on this device.",
+      "remove": "Remove handover",
+      "removeTitle": "Remove the handover of {{name}}?",
+      "removeDescription": "It will be deleted from this device and will not reach the server.",
+      "removed": "Handover removed from this device.",
+      "undo": "Undo handover",
+      "undoTitle": "Undo {{name}}'s handover?",
+      "undoDescription": "The handover with flask {{flask}} will be deleted from the server and the flask will be free again.",
+      "undoDescriptionNoFlask": "The handover will be deleted from the server.",
+      "undone": "Handover undone.",
+      "undoOffline": "Undoing a synced handover needs a connection.",
+      "synced": "Handover synced on {{time}}.",
+      "errors": {
+        "flaskRequired": "Enter the number of the rented flask.",
+        "flaskTaken": "Flask {{flask}} was already handed to number {{number}}.",
+        "tooLong": "At most {{max}} characters."
+      }
+    },
+    "conflicts": {
+      "title": "Conflicts",
+      "description": "The server refused these handovers. Correct and send them again, or discard them.",
+      "existing": "Recorded first by another device: {{details}}.",
+      "existingFlask": "flask {{flask}}",
+      "existingNoFlask": "no flask",
+      "edit": "Edit and send again",
+      "discard": "Discard",
+      "discardTitle": "Discard {{name}}'s handover?",
+      "discardDescription": "It will be deleted from this device and never reach the server.",
+      "discarded": "Handover discarded."
+    }
   }
 }

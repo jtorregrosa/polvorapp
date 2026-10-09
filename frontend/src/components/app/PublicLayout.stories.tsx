@@ -22,3 +22,6 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 
 export const WithoutFooter: Story = { args: { footer: undefined } };
+
+/** The page's width, for a page that works without a session (the distribution capture screen). */
+export const Wide: Story = { args: { wide: true } };

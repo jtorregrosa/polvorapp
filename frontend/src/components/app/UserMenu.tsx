@@ -1,5 +1,5 @@
 import { LogOut, Monitor, Moon, Sun, UserRound, type LucideIcon } from 'lucide-react';
-import { useId } from 'react';
+import { useId, type Ref } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,8 @@ export interface UserMenuProps {
   onSignOut: () => void;
   /** Called after the language changes, e.g. to save it as the user's preferred language. */
   onLanguageChange?: (language: Language) => void;
+  /** The menu's button, e.g. for a dialog opened from the menu to return focus to (WCAG 2.4.3). */
+  triggerRef?: Ref<HTMLButtonElement>;
 }
 
 /** Up to two initials of a name, for the avatar. */
@@ -43,7 +45,14 @@ function initials(name: string): string {
  * The signed-in user in the top bar (platform spec: Application shell): name and role, the language
  * and theme switchers as radio groups that change the UI at once, the account page and sign-out.
  */
-export function UserMenu({ name, roleLabel, accountHref, onSignOut, onLanguageChange }: UserMenuProps) {
+export function UserMenu({
+  name,
+  roleLabel,
+  accountHref,
+  onSignOut,
+  onLanguageChange,
+  triggerRef,
+}: UserMenuProps) {
   const { t, i18n } = useTranslation('ui');
   const { t: tCommon } = useTranslation();
   const { preference, setPreference } = useTheme();
@@ -61,7 +70,12 @@ export function UserMenu({ name, roleLabel, accountHref, onSignOut, onLanguageCh
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="max-w-56 gap-2 px-2" aria-label={t('userMenu.label', { name })}>
+        <Button
+          ref={triggerRef}
+          variant="ghost"
+          className="max-w-56 gap-2 px-2"
+          aria-label={t('userMenu.label', { name })}
+        >
           <span
             aria-hidden="true"
             className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-soft font-display text-label text-primary-soft-foreground"

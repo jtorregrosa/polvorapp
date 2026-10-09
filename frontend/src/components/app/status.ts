@@ -96,6 +96,13 @@ export const STATUS_MAP = {
     NOT_APPLICABLE: { tone: 'warning', icon: TriangleAlert },
     LICENSE_INVALID: { tone: 'warning', icon: TriangleAlert },
   },
+  /** A holder's powder handover on a capture device (add-offline-distribution-capture, UC-21). */
+  handover: {
+    TO_DELIVER: { tone: 'muted', icon: CircleDashed },
+    PENDING: { tone: 'info', icon: Clock },
+    SYNCED: { tone: 'success', icon: CircleCheck },
+    CONFLICT: { tone: 'warning', icon: TriangleAlert },
+  },
   /** Compliance warnings (BR-04, `ComplianceWarning`), in rule order. */
   warning: {
     LICENSE_MISSING: { tone: 'warning', icon: TriangleAlert },

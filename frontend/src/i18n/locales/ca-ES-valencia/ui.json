@@ -149,6 +149,12 @@
       "ACTIVE": "Actiu",
       "DEACTIVATED": "Desactivat",
       "ERASED": "Esborrat"
+    },
+    "handover": {
+      "TO_DELIVER": "Per entregar",
+      "PENDING": "Pendent de sincronitzar",
+      "SYNCED": "Entregada",
+      "CONFLICT": "Amb conflicte"
     }
   },
   "validation": {

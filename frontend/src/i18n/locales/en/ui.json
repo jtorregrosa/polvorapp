@@ -149,6 +149,12 @@
       "ACTIVE": "Active",
       "DEACTIVATED": "Deactivated",
       "ERASED": "Erased"
+    },
+    "handover": {
+      "TO_DELIVER": "To hand over",
+      "PENDING": "Waiting to sync",
+      "SYNCED": "Handed over",
+      "CONFLICT": "In conflict"
     }
   },
   "validation": {

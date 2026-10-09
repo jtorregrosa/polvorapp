@@ -59,7 +59,9 @@
     },
     "deleteDescription": "També s'eliminen els seus torns. Els autoritzats de recollida es mantenen.",
     "deleteConfirm": "Eliminar dia",
-    "deleted": "Dia eliminat"
+    "deleted": "Dia eliminat",
+    "cannotDelete_one": "No es pot esborrar: té {{count}} entrega registrada.",
+    "cannotDelete_other": "No es pot esborrar: té {{count}} entregues registrades."
   },
   "slots": {
     "title": "Torns",
@@ -183,7 +185,18 @@
       "editionNotInProgress": "L'edició no està en curs: el repartiment ja no es pot canviar.",
       "modified": "Una altra persona ha canviat aquest dia. S'ha actualitzat la pàgina: revisa-ho i torna-ho a intentar.",
       "busy": "Una altra persona està canviant aquests autoritzats. Torna-ho a intentar d'ací a un moment.",
-      "auditUnavailable": "No s'ha pogut registrar el canvi, així que no s'ha guardat. Torna-ho a intentar d'ací a uns minuts."
+      "auditUnavailable": "No s'ha pogut registrar el canvi, així que no s'ha guardat. Torna-ho a intentar d'ací a uns minuts.",
+      "captureNotPowder": "Les entregues només es registren el dia de repartiment de pólvora.",
+      "hasHandovers": "Este dia té entregues registrades: és el registre del repartiment i no es pot esborrar.",
+      "alreadyHandedOver": "Un altre dispositiu ja va registrar l'entrega d'este titular.",
+      "notInList": "Este titular ja no està en la llista del repartiment (la seua comanda ha canviat). Descarrega la llista de nou.",
+      "flaskNumberRequired": "Indica el número de la cantimplora llogada.",
+      "flaskNumberNotRented": "Este titular no llogua cantimplora: lleva el número.",
+      "flaskNumberTaken": "Eixa cantimplora ja s'ha entregat a una altra persona este dia.",
+      "proxyNotValid": "L'autoritzat ja no pot arreplegar per este titular.",
+      "handoverChanged": "Esta entrega ja es va sincronitzar amb altres dades. Revisa-la.",
+      "invalid": "Alguna dada de l'entrega no és vàlida (text massa llarg o buit).",
+      "unknown": "El servidor va rebutjar l'entrega sense dir per què."
     },
     "proxies": {
       "notFound": "L'autoritzat ja no existeix. S'ha actualitzat la pàgina.",
@@ -209,5 +222,112 @@
     "nothingToCollect": "El titular no té res d'aquest tipus per recollir.",
     "licenseInvalid": "No té llicència d'armes en vigor eixe dia.",
     "entryErased": "És una persona esborrada."
+  },
+  "capture": {
+    "signOut": {
+      "title": "Vols tancar la sessió amb entregues sense sincronitzar?",
+      "description_one": "Este dispositiu té {{count}} entrega de pólvora sense sincronitzar. Si tanques la sessió ara, s'esborrarà i no arribarà al servidor.",
+      "description_other": "Este dispositiu té {{count}} entregues de pólvora sense sincronitzar. Si tanques la sessió ara, s'esborraran i no arribaran al servidor.",
+      "confirm": "Tanca la sessió i esborra",
+      "unknown": "No s'ha pogut comprovar si este dispositiu té entregues de pólvora sense sincronitzar. Si tanques la sessió ara, les que hi haja s'esborraran i no arribaran al servidor."
+    },
+    "section": "Entregues de pólvora",
+    "delivered": "{{recorded}} de {{holders}} entregats",
+    "prepare": "Prepara per a captura sense connexió",
+    "prepared": "La llista del repartiment està guardada en este dispositiu fins al {{date}}.",
+    "notPersistent": "El navegador podria esborrar-la si li falta espai: no uses el mode privat.",
+    "open": "Obri la captura",
+    "page": {
+      "title": "Captura d'entregues",
+      "description": "Repartiment de pólvora del {{date}} a {{location}}.",
+      "loading": "Carregant la llista guardada en este dispositiu…",
+      "noPackage": "Este dispositiu no té la llista d'este repartiment.",
+      "noPackageHint": "Prepara el dispositiu des de la pàgina de repartiment mentres tingues connexió.",
+      "toDistribution": "Ves a la pàgina de repartiment",
+      "signInToSync": "La teua sessió ha acabat. Pots continuar registrant entregues; inicia la sessió per a sincronitzar-les.",
+      "signIn": "Inicia la sessió",
+      "storageUnavailable": "Este navegador no permet guardar dades en el dispositiu (mode privat?). La captura sense connexió no està disponible."
+    },
+    "status": {
+      "label": "Estat de la captura",
+      "online": "Amb connexió",
+      "offline": "Sense connexió: les entregues es guarden en este dispositiu",
+      "pending_one": "{{count}} pendent de sincronitzar",
+      "pending_other": "{{count}} pendents de sincronitzar",
+      "conflicts_one": "{{count}} amb conflicte",
+      "conflicts_other": "{{count}} amb conflicte",
+      "lastSync": "Última sincronització: {{time}}",
+      "neverSynced": "Encara sense sincronitzar",
+      "syncing": "Sincronitzant…",
+      "busy": "El servidor està ocupat: es tornarà a intentar d'ací a un moment.",
+      "failed": "No s'ha pogut sincronitzar: {{reason}}",
+      "failedUnknown": "No s'ha pogut sincronitzar. Es tornarà a intentar d'ací a un moment.",
+      "syncNow": "Sincronitza ara",
+      "kept": "Llista descarregada el {{downloaded}}; s'esborrarà d'este dispositiu el {{expires}}.",
+      "close": "Tanca la captura",
+      "closeTitle": "Vols tancar la captura?",
+      "closeDescription": "S'esborrarà d'este dispositiu la llista del repartiment. Les entregues ja sincronitzades continuen en el servidor.",
+      "closeConfirm": "Tanca la captura",
+      "closeBlocked": "Encara hi ha entregues sense sincronitzar: sincronitza-les o descarta-les abans de tancar."
+    },
+    "list": {
+      "title": "Titulars",
+      "search": "Busca per número, nom o DNI/NIE",
+      "noResults": "Cap titular coincidix amb la busca.",
+      "results_one": "{{count}} titular",
+      "results_other": "{{count}} titulars",
+      "group": "{{slot}} · {{comparsa}}",
+      "noSlot": "Sense torn",
+      "holder": "Núm. {{number}} · {{name}}",
+      "details": "{{nationalId}} · {{kg}} kg · {{flask}}",
+      "flasks": {
+        "OWNED": "Cantimplora pròpia",
+        "RENTAL_1KG": "Lloguer 1 kg",
+        "RENTAL_2KG": "Lloguer 2 kg",
+        "NONE": "Sense cantimplora"
+      }
+    },
+    "panel": {
+      "title": "Entrega de {{name}}",
+      "description": "Núm. {{number}} · {{nationalId}} · {{kg}} kg · {{flask}}",
+      "sectionName": "entrega",
+      "collector": "Qui arreplega?",
+      "byHolder": "El titular",
+      "byProxy": "El seu autoritzat: {{name}} ({{nationalId}})",
+      "flaskNumber": "Núm. de cantimplora",
+      "traceability1": "Traçabilitat 1",
+      "traceability2": "Traçabilitat 2",
+      "record": "Registra l'entrega",
+      "save": "Guarda els canvis",
+      "recorded": "Entrega registrada en este dispositiu.",
+      "remove": "Lleva l'entrega",
+      "removeTitle": "Vols llevar l'entrega de {{name}}?",
+      "removeDescription": "S'esborrarà d'este dispositiu i no arribarà al servidor.",
+      "removed": "Entrega llevada d'este dispositiu.",
+      "undo": "Desfés l'entrega",
+      "undoTitle": "Vols desfer l'entrega de {{name}}?",
+      "undoDescription": "L'entrega amb la cantimplora {{flask}} s'esborrarà del servidor i la cantimplora quedarà lliure.",
+      "undoDescriptionNoFlask": "L'entrega s'esborrarà del servidor.",
+      "undone": "Entrega desfeta.",
+      "undoOffline": "Per a desfer una entrega ja sincronitzada cal connexió.",
+      "synced": "Entrega sincronitzada el {{time}}.",
+      "errors": {
+        "flaskRequired": "Indica el número de la cantimplora llogada.",
+        "flaskTaken": "La cantimplora {{flask}} ja s'ha entregat al número {{number}}.",
+        "tooLong": "Com a màxim {{max}} caràcters."
+      }
+    },
+    "conflicts": {
+      "title": "Conflictes",
+      "description": "El servidor va rebutjar estes entregues. Corregix-les i torna a enviar-les, o descarta-les.",
+      "existing": "Registrada abans per un altre dispositiu: {{details}}.",
+      "existingFlask": "cantimplora {{flask}}",
+      "existingNoFlask": "sense cantimplora",
+      "edit": "Edita i torna a enviar",
+      "discard": "Descarta",
+      "discardTitle": "Vols descartar l'entrega de {{name}}?",
+      "discardDescription": "S'esborrarà d'este dispositiu i no arribarà al servidor.",
+      "discarded": "Entrega descartada."
+    }
   }
 }
