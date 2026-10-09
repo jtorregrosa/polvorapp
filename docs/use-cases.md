@@ -60,7 +60,7 @@
 | UC-18 | Schedule distribution days and slots per comparsa | AD | MVP |
 | UC-19 | **Exceptional:** register a pickup proxy for an arquebusier who cannot attend, and print the pre-filled authorisation form to sign on paper | FC | MVP |
 | UC-20 | Generate printable distribution lists with global numbering (incl. proxies) | AD | MVP |
-| UC-21 | Record on site, **offline**, the rental flask number assigned to each arquebusier (and other handover data); sync later | AD | L |
+| UC-21 | Record on site, **offline**, the rental flask number assigned to each arquebusier (and other handover data); sync later. Implemented for the powder day (`add-offline-distribution-capture`); the weapons day comes later | AD | L |
 | UC-22 | Return of rented weapons and flasks | — | OUT (handled by the rental company) |
 
 ## E. Cross-cutting
@@ -168,4 +168,6 @@
 - On distribution day the **FiringChief validates the identity** of their arquebusiers; nobody signs.
   The only paper document is the proxy authorisation (UC-19), for the exceptional case.
 - Today the Federation records flask assignments with a laptop and a spreadsheet; UC-20 printable
-  lists cover the MVP, UC-21 adds the offline capture later.
+  lists cover the MVP, UC-21 adds the offline capture of the powder day: an Admin downloads the
+  day's list to a phone or tablet, records each handover without connectivity and syncs later; the
+  powder list then prints filled in.

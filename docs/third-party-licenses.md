@@ -82,6 +82,7 @@ MPL-2.0 packages (`axe-core`, `@axe-core/playwright`) are used unmodified in tes
 | `eslint-plugin-react-hooks` | MIT | dev |
 | `eslint-plugin-react-refresh` | MIT | dev |
 | `@eslint/js` | MIT | dev |
+| `fake-indexeddb` | Apache-2.0 | dev (IndexedDB in unit tests, `add-offline-distribution-capture`) |
 | `@fontsource-variable/bricolage-grotesque` | OFL-1.1 | runtime |
 | `@fontsource-variable/geist` | OFL-1.1 | runtime |
 | `@fontsource-variable/geist-mono` | OFL-1.1 | runtime |
@@ -89,6 +90,7 @@ MPL-2.0 packages (`axe-core`, `@axe-core/playwright`) are used unmodified in tes
 | `@hookform/resolvers` | MIT | runtime |
 | `i18next` | MIT | runtime |
 | `i18next-browser-languagedetector` | MIT | runtime |
+| `idb` | ISC | runtime (the capture device's IndexedDB store, `add-offline-distribution-capture`) |
 | `jsdom` | MIT | dev |
 | `lucide-react` | ISC | runtime |
 | `msw` | MIT | dev |

@@ -9,7 +9,8 @@
 
 The MVP lets the Federation and all comparsas run a complete festival edition in PolvorApp —
 from arquebusier registry to validated orders, billing summary, exports and distribution lists —
-**without spreadsheets or Google Forms**. Offline on-site capture (UC-21) comes after the MVP.
+**without spreadsheets or Google Forms**. Offline on-site capture (UC-21) comes after the MVP: the
+powder day's is the first change after it (16g), the weapons day's later.
 
 ## Capabilities
 
@@ -58,13 +59,14 @@ from arquebusier registry to validated orders, billing summary, exports and dist
 | 16d | `add-federation-settings` | federation-catalog, notifications | A Settings page for Admins: the Federation's official names in Spanish and Valencian, short name and public contact, the emails' sender name and reply-to, the close-reminder and milestone lead times, and the logo; one version-checked save per section, every change audited; documents, emails and reminders read them — **done**, archived 2026-10-05 |
 | 16e | `add-statistics-trends` | compliance-insights, design-system | "Trends" tab on the Statistics page: the 10 most recent started editions in the user's scope (active and reserve, share of women, first year, powder and caps, weapon source and rentals, per comparsa) as accessible charts (Recharts, ADR-0014) with their tables, the edition in progress provisional; counts only, not audited — **done**, archived 2026-10-05 |
 | 16f | `add-firing-chief-armband` | platform, design-system | A FiringChief's yellow armband at the bottom of the sidebar, like the one worn at the festival: the translated role in capitals from edge to edge, a stripe without text in the icon rail, shown in the phone drawer, none for Admins; the yellow is an insignia with its own tokens, never an accent or a status — **done**, archived 2026-10-09 |
+| 16g | `add-offline-distribution-capture` | distribution, platform, audit-privacy, design-system | UC-21 for the powder day: an Admin downloads the day's list to a device on purpose (audited, kept in IndexedDB only, cleared on sign-out, on closing the capture and after 7 days, SEC-14), records each handover offline from the installed app (who collected, the rental flask number unique per day, traceability codes as free text until Q-43), and syncs from several devices at once; conflicts are shown, never overwritten; undo online; the powder list prints filled in — in progress |
 
 No feature screen is built before #2. Audit logging hooks are built into each change from #3
 onwards; #15 adds the viewer and GDPR tooling.
 
 ## After the MVP
 
-- `add-offline-distribution-capture` (UC-21): PWA offline capture of flask numbers and handovers.
+- The weapons day of UC-21 (rented weapon units and flask returns are out of scope).
 - Shooting contest, comparsa notes (UC-08), any change requested by the Federation after the first edition.
 
 ## Manual regression before go-live

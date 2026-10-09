@@ -76,7 +76,7 @@ their date.
 
 | ID | Topic | Needed before |
 |---|---|---|
-| Q-43 | Meaning of traceability 1 / 2 at powder handover | `add-offline-distribution-capture` |
+| Q-43 | Meaning of traceability 1 / 2 at powder handover (captured meanwhile as optional free-text codes by `add-offline-distribution-capture`) | Go-live |
 | Q-44 | Export templates: powder supplier, rental company, Arms Authority | `add-exports` go-live |
 | Q-49 | Badge: labels only in Spanish? (size answered: ID-1 credit card on cardstock, plastic sleeve). Meanwhile the Admin chooses es-ES, ca-ES-valencia or en for each download (maintainer decision, 2026-10-04) | Go-live |
 | Q-50 | DPO, updated privacy notice, hosting able to run containers | Go-live |

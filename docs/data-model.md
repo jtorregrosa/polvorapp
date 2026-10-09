@@ -173,8 +173,8 @@ the screen say so.
 | `erasedAt` | set by a GDPR erasure (UC-26): the history copy and the registry links are blank (a database check enforces it) and the entry is read-only |
 
 An `ACTIVE` entry may have no powder or no weapon: some arquebusiers only carry powder and others
-only fire, such as the comparsa captains. `rentalWeapon` and `rentalFlaskNumber` (units assigned at
-distribution) arrive with #13 and UC-21.
+only fire, such as the comparsa captains. The rental flask given at the powder distribution is
+recorded on the entry's **Handover** (UC-21); the rented weapon's unit arrives with the weapons day.
 
 The **history copy** is refreshed from the registry when the entry is created and saved, and when
 its order is submitted or validated, while the links exist. Screens show the live registry data
@@ -228,10 +228,23 @@ form until removed. It goes with either entry when an arquebusier's deletion rem
 the powder list's `ACTIVE` entries with powder, the weapons list's `ACTIVE` rentals, with the holder's
 proxy while it holds, and empty columns filled in by hand (flask number, traceability 1 and 2, weapon
 number). The **global numbering** is derived on every print: comparsas by slot time, then name;
-comparsas without a slot last; people by name; from 1 across the day. Nothing is stored; UC-21 will
-store `distributionNumber` at handover.
+comparsas without a slot last; people by name; from 1 across the day. A handover stores the
+`distributionNumber` it was given. Once the powder day has a handover, its list adds who collected,
+and a holder with a handover shows its flask number and traceability codes; the others keep empty
+columns to fill in by hand.
 
-**Handover** (later, UC-21) — `distribution`, `entry`, `distributionNumber`, `collectedBy` (holder or proxy entry), `collectedAt`, `powderKg`, `traceability1`, `traceability2`, `weaponNumber`, `rentalFlaskNumber`. Must work **offline** and sync later. No signatures: the FiringChief validates identities.
+**Handover** (`add-offline-distribution-capture`, UC-21) — powder day only: `distribution`
+(`ON DELETE RESTRICT`: a day with handovers cannot be deleted), the holder's `entry` (one handover
+per entry; cross-schema `ON DELETE CASCADE`), `distributionNumber` (copied from the list the device
+downloaded), `collectedBy` (`HOLDER` \| `PROXY`) with the proxy's `collectorEntry` when a proxy
+collected (`ON DELETE SET NULL`), `powderKg` (1 or 2, from the entry), `rentalFlaskNumber` (required
+for a rented flask, unique per day ignoring case, none otherwise), `traceability1` and `traceability2`
+(optional free text until Q-43 is answered), `collectedAt` (on the device), `recordedAt` (on the
+server) and `version`. Its id is generated on the device, so a resend is recognised. Captured
+**offline** and synced later; conflicts (already handed over, flask taken, not in the list any
+more) are shown on the device and never overwrite. Undone (deleted) by an Admin online while the
+edition is in progress, audited. No signatures: the FiringChief validates identities. The weapons
+day (`weaponNumber`) is left for a later change.
 
 ### Cross-cutting
 
