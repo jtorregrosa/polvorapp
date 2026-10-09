@@ -20,7 +20,7 @@ This is a **small system**: simplicity, low cost and ease of maintenance matter 
 |---|---|---|
 | NFR-01 | Platform | Responsive web application. Desktop for Admins; mobile-friendly for FiringChiefs (e.g. taking license photos with the phone camera). |
 | NFR-02 | i18n | UI in Spanish, Valencian and English from day one; all texts in translation files; dates and numbers localised. Exports keep the format required by each recipient. |
-| NFR-03 | Offline | Offline mode only for on-site distribution (UC-21, later). The architecture must allow it (e.g. PWA) without a rewrite. |
+| NFR-03 | Offline | Offline mode only for on-site distribution (UC-21: the powder day in `add-offline-distribution-capture`, the weapons day later). The architecture must allow it (e.g. PWA) without a rewrite. |
 | NFR-04 | Availability | Best effort (~99%). Maintenance outside order windows. No 24/7 support. |
 | NFR-05 | Performance | Pages < 2 s on 4G; exports of the whole Federation < 30 s. |
 | NFR-06 | Security | See `compliance.md` (SEC-01..12). |

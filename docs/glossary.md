@@ -123,7 +123,9 @@ equivalent are kept as-is (e.g. `Comparsa`).
 | Turno | `DistributionSlot` | Time slot assigned to a comparsa on a distribution day: its start time (`startsAt`, `HH:mm`). |
 | Lugar | `location` (of a `Distribution`) | Where a distribution day takes place, typed by an Admin. |
 | Listado de reparto | distribution list | Printable list of a distribution day (powder or weapons), from the validated orders, numbered across the day, with columns filled in by hand. |
-| Nº de orden | `distributionNumber` | Sequential number of each arquebusier in a day's distribution list. Derived on every print in the MVP; stored at handover by UC-21. |
+| Nº de orden | `distributionNumber` | Sequential number of each arquebusier in a day's distribution list. Derived on every print; a handover stores the number it was given (UC-21). |
+| Entrega | `Handover` | Powder given to a holder (or their proxy) on the powder day: who collected, the rental flask number, traceability codes. Recorded on site, offline, and synced later (UC-21). |
+| Lista de captura | capture package | The powder day's list downloaded on purpose to an Admin's device for offline capture; kept only in that device's browser storage and cleared after at most 7 days (SEC-14). |
 | Autorizado / Autorización de recogida | `PickupProxy` | **Exceptional**: arquebusier who collects powder or a weapon on behalf of a holder who cannot attend, with a paper form signed by both. **Must be on the edition list** (active or reserve). |
-| Trazabilidad 1 / 2 | `traceability1`, `traceability2` | Codes recorded at powder handover. ❓ meaning |
+| Trazabilidad 1 / 2 | `traceability1`, `traceability2` | Codes recorded at powder handover; optional free text until their meaning is known. ❓ meaning (Q-43) |
 | Almuerzo | — | Comparsa-internal lunch. **Out of scope.** |

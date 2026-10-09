@@ -98,6 +98,15 @@ neutral pill with the raw code and a development-only console warning.
 | `NOT_APPLICABLE` | warning | TriangleAlert | El titular ya no recoge | El titular ja no recull | Holder no longer collects |
 | `LICENSE_INVALID` | warning | TriangleAlert | Licencia no válida ese día | Llicència no vàlida eixe dia | License not valid on the day |
 
+## `handover`
+
+| Value | Tone | Icon | es-ES | ca-ES-valencia | en |
+|---|---|---|---|---|---|
+| `TO_DELIVER` | muted | CircleDashed | Por entregar | Per entregar | To hand over |
+| `PENDING` | info | Clock | Pendiente de sincronizar | Pendent de sincronitzar | Waiting to sync |
+| `SYNCED` | success | CircleCheck | Entregada | Entregada | Handed over |
+| `CONFLICT` | warning | TriangleAlert | Con conflicto | Amb conflicte | In conflict |
+
 ## `warning`
 
 | Value | Tone | Icon | es-ES | ca-ES-valencia | en |
