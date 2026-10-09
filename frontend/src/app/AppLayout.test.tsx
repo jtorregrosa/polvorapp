@@ -205,6 +205,50 @@ describe('AppLayout (platform: Application shell)', () => {
     expect(document.title).toBe('Home · PolvorApp');
   });
 
+  describe('FiringChief armband (platform: FiringChief armband)', () => {
+    const armband = () => document.querySelector('[data-slot="sidebar-armband"]');
+
+    it('shows the translated role at the bottom of the sidebar, and follows the language', async () => {
+      const { i18n } = await renderAt('/', 'es-ES', SYNTHETIC_FIRING_CHIEF);
+
+      expect(armband()).toHaveTextContent('Jefe de disparo');
+
+      await act(() => i18n.changeLanguage('ca-ES-valencia'));
+
+      expect(armband()).toHaveTextContent('Cap de disparada');
+    });
+
+    it('shows no armband to an Admin', async () => {
+      await renderAt('/');
+
+      await screen.findByText('Versión 1.4.0');
+      expect(armband()).toBeNull();
+    });
+
+    it('shows the armband to a FiringChief without comparsa cards', async () => {
+      server.use(mock.get('/api/comparsas', () => HttpResponse.json([])));
+
+      await renderAt('/', 'es-ES', SYNTHETIC_FIRING_CHIEF);
+
+      await screen.findByText('Versión 1.4.0');
+      expect(screen.queryByRole('navigation', { name: 'Mis comparsas' })).not.toBeInTheDocument();
+      expect(armband()).toHaveTextContent('Jefe de disparo');
+    });
+
+    it('shows the armband in the drawer on a phone, not in the bottom bar', async () => {
+      setViewportWidth(360);
+      const user = userEvent.setup();
+      await renderAt('/', 'es-ES', SYNTHETIC_FIRING_CHIEF);
+
+      const bar = screen.getByRole('navigation', { name: 'Accesos directos' });
+      expect(within(bar).queryByText('Jefe de disparo')).toBeNull();
+      await user.click(screen.getByRole('button', { name: 'Mostrar u ocultar la navegación' }));
+
+      const drawer = await screen.findByRole('dialog');
+      expect(within(drawer).getByText('Jefe de disparo')).toBeInTheDocument();
+    });
+  });
+
   it.each([false, true])('has no accessibility violations (dark=%s)', async (dark) => {
     document.documentElement.classList.toggle('dark', dark);
     const { container } = await renderAt('/');

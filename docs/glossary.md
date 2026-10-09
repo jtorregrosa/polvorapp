@@ -20,6 +20,7 @@ equivalent are kept as-is (e.g. `Comparsa`).
 | Arcabucero | `Arquebusier` | Member registered for firing activities. PolvorApp is the **authoritative source** for arquebusier data. An arquebusier is **not** a `User`: never invited, never signs in. |
 | Género (Hombre / Mujer / Sin definir) | `Gender` (`MALE`, `FEMALE`, `UNSPECIFIED`) | Kept only for equality reports (Q-32). |
 | Jefe de Disparo | `FiringChief` | Comparsa officer responsible for its arquebusiers: data, orders, pickups. A comparsa can have several. Accountable for their arquebusiers meeting the requirements. A FiringChief who also fires (powder, weapon) is **also** an `Arquebusier`: two separate records (`User` and `Arquebusier`) with no link between them (Q-52). |
+| Brazalete de jefe de disparo | `armband` | Yellow armband a FiringChief wears on the upper arm at the festival, reading "Jefe de disparo". In the app, the yellow band at the bottom of a FiringChief's sidebar with the translated role name (platform spec: FiringChief armband). An insignia, not a status. |
 | Administrador (Unión) | `Admin` | Federation user with full access: validates, locks, aggregates, exports. Only Federation role for now. |
 | Intervención de Armas (Guardia Civil) | `ArmsAuthority` | Government office that authorises the festival firing acts. Receives reports; not a user. |
 | Proveedor de pólvora | `PowderSupplier` | Company that sells the powder to the Federation. Not a user. |

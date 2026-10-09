@@ -15,7 +15,7 @@ type ShellProblem = 'signOutFailed' | 'languageNotSaved';
 
 /**
  * Route element for every signed-in page: the design-system layout with the navigation allowed
- * for the user's role, a FiringChief's comparsa cards, the user menu, and the language switch saved
+ * for the user's role, a FiringChief's comparsa cards and armband, the user menu, and the language switch saved
  * as the user's preference (platform spec: Application shell; identity-access spec: Switch UI
  * language).
  */
@@ -91,6 +91,8 @@ export function AppShell() {
       navigation={navigation}
       sidebarCards={comparsaCards}
       sidebarFooter={<VersionFooter />}
+      // The armband says what the user menu says, in the same language (add-firing-chief-armband D1).
+      armband={role === 'FIRING_CHIEF' ? tIdentity('roles.FIRING_CHIEF') : undefined}
       userMenu={userMenu}
       bottomNavigation={bottomNavigation}
       mainRef={main}
