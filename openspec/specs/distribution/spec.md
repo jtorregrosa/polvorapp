@@ -308,9 +308,18 @@ require a signed-in user, and SHALL share the per-user limit of the exports (`42
 Requests`). File names SHALL contain no personal data. An unknown format SHALL be answered
 `404 Not Found`.
 
+A PDF list or form with a text, for example a name, that holds a letter the documents' embedded fonts cannot draw (for example a CJK character in a name) SHALL NOT be generated with
+a wrong or missing letter: the request SHALL be rejected (`409 Conflict`,
+`distribution.textUnprintable`), nothing SHALL be audited, and neither the response nor the logs
+SHALL quote the text. The Excel list SHALL still be available.
+
 #### Scenario: List download audited
 - **WHEN** an Admin downloads the powder list as PDF
 - **THEN** one audit entry records the Admin, the powder list and its version, `PDF`, the edition and the number of rows, and no name or DNI/NIE
+
+#### Scenario: Unprintable name in a PDF
+- **WHEN** a holder's last name has a letter the embedded fonts cannot draw, and users download the powder list as PDF and as Excel and that holder's proxy form
+- **THEN** the PDF list and the form are rejected with `409 Conflict` and `distribution.textUnprintable` and are not audited, and the Excel list is returned
 
 #### Scenario: Form file name
 - **WHEN** a user downloads a proxy's form for the edition 2031

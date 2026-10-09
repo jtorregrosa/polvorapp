@@ -150,6 +150,12 @@ request SHALL be rejected (`409 Conflict`, `badges.photoUnreadable`) with the id
 arquebusiers concerned, and the badge screen SHALL name them so their photo can be uploaded again
 or they can be left out of the selection.
 
+A text of the sheet, for example a name, that holds a letter the documents' embedded fonts cannot draw (for example a CJK character in a name) SHALL be blocking, so a badge is never
+printed with a wrong or missing letter: the request SHALL be rejected (`409 Conflict`,
+`badges.textUnprintable`), nothing SHALL be generated or audited, and neither the response nor the
+logs SHALL quote the text. The badge screen SHALL say that a name cannot be printed and that it must
+be corrected in the registry or left out of the selection.
+
 #### Scenario: Arquebusier without photo or license
 - **WHEN** an Admin prints the badges of a comparsa where one arquebusier has no ID photo and a pending license
 - **THEN** the PDF is returned, and that badge has an empty photo frame and an empty expiry line
@@ -157,6 +163,10 @@ or they can be left out of the selection.
 #### Scenario: Unreadable photo is blocking
 - **WHEN** an Admin prints the badges of a comparsa where one arquebusier's stored ID photo is missing from the storage
 - **THEN** the request is rejected with `409 Conflict` and `badges.photoUnreadable` naming that arquebusier, no document is returned, and the badge screen names them
+
+#### Scenario: Unprintable name is blocking
+- **WHEN** an Admin prints the badges of a comparsa where one arquebusier's last name holds a letter the embedded fonts cannot draw
+- **THEN** the request is rejected with `409 Conflict` and `badges.textUnprintable`, no document is returned or audited, and the badge screen says that a name cannot be printed
 
 #### Scenario: Warning before the download
 - **WHEN** an Admin opens the badge screen for a batch of 20 with 2 arquebusiers without ID photo and 1 without an issued license, and no Federation logo uploaded
