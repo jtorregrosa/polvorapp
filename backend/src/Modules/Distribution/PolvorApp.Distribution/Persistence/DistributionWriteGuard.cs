@@ -40,6 +40,12 @@ internal sealed partial class DistributionWriteGuard(DistributionDbContext db, I
     /// <summary>Logs data that should not be missing (e.g. a linked arquebusier the registry no longer returns), by id only.</summary>
     public void Inconsistent(string what, Guid? targetId) => LogInconsistent(logger, what, targetId);
 
+    /// <summary>Logs a handover a sync refused (spec: Handover sync and conflicts), by id and reason code only.</summary>
+    public void RefusedHandover(Guid handoverId, string code) => LogRefusedHandover(logger, handoverId, code, currentUser.UserId);
+
+    /// <summary>Logs a handover the database refused for a reason the sync does not explain, by id and SQL state only.</summary>
+    public void Failed(Guid handoverId, Exception exception) => LogFailed(logger, handoverId, DistributionProblems.SqlState(exception));
+
     /// <summary>Logs that a write lost a race on a database constraint (ids and constraint name only).</summary>
     public void LostRace(Guid? targetId, string constraint) => LogLostRace(logger, targetId, constraint);
 
@@ -51,6 +57,12 @@ internal sealed partial class DistributionWriteGuard(DistributionDbContext db, I
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Distribution data inconsistent: {What} for {TargetId}")]
     private static partial void LogInconsistent(ILogger logger, string what, Guid? targetId);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Handover {HandoverId} refused with {Code} for user {UserId}")]
+    private static partial void LogRefusedHandover(ILogger logger, Guid handoverId, string code, Guid? userId);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Handover {HandoverId} could not be stored ({SqlState}); refused as invalid")]
+    private static partial void LogFailed(ILogger logger, Guid handoverId, string? sqlState);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Distribution write for {TargetId} lost a race on {Constraint}")]
     private static partial void LogLostRace(ILogger logger, Guid? targetId, string constraint);

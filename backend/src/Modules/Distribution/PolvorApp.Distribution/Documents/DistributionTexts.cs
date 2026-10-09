@@ -56,6 +56,16 @@ internal sealed record DistributionTexts
 
     public required string ProxyNationalId { get; init; }
 
+    /// <summary>The powder list's column saying who collected a recorded handover (UC-21).</summary>
+    public required string CollectedBy { get; init; }
+
+    public required string CollectedByHolder { get; init; }
+
+    public required string CollectedByProxy { get; init; }
+
+    /// <summary>{0} is the number of handovers recorded for the powder day.</summary>
+    public required string HandoversLine { get; init; }
+
     public required IReadOnlyDictionary<FlaskOption, string> Flasks { get; init; }
 
     /// <summary>Printed instead of a name erased on a GDPR request (UC-26): never a blank that looks valid.</summary>
@@ -124,6 +134,10 @@ internal sealed record DistributionTexts
         WeaponNumber = "Nº de arma",
         Proxy = "Autorizado",
         ProxyNationalId = "DNI/NIE autorizado",
+        CollectedBy = "Recogida por",
+        CollectedByHolder = "Titular",
+        CollectedByProxy = "Autorizado",
+        HandoversLine = "Entregas registradas: {0}",
         Flasks = FlaskWords("Propia", "Alquiler 1 kg", "Alquiler 2 kg", "Ninguna"),
         ErasedPerson = "[datos borrados]",
         NameForm = FederationNameForm.Spanish,
@@ -175,6 +189,10 @@ internal sealed record DistributionTexts
         WeaponNumber = "Núm. d'arma",
         Proxy = "Autoritzat",
         ProxyNationalId = "DNI/NIE autoritzat",
+        CollectedBy = "Recollida per",
+        CollectedByHolder = "Titular",
+        CollectedByProxy = "Autoritzat",
+        HandoversLine = "Entregues registrades: {0}",
         Flasks = FlaskWords("Pròpia", "Lloguer 1 kg", "Lloguer 2 kg", "Cap"),
         ErasedPerson = "[dades esborrades]",
         NameForm = FederationNameForm.Valencian,
@@ -226,6 +244,10 @@ internal sealed record DistributionTexts
         WeaponNumber = "Weapon no.",
         Proxy = "Proxy",
         ProxyNationalId = "Proxy DNI/NIE",
+        CollectedBy = "Collected by",
+        CollectedByHolder = "Holder",
+        CollectedByProxy = "Proxy",
+        HandoversLine = "Handovers recorded: {0}",
         Flasks = FlaskWords("Own", "Rented 1 kg", "Rented 2 kg", "None"),
         ErasedPerson = "[data erased]",
         NameForm = FederationNameForm.Spanish,

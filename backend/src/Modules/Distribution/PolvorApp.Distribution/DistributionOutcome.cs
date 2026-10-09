@@ -25,6 +25,12 @@ internal enum DistributionOutcome
     NotApplicable,
     LicenseInvalid,
 
+    /// <summary>Handovers are captured on the powder day only (UC-21).</summary>
+    CaptureNotPowder,
+
+    /// <summary>The day has recorded handovers (UC-21), the record of the day: it cannot be deleted.</summary>
+    HasHandovers,
+
     /// <summary>A lock wait timed out or a deadlock was broken; retryable.</summary>
     Busy,
 }
@@ -56,6 +62,18 @@ internal static class DistributionProblems
     public const string NotApplicable = "proxies.notApplicable";
     public const string LicenseInvalid = "proxies.licenseInvalid";
     public const string AuditUnavailable = "distribution.auditUnavailable";
+    public const string HasHandovers = "distribution.hasHandovers";
+    public const string CaptureNotPowder = "distribution.captureNotPowder";
+
+    // Handover refusals, answered per handover in a sync (spec: Powder handovers (UC-21)).
+    public const string AlreadyHandedOver = "distribution.alreadyHandedOver";
+    public const string NotInList = "distribution.notInList";
+    public const string FlaskNumberRequired = "distribution.flaskNumberRequired";
+    public const string FlaskNumberNotRented = "distribution.flaskNumberNotRented";
+    public const string FlaskNumberTaken = "distribution.flaskNumberTaken";
+    public const string ProxyNotValid = "distribution.proxyNotValid";
+    public const string HandoverChanged = "distribution.handoverChanged";
+    public const string HandoverInvalid = "distribution.invalid";
 
     /// <summary>A text of a PDF list or form, e.g. a name, holds a letter the embedded fonts cannot draw.</summary>
     public const string TextUnprintable = "distribution.textUnprintable";
@@ -73,6 +91,8 @@ internal static class DistributionProblems
         DistributionOutcome.HolderIsProxy => ProblemResults.Conflict(HolderIsProxy),
         DistributionOutcome.NotApplicable => ProblemResults.Conflict(NotApplicable),
         DistributionOutcome.LicenseInvalid => ProblemResults.Conflict(LicenseInvalid),
+        DistributionOutcome.HasHandovers => ProblemResults.Conflict(HasHandovers),
+        DistributionOutcome.CaptureNotPowder => ProblemResults.Conflict(CaptureNotPowder),
         DistributionOutcome.Busy => ProblemResults.Problem(StatusCodes.Status503ServiceUnavailable, Busy),
         _ => throw new ArgumentOutOfRangeException(nameof(outcome), outcome, "Not a problem outcome."),
     };

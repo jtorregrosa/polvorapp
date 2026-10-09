@@ -27,6 +27,21 @@
   <data name="Sheet.pickupProxies" xml:space="preserve">
     <value>Autorizaciones de recogida</value>
   </data>
+  <data name="Sheet.handovers" xml:space="preserve">
+    <value>Entregas de pólvora</value>
+  </data>
+  <data name="Column.collectedAt" xml:space="preserve">
+    <value>Recogida</value>
+  </data>
+  <data name="Column.rentalFlaskNumber" xml:space="preserve">
+    <value>Nº cantimplora</value>
+  </data>
+  <data name="Column.traceability1" xml:space="preserve">
+    <value>Trazabilidad 1</value>
+  </data>
+  <data name="Column.traceability2" xml:space="preserve">
+    <value>Trazabilidad 2</value>
+  </data>
   <data name="Sheet.profile" xml:space="preserve">
     <value>Perfil</value>
   </data>
@@ -248,6 +263,9 @@
   </data>
   <data name="Value.holder" xml:space="preserve">
     <value>Titular</value>
+  </data>
+  <data name="Value.holderByProxy" xml:space="preserve">
+    <value>Titular (recogida por su autorizado)</value>
   </data>
   <data name="Value.proxy" xml:space="preserve">
     <value>Autorizado</value>

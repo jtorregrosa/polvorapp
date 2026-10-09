@@ -37,7 +37,8 @@ public static class DistributionData
         int powderKg = 0,
         WeaponSource weaponSource = WeaponSource.None,
         ArquebusierStatus status = ArquebusierStatus.Active,
-        bool pending = false)
+        bool pending = false,
+        FlaskOption flask = FlaskOption.None)
     {
         var arquebusier = RegistryData.NewArquebusier(order.ComparsaId, lastName);
         if (pending)
@@ -57,6 +58,7 @@ public static class DistributionData
             entry.PowderKg = powderKg;
             entry.WeaponSource = weaponSource;
             entry.RentalWeaponModelId = weaponSource == WeaponSource.Rental ? host.Offered.Id : null;
+            entry.Flask = flask;
         }
 
         await host.Services.SaveOrdersAsync(entry);

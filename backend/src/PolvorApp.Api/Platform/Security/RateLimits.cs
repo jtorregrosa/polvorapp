@@ -12,7 +12,7 @@ namespace PolvorApp.Api.Platform.Security;
 /// two-factor authentication; design D6). Per signed-in user: writes that reveal whether a personal
 /// identifier exists (add-arquebusier-registry D11), image and spreadsheet uploads
 /// (add-comparsa-logos D6, add-registry-import D9), order writes (add-comparsa-orders) and export
-/// downloads (add-exports D8). The client address comes from <c>X-Forwarded-For</c>
+/// downloads (add-exports D8) and handover syncs (add-offline-distribution-capture D2). The client address comes from <c>X-Forwarded-For</c>
 /// only when the direct peer is a trusted proxy (<c>ForwardedHeaders__KnownNetworks</c>).
 /// </summary>
 internal static class RateLimits
@@ -28,6 +28,7 @@ internal static class RateLimits
         var exports = Limit(configuration, "RateLimits:Exports:PermitLimit", 30);
         var privacy = Limit(configuration, "RateLimits:Privacy:PermitLimit", 10);
         var insightsReads = Limit(configuration, "RateLimits:InsightsReads:PermitLimit", 60);
+        var handoverSync = Limit(configuration, "RateLimits:HandoverSync:PermitLimit", 60);
 
         services.AddRateLimiter(options =>
         {
@@ -41,6 +42,7 @@ internal static class RateLimits
             options.AddPolicy(RateLimitPolicies.Exports, context => PerUser(context, exports, TimeSpan.FromMinutes(1)));
             options.AddPolicy(RateLimitPolicies.Privacy, context => PerUser(context, privacy, TimeSpan.FromMinutes(1)));
             options.AddPolicy(RateLimitPolicies.InsightsReads, context => PerUser(context, insightsReads, TimeSpan.FromMinutes(1)));
+            options.AddPolicy(RateLimitPolicies.HandoverSync, context => PerUser(context, handoverSync, TimeSpan.FromMinutes(1)));
         });
 
         services.Configure<ForwardedHeadersOptions>(options =>

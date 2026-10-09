@@ -2,7 +2,7 @@
 Reparto de armas de alquiler — Fiestas 2031
 Día: 05/04/2031 · Lugar: Almacén Sintético
 Numeración válida para esta impresión: si los datos cambian, otra impresión puede numerar distinto.
-weapons-distribution-list, versión 1
+weapons-distribution-list, versión 2
 Nº Turno Comparsa Apellidos y nombre DNI/NIE Modelo Nº de arma Autorizado DNI/NIE autorizado
 1 09:00 Comparsa Sintética Abad Sintética, Ana 00000001R ARCABUZ MORO Reserva Sintética, Carla 00000003A
 Norte DIESTRO

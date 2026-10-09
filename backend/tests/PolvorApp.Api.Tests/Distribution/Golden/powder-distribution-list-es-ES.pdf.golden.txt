@@ -2,15 +2,19 @@
 Reparto de pólvora — Fiestas 2031
 Día: 18/04/2031 · Lugar: Paraje Sintético
 Numeración válida para esta impresión: si los datos cambian, otra impresión puede numerar distinto.
-powder-distribution-list, versión 1
-Nº Turno Comparsa Apellidos y DNI/NIE Kg Cantimplora Nº cantimplora Trazabilidad 1 Trazabilidad 2 Autorizado DNI/NIE
-nombre autorizado
-1 09:00 Comparsa Abad Sintética, 00000001R 2 Alquiler 2 kg Reserva 00000003A
-Sintética Norte Ana Sintética, Carla
+Entregas registradas: 0
+powder-distribution-list, versión 2
+Nº Turno Comparsa Apellidos y DNI/NIE Kg Cantimplora Nº cantimplora Trazabilidad 1 Trazabilidad 2 Recogida Autorizado DNI/NIE
+nombre por autorizado
+1 09:00 Comparsa Abad 00000001R 2 Alquiler 2 kg Reserva 00000003A
+Sintética Sintética, Ana Sintética,
+Norte Carla
 2 09:00 Comparsa Zamora 00000002W 1 Propia
-Sintética Norte Sintético, Bruno
+Sintética Sintético,
+Norte Bruno
 3 09:30 Comparsa Bernabeu 00000004G 1 Ninguna Zamora 00000002W
-Sintética Sur Sintético, Dani Sintético, Bruno
+Sintética Sur Sintético, Sintético,
+Dani Bruno
 4 Comparsa Climent 00000005M 2 Alquiler 1 kg
 Sintética Este Sintética, Eva
 10/04/2031 · 1 / 1

@@ -2,7 +2,7 @@ sheet: PolvorApp
 A1: Text bold Reparto de armas de alquiler — Fiestas 2031
 A2: Text bold Día: 05/04/2031 · Lugar: Almacén Sintético
 A3: Text bold Numeración válida para esta impresión: si los datos cambian, otra impresión puede numerar distinto.
-A4: Text weapons-distribution-list, versión 1
+A4: Text weapons-distribution-list, versión 2
 A6: Text bold Nº
 B6: Text bold Turno
 C6: Text bold Comparsa

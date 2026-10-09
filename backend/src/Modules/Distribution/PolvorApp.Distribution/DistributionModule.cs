@@ -6,6 +6,7 @@ using PolvorApp.AuditPrivacy.Contracts;
 using PolvorApp.Distribution.Days;
 using PolvorApp.Distribution.Documents;
 using PolvorApp.Distribution.Endpoints;
+using PolvorApp.Distribution.Handovers;
 using PolvorApp.Distribution.Persistence;
 using PolvorApp.Distribution.Privacy;
 using PolvorApp.Distribution.Proxies;
@@ -42,7 +43,11 @@ public sealed class DistributionModule : IModule
         services.AddScoped<ProxyAdministration>();
         services.AddScoped<ProxyViews>();
         services.AddScoped<IPersonalDataParticipant, DistributionPersonalData>();
+        services.AddScoped<DistributionListReader>();
         services.AddScoped<DistributionDocuments>();
+        services.AddScoped<HandoverCapture>();
+        services.AddScoped<HandoverSync>();
+        services.AddScoped<HandoverAdministration>();
         services.AddScoped<IDataSeeder, DistributionSeeder>();
 
         // Vetoes other modules ask before a deletion: added, never replaced.

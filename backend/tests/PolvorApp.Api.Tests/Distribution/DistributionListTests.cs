@@ -26,16 +26,66 @@ public sealed class DistributionListTests
 
         var row = Assert.Single(table.Rows);
         Assert.Equal(
-            new object?[] { 1, "09:00", "Comparsa Sintética Norte", "Abad Sintética, Ana", holder.Person.NationalId, 2, "Alquiler 2 kg", null, null, null, "Zamora Sintético, Ana", reserve.Person.NationalId },
+            new object?[] { 1, "09:00", "Comparsa Sintética Norte", "Abad Sintética, Ana", holder.Person.NationalId, 2, "Alquiler 2 kg", null, null, null, null, "Zamora Sintético, Ana", reserve.Person.NationalId },
             row);
         Assert.Equal(
-            ["Nº", "Turno", "Comparsa", "Apellidos y nombre", "DNI/NIE", "Kg", "Cantimplora", "Nº cantimplora", "Trazabilidad 1", "Trazabilidad 2", "Autorizado", "DNI/NIE autorizado"],
+            ["Nº", "Turno", "Comparsa", "Apellidos y nombre", "DNI/NIE", "Kg", "Cantimplora", "Nº cantimplora", "Trazabilidad 1", "Trazabilidad 2", "Recogida por", "Autorizado", "DNI/NIE autorizado"],
             table.Columns.Select(c => c.Header));
         Assert.Equal(["Nº cantimplora", "Trazabilidad 1", "Trazabilidad 2"], table.Columns.Where(c => c.ForHandwriting).Select(c => c.Header));
         Assert.Equal("polvorapp-2031-powder-distribution-list", table.FileStem);
         Assert.Equal("Reparto de pólvora — Fiestas 2031", table.Title);
+        Assert.Equal(["Día: 18/04/2031 · Lugar: Paraje Sintético", DistributionTexts.Spanish.NumberingNotice, "Entregas registradas: 0"], table.Notices);
+        Assert.Equal("powder-distribution-list, versión 2", table.VersionLine);
+    }
+
+    [Theory]
+    [InlineData("es-ES", "Autorizado", "Titular", "Entregas registradas: 2")]
+    [InlineData("ca-ES-valencia", "Autoritzat", "Titular", "Entregues registrades: 2")]
+    [InlineData("en", "Proxy", "Holder", "Handovers recorded: 2")]
+    public void The_powder_list_shows_what_each_handover_recorded(string culture, string byProxy, string byHolder, string count)
+    {
+        var first = Entry(powderKg: 2, flask: FlaskOption.Rental2Kg, last: "Abad Sintética");
+        var second = Entry(powderKg: 1, flask: FlaskOption.Owned, last: "Bernabeu Sintético");
+        var pending = Entry(powderKg: 1, last: "Climent Sintética");
+        var handovers = new Dictionary<Guid, ListHandover>
+        {
+            [first.EntryId] = new("P-117", "A3", null, ByProxy: true),
+            [second.EntryId] = new(null, null, "B9", ByProxy: false),
+        };
+        var data = Data(DistributionType.Powder, [Order(Norte, first, second, pending)]) with { Handovers = handovers };
+
+        var table = DistributionLists.Build(data, DistributionTexts.For(CultureInfo.GetCultureInfo(culture)));
+
+        Assert.Equal(["P-117", "A3", null, byProxy], table.Rows[0].Skip(7).Take(4));
+        Assert.Equal([null, null, "B9", byHolder], table.Rows[1].Skip(7).Take(4));
+        Assert.Equal([null, null, null, null], table.Rows[2].Skip(7).Take(4));
+        Assert.Equal(count, table.Notices[^1]);
+    }
+
+    [Fact]
+    public void A_handover_of_a_holder_no_longer_in_the_list_is_not_counted()
+    {
+        var holder = Entry(powderKg: 1, last: "Abad Sintética");
+        var data = Data(DistributionType.Powder, [Order(Norte, holder)]) with
+        {
+            Handovers = new Dictionary<Guid, ListHandover> { [Guid.CreateVersion7()] = new("P-117", null, null, ByProxy: false) },
+        };
+
+        var table = DistributionLists.Build(data, DistributionTexts.Spanish);
+
+        Assert.Equal("Entregas registradas: 0", table.Notices[^1]);
+        Assert.Contains(table.Columns, c => c.ForHandwriting);
+    }
+
+    [Fact]
+    public void The_weapons_list_says_nothing_about_handovers()
+    {
+        var rental = Entry(source: WeaponSource.Rental, last: "Alquila Sintética");
+
+        var table = DistributionLists.Build(Data(DistributionType.Weapons, [Order(Norte, rental)]), DistributionTexts.Spanish);
+
         Assert.Equal(["Día: 18/04/2031 · Lugar: Paraje Sintético", DistributionTexts.Spanish.NumberingNotice], table.Notices);
-        Assert.Equal("powder-distribution-list, versión 1", table.VersionLine);
+        Assert.DoesNotContain("Recogida por", table.Columns.Select(c => c.Header));
     }
 
     [Fact]

@@ -30,6 +30,7 @@ public sealed class PersonalDataCoverageTests
     {
         ["audit.audit_entries"] = "AuditPersonalData",
         ["catalog.firing_chief_assignments"] = "CatalogPersonalData",
+        ["distribution.handovers"] = "DistributionPersonalData",
         ["distribution.pickup_proxies"] = "DistributionPersonalData",
         ["identity.user_claims"] = "IdentityPersonalData",
         ["identity.user_logins"] = "IdentityPersonalData",

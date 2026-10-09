@@ -55,13 +55,13 @@ public sealed class DistributionDocumentEndpointTests(PostgresFixture postgres, 
         Assert.Equal(("polvorapp-2031-powder-distribution-list.xlsx", "polvorapp-2031-powder-distribution-list.pdf"), (FileName(excel), FileName(pdf)));
         Assert.True(pdf.Headers.CacheControl?.NoStore);
         using var workbook = new XLWorkbook(new MemoryStream(await excel.Content.ReadAsByteArrayAsync(Token)));
-        Assert.Equal("Abad Sintética, Arcabucero", workbook.Worksheets.Single().Cell(7, 4).GetString());
+        Assert.Equal("Abad Sintética, Arcabucero", workbook.Worksheets.Single().Cell(8, 4).GetString());
         var entries = await _orders.Host.AuditEntriesAsync("DistributionDocumentDownloaded");
         Assert.Equal(2, entries.Count);
         var entry = entries[0];
         Assert.Equal(("DistributionDocument", "powder-distribution-list", _orders.Registry.AdminId), (entry.EntityType, entry.EntityId, entry.ActorUserId));
         using var data = JsonDocument.Parse(entry.Data!);
-        Assert.Equal(("1", 2031, "POWDER", 1), (data.RootElement.GetProperty("version").GetString(), data.RootElement.GetProperty("editionYear").GetInt32(), data.RootElement.GetProperty("type").GetString(), data.RootElement.GetProperty("rows").GetInt32()));
+        Assert.Equal(("2", 2031, "POWDER", 1), (data.RootElement.GetProperty("version").GetString(), data.RootElement.GetProperty("editionYear").GetInt32(), data.RootElement.GetProperty("type").GetString(), data.RootElement.GetProperty("rows").GetInt32()));
         Assert.DoesNotContain(_holder.NationalId!, entry.Data!, StringComparison.Ordinal);
         Assert.DoesNotContain("Abad", entry.Data!, StringComparison.Ordinal);
     }
@@ -100,7 +100,7 @@ public sealed class DistributionDocumentEndpointTests(PostgresFixture postgres, 
 
         using var workbook = new XLWorkbook(new MemoryStream(await response.Content.ReadAsByteArrayAsync(Token)));
         var sheet = workbook.Worksheets.Single();
-        var rows = Enumerable.Range(7, 3).Select(r => (sheet.Cell(r, 4).GetString(), sheet.Cell(r, 11).GetString())).Where(r => r.Item1.Length > 0).ToList();
+        var rows = Enumerable.Range(8, 3).Select(r => (sheet.Cell(r, 4).GetString(), sheet.Cell(r, 12).GetString())).Where(r => r.Item1.Length > 0).ToList();
         Assert.Equal([("Abad Sintética, Arcabucero", "Zamora Sintético, Arcabucero"), ("Alquila Sintética, Arcabucero", string.Empty)], rows);
     }
 
@@ -158,7 +158,7 @@ public sealed class DistributionDocumentEndpointTests(PostgresFixture postgres, 
         using var response = await _orders.Admin.SendAsync(request, Token);
 
         using var workbook = new XLWorkbook(new MemoryStream(await response.Content.ReadAsByteArrayAsync(Token)));
-        Assert.Equal("Cognoms i nom", workbook.Worksheets.Single().Cell(6, 4).GetString());
+        Assert.Equal("Cognoms i nom", workbook.Worksheets.Single().Cell(7, 4).GetString());
     }
 
     [Fact]

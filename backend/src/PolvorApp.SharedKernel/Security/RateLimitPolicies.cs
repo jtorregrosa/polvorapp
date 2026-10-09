@@ -53,4 +53,11 @@ public static class RateLimitPolicies
     /// single account cannot keep the grouped queries over ten editions busy (add-statistics-trends).
     /// </summary>
     public const string InsightsReads = "insights-reads";
+
+    /// <summary>
+    /// Handover syncs from the capture devices (batches of up to 100): 60 per minute per signed-in
+    /// Admin, far above a device catching up after the day, while one account cannot keep the per-item
+    /// writes busy (add-offline-distribution-capture D2).
+    /// </summary>
+    public const string HandoverSync = "handover-sync";
 }
