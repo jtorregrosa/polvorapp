@@ -74,6 +74,10 @@ const TOKEN_ROLES: Readonly<Record<string, string>> = {
   'sidebar-accent-foreground': 'Text on `sidebar-accent`.',
   'sidebar-border': 'Sidebar separators.',
   'sidebar-ring': 'Focus indicator inside the sidebar.',
+  'sidebar-armband':
+    'The yellow of the FiringChief armband at the bottom of the sidebar. Insignia only: never an accent or a status.',
+  'sidebar-armband-foreground': 'Armband text on `sidebar-armband`. Insignia only.',
+  'sidebar-armband-edge': "The armband's hemmed top and bottom edges. Insignia only.",
   'logo-tile':
     'Light tile behind comparsa logos, in both themes, so dark logos stay visible (`ComparsaLogo`).',
   'logo-tile-foreground': 'Placeholder icon on `logo-tile` when a comparsa has no logo.',
