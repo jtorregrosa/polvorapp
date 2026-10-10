@@ -21,6 +21,8 @@ public sealed class IdentityTestHost : IAsyncDisposable
 {
     public const string Password = "sintetica-larga-2026"; // gitleaks:allow (synthetic test value)
 
+    private const int TestPasswordHashIterations = 1_000;
+
     private IdentityTestHost(ApiFactory factory, FakeTimeProvider time)
     {
         Factory = factory;
@@ -63,6 +65,9 @@ public sealed class IdentityTestHost : IAsyncDisposable
             configureServices: services =>
             {
                 services.AddSingleton<TimeProvider>(time);
+                // Each test creates and signs in its users: production's 210,000 PBKDF2 iterations
+                // would cost four slow hashes per test without testing anything more.
+                services.Configure<PasswordHasherOptions>(o => o.IterationCount = TestPasswordHashIterations);
                 configureServices?.Invoke(services);
             });
 
