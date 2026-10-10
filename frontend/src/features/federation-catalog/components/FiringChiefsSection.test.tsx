@@ -4,7 +4,7 @@ import { delay, http as mock, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import type { ComparsaResponse, FiringChiefResponse } from '@/api/generated/model';
 import { problem, renderApp } from '@/test/app';
-import { axeViolations } from '@/test/axe';
+import { AXE_WAIT, axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN } from '@/test/identity';
 import { server } from '@/test/server';
 import { asFiringChief, CHIEF_BAJA, CHIEF_BORRADO, CHIEF_DOS, CHIEF_UNO, NORTE, OESTE } from '../test-data';
@@ -285,6 +285,6 @@ describe('FiringChiefs section of a comparsa (spec: Managing assignments from th
 
     await waitFor(async () => {
       expect(await axeViolations(container)).toEqual([]);
-    });
+    }, AXE_WAIT);
   });
 });

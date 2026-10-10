@@ -4,6 +4,12 @@ import axe from 'axe-core';
 export const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
 /**
+ * The `waitFor` options of an axe check retried until the page settles: one run over a whole page
+ * takes about a second under coverage, so the default 1 s budget times out on a loaded CI runner.
+ */
+export const AXE_WAIT = { timeout: 5_000 };
+
+/**
  * WCAG 2.2 A/AA violations found by axe in `container` (NFR-07). jsdom has no layout, so contrast
  * and target size are measured only by the Playwright checks in a real browser.
  */

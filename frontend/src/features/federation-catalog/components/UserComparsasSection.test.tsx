@@ -4,7 +4,7 @@ import { http as mock, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import type { ComparsaResponse, UserResponse } from '@/api/generated/model';
 import { problem, renderApp } from '@/test/app';
-import { axeViolations } from '@/test/axe';
+import { AXE_WAIT, axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN } from '@/test/identity';
 import { server } from '@/test/server';
 import { CHIEF_BAJA, CHIEF_UNO, NORTE, OESTE, OTRA_ADMIN, SUR } from '../test-data';
@@ -178,6 +178,6 @@ describe('Comparsas section of a user (spec: Managing assignments from the compa
 
     await waitFor(async () => {
       expect(await axeViolations(container)).toEqual([]);
-    });
+    }, AXE_WAIT);
   });
 });

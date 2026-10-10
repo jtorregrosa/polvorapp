@@ -4,7 +4,7 @@ import { http as mock, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import type { ComparsaResponse } from '@/api/generated/model';
 import { problem, renderApp } from '@/test/app';
-import { axeViolations } from '@/test/axe';
+import { AXE_WAIT, axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN, SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
 import { sortableColumns } from '@/test/table';
@@ -142,7 +142,7 @@ describe('ComparsasPage (specs: Comparsas, Comparsa visibility)', () => {
 
     await waitFor(async () => {
       expect(await axeViolations(container)).toEqual([]);
-    });
+    }, AXE_WAIT);
   });
 
   it('shows each logo before its name, or the placeholder, without repeating the name (spec: Logo display)', async () => {

@@ -4,7 +4,7 @@ import { http as mock, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import type { WeaponModelResponse } from '@/api/generated/model';
 import { problem, recordBodies, renderApp } from '@/test/app';
-import { axeViolations } from '@/test/axe';
+import { AXE_WAIT, axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN, SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
 import { sortableColumns } from '@/test/table';
@@ -243,7 +243,7 @@ describe('WeaponModelsPage (specs: Weapon models (BR-07), Weapon catalogue acces
 
     await waitFor(async () => {
       expect(await axeViolations(container)).toEqual([]);
-    });
+    }, AXE_WAIT);
   });
 });
 
@@ -643,10 +643,10 @@ describe('WeaponModelDetailPage (specs: Weapon models (BR-07), Detail pages in r
 
     await waitFor(async () => {
       expect(await axeViolations(container)).toEqual([]);
-    });
+    }, AXE_WAIT);
     const panel = await editModel(user);
     await waitFor(async () => {
       expect(await axeViolations(panel)).toEqual([]);
-    });
+    }, AXE_WAIT);
   });
 });

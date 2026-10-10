@@ -4,7 +4,7 @@ import { http as mock, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import type { EditionResponse } from '@/api/generated/model';
 import { problem, recordBodies, renderApp } from '@/test/app';
-import { axeViolations } from '@/test/axe';
+import { AXE_WAIT, axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN, SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
 import { CATALOGUE, CLOSED_2030, CURRENT_2031, DRAFT_2032 } from '../test-data';
@@ -129,7 +129,7 @@ describe('EditionDetailPage in read mode (spec: Editions screens)', () => {
 
     await waitFor(async () => {
       expect(await axeViolations(container)).toEqual([]);
-    });
+    }, AXE_WAIT);
   });
 });
 
