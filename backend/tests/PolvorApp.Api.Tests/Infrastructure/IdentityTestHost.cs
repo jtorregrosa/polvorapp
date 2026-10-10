@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
-using PolvorApp.Api.Platform.Database;
 using PolvorApp.Api.Platform.Email;
+using PolvorApp.Api.Platform.Storage;
 using PolvorApp.IdentityAccess.Contracts;
 using PolvorApp.IdentityAccess.Security;
 using PolvorApp.IdentityAccess.Users;
@@ -71,12 +71,11 @@ public sealed class IdentityTestHost : IAsyncDisposable
                 configureServices?.Invoke(services);
             });
 
-        // The database is a copy of the migrated template: this runs the API's real migrate step (a
-        // no-op on the schema) and ensures the bucket, as compose does before the API starts.
-        var exitCode = await MigrateCommand.RunAsync(factory.Services, TestContext.Current.CancellationToken);
-        if (exitCode != 0)
+        // The database is a copy of the migrated template, so of the migrate step compose runs before
+        // the API starts only the bucket is left to ensure (MigrateCommandTests run the whole step).
+        await using (var scope = factory.Services.CreateAsyncScope())
         {
-            throw new InvalidOperationException("Migrating the identity test database failed.");
+            await scope.ServiceProvider.GetRequiredService<StorageBootstrapper>().EnsureBucketAsync(TestContext.Current.CancellationToken);
         }
 
         return new IdentityTestHost(factory, time);
