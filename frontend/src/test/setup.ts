@@ -37,6 +37,22 @@ if (typeof globalThis.ResizeObserver !== 'function') {
   };
 }
 
+// jsdom decodes no images and fires neither `load` nor `error` for a real object URL, so a chosen
+// file would wait for the decode timeout. Fail it as a browser fails an unreadable file; tests of
+// readable photos stub the decoding and their own `blob:` URLs instead.
+const imageSource = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+if (imageSource?.set) {
+  Object.defineProperty(HTMLImageElement.prototype, 'src', {
+    ...imageSource,
+    set(this: HTMLImageElement, value: string) {
+      imageSource.set?.call(this, value);
+      if (value.startsWith('blob:nodedata:')) {
+        queueMicrotask(() => this.dispatchEvent(new Event('error')));
+      }
+    },
+  });
+}
+
 beforeAll(() => {
   server.listen({ onUnhandledFrame: 'error' });
 });
