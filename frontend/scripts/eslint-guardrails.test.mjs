@@ -1,13 +1,25 @@
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ESLint } from 'eslint';
+import tseslint from 'typescript-eslint';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 // Runs the project's real ESLint configuration on probe files, so the guardrails cannot silently
 // disappear from eslint.config.js (specs: Translation completeness; Component layers and boundary;
 // No values outside the tokens). Probe directories are unique per run (safe in parallel/watch).
 const root = join(import.meta.dirname, '..');
-const eslint = new ESLint({ cwd: root });
+// The guardrails need no type information. Without it the probes are linted in seconds, instead of
+// building the whole app's TypeScript program first (over a minute); `npm run lint` keeps it.
+const typeAwareRules = new Set(
+  Object.entries(tseslint.plugin.rules ?? {})
+    .filter(([, rule]) => rule.meta.docs?.requiresTypeChecking)
+    .map(([name]) => `@typescript-eslint/${name}`),
+);
+const eslint = new ESLint({
+  cwd: root,
+  overrideConfig: { languageOptions: { parserOptions: { projectService: false } } },
+  ruleFilter: ({ ruleId }) => !typeAwareRules.has(ruleId),
+});
 let featureProbes = '';
 let compositeProbes = '';
 
