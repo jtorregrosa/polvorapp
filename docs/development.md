@@ -345,7 +345,7 @@ Set up the cloud environment once:
 1. **Network access:** *Custom*, keeping the defaults, plus `cgr.dev`, `*.cgr.dev` (MinIO image)
    and `builds.dotnet.microsoft.com` (.NET SDK).
 2. **Environment variables:** `BASH_DEFAULT_TIMEOUT_MS=600000` and `BASH_MAX_TIMEOUT_MS=3600000`,
-   because the backend suite takes about 25 minutes. Never put secrets here: everyone using the
+   because the backend suite takes about 25 minutes on one machine. Never put secrets here: everyone using the
    environment can read them.
 3. **Setup script:** `bash scripts/cloud-setup.sh`. It installs the SDKs into the environment's
    cache, so later sessions start faster.
@@ -377,9 +377,17 @@ dotnet test --solution PolvorApp.slnx --coverlet --coverlet-output-format cobert
 node ../scripts/check-coverage.mjs TestResults 80          # 80 % line gate
 ```
 
+The whole suite takes a while: while working on one module, run its namespace only
+(`dotnet test --project tests/PolvorApp.Api.Tests --filter-namespace "PolvorApp.Api.Tests.Distribution"`,
+adding `--filter-namespace "PolvorApp.Api.Tests.Distribution.*"` for sub-namespaces) and leave the
+full run to CI. CI splits it into three shards (`scripts/backend-test-shard.sh registry|catalog|rest`,
+run from the repository root after a Release build) and merges their coverage.
+
 - Integration tests share one PostgreSQL, Mailpit and MinIO container per run, and test classes run
   in parallel. Each test gets a database of its own: a copy of a template migrated once per run
-  (`PostgresFixture.CreateMigratedDatabaseAsync`), or an empty one for migration tests. Tests that
+  (`PostgresFixture.CreateMigratedDatabaseAsync`), or an empty one for migration tests. Each test
+  also starts its own API host, so its start-up stays lean: test passwords are hashed with few
+  iterations, and the host only ensures the bucket instead of running the migrate command. Tests that
   list stored objects use a bucket of their own, and an address whose mail a test reads or counts
   is used by that test class only.
 - New modules follow [`backend/src/Modules/README.md`](../backend/src/Modules/README.md);
@@ -542,7 +550,9 @@ Node, so `docker` must be on the `PATH` that Node sees (PowerShell and a normal 
 `.github/workflows/ci.yml` runs on every pull request and on `main`: backend (format, build,
 tests + coverage, contract drift), frontend (audit, lint, types, i18n, tests + coverage, build),
 E2E on the compose stack, container image builds, secret scanning and dependency review. The gates
-run side by side; the E2E job builds its images while it installs the browsers. On `main`,
+run side by side; the E2E job builds its images while it installs the browsers. The backend's tests
+run as three shards at once (`backend-tests`); the required `backend` check passes only when they
+and `backend-checks` (format, build, contract drift) pass and their merged coverage holds. On `main`,
 `publish-images` pushes the images to GHCR after all gates pass. `codeql.yml` runs CodeQL; Dependabot keeps dependencies and actions current.
 
 A follow-up push to an open pull request that only touches `openspec/` and `docs/` (outside
