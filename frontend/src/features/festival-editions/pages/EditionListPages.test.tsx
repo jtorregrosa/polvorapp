@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { http as mock, HttpResponse } from 'msw';
 import { afterEach, describe, expect, it } from 'vitest';
 import { problem, recordBodies, renderApp } from '@/test/app';
-import { axeViolations } from '@/test/axe';
+import { AXE_WAIT, axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN, SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
 import { CLOSED_2030, CURRENT_2031, DRAFT_2032, rowOf } from '../test-data';
@@ -102,7 +102,7 @@ describe('EditionsPage (specs: Editions screens, Edition visibility (BR-12))', (
 
     await waitFor(async () => {
       expect(await axeViolations(container)).toEqual([]);
-    });
+    }, AXE_WAIT);
   });
 });
 

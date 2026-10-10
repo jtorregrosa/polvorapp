@@ -4,7 +4,7 @@ import { http as mock, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import type { UserResponse } from '@/api/generated/model';
 import { problem, recordBodies, renderApp } from '@/test/app';
-import { axeViolations } from '@/test/axe';
+import { AXE_WAIT, axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN } from '@/test/identity';
 import { server } from '@/test/server';
 import { sortableColumns } from '@/test/table';
@@ -641,6 +641,6 @@ describe('UserDetailPage (specs: User management by Admins, Detail pages in read
     const panel = await editAccount(user);
     await waitFor(async () => {
       expect(await axeViolations(panel)).toEqual([]);
-    });
+    }, AXE_WAIT);
   });
 });

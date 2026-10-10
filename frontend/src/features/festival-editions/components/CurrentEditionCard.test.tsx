@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import { http as mock, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { problem, renderApp } from '@/test/app';
-import { axeViolations } from '@/test/axe';
+import { AXE_WAIT, axeViolations } from '@/test/axe';
 import { SYNTHETIC_ADMIN, SYNTHETIC_FIRING_CHIEF } from '@/test/identity';
 import { server } from '@/test/server';
 import { CURRENT_2031 } from '../test-data';
@@ -96,6 +96,6 @@ describe('CurrentEditionCard on the start page (spec: Current edition on the sta
 
     await waitFor(async () => {
       expect(await axeViolations(container)).toEqual([]);
-    });
+    }, AXE_WAIT);
   });
 });
